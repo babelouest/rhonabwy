@@ -139,6 +139,28 @@ if (NOT YDER_FOUND)
 endif ()
 set(LIBS ${LIBS} ${YDER_LIBRARIES})
 
+# documentation
+
+option(BUILD_RHONABWY_DOCUMENTATION "Build the documentation." OFF)
+if (BUILD_RHONABWY_DOCUMENTATION)
+    find_package(Doxygen)
+    if (DOXYGEN_FOUND)
+        set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen.cfg)
+        set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/doxyfile)
+        
+        configure_file(${doxyfile_in} ${doxyfile} @ONLY)
+        
+        add_custom_target(doc
+                          COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile_in}
+                          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                          COMMENT "Generating documentation with Doxygen"
+                          VERBATIM)
+
+    else ()
+        message(FATAL_ERROR "Doxygen is needed to build the documentation.")
+    endif ()
+endif ()
+
 # tests
 
 option(BUILD_RHONABWY_TESTING "Build the testing tree." OFF) # because we do not use include(CTest)
@@ -247,7 +269,7 @@ endif ()
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "mail@babelouest.org")
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION ${PROJECT_DESCRIPTION})
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/babelouest/rhonabwy")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.4), libulfius|libulfius-dev (>= ${ULFIUS_VERSION_REQUIRED})")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.4), liborcania|liborcania-dev (>= ${ORCANIA_VERSION_REQUIRED}), libyder|libyder-dev (>= ${YDER_VERSION_REQUIRED})")
 set(CPACK_PACKAGE_FILE_NAME ${PACKAGE_FILE_NAME})
 set(CPACK_PACKAGE_FILE_NAME ${PACKAGE_FILE_NAME})
 
@@ -257,6 +279,7 @@ set(CPACK_SOURCE_IGNORE_FILES ${PACKAGE_IGNORED_FILES})
 
 include(CPack)
 
-message(STATUS "Build testing tree: ${BUILD_RHONABWY_TESTING}")
+message(STATUS "Build testing tree:       ${BUILD_RHONABWY_TESTING}")
 message(STATUS "Install the header files: ${INSTALL_HEADER}")
-message(STATUS "Build RPM package: ${BUILD_RPM}")
+message(STATUS "Build RPM package:        ${BUILD_RPM}")
+message(STATUS "Build documentation:      ${BUILD_RHONABWY_DOCUMENTATION}")

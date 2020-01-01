@@ -154,7 +154,6 @@ int r_import_from_json_t(jwk_t * jwk, json_t * j_input);
  * @param input: the input value, must contain the key or the certificate in PEM or DER format
  * @param input_len: the length of the data contained in input
  * If jwk is set, values will be overwritten
- * @param
  * @return R_OK on success, an error value on error
  */
 int r_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned char * input, size_t input_len);

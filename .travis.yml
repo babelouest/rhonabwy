@@ -18,9 +18,6 @@ matrix:
         - cppcheck --force --enable=warning,missingInclude --error-exitcode=1 . >build.log 2>&1 || (cat build.log && exit 1)
 
 script:
-  - pushd test
-  - make test
-  - popd
   - mkdir build && cd build
   - cmake -DBUILD_RHONABWY_TESTING=on ..
   - make test package
@@ -28,3 +25,6 @@ script:
   - cd ../
   - make
   - make clean check
+  - pushd test
+  - make test
+  - popd

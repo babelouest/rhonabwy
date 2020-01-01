@@ -19,7 +19,7 @@ matrix:
 
 script:
   - mkdir build && cd build
-  - cmake -DBUILD_RHONABWY_TESTING=on ..
+  - cmake -DBUILD_RHONABWY_TESTING=on -DWITH_JOURNALD=off ..
   - make test package
   - sudo make install
   - cd ../

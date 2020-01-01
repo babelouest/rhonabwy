@@ -2,6 +2,23 @@
 
 Create, modify, parse or export Json Web Keys as defined in the [RFC 7517](https://tools.ietf.org/html/rfc7517).
 
+```C
+jwk_t * jwk;
+const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
+                                     "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\"}";
+unsigned char output[2048];
+size_t output_len = 2048;
+
+if (r_init_jwk(&jwk) == R_OK) {
+  if (r_import_from_json_str(jwk, jwk_pubkey_ecdsa_str) == R_OK) {
+    if (r_export_to_pem_der(jwk, R_FORMAT_PEM, output, &output_len) == R_OK) {
+      printf("exported key:\n%.*s\n", output_len, output);
+    }
+  }
+  r_free_jwk(jwk);
+}
+```
+
 # Installation
 
 ## Pre-compiled packages

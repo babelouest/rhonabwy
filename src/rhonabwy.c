@@ -336,7 +336,7 @@ int r_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
   if (jwk != NULL && key != NULL) {
     switch (gnutls_privkey_get_pk_algorithm(key, &bits)) {
       case GNUTLS_PK_RSA:
-        if ((res = gnutls_privkey_export_rsa_raw2(key, &m, &e, &d, &p, &q, &u, &e1, &e2, GNUTLS_EXPORT_FLAG_NO_LZ)) == GNUTLS_E_SUCCESS) {
+        if ((res = gnutls_privkey_export_rsa_raw(key, &m, &e, &d, &p, &q, &u, &e1, &e2)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("RSA"));
           ret = R_OK;
           do {
@@ -514,7 +514,7 @@ int r_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
         }
         break;
       case GNUTLS_PK_ECDSA:
-        if ((res = gnutls_privkey_export_ecc_raw2(key, &curve, &x, &y, &k, GNUTLS_EXPORT_FLAG_NO_LZ)) == GNUTLS_E_SUCCESS) {
+        if ((res = gnutls_privkey_export_ecc_raw(key, &curve, &x, &y, &k)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("EC"));
           ret = R_OK;
           do {
@@ -633,7 +633,7 @@ int r_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
   if (jwk != NULL && pub != NULL) {
     switch (gnutls_pubkey_get_pk_algorithm(pub, &bits)) {
       case GNUTLS_PK_RSA:
-        if ((res = gnutls_pubkey_export_rsa_raw2(pub, &m, &e, GNUTLS_EXPORT_FLAG_NO_LZ)) == GNUTLS_E_SUCCESS) {
+        if ((res = gnutls_pubkey_export_rsa_raw(pub, &m, &e)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("RSA"));
           ret = R_OK;
           do {
@@ -686,12 +686,12 @@ int r_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
           gnutls_free(m.data);
           gnutls_free(e.data);
         } else {
-          y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error gnutls_pubkey_export_rsa_raw2");
+          y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error gnutls_pubkey_export_rsa_raw");
           ret = R_ERROR_PARAM;
         }
         break;
       case GNUTLS_PK_ECDSA:
-        if ((res = gnutls_pubkey_export_ecc_raw2(pub, &curve, &x, &y, GNUTLS_EXPORT_FLAG_NO_LZ)) == GNUTLS_E_SUCCESS) {
+        if ((res = gnutls_pubkey_export_ecc_raw(pub, &curve, &x, &y)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("EC"));
           ret = R_OK;
           do {
@@ -762,7 +762,7 @@ int r_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
           gnutls_free(x.data);
           gnutls_free(y.data);
         } else {
-          y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import ecdsa - Error gnutls_pubkey_export_ecc_raw2");
+          y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import ecdsa - Error gnutls_pubkey_export_ecc_raw");
           ret = R_ERROR_PARAM;
         }
         break;

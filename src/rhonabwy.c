@@ -686,6 +686,7 @@ int r_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
           ret = R_ERROR_PARAM;
         }
         break;
+#if GNUTLS_VERSION_NUMBER >= 0x030600
       case GNUTLS_PK_ECDSA:
         if ((res = gnutls_privkey_export_ecc_raw(key, &curve, &x, &y, &k)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("EC"));
@@ -785,6 +786,7 @@ int r_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
           ret = R_ERROR_PARAM;
         }
         break;
+#endif
       default:
         ret = R_ERROR_PARAM;
         break;
@@ -863,6 +865,7 @@ int r_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
           ret = R_ERROR_PARAM;
         }
         break;
+#if GNUTLS_VERSION_NUMBER >= 0x030600
       case GNUTLS_PK_ECDSA:
         if ((res = gnutls_pubkey_export_ecc_raw(pub, &curve, &x, &y)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("EC"));
@@ -939,6 +942,7 @@ int r_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
           ret = R_ERROR_PARAM;
         }
         break;
+#endif
       default:
         ret = R_ERROR_PARAM;
         break;

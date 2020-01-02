@@ -21,11 +21,6 @@ matrix:
 script:
   - mkdir build && cd build
   - cmake -DBUILD_RHONABWY_TESTING=on -DWITH_JOURNALD=off ..
-  - make test package
-  - sudo make install
-  - cd ../
-  - make
-  - make clean check
-  - pushd test
-  - make test
-  - popd
+  - make test || (cat Testing/Temporary/LastTest.log && false)
+  - make package
+  - make install

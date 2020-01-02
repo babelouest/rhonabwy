@@ -29,7 +29,7 @@ set(PROJECT_DESCRIPTION "Create, modify, parse or export Json Web Keys as define
 set(PROJECT_HOMEPAGE_URL "https://github.com/babelouest/rhonabwy/")
 set(PROJECT_BUGREPORT_PATH "https://github.com/babelouest/rhonabwy/issues")
 set(LIBRARY_VERSION_MAJOR "0")
-set(LIBRARY_VERSION_MINOR "5")
+set(LIBRARY_VERSION_MINOR "4")
 set(LIBRARY_VERSION_PATCH "0")
 set(ORCANIA_VERSION_REQUIRED "2.1.0")
 set(YDER_VERSION_REQUIRED "1.4.8")

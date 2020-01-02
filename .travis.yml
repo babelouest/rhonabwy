@@ -23,4 +23,4 @@ script:
   - cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_RHONABWY_TESTING=on -DWITH_JOURNALD=off ..
   - make test || (cat Testing/Temporary/LastTest.log && false)
   - make package
-  - make install
+  - sudo make install

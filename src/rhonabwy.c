@@ -1468,3 +1468,109 @@ int r_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, size_t 
   }
   return ret;
 }
+
+const char * r_jwk_get_property_str(jwk_t * jwk, const char * key) {
+  if (jwk != NULL && o_strlen(key)) {
+    if (json_is_string(json_object_get(jwk, key))) {
+      return json_string_value(json_object_get(jwk, key));
+    } else {
+      return NULL;
+    }
+  } else {
+    return NULL;
+  }
+}
+
+const char * r_jwk_get_property_array(jwk_t * jwk, const char * key, size_t index) {
+  if (jwk != NULL && o_strlen(key)) {
+    if (json_is_array(json_object_get(jwk, key))) {
+      return json_string_value(json_array_get(json_object_get(jwk, key), index));
+    } else {
+      return NULL;
+    }
+  } else {
+    return NULL;
+  }
+  return NULL;
+}
+
+int r_jwk_set_property_str(jwk_t * jwk, const char * key, const char * value) {
+  if (jwk != NULL && o_strlen(key) && o_strlen(value)) {
+    if (!json_object_set_new(jwk, key, json_string(value))) {
+      return R_OK;
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy set property str, error setting value");
+      return R_ERROR;
+    }
+  } else {
+    return R_ERROR_PARAM;
+  }
+}
+
+int r_jwk_set_property_array(jwk_t * jwk, const char * key, size_t index, const char * value) {
+  if (jwk != NULL && o_strlen(key) && o_strlen(value)) {
+    if ((json_object_get(jwk, key) != NULL && !json_is_array(json_object_get(jwk, key))) || (json_is_array(json_object_get(jwk, key)) && json_array_size(json_object_get(jwk, key)) <= index)) {
+      return R_ERROR_PARAM;
+    } else if (json_object_get(jwk, key) == NULL && !index) {
+      if (!json_object_set_new(jwk, key, json_array()) && !json_array_append_new(json_object_get(jwk, key), json_string(value))) {
+        return R_OK;
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy set property array, error appending value");
+        return R_ERROR;
+      }
+    } else  {
+      if (!json_array_set_new(json_object_get(jwk, key), index, json_string(value))) {
+        return R_OK;
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy set property array, error setting value");
+        return R_ERROR;
+      }
+    }
+  } else {
+    return R_ERROR_PARAM;
+  }
+}
+
+int r_jwk_append_property_array(jwk_t * jwk, const char * key, const char * value) {
+  if (jwk != NULL && o_strlen(key) && o_strlen(value)) {
+    if (json_object_get(jwk, key) != NULL && !json_is_array(json_object_get(jwk, key))) {
+      return R_ERROR_PARAM;
+    } else if (json_object_get(jwk, key) == NULL) {
+      json_object_set_new(jwk, key, json_array());
+    }
+    if (!json_array_append_new(json_object_get(jwk, key), json_string(value))) {
+      return R_OK;
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy set property array, error setting value");
+      return R_ERROR;
+    }
+  } else {
+    return R_ERROR_PARAM;
+  }
+}
+
+int r_jwk_delete_property_str(jwk_t * jwk, const char * key) {
+  if (jwk != NULL && o_strlen(key)) {
+    if (!json_object_del(jwk, key)) {
+      return R_OK;
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy delete property str, error deleting value");
+      return R_ERROR;
+    }
+  } else {
+    return R_ERROR_PARAM;
+  }
+}
+
+int r_jwk_delete_property_array_at(jwk_t * jwk, const char * key, size_t index) {
+  if (jwk != NULL && o_strlen(key) && json_is_array(json_object_get(jwk, key)) && json_array_size(json_object_get(jwk, key)) > index) {
+    if (!json_array_remove(json_object_get(jwk, key), index)) {
+      return R_OK;
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy delete property array, error deleting index");
+      return R_ERROR;
+    }
+  } else {
+    return R_ERROR_PARAM;
+  }
+}

@@ -123,6 +123,83 @@ int r_jwk_is_valid(jwk_t * jwk);
  */
 
 /**
+ * @defgroup properties Properties
+ * read/write/delete jwk properties
+ * @{
+ */
+
+/**
+ * Get a property value from a jwk_t
+ * @param jwk: the jwk_t * to get
+ * @param key: the key of the property to retrieve
+ * @return the property value on success, NULL on error
+ */
+const char * r_jwk_get_property_str(jwk_t * jwk, const char * key);
+
+/**
+ * Get a property value of an array from a jwk_t
+ * @param jwk: the jwk_t * to get
+ * @param key: the key of the property to retrieve
+ * @param index: the index of the value to retrieve in the array
+ * @return the property value on success, NULL on error
+ */
+const char * r_jwk_get_property_array(jwk_t * jwk, const char * key, size_t index);
+
+/**
+ * Set a property value into a jwk_t
+ * @param jwk: the jwk_t * to get
+ * @param key: the key of the property to set
+ * @param value: the value of the property to set
+ * @return R_OK on success, an error value on error
+ * Logs error message with yder on error
+ */
+int r_jwk_set_property_str(jwk_t * jwk, const char * key, const char * value);
+
+/**
+ * Set a property value on an array into a jwk_t
+ * @param jwk: the jwk_t * to get
+ * @param key: the key of the property to set
+ * @param index: the index of the value to set in the array
+ * @param value: the value of the property to set
+ * @return R_OK on success, an error value on error
+ * Logs error message with yder on error
+ */
+int r_jwk_set_property_array(jwk_t * jwk, const char * key, size_t index, const char * value);
+
+/**
+ * Append a property value on an array into a jwk_t
+ * @param jwk: the jwk_t * to get
+ * @param key: the key of the property to set
+ * @param value: the value of the property to set
+ * @return R_OK on success, an error value on error
+ * Logs error message with yder on error
+ */
+int r_jwk_append_property_array(jwk_t * jwk, const char * key, const char * value);
+
+/**
+ * Delete a property from a jwk_t
+ * @param jwk: the jwk_t * to get
+ * @param key: the key of the property to delete
+ * @return R_OK on success, an error value on error
+ * Logs error message with yder on error
+ */
+int r_jwk_delete_property_str(jwk_t * jwk, const char * key);
+
+/**
+ * Delete an array property from a jwk_t
+ * @param jwk: the jwk_t * to get
+ * @param key: the key of the property to delete
+ * @param index: the index of the value to set in the array
+ * @return R_OK on success, an error value on error
+ * Logs error message with yder on error
+ */
+int r_jwk_delete_property_array_at(jwk_t * jwk, const char * key, size_t index);
+
+/**
+ * @}
+ */
+
+/**
  * @defgroup import Import functions
  * Import a jwk from JSON data, gnutls inner types or PEM/DER
  * @{

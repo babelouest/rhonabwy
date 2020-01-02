@@ -827,6 +827,7 @@ START_TEST(test_rhonabwy_import_from_pem)
   ck_assert_int_eq(r_jwk_is_valid(jwk), R_OK);
   r_free_jwk(jwk);
   
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_init_jwk(&jwk), R_OK);
   ck_assert_int_eq(r_import_from_pem_der(jwk, R_X509_TYPE_PUBKEY, R_FORMAT_PEM, ecdsa_521_pub, o_strlen((const char *)ecdsa_521_pub)), R_OK);
   ck_assert_int_eq(r_jwk_is_valid(jwk), R_OK);
@@ -836,16 +837,19 @@ START_TEST(test_rhonabwy_import_from_pem)
   ck_assert_int_eq(r_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_PEM, x509_cert, o_strlen((const char *)x509_cert)), R_OK);
   ck_assert_int_eq(r_jwk_is_valid(jwk), R_OK);
   r_free_jwk(jwk);
+#endif
   
   ck_assert_int_eq(r_init_jwk(&jwk), R_OK);
   ck_assert_int_eq(r_import_from_pem_der(jwk, R_X509_TYPE_PRIVKEY, R_FORMAT_PEM, rsa_2048_priv, o_strlen((const char *)rsa_2048_priv)), R_OK);
   ck_assert_int_eq(r_jwk_is_valid(jwk), R_OK);
   r_free_jwk(jwk);
   
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_init_jwk(&jwk), R_OK);
   ck_assert_int_eq(r_import_from_pem_der(jwk, R_X509_TYPE_PRIVKEY, R_FORMAT_PEM, ecdsa_521_priv, o_strlen((const char *)ecdsa_521_priv)), R_OK);
   ck_assert_int_eq(r_jwk_is_valid(jwk), R_OK);
   r_free_jwk(jwk);
+#endif
   
   ck_assert_int_eq(r_init_jwk(&jwk), R_OK);
   ck_assert_int_eq(r_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_PEM, error_pem, o_strlen((const char *)error_pem)), R_ERROR_PARAM);
@@ -867,6 +871,7 @@ START_TEST(test_rhonabwy_import_from_der)
   ck_assert_int_eq(r_jwk_is_valid(jwk), R_OK);
   r_free_jwk(jwk);
   
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_init_jwk(&jwk), R_OK);
   ck_assert_int_eq(o_base64_decode(ecdsa_521_pub_der, o_strlen((const char *)ecdsa_521_pub_der), der_decoded, &der_dec_len), 1);
   ck_assert_int_eq(r_import_from_pem_der(jwk, R_X509_TYPE_PUBKEY, R_FORMAT_DER, der_decoded, der_dec_len), R_OK);
@@ -878,6 +883,7 @@ START_TEST(test_rhonabwy_import_from_der)
   ck_assert_int_eq(r_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_DER, der_decoded, der_dec_len), R_OK);
   ck_assert_int_eq(r_jwk_is_valid(jwk), R_OK);
   r_free_jwk(jwk);
+#endif
   
   ck_assert_int_eq(r_init_jwk(&jwk), R_OK);
   ck_assert_int_eq(o_base64_decode(rsa_2048_priv_der, o_strlen((const char *)rsa_2048_priv_der), der_decoded, &der_dec_len), 1);
@@ -885,11 +891,13 @@ START_TEST(test_rhonabwy_import_from_der)
   ck_assert_int_eq(r_jwk_is_valid(jwk), R_OK);
   r_free_jwk(jwk);
   
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_init_jwk(&jwk), R_OK);
   ck_assert_int_eq(o_base64_decode(ecdsa_521_priv_der, o_strlen((const char *)ecdsa_521_priv_der), der_decoded, &der_dec_len), 1);
   ck_assert_int_eq(r_import_from_pem_der(jwk, R_X509_TYPE_PRIVKEY, R_FORMAT_DER, der_decoded, der_dec_len), R_OK);
   ck_assert_int_eq(r_jwk_is_valid(jwk), R_OK);
   r_free_jwk(jwk);
+#endif
   
 }
 END_TEST

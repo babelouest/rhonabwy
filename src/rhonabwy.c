@@ -501,10 +501,13 @@ int r_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
   int ret, res;
   unsigned int bits = 0;
   gnutls_x509_privkey_t x509_key = NULL;
-  gnutls_datum_t m, e, d, p, q, u, e1, e2, x, y, k;
+  gnutls_datum_t m, e, d, p, q, u, e1, e2;
   unsigned char * b64_enc = NULL, kid[64], kid_b64[128];
   size_t b64_enc_len = 0, kid_len = 64, kid_b64_len = 128;
+#if GNUTLS_VERSION_NUMBER >= 0x030600
+  gnutls_datum_t x, y, k;
   gnutls_ecc_curve_t curve;
+#endif
   
   if (jwk != NULL && key != NULL) {
     switch (gnutls_privkey_get_pk_algorithm(key, &bits)) {
@@ -800,10 +803,13 @@ int r_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
 int r_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
   int ret, res;
   unsigned int bits = 0;
-  gnutls_datum_t m, e, x, y;
+  gnutls_datum_t m, e;
   unsigned char * b64_enc = NULL, kid[64], kid_b64[128];
   size_t b64_enc_len = 0, kid_len = 64, kid_b64_len = 128;
+#if GNUTLS_VERSION_NUMBER >= 0x030600
+  gnutls_datum_t x, y;
   gnutls_ecc_curve_t curve;
+#endif
   
   if (jwk != NULL && pub != NULL) {
     switch (gnutls_pubkey_get_pk_algorithm(pub, &bits)) {

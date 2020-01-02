@@ -218,6 +218,45 @@ const char jwk_privkey_rsa_str_invalid_b64_qi[] = "{\"kty\":\"RSA\",\"n\":\"0vx7
                                                  "7Qe_NmtuYZc3C3m3I24G2GvR5sSDxUyAN2zq8Lfn9EUms6rY3Ob8YeiKkTiBj0\",\"dq\":\"s9lAH9fggBsoFR8Oac2R_E2gw282rT2kGOAhvIllETE1efrA"\
                                                  "6huUUvMfBcMpn8lqeW6vzznYY5SSQF7pMdC_agI3nG8Ibp1BUb0JUiraRNqUfLhcQb_d9GF4Dh7e74WbRsobRonujTYN1xCaP6TO61jvWrX-L18txXw494Q_cg"\
                                                  "k\",\"qi\":\";error;\",\"alg\":\"RS256\",\"kid\":\"2011-04-29\"}";
+const char jwk_privkey_rsa_x5c_only[] = "{\"alg\": \"RS256\",\"x5c\":[\""\
+                                        "MIIG5QIBAAKCAYEAly6gaJEHu5aO4ckg/wInRdD4Zzcxuq+Oa6MYbAh/bby04RWM"\
+                                        "kNkEeaihPVPo4i/siZWwj5CxAMiJbFXC/xwW82T4hqTngD6CkvHwC8VrH0y2S1/C"\
+                                        "vBA3SLegSZ0lNjI1wV7m684uzxxo3CnvSNEs85gq0qjGcMbN+4OeJEWcmpJ+ylTr"\
+                                        "v+AHMMruIkqwneAYTNaz/PUzVH7BURjdm3RqFNxM3afOske8LSnU27ximVejzTs/"\
+                                        "vzZ50r6/Zx7ZNI1jkw5AACWsobcvVuN8p4d5PWG1hLob8xYkhUdz43A6xFGxjI5d"\
+                                        "KQ/xmOopZiO6z90CcLr26Mgqm8y0KkAEsjdWdIxuihaITc30Qz8fO8PlcJYl4HYW"\
+                                        "U2/FLrCYcbuqC9O+Yl6nn0fIVNbQiZnLtwgLZOFgXPDpVSQAbbQiobhEBFZ2MO6v"\
+                                        "vLw2wxxeHzu870J76XssQMnwWbBjqxWoR7WmMyVWAFzlzPD4HnbABoGjCwxSZXYC"\
+                                        "vp02ZRZcRLjplWJxAgMBAAECggGBAIclvWv8ymbdbplUzVRpvmXhK05JvwDeU3jR"\
+                                        "cdGRvyiAW0ojk2chOajwIEPMsRESOme8EvwkIrdKjd70w75+g93NU4Y6AGFagCuQ"\
+                                        "cEB1mQ9/6i5zSogIDwPIc1ebTVqng/p7Nf9yb9Hh2bOHIUt9Aqw4SX/MNKk4b4b5"\
+                                        "3/MY76gWcZW6WI1MXeE2Z67sCfr4C4EVJg1pvRs5vOMcUW7YoMRJM8Wqb1JcYlIV"\
+                                        "ZR2RyKq/98RNxOzQbBMDReOPZiheg1dtyxxcAcE2vZG8EFaxdGdY+CSgxwnHilqR"\
+                                        "SpuUqki3OAJfJindNltrzY290T3k5Rcfi1NoOPnM9m/iGvnZNAHfHOrZk83jm4DQ"\
+                                        "dBnEHF9Qq6GDtViCBJQhjCI8tsYsR5QnaHMjf8ZJagy3Yl8qJIIDNJ2XS5AR3N0o"\
+                                        "3PgZzEAlYFEBFhxCrpEu3/+xlZ5IU5FFzjGYro13SSbv5+ShCKhtCJ+TQY3cGURy"\
+                                        "UGskNurhcBCX1ymqNBopYi+O82j6KQKBwQDJOC+iXoY9dJ8agI8EDKkQyPGgH6dt"\
+                                        "HFX47AhBJw1T+HnJhx/c07aP+Kd/ppdYGuOKFiausJQHfK9oQB0PqtU4HdIdicVb"\
+                                        "gIXJgFH8EIteGXJIrtIrGDGa4037Pz0zU+pZ1Qsf/t340C/lfjUlQhukCK5MTsMQ"\
+                                        "ERzfRXfJrz7K1D957jj/EaYnT4KginLKOaHauu+zc+g+ZaUTUkDBKj0vp9Z5IlBm"\
+                                        "kwFXpUNuIrCrVpIgwWlBrmbjzF5nakbwj48CgcEAwFch06YJSw/+lbZabAVnn2Gd"\
+                                        "IJO6NT+bYRcnGLuMlhHHmoRArOu27deXVv4Qoso5+aYjybB6+waU0APcJtfqsnXD"\
+                                        "2xmFuugcYrVwHzuznhNCBCp6yTNCjgQVxkxay5G+sKsdeCCohwAh+2F68S++mlVr"\
+                                        "gluwNG2OEG4vppFIKLsYgpzFF2pRmVIZpW+FT2udeobN45tDf4hGb3P8ogsGQNdl"\
+                                        "By5p35LiWbx/+I+862opKnqxsHQn2VJ3nbuMge3/AoHBAJuu/xvvaomN+7Ozl/OY"\
+                                        "IA6+ikRLeWywKcxoQpK2Nlervf6wr3RZ0bxetKnNKPegBkDGlrM+J6oLTGOqh1Gh"\
+                                        "6Up7uB/mgm4jaF/ZCpWt70alBYk6yZ1SIL8n8yPbb+yQlpdegDcHKJLj8Mrs9Q2Y"\
+                                        "sm4d0U10+vMpal9NDjtbfYfM5DfgmvSuoRF1MSopNFtGb/YeAGul2CC+4BOs5jEO"\
+                                        "Dz0Z7JTYecCDKNy5HwzNhkdqubDiNB//YdgKPVhiH/Tr/QKBwQCDPjFPyTkIJibS"\
+                                        "o3Z5xQpbH/FmnEbwNLHigzjjUH5ynDk2P04ecE0HaBfVfVF+szzyE6LR6gFQrsH2"\
+                                        "WtvrCWQVV/RH2dd9nQpZdHLIbSV4FK30R8Q27Cpa24C8Kbe+tnmG9YwLP0WfsMB/"\
+                                        "VpncX3bQur68WbIXZDYPEhCjuPijCl+EKFL4UkzRsMrdLwapFcaEJ93vlC9vo15k"\
+                                        "iKF3NMyUjCVczBfkPccD8nLj+biwbmUenlAHFotmaDZExAfxVKMCgcBsiCFcnhxJ"\
+                                        "ljOUQVNzTV7fMhWdyyys+sixhhdiOTiNDZJAFkff1oV8TRN8WeRNDvYRVVBtZkXU"\
+                                        "AKsjnC1Pv7dTfsDODmwZ48pLMsWjCBd30TipNx4SJuGEO+mWNgopGsROvbI/AViy"\
+                                        "9AOcQlid5VG2h9hBVqP1UWJceTGchUdm2E0qMdotH8JgFruDr6q7p12vfmVHgpMU"\
+                                        "FFjl/aadFjIXaVtCVG/OOr90SWvQ19Z/1wVqqCUguP4RUcB0geZeP+A=\"]}";
+const char jwk_privkey_rsa_x5c_invalid_x5c_content[] = "{\"alg\": \"RS256\",\"x5c\":[\";error;\"]}";
 
 const char jwk_key_symmetric[] = "{\"kty\":\"oct\",\"alg\":\"HS256\",\"k\":\"GawgguFyGrWKav7AX4VKUg\"}";
 const char jwk_key_symmetric_invalid_k[] = "{\"kty\":\"oct\",\"alg\":\"HS256\",\"k\":42}";
@@ -579,6 +618,14 @@ START_TEST(test_rhonabwy_import_from_json_str)
   r_free_jwk(jwk);
   
   ck_assert_int_eq(r_init_jwk(&jwk), R_OK);
+  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_privkey_rsa_x5c_only), R_OK);
+  r_free_jwk(jwk);
+  
+  ck_assert_int_eq(r_init_jwk(&jwk), R_OK);
+  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_privkey_rsa_x5c_invalid_x5c_content), R_ERROR_PARAM);
+  r_free_jwk(jwk);
+  
+  ck_assert_int_eq(r_init_jwk(&jwk), R_OK);
   ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), R_OK);
   r_free_jwk(jwk);
   
@@ -934,6 +981,17 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_ne((type = r_jwk_key_type(jwk)), R_KEY_TYPE_NONE);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
+  r_free_jwk(jwk);
+  
+  ck_assert_int_eq(r_init_jwk(&jwk), R_OK);
+  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_privkey_rsa_x5c_only), R_OK);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(type & R_KEY_TYPE_PUBLIC, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);

@@ -7,6 +7,7 @@ var menudata={children:[
 {text:"All",url:"globals.html",children:[
 {text:"j",url:"globals.html#index_j"},
 {text:"r",url:"globals.html#index_r"}]},
-{text:"Functions",url:"globals_func.html"},
+{text:"Functions",url:"globals_func.html",children:[
+{text:"r",url:"globals_func.html#index_r"}]},
 {text:"Typedefs",url:"globals_type.html"},
 {text:"Macros",url:"globals_defs.html"}]}]}]}

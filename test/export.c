@@ -360,6 +360,10 @@ START_TEST(test_rhonabwy_export_to_pem)
   ck_assert_int_eq(r_import_from_json_str(jwk, jwk_privkey_ecdsa_str), R_OK);
   data_len = 4096;
   ck_assert_int_eq(r_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len), R_OK);
+  if (data[data_len-1] != '\n') {
+    data[data_len] = '\n';
+    data[data_len+1] = '\0';
+  }
   ck_assert_int_eq(o_strncmp(jwk_privkey_ecdsa_pem, (const char *)data, data_len), 0);
   r_free_jwk(jwk);
 
@@ -367,6 +371,10 @@ START_TEST(test_rhonabwy_export_to_pem)
   ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), R_OK);
   data_len = 4096;
   ck_assert_int_eq(r_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len), R_OK);
+  if (data[data_len-1] != '\n') {
+    data[data_len] = '\n';
+    data[data_len+1] = '\0';
+  }
   ck_assert_int_eq(o_strncmp(jwk_pubkey_ecdsa_pem, (const char *)data, data_len), 0);
   r_free_jwk(jwk);
 

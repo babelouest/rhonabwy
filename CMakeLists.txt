@@ -29,10 +29,11 @@ set(PROJECT_DESCRIPTION "Create, modify, parse or export Json Web Keys as define
 set(PROJECT_HOMEPAGE_URL "https://github.com/babelouest/rhonabwy/")
 set(PROJECT_BUGREPORT_PATH "https://github.com/babelouest/rhonabwy/issues")
 set(LIBRARY_VERSION_MAJOR "0")
-set(LIBRARY_VERSION_MINOR "4")
+set(LIBRARY_VERSION_MINOR "9")
 set(LIBRARY_VERSION_PATCH "0")
 set(ORCANIA_VERSION_REQUIRED "2.1.0")
 set(YDER_VERSION_REQUIRED "1.4.8")
+set(ULFIUS_VERSION_REQUIRED "2.6.5")
 
 set(PROJECT_VERSION "${LIBRARY_VERSION_MAJOR}.${LIBRARY_VERSION_MINOR}.${LIBRARY_VERSION_PATCH}")
 set(LIBRARY_VERSION "${LIBRARY_VERSION_MAJOR}.${LIBRARY_VERSION_MINOR}.${LIBRARY_VERSION_PATCH}")
@@ -138,6 +139,28 @@ if (NOT YDER_FOUND)
 	include_directories(${yder_BINARY_DIR})
 endif ()
 set(LIBS ${LIBS} ${YDER_LIBRARIES})
+
+set(Ulfius_FIND_QUIETLY ON)
+include(FindUlfius)
+find_package(Ulfius ${ULFIUS_VERSION_REQUIRED} QUIET)
+if (NOT ULFIUS_FOUND)
+	include(DownloadProject)
+	option(WITH_WEBSOCKET "specific param" off)
+	option(INSTALL_HEADER "specific param" off)
+	option(CHECK_YDER "specific param" off)
+	message(STATUS "Download Ulfius ${ULFIUS_VERSION_REQUIRED}")
+	download_project(PROJ ulfius
+			URL "https://github.com/babelouest/ulfius/archive/v${ULFIUS_VERSION_REQUIRED}.tar.gz"
+			QUIET)
+	add_subdirectory(${ulfius_SOURCE_DIR} ${ulfius_BINARY_DIR})
+	include_directories(${yder_SOURCE_DIR}/include)
+	include_directories(${orcania_SOURCE_DIR}/include)
+	include_directories(${ulfius_SOURCE_DIR}/include)
+	add_dependencies(glewlwyd ulfius)
+	set(ULFIUS_LIBRARIES ulfius)
+	include_directories(${ulfius_BINARY_DIR})
+endif ()
+set(LIBS ${LIBS} ${ULFIUS_LIBRARIES})
 
 # documentation
 

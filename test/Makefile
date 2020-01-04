@@ -24,7 +24,7 @@ RHONABWY_LOCATION=../src
 RHONABWY_LIBRARY=$(RHONABWY_LOCATION)/librhonabwy.so
 CC=gcc
 CFLAGS+=-Wall -D_REENTRANT -I$(RHONABWY_INCLUDE) -DDEBUG -g -O0 $(CPPFLAGS)
-LDFLAGS=-lc -lorcania -ljansson -lgnutls -lrhonabwy -L$(RHONABWY_LOCATION) -lyder $(shell pkg-config --libs check)
+LDFLAGS=-lc -lorcania -lyder -lulfius -ljansson -lgnutls -lrhonabwy -L$(RHONABWY_LOCATION) $(shell pkg-config --libs check)
 VALGRIND_COMMAND=valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all
 TARGET=core import export
 TARGET_TEST=test_core test_import test_export

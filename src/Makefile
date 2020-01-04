@@ -33,7 +33,7 @@ LIBS=-L$(DESTDIR)/lib -lc -lorcania -lyder -lulfius -ljansson -lgnutls $(LDFLAGS
 SONAME=-soname
 OBJECTS=rhonabwy.o
 OUTPUT=librhonabwy.so
-VERSION=0.4.0
+VERSION=0.9.0
 
 .PHONY: all clean
 

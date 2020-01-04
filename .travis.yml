@@ -6,7 +6,7 @@ sudo: required
 language: c
 addons:
   apt:
-    packages: [ libgnutls28-dev, libjansson-dev, check, libsubunit-dev, cppcheck, pkg-config, doxygen ]
+    packages: [ libgnutls28-dev, libjansson-dev, libcurl4-gnutls-dev, libmicrohttpd-dev, check, libsubunit-dev, cppcheck, pkg-config, doxygen ]
 matrix:
   include:
     - os: linux

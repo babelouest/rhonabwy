@@ -29,7 +29,7 @@ PKGCONFIG_TEMPLATE=../librhonabwy.pc.in
 DESTDIR=/usr/local
 CC=gcc
 CFLAGS+=-c -pedantic -std=gnu99 -fPIC -Wall -Werror -Wextra -D_REENTRANT -I$(RHONABWY_INCLUDE) $(ADDITIONALFLAGS) $(CPPFLAGS)
-LIBS=-L$(DESTDIR)/lib -lc -lorcania -lyder -ljansson -lgnutls $(LDFLAGS)
+LIBS=-L$(DESTDIR)/lib -lc -lorcania -lyder -lulfius -ljansson -lgnutls $(LDFLAGS)
 SONAME=-soname
 OBJECTS=rhonabwy.o
 OUTPUT=librhonabwy.so

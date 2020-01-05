@@ -10,8 +10,8 @@ unsigned char output[2048];
 size_t output_len = 2048;
 
 if (r_init_jwk(&jwk) == RHN_OK) {
-  if (r_import_from_json_str(jwk, jwk_pubkey_ecdsa_str) == RHN_OK) {
-    if (r_export_to_pem_der(jwk, R_FORMAT_PEM, output, &output_len) == RHN_OK) {
+  if (r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str) == RHN_OK) {
+    if (r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, output, &output_len) == RHN_OK) {
       printf("exported key:\n%.*s\n", output_len, output);
     }
   }

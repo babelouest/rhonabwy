@@ -72,10 +72,16 @@ Functions</h2></td></tr>
 <tr class="separator:ga51002a5b647d281567d42c28bf79d5c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9771b27bc48e64b9ae82c9158bcff2c4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga9771b27bc48e64b9ae82c9158bcff2c4">r_free_jwk</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk)</td></tr>
 <tr class="separator:ga9771b27bc48e64b9ae82c9158bcff2c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3cbee8f884c475f17a751650e26e6b31"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga3cbee8f884c475f17a751650e26e6b31">r_jwk_key_type</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk)</td></tr>
-<tr class="separator:ga3cbee8f884c475f17a751650e26e6b31"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5483d67b92910e303c763b96c72d3aca"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5483d67b92910e303c763b96c72d3aca">r_init_jwks</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> **jwks)</td></tr>
+<tr class="separator:ga5483d67b92910e303c763b96c72d3aca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5c1e92e2484bfc0fd80f3a08a0942d3d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5c1e92e2484bfc0fd80f3a08a0942d3d">r_free_jwks</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
+<tr class="separator:ga5c1e92e2484bfc0fd80f3a08a0942d3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf79c768b374598954bb92928b9bbc620"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaf79c768b374598954bb92928b9bbc620">r_jwk_key_type</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, int x5u_flags)</td></tr>
+<tr class="separator:gaf79c768b374598954bb92928b9bbc620"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9a0282a7adbde59806ba012dc1ef61e5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga9a0282a7adbde59806ba012dc1ef61e5">r_jwk_is_valid</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk)</td></tr>
 <tr class="separator:ga9a0282a7adbde59806ba012dc1ef61e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7f1dc22797e2eff901845aad8215f9cc"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga7f1dc22797e2eff901845aad8215f9cc">r_jwks_is_valid</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
+<tr class="separator:ga7f1dc22797e2eff901845aad8215f9cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Core functions used to initialize or free jwk_t and check if a jwk is valid and its type </p>
@@ -101,7 +107,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>R_OK on success, an error value on error</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error</dd></dl>
 <p>Rhonabwy JSON Web Key (JWK) library</p>
 <p><a class="el" href="rhonabwy_8c.html">rhonabwy.c</a>: functions definitions</p>
 <p>Copyright 2020 Nicolas Mora <a href="#" onclick="location.href='mai'+'lto:'+'mai'+'l@'+'bab'+'el'+'oue'+'st'+'.or'+'g'; return false;">mail@<span style="display: none;">.nosp@m.</span>babe<span style="display: none;">.nosp@m.</span>loues<span style="display: none;">.nosp@m.</span>t.or<span style="display: none;">.nosp@m.</span>g</a></p>
@@ -135,8 +141,57 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ga3cbee8f884c475f17a751650e26e6b31"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga3cbee8f884c475f17a751650e26e6b31">&#9670;&nbsp;</a></span>r_jwk_key_type()</h2>
+<a id="ga5483d67b92910e303c763b96c72d3aca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5483d67b92910e303c763b96c72d3aca">&#9670;&nbsp;</a></span>r_init_jwks()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_init_jwks </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> **&#160;</td>
+          <td class="paramname"><em>jwks</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Initialize a jwks_t </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwks</td><td>a reference to a jwks_t * to initialize </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="ga5c1e92e2484bfc0fd80f3a08a0942d3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5c1e92e2484bfc0fd80f3a08a0942d3d">&#9670;&nbsp;</a></span>r_free_jwks()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void r_free_jwks </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td>
+          <td class="paramname"><em>jwks</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Free a jwks_t </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwks</td><td>the jwks_t * to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="gaf79c768b374598954bb92928b9bbc620"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf79c768b374598954bb92928b9bbc620">&#9670;&nbsp;</a></span>r_jwk_key_type()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -145,14 +200,29 @@ Functions</h2></td></tr>
           <td class="memname">int r_jwk_key_type </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
-          <td class="paramname"><em>jwk</em></td><td>)</td>
+          <td class="paramname"><em>jwk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x5u_flags</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 <p>Get the type and algorithm of a jwk_t </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">jwk</td><td>the jwk_t * to test </td></tr>
+    <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
+<li>R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
+<li>R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
+</ul>
+</td></tr>
   </table>
   </dd>
 </dl>
@@ -192,7 +262,32 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>R_OK on success, an error value on error Logs error message with yder on error </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error Logs error message with yder on error </dd></dl>
+
+</div>
+</div>
+<a id="ga7f1dc22797e2eff901845aad8215f9cc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7f1dc22797e2eff901845aad8215f9cc">&#9670;&nbsp;</a></span>r_jwks_is_valid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwks_is_valid </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td>
+          <td class="paramname"><em>jwks</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Check if the jwks is valid </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwks</td><td>the jwks_t * to test </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error Stops at the first error in the array Logs error message with yder on error </dd></dl>
 
 </div>
 </div>

@@ -301,11 +301,12 @@ START_TEST(test_rhonabwy_jwks_import)
   char * jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_x5c_str);
   jwks_t * jwks;
   
+  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  
   ck_assert_int_eq(r_jwks_import_from_str(NULL, jwks_str), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwks_import_from_str(jwks, NULL), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwks_import_from_str(NULL, NULL), RHN_ERROR_PARAM);
   
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
   ck_assert_ptr_ne(jwks_str, NULL);
   ck_assert_int_eq(r_jwks_import_from_str(jwks, "{error}"), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwks_import_from_str(jwks, jwks_str), RHN_OK);

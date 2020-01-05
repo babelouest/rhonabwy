@@ -206,7 +206,8 @@ if (BUILD_RHONABWY_TESTING)
         set(TESTS
             core
             export
-	    import)
+	    import
+	    jwks)
 
         configure_file(
                 "${CMAKE_MODULE_PATH}/CTestCustom.cmake.in"

@@ -51,6 +51,7 @@ const char jwk_pubkey_rsa_x5c_str[] = "{\"kty\":\"RSA\",\"use\":\"sig\",\"kid\":
                                        "qBNTqNgHq2G03X09266X5CpOe1zFo+Owb1zxtp3PehFdfQJ610CDLEaS9V9Rqp17hCyybEpOGVwe8fnk+fbEL2Bo3UPGrpsHzUoaGpDftmWssZkhpBJKV"\
                                        "MJyf/RuP2SmmaIzmnw9JiSlYhzo4tpzd5rFXhjRbg4zW9C+2qok+2+qDM1iJ684gPHMIY8aLWrdgQTxkumGmTqgawR+N5MDtdPTEQ0XfIBc2cJEUyMTY5"\
                                        "MPvACWpkA6SdS4xSvdXK3IVfOWA==\"]}";
+const char jwk_pubkey_rsa_str_invalid_n[] = "{\"kty\":\"RSA\",\"n\":42,\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2011-04-29\"}";
 
 START_TEST(test_rhonabwy_init_jwks)
 {
@@ -295,6 +296,32 @@ START_TEST(test_rhonabwy_jwks_export_pem)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_jwks_import)
+{
+  char * jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_x5c_str);
+  jwks_t * jwks;
+  
+  ck_assert_int_eq(r_jwks_import_from_str(NULL, jwks_str), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwks_import_from_str(jwks, NULL), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwks_import_from_str(NULL, NULL), RHN_ERROR_PARAM);
+  
+  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_ptr_ne(jwks_str, NULL);
+  ck_assert_int_eq(r_jwks_import_from_str(jwks, "{error}"), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwks_import_from_str(jwks, jwks_str), RHN_OK);
+  ck_assert_int_eq(r_jwks_size(jwks), 4);
+  r_free_jwk(jwks);
+
+  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_str_invalid_n);
+  ck_assert_ptr_ne(jwks_str, NULL);
+  ck_assert_int_eq(r_jwks_import_from_str(jwks, jwks_str), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwks_size(jwks), 3);
+  r_free_jwk(jwks);
+  
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -309,6 +336,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_jwks_export_privkey);
   tcase_add_test(tc_core, test_rhonabwy_jwks_export_pubkey);
   tcase_add_test(tc_core, test_rhonabwy_jwks_export_pem);
+  tcase_add_test(tc_core, test_rhonabwy_jwks_import);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

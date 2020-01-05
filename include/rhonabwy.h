@@ -62,11 +62,12 @@
 
 /**
  * @defgroup type JWK type
- * Definition of the type jwk_t
+ * Definition of the types jwk_t and jwks_t
  * @{
  */
 
 typedef json_t jwk_t;
+typedef json_t jwks_t;
 
 /**
  * @}
@@ -91,6 +92,19 @@ int r_init_jwk(jwk_t ** jwk);
  * @param jwk: the jwk_t * to free
  */
 void r_free_jwk(jwk_t * jwk);
+
+/**
+ * Initialize a jwks_t
+ * @param jwks: a reference to a jwks_t * to initialize
+ * @return RHN_OK on success, an error value on error
+ */
+int r_init_jwks(jwks_t ** jwks);
+
+/**
+ * Free a jwks_t
+ * @param jwks: the jwks_t * to free
+ */
+void r_free_jwks(jwks_t * jwks);
 
 /**
  * Get the type and algorithm of a jwk_t
@@ -125,6 +139,15 @@ int r_jwk_key_type(jwk_t * jwk, int x5u_flags);
  * Logs error message with yder on error
  */
 int r_jwk_is_valid(jwk_t * jwk);
+
+/**
+ * Check if the jwks is valid
+ * @param jwks: the jwks_t * to test
+ * @return RHN_OK on success, an error value on error
+ * Stops at the first error in the array
+ * Logs error message with yder on error
+ */
+int r_jwks_is_valid(jwks_t * jwks);
 
 /**
  * @}
@@ -220,7 +243,7 @@ int r_jwk_delete_property_array_at(jwk_t * jwk, const char * key, size_t index);
  * If jwk is set, values will be overwritten
  * @return RHN_OK on success, an error value on error
  */
-int r_import_from_json_str(jwk_t * jwk, const char * input);
+int r_jwk_import_from_json_str(jwk_t * jwk, const char * input);
 
 /**
  * Import a JSON in json_t format into a jwk_t
@@ -229,7 +252,7 @@ int r_import_from_json_str(jwk_t * jwk, const char * input);
  * If jwk is set, values will be overwritten
  * @return RHN_OK on success, an error value on error
  */
-int r_import_from_json_t(jwk_t * jwk, json_t * j_input);
+int r_jwk_import_from_json_t(jwk_t * jwk, json_t * j_input);
 
 /**
  * Import a public or private key or a X509 certificate in PEM or DER format into a jwk_t
@@ -241,7 +264,7 @@ int r_import_from_json_t(jwk_t * jwk, json_t * j_input);
  * If jwk is set, values will be overwritten
  * @return RHN_OK on success, an error value on error
  */
-int r_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned char * input, size_t input_len);
+int r_jwk_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned char * input, size_t input_len);
 
 /**
  * Import a GnuTLS private key in gnutls_privkey_t format into a jwk_t
@@ -250,7 +273,7 @@ int r_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned char
  * If jwk is set, values will be overwritten
  * @return RHN_OK on success, an error value on error
  */
-int r_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key);
+int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key);
 
 /**
  * Import a GnuTLS public key in gnutls_pubkey_t format into a jwk_t
@@ -259,7 +282,7 @@ int r_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key);
  * If jwk is set, values will be overwritten
  * @return RHN_OK on success, an error value on error
  */
-int r_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub);
+int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub);
 
 /**
  * Import a GnuTLS X509 certificate in gnutls_x509_crt_t format into a jwk_t
@@ -268,7 +291,7 @@ int r_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub);
  * If jwk is set, values will be overwritten
  * @return RHN_OK on success, an error value on error
  */
-int r_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt);
+int r_jwk_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt);
 
 /**
  * @}
@@ -286,14 +309,14 @@ int r_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt);
  * @param pretty: indent or compact JSON output
  * @return a char * on success, NULL on error
  */
-char * r_export_to_json_str(jwk_t * jwk, int pretty);
+char * r_jwk_export_to_json_str(jwk_t * jwk, int pretty);
 
 /**
  * Export a jwk_t into a json_t format
  * @param jwk: the jwk_t * to export
  * @return a json_t * on success, NULL on error
  */
-json_t * r_export_to_json_t(jwk_t * jwk);
+json_t * r_jwk_export_to_json_t(jwk_t * jwk);
 
 /**
  * Export a jwk_t into a gnutls_privkey_t format
@@ -305,7 +328,7 @@ json_t * r_export_to_json_t(jwk_t * jwk);
  * - R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
  * @return a gnutls_privkey_t on success, NULL on error
  */
-gnutls_privkey_t r_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags);
+gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags);
 
 /**
  * Export a jwk_t into a gnutls_pubkey_t format
@@ -317,7 +340,7 @@ gnutls_privkey_t r_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags);
  * - R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
  * @return a gnutls_pubkey_t on success, NULL on error
  */
-gnutls_pubkey_t r_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags);
+gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags);
 
 /**
  * Export a jwk_t into a DER or PEM format
@@ -333,7 +356,115 @@ gnutls_pubkey_t r_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags);
  * @return RHN_OK on success, an error value on error
  * @return RHN_ERROR_PARAM if output_len isn't large enough to hold the output, then output_len will be set to the required size
  */
-int r_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, size_t * output_len, int x5u_flags);
+int r_jwk_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, size_t * output_len, int x5u_flags);
+
+/**
+ * @}
+ */
+
+/**
+ * @defgroup jwks JWKS functions
+ * Manage JWK sets
+ * @{
+ */
+
+/**
+ * Get the number of jwk_t in a jwks_t
+ * @param jwk: the jwks_t * to evaluate
+ * @return the number of jwk_t in a jwks_t
+ */
+size_t r_jwks_size(jwks_t * jwks);
+
+/**
+ * Get the jwk_t at the specified index of the jwks_t *
+ * @param jwks: the jwks_t * to evaluate
+ * @param index: the index of the array to retrieve
+ * @return a jwk_t * on success, NULL on error
+ */
+jwk_t * r_jwks_get_at(jwks_t * jwks, size_t index);
+
+/**
+ * Append a jwk_t at the end of the array of jwk_t in the jwks_t
+ * @param jwks: the jwks_t * to append the jwk_t
+ * @param jwk: the jwk_t * to be appended
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwks_append_jwk(jwks_t * jwks, jwk_t * jwk);
+
+/**
+ * Update a jwk_t at the specified index of the jwks_t *
+ * @param jwks: the jwks_t * to evaluate
+ * @param jwk: the jwk_t * to set
+ * @param index: the index of the array to update
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwks_set_at(jwks_t * jwks, size_t index, jwk_t * jwk);
+
+/**
+ * Remove a jwk_t at the specified index of the jwks_t *
+ * @param jwks: the jwks_t * to evaluate
+ * @param index: the index of the array to remove
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwks_remove_at(jwks_t * jwks, size_t index);
+
+/**
+ * Export a jwks_t into a stringified JSON format
+ * @param jwk: the jwks_t * to export
+ * @param pretty: indent or compact JSON output
+ * @return a char * on success, NULL on error
+ */
+char * r_jwks_export_to_json_str(jwks_t * jwks, int pretty);
+
+/**
+ * Export a jwk_t into a json_t format
+ * @param jwk: the jwk_t * to export
+ * @return a json_t * on success, NULL on error
+ */
+json_t * r_jwks_export_to_json_t(jwks_t * jwks);
+
+/**
+ * Export a jwks_t into a gnutls_privkey_t format
+ * @param jwk: the jwks_t * to export
+ * @param len: set the length of the output array
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * @return a heap-allocated gnutls_privkey_t * on success, NULL on error
+ * an index of the returned array may be NULL if the corresponding jwk isn't a private key
+ */
+gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len, int x5u_flags);
+
+/**
+ * Export a jwks_t into a gnutls_pubkey_t format
+ * @param jwk: the jwks_t * to export
+ * @param len: set the length of the output array
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * @return a heap-allocated gnutls_pubkey_t * on success, NULL on error
+ */
+gnutls_pubkey_t * r_jwks_export_to_gnutls_pubkey(jwks_t * jwks, size_t * len, int x5u_flags);
+
+/**
+ * Export a jwks_t into a DER or PEM format
+ * @param jwk: the jwks_t * to export
+ * @param format: the format of the outpu, values available are R_FORMAT_PEM or R_FORMAT_DER
+ * @param output: an unsigned char * that will contain the output
+ * @param output_len: the size of output and will be set to the data size that has been written to output
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * @return RHN_OK on success, an error value on error
+ * @return RHN_ERROR_PARAM if output_len isn't large enough to hold the output, then output_len will be set to the required size
+ */
+int r_jwks_export_to_pem_der(jwks_t * jwks, int format, unsigned char * output, size_t * output_len, int x5u_flags);
 
 /**
  * @}

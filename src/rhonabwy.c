@@ -45,6 +45,23 @@ void r_free_jwk(jwk_t * jwk) {
   }
 }
 
+int r_init_jwks(jwks_t ** jwks) {
+  int ret;
+  if (jwks != NULL) {
+    *jwks = json_pack("{s[]}", "keys");
+    ret = (*jwks!=NULL)?RHN_OK:RHN_ERROR_MEMORY;
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+void r_free_jwks(jwks_t * jwks) {
+  if (jwks != NULL) {
+    json_decref(jwks);
+  }
+}
+
 int r_jwk_is_valid(jwk_t * jwk) {
   int ret = RHN_OK, has_x5cu = 0, has_pubkey_parameters = 0, has_privkey_parameters = 0, has_kty = 0, has_alg = 0;
   json_t * j_element = NULL;
@@ -308,6 +325,27 @@ int r_jwk_is_valid(jwk_t * jwk) {
   return ret;
 }
 
+int r_jwks_is_valid(jwks_t * jwks) {
+  int ret;
+  json_t * jwk = NULL;
+  size_t index = 0;
+  
+  if (jwks != NULL) {
+    if (json_array_size(json_object_get(jwks, "keys"))) {
+      json_array_foreach(json_object_get(jwks, "keys"), index, jwk) {
+        if ((ret = r_jwk_is_valid(jwk)) != RHN_OK) {
+          break;
+        }
+      }
+    } else {
+      ret = RHN_ERROR_PARAM;
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
 int r_jwk_key_type(jwk_t * jwk, int x5u_flags) {
   gnutls_x509_crt_t crt          = NULL;
   gnutls_x509_privkey_t x509_key = NULL;
@@ -416,8 +454,10 @@ int r_jwk_key_type(jwk_t * jwk, int x5u_flags) {
                 pk_alg = gnutls_x509_crt_get_pk_algorithm(crt, NULL);
                 if (pk_alg == GNUTLS_PK_RSA) {
                   ret = R_KEY_TYPE_RSA;
+#if GNUTLS_VERSION_NUMBER >= 0x030600
                 } else if (pk_alg == GNUTLS_PK_ECDSA) {
                   ret = R_KEY_TYPE_ECDSA;
+#endif
                 } else {
                   y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Error unsupported algorithm %s", gnutls_pk_algorithm_get_name(pk_alg));
                 }
@@ -452,13 +492,13 @@ int r_jwk_key_type(jwk_t * jwk, int x5u_flags) {
   return ret;
 }
 
-int r_import_from_json_str(jwk_t * jwk, const char * input) {
+int r_jwk_import_from_json_str(jwk_t * jwk, const char * input) {
   int ret;
   json_t * jwk_input;
   
   if (input != NULL && jwk != NULL) {
     if ((jwk_input = json_loads(input, JSON_DECODE_ANY, NULL)) != NULL) {
-      ret = r_import_from_json_t(jwk, jwk_input);
+      ret = r_jwk_import_from_json_t(jwk, jwk_input);
     } else {
       ret = RHN_ERROR_PARAM;
     }
@@ -469,7 +509,7 @@ int r_import_from_json_str(jwk_t * jwk, const char * input) {
   return ret;
 }
 
-int r_import_from_json_t(jwk_t * jwk, json_t * j_input) {
+int r_jwk_import_from_json_t(jwk_t * jwk, json_t * j_input) {
   int ret;
   
   if (j_input != NULL && json_is_object(j_input)) {
@@ -485,7 +525,7 @@ int r_import_from_json_t(jwk_t * jwk, json_t * j_input) {
   return ret;
 }
 
-int r_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned char * input, size_t input_len) {
+int r_jwk_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned char * input, size_t input_len) {
   gnutls_x509_privkey_t x509_key = NULL;
   gnutls_privkey_t key           = NULL;
   gnutls_pubkey_t pub            = NULL;
@@ -500,9 +540,9 @@ int r_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned char
           data.data = (unsigned char *)input;
           data.size = input_len;
           if (!(res = gnutls_pubkey_import(pub, &data, format==R_FORMAT_PEM?GNUTLS_X509_FMT_PEM:GNUTLS_X509_FMT_DER))) {
-            ret = r_import_from_gnutls_pubkey(jwk, pub);
+            ret = r_jwk_import_from_gnutls_pubkey(jwk, pub);
           } else {
-            y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error r_import_from_gnutls_pubkey: %s", gnutls_strerror(res));
+            y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error r_jwk_import_from_gnutls_pubkey: %s", gnutls_strerror(res));
             ret = RHN_ERROR;
           }
           gnutls_pubkey_deinit(pub);
@@ -528,7 +568,7 @@ int r_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned char
             y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error gnutls_privkey_import_x509: %s", gnutls_strerror(res));
             ret = RHN_ERROR;
           } else {
-            ret = r_import_from_gnutls_privkey(jwk, key);
+            ret = r_jwk_import_from_gnutls_privkey(jwk, key);
           }
         }
         gnutls_privkey_deinit(key);
@@ -539,9 +579,9 @@ int r_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned char
           data.data = (unsigned char *)input;
           data.size = input_len;
           if (!(res = gnutls_x509_crt_import(crt, &data, format==R_FORMAT_PEM?GNUTLS_X509_FMT_PEM:GNUTLS_X509_FMT_DER))) {
-            ret = r_import_from_gnutls_x509_crt(jwk, crt);
+            ret = r_jwk_import_from_gnutls_x509_crt(jwk, crt);
           } else {
-            y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error r_import_from_gnutls_x509_crt: %s", gnutls_strerror(res));
+            y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error r_jwk_import_from_gnutls_x509_crt: %s", gnutls_strerror(res));
             ret = RHN_ERROR_PARAM;
           }
           gnutls_x509_crt_deinit(crt);
@@ -561,7 +601,7 @@ int r_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned char
   return ret;
 }
 
-int r_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
+int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
   int ret, res;
   unsigned int bits = 0;
   gnutls_x509_privkey_t x509_key = NULL;
@@ -864,7 +904,7 @@ int r_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
   return ret;
 }
 
-int r_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
+int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
   int ret, res;
   unsigned int bits = 0;
   gnutls_datum_t m, e;
@@ -1023,7 +1063,7 @@ int r_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
   return ret;
 }
 
-int r_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt) {
+int r_jwk_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt) {
   int ret, res;
   gnutls_pubkey_t pub;
   unsigned char kid[64], kid_b64[128];
@@ -1032,7 +1072,7 @@ int r_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt) {
   if (jwk != NULL && crt != NULL) {
     if (!(res = gnutls_pubkey_init(&pub))) {
       if (!(res = gnutls_pubkey_import_x509(pub, crt, 0))) {
-        ret = r_import_from_gnutls_pubkey(jwk, pub);
+        ret = r_jwk_import_from_gnutls_pubkey(jwk, pub);
         if (ret == RHN_OK) {
           if (gnutls_x509_crt_get_key_id(crt, GNUTLS_KEYID_USE_SHA256, kid, &kid_len)) {
             y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import x509 - Error gnutls_x509_crt_get_key_id");
@@ -1059,15 +1099,15 @@ int r_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt) {
   return ret;
 }
 
-char * r_export_to_json_str(jwk_t * jwk, int pretty) {
-  char * str_export = NULL;
+char * r_jwk_export_to_json_str(jwk_t * jwk, int pretty) {
+  char * str_jwk_export = NULL;
   if (jwk != NULL) {
-    str_export = json_dumps(jwk, pretty?JSON_INDENT(2):JSON_COMPACT);
+    str_jwk_export = json_dumps(jwk, pretty?JSON_INDENT(2):JSON_COMPACT);
   }
-  return str_export;
+  return str_jwk_export;
 }
 
-json_t * r_export_to_json_t(jwk_t * jwk) {
+json_t * r_jwk_export_to_json_t(jwk_t * jwk) {
   if (jwk != NULL) {
     return json_deep_copy(jwk);
   } else {
@@ -1075,7 +1115,7 @@ json_t * r_export_to_json_t(jwk_t * jwk) {
   }
 }
 
-gnutls_privkey_t r_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags) {
+gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags) {
   gnutls_privkey_t privkey       = NULL;
   gnutls_x509_privkey_t x509_key = NULL;
   gnutls_ecc_curve_t curve;
@@ -1325,7 +1365,7 @@ gnutls_privkey_t r_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags) {
   return privkey;
 }
 
-gnutls_pubkey_t r_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
+gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
   gnutls_pubkey_t pubkey = NULL;
   gnutls_x509_crt_t crt;
   unsigned char * b64_dec;
@@ -1539,14 +1579,14 @@ gnutls_pubkey_t r_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
   return pubkey;
 }
 
-int r_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, size_t * output_len, int x5u_flags) {
+int r_jwk_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, size_t * output_len, int x5u_flags) {
   gnutls_pubkey_t pubkey = NULL;
   gnutls_privkey_t privkey = NULL;
   gnutls_x509_privkey_t x509_privkey = NULL;
   int res, ret, type = r_jwk_key_type(jwk, x5u_flags);
   
   if (type & R_KEY_TYPE_PRIVATE) {
-    if ((privkey = r_export_to_gnutls_privkey(jwk, x5u_flags)) != NULL) {
+    if ((privkey = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags)) != NULL) {
       if (!gnutls_privkey_export_x509(privkey, &x509_privkey)) {
         if (!(res = gnutls_x509_privkey_export(x509_privkey, format==R_FORMAT_PEM?GNUTLS_X509_FMT_PEM:GNUTLS_X509_FMT_DER, output, output_len))) {
           ret = RHN_OK;
@@ -1564,11 +1604,11 @@ int r_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, size_t 
       }
       gnutls_privkey_deinit(privkey);
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey pem der - Error r_export_to_gnutls_privkey");
+      y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey pem der - Error r_jwk_export_to_gnutls_privkey");
       ret = RHN_ERROR;
     }
   } else if (type & R_KEY_TYPE_PUBLIC) {
-    if ((pubkey = r_export_to_gnutls_pubkey(jwk, x5u_flags)) != NULL) {
+    if ((pubkey = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags)) != NULL) {
       if (!(res = gnutls_pubkey_export(pubkey, format==R_FORMAT_PEM?GNUTLS_X509_FMT_PEM:GNUTLS_X509_FMT_DER, output, output_len))) {
         ret = RHN_OK;
       } else if (res == GNUTLS_E_SHORT_MEMORY_BUFFER) {
@@ -1580,7 +1620,7 @@ int r_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, size_t 
       }
       gnutls_pubkey_deinit(pubkey);
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey pem der - Error r_export_to_gnutls_pubkey");
+      y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey pem der - Error r_jwk_export_to_gnutls_pubkey");
       ret = RHN_ERROR;
     }
   } else {
@@ -1695,3 +1735,136 @@ int r_jwk_delete_property_array_at(jwk_t * jwk, const char * key, size_t index) 
     return RHN_ERROR_PARAM;
   }
 }
+
+size_t r_jwks_size(jwks_t * jwks) {
+  if (jwks != NULL) {
+    return json_array_size(json_object_get(jwks, "keys"));
+  } else {
+    return 0;
+  }
+}
+
+jwk_t * r_jwks_get_at(jwks_t * jwks, size_t index) {
+  if (jwks != NULL) {
+    return json_array_get(json_object_get(jwks, "keys"), index);
+  } else {
+    return NULL;
+  }
+}
+
+int r_jwks_append_jwk(jwks_t * jwks, jwk_t * jwk) {
+  if (jwks != NULL) {
+    if (!json_array_append(json_object_get(jwks, "keys"), jwk)) {
+      return RHN_OK;
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy jwks append - error json_array_append");
+      return RHN_ERROR;
+    }
+  } else {
+    return RHN_ERROR_PARAM;
+  }
+}
+
+int r_jwks_set_at(jwks_t * jwks, size_t index, jwk_t * jwk) {
+  if (jwks != NULL) {
+    if (!json_array_set(json_object_get(jwks, "keys"), index, jwk)) {
+      return RHN_OK;
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy jwks append - error json_array_set");
+      return RHN_ERROR;
+    }
+  } else {
+    return RHN_ERROR_PARAM;
+  }
+}
+
+int r_jwks_remove_at(jwks_t * jwks, size_t index) {
+  if (jwks != NULL) {
+    if (!json_array_remove(json_object_get(jwks, "keys"), index)) {
+      return RHN_OK;
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy jwks append - error json_array_remove");
+      return RHN_ERROR;
+    }
+  } else {
+    return RHN_ERROR_PARAM;
+  }
+}
+
+char * r_jwks_export_to_json_str(jwks_t * jwks, int pretty) {
+  char * str_jwk_export = NULL;
+  if (jwks != NULL) {
+    str_jwk_export = json_dumps(jwks, pretty?JSON_INDENT(2):JSON_COMPACT);
+  }
+  return str_jwk_export;
+}
+
+json_t * r_jwks_export_to_json_t(jwks_t * jwks) {
+  if (jwks != NULL) {
+    return json_deep_copy(jwks);
+  } else {
+    return NULL;
+  }
+}
+
+gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len, int x5u_flags) {
+  gnutls_privkey_t * ret = NULL;
+  size_t i;
+  
+  if (jwks != NULL && len != NULL && r_jwks_size(jwks)) {
+    if ((ret = o_malloc(r_jwks_size(jwks)*sizeof(gnutls_privkey_t))) != NULL) {
+      *len = r_jwks_size(jwks);
+      for (i=0; i<(*len); i++) {
+        if ((ret[i] = r_jwk_export_to_gnutls_privkey(r_jwks_get_at(jwks, i), x5u_flags)) == NULL) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "jwks export privkey - Error exporting privkey at index %zu", i);
+        }
+      }
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "jwks export privkey - Error allocating resources for ret");
+    }
+  }
+  return ret;
+}
+
+gnutls_pubkey_t * r_jwks_export_to_gnutls_pubkey(jwks_t * jwks, size_t * len, int x5u_flags) {
+  gnutls_pubkey_t * ret = NULL;
+  size_t i;
+  
+  if (jwks != NULL && len != NULL && r_jwks_size(jwks)) {
+    if ((ret = o_malloc(r_jwks_size(jwks)*sizeof(gnutls_pubkey_t))) != NULL) {
+      *len = r_jwks_size(jwks);
+      for (i=0; i<(*len); i++) {
+        if ((ret[i] = r_jwk_export_to_gnutls_pubkey(r_jwks_get_at(jwks, i), x5u_flags)) == NULL) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "jwks export pubkey - Error exporting pubkey at index %zu", i);
+        }
+      }
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "jwks export pubkey - Error allocating resources for ret");
+    }
+  }
+  return ret;
+}
+
+int r_jwks_export_to_pem_der(jwks_t * jwks, int format, unsigned char * output, size_t * output_len, int x5u_flags) {
+  size_t array_len, i, cur_len;
+  unsigned char * cur_output = output;
+  int ret;
+
+  if (jwks != NULL && output != NULL && output_len != NULL && (array_len = r_jwks_size(jwks))) {
+    cur_len = *output_len;
+    for (i=0; i<array_len; i++) {
+      if ((ret = r_jwk_export_to_pem_der(r_jwks_get_at(jwks, i), format, cur_output, &cur_len, x5u_flags)) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "jwks export pem der - Error exporting key at index %zu", i);
+        break;
+      } else {
+        cur_output += cur_len;
+        *output_len -= cur_len;
+        cur_len = *output_len;
+      }
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+

@@ -312,6 +312,7 @@ START_TEST(test_rhonabwy_jwks_import)
   ck_assert_int_eq(r_jwks_import_from_str(jwks, jwks_str), RHN_OK);
   ck_assert_int_eq(r_jwks_size(jwks), 4);
   r_free_jwk(jwks);
+  o_free(jwks_str);
 
   ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
   jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_str_invalid_n);
@@ -319,6 +320,7 @@ START_TEST(test_rhonabwy_jwks_import)
   ck_assert_int_eq(r_jwks_import_from_str(jwks, jwks_str), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwks_size(jwks), 3);
   r_free_jwk(jwks);
+  o_free(jwks_str);
   
 }
 END_TEST

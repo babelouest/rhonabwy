@@ -235,8 +235,8 @@ START_TEST(test_rhonabwy_export_to_str)
   char * export_str;
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
-  ck_assert_ptr_ne((export_str = r_export_to_json_str(jwk, 0)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
+  ck_assert_ptr_ne((export_str = r_jwk_export_to_json_str(jwk, 0)), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"kty\":\"EC\""), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"crv\":\"P-256\""), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\""), NULL);
@@ -246,8 +246,8 @@ START_TEST(test_rhonabwy_export_to_str)
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
-  ck_assert_ptr_ne((export_str = r_export_to_json_str(jwk, 0)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
+  ck_assert_ptr_ne((export_str = r_jwk_export_to_json_str(jwk, 0)), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"kty\":\"EC\""), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"crv\":\"P-256\""), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\""), NULL);
@@ -258,8 +258,8 @@ START_TEST(test_rhonabwy_export_to_str)
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
-  ck_assert_ptr_ne((export_str = r_export_to_json_str(jwk, 0)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
+  ck_assert_ptr_ne((export_str = r_jwk_export_to_json_str(jwk, 0)), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"kty\":\"RSA\""), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
                                    "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
@@ -271,8 +271,8 @@ START_TEST(test_rhonabwy_export_to_str)
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_key_symmetric), RHN_OK);
-  ck_assert_ptr_ne((export_str = r_export_to_json_str(jwk, 0)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_key_symmetric), RHN_OK);
+  ck_assert_ptr_ne((export_str = r_jwk_export_to_json_str(jwk, 0)), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"kty\":\"oct\""), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"alg\":\"HS256\""), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"k\":\"GawgguFyGrWKav7AX4VKUg\""), NULL);
@@ -280,8 +280,8 @@ START_TEST(test_rhonabwy_export_to_str)
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_str), RHN_OK);
-  ck_assert_ptr_ne((export_str = r_export_to_json_str(jwk, 0)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_str), RHN_OK);
+  ck_assert_ptr_ne((export_str = r_jwk_export_to_json_str(jwk, 0)), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"kty\":\"RSA\""), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"use\":\"sig\""), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"kid\":\"1b94c\""), NULL);
@@ -305,8 +305,8 @@ START_TEST(test_rhonabwy_export_to_str)
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
-  ck_assert_ptr_ne((export_str = r_export_to_json_str(jwk, 0)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
+  ck_assert_ptr_ne((export_str = r_jwk_export_to_json_str(jwk, 0)), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"kty\":\"RSA\""), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
                                       "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
@@ -327,8 +327,8 @@ START_TEST(test_rhonabwy_export_to_json)
   json_t * j_export;
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
-  ck_assert_ptr_ne((j_export = r_export_to_json_t(jwk)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
+  ck_assert_ptr_ne((j_export = r_jwk_export_to_json_t(jwk)), NULL);
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "kty")), "EC");
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "crv")), "P-256");
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "y")), "4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM");
@@ -338,8 +338,8 @@ START_TEST(test_rhonabwy_export_to_json)
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
-  ck_assert_ptr_ne((j_export = r_export_to_json_t(jwk)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
+  ck_assert_ptr_ne((j_export = r_jwk_export_to_json_t(jwk)), NULL);
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "kty")), "EC");
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "crv")), "P-256");
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "y")), "4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM");
@@ -350,8 +350,8 @@ START_TEST(test_rhonabwy_export_to_json)
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
-  ck_assert_ptr_ne((j_export = r_export_to_json_t(jwk)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
+  ck_assert_ptr_ne((j_export = r_jwk_export_to_json_t(jwk)), NULL);
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "kty")), "RSA");
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "n")), "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
                                    "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
@@ -363,8 +363,8 @@ START_TEST(test_rhonabwy_export_to_json)
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_key_symmetric), RHN_OK);
-  ck_assert_ptr_ne((j_export = r_export_to_json_t(jwk)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_key_symmetric), RHN_OK);
+  ck_assert_ptr_ne((j_export = r_jwk_export_to_json_t(jwk)), NULL);
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "kty")), "oct");
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "alg")), "HS256");
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "k")), "GawgguFyGrWKav7AX4VKUg");
@@ -372,8 +372,8 @@ START_TEST(test_rhonabwy_export_to_json)
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_str), RHN_OK);
-  ck_assert_ptr_ne((j_export = r_export_to_json_t(jwk)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_str), RHN_OK);
+  ck_assert_ptr_ne((j_export = r_jwk_export_to_json_t(jwk)), NULL);
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "kty")), "RSA");
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "use")), "sig");
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "kid")), "1b94c");
@@ -400,8 +400,8 @@ START_TEST(test_rhonabwy_export_to_json)
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
-  ck_assert_ptr_ne((j_export = r_export_to_json_t(jwk)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
+  ck_assert_ptr_ne((j_export = r_jwk_export_to_json_t(jwk)), NULL);
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "kty")), "RSA");
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "n")), "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
                                             "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
@@ -422,24 +422,24 @@ START_TEST(test_rhonabwy_export_to_gnutls_privkey)
   gnutls_privkey_t privkey = NULL;
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
-  ck_assert_ptr_eq(r_export_to_gnutls_privkey(jwk, 0), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
+  ck_assert_ptr_eq(r_jwk_export_to_gnutls_privkey(jwk, 0), NULL);
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
-  ck_assert_ptr_ne((privkey = r_export_to_gnutls_privkey(jwk, 0)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
+  ck_assert_ptr_ne((privkey = r_jwk_export_to_gnutls_privkey(jwk, 0)), NULL);
   gnutls_privkey_deinit(privkey);
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
-  ck_assert_ptr_eq(r_export_to_gnutls_privkey(jwk, 0), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
+  ck_assert_ptr_eq(r_jwk_export_to_gnutls_privkey(jwk, 0), NULL);
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
-  ck_assert_ptr_ne((privkey = r_export_to_gnutls_privkey(jwk, 0)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
+  ck_assert_ptr_ne((privkey = r_jwk_export_to_gnutls_privkey(jwk, 0)), NULL);
   gnutls_privkey_deinit(privkey);
   r_free_jwk(jwk);
 
@@ -459,36 +459,36 @@ START_TEST(test_rhonabwy_export_to_gnutls_pubkey)
   ck_assert_int_eq(ulfius_start_secure_framework(&instance, HTTPS_CERT_KEY, HTTPS_CERT_PEM), U_OK);
   
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
-  ck_assert_ptr_eq(r_export_to_gnutls_pubkey(jwk, 0), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
+  ck_assert_ptr_eq(r_jwk_export_to_gnutls_pubkey(jwk, 0), NULL);
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
-  ck_assert_ptr_ne((pubkey = r_export_to_gnutls_pubkey(jwk, 0)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
+  ck_assert_ptr_ne((pubkey = r_jwk_export_to_gnutls_pubkey(jwk, 0)), NULL);
   gnutls_pubkey_deinit(pubkey);
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
-  ck_assert_ptr_eq(r_export_to_gnutls_pubkey(jwk, 0), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
+  ck_assert_ptr_eq(r_jwk_export_to_gnutls_pubkey(jwk, 0), NULL);
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
-  ck_assert_ptr_ne((pubkey = r_export_to_gnutls_pubkey(jwk, 0)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
+  ck_assert_ptr_ne((pubkey = r_jwk_export_to_gnutls_pubkey(jwk, 0)), NULL);
   gnutls_pubkey_deinit(pubkey);
   r_free_jwk(jwk);
   
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_rsa_pub), RHN_OK);
-  ck_assert_ptr_ne((pubkey = r_export_to_gnutls_pubkey(jwk, R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_rsa_pub), RHN_OK);
+  ck_assert_ptr_ne((pubkey = r_jwk_export_to_gnutls_pubkey(jwk, R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE)), NULL);
   gnutls_pubkey_deinit(pubkey);
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_ecdsa_pub), RHN_OK);
-  ck_assert_ptr_ne((pubkey = r_export_to_gnutls_pubkey(jwk, R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE)), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_ecdsa_pub), RHN_OK);
+  ck_assert_ptr_ne((pubkey = r_jwk_export_to_gnutls_pubkey(jwk, R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE)), NULL);
   gnutls_pubkey_deinit(pubkey);
   r_free_jwk(jwk);
 
@@ -512,45 +512,45 @@ START_TEST(test_rhonabwy_export_to_pem)
 
 #if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
   data_len = 4096;
-  ck_assert_int_eq(r_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, 0), RHN_OK);
+  ck_assert_int_eq(r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, 0), RHN_OK);
   ck_assert_int_eq(o_strncmp(jwk_privkey_ecdsa_pem, (const char *)data, data_len), 0);
   r_free_jwk(jwk);
 #endif
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   data_len = 4096;
-  ck_assert_int_eq(r_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, 0), RHN_OK);
+  ck_assert_int_eq(r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, 0), RHN_OK);
   ck_assert_int_eq(o_strncmp(jwk_pubkey_ecdsa_pem, (const char *)data, data_len), 0);
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
   data_len = 4096;
-  ck_assert_int_eq(r_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, 0), RHN_OK);
+  ck_assert_int_eq(r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, 0), RHN_OK);
   ck_assert_int_eq(o_strncmp(jwk_privkey_rsa_pem, (const char *)data, data_len), 0);
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
   data_len = 4096;
-  ck_assert_int_eq(r_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, 0), RHN_OK);
+  ck_assert_int_eq(r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, 0), RHN_OK);
   ck_assert_int_eq(o_strncmp(jwk_pubkey_rsa_pem, (const char *)data, data_len), 0);
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_rsa_pub), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_rsa_pub), RHN_OK);
   data_len = 4096;
-  ck_assert_int_eq(r_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
+  ck_assert_int_eq(r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
   ck_assert_int_eq(o_strncmp(jwk_pubkey_rsa_x5u_export, (const char *)data, data_len), 0);
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_ecdsa_pub), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_ecdsa_pub), RHN_OK);
   data_len = 4096;
-  ck_assert_int_eq(r_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
+  ck_assert_int_eq(r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
   ck_assert_int_eq(o_strncmp(jwk_pubkey_ecdsa_x5u_export, (const char *)data, data_len), 0);
   r_free_jwk(jwk);
 

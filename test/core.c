@@ -43,7 +43,7 @@ START_TEST(test_rhonabwy_get_property)
   jwk_t * jwk;
   
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_str_eq(r_jwk_get_property_str(jwk, "kty"), "EC");
   ck_assert_str_eq(r_jwk_get_property_str(jwk, "crv"), "P-256");
   ck_assert_str_eq(r_jwk_get_property_str(jwk, "x"), "MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4");
@@ -57,7 +57,7 @@ START_TEST(test_rhonabwy_get_property)
   r_free_jwk(jwk);
   
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
   ck_assert_str_eq(r_jwk_get_property_str(jwk, "kty"), "RSA");
   ck_assert_str_eq(r_jwk_get_property_str(jwk, "n"), "0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
                                       "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
@@ -71,7 +71,7 @@ START_TEST(test_rhonabwy_get_property)
   r_free_jwk(jwk);
   
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_str), RHN_OK);
   ck_assert_str_eq(r_jwk_get_property_str(jwk, "kty"), "RSA");
   ck_assert_str_eq(r_jwk_get_property_str(jwk, "use"), "sig");
   ck_assert_str_eq(r_jwk_get_property_str(jwk, "kid"), "1b94c");
@@ -103,7 +103,7 @@ START_TEST(test_rhonabwy_set_property)
   jwk_t * jwk;
   
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwk_set_property_str(NULL, "kid", "42"), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwk_set_property_str(jwk, "", "42"), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwk_set_property_str(jwk, NULL, "42"), RHN_ERROR_PARAM);
@@ -125,7 +125,7 @@ START_TEST(test_rhonabwy_set_property)
   r_free_jwk(jwk);
   
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
   ck_assert_str_eq(r_jwk_get_property_array(jwk, "x5u", 0), "https://www.example.com/x509");
   ck_assert_int_eq(r_jwk_append_property_array(jwk, "x5u", NULL), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwk_append_property_array(jwk, "x5u", ""), RHN_ERROR_PARAM);
@@ -144,7 +144,7 @@ START_TEST(test_rhonabwy_set_property)
   r_free_jwk(jwk);
   
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_str), RHN_OK);
   ck_assert_str_eq(r_jwk_get_property_array(jwk, "x5c", 0), "MIIDQjCCAiqgAwIBAgIGATz/FuLiMA0GCSqGSI"\
                                        "b3DQEBBQUAMGIxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDTzEPMA0GA1UEBxMGRGVudmVyMRwwGgYDVQQKExNQaW5nIElkZW50aXR5IENvcnAuMRcwFQY"\
                                        "DVQQDEw5CcmlhbiBDYW1wYmVsbDAeFw0xMzAyMjEyMzI5MTVaFw0xODA4MTQyMjI5MTVaMGIxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDTzEPMA0GA1UE"\
@@ -232,7 +232,7 @@ START_TEST(test_rhonabwy_delete_property)
   jwk_t * jwk;
   
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_str_eq(r_jwk_get_property_str(jwk, "kty"), "EC");
   ck_assert_int_eq(r_jwk_delete_property_str(jwk, ""), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwk_delete_property_str(jwk, NULL), RHN_ERROR_PARAM);
@@ -242,7 +242,7 @@ START_TEST(test_rhonabwy_delete_property)
   r_free_jwk(jwk);
   
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
-  ck_assert_int_eq(r_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
   ck_assert_str_eq(r_jwk_get_property_array(jwk, "x5u", 0), "https://www.example.com/x509");
   ck_assert_int_eq(r_jwk_delete_property_array_at(jwk, "x5u", 1), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwk_delete_property_array_at(jwk, "", 0), RHN_ERROR_PARAM);

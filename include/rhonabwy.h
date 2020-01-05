@@ -369,6 +369,28 @@ int r_jwk_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, siz
  */
 
 /**
+ * Import a JSON in string format into a jwks_t
+ * @param jwks: the jwk_t * to import to
+ * @param input: a JWKS in JSON stringified format
+ * If jwks is set, JWK will be appended
+ * @return RHN_OK on success, an error value on error
+ * may return RHN_ERROR_PARAM and if at least one JWK 
+ * is invalid, but the will import the others
+ */
+int r_jwks_import_from_str(jwks_t * jwks, const char * input);
+
+/**
+ * Import a JSON in json_t format into a jwk_t
+ * @param jwk: the jwk_t * to import to
+ * @param j_input: a JWK in json_t * format
+ * If jwks is set, JWK will be appended
+ * @return RHN_OK on success, an error value on error
+ * may return RHN_ERROR_PARAM and if at least one JWK 
+ * is invalid, but the will import the others
+ */
+int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input);
+
+/**
  * Get the number of jwk_t in a jwks_t
  * @param jwk: the jwks_t * to evaluate
  * @return the number of jwk_t in a jwks_t

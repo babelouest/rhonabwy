@@ -68,6 +68,10 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ga3779f3432ca378e4db6fd338a86eaa21"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga3779f3432ca378e4db6fd338a86eaa21">r_jwks_import_from_str</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, const char *input)</td></tr>
+<tr class="separator:ga3779f3432ca378e4db6fd338a86eaa21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6c32c46305421cf0eed3c6f3ea91a798"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga6c32c46305421cf0eed3c6f3ea91a798">r_jwks_import_from_json_t</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, json_t *j_input)</td></tr>
+<tr class="separator:ga6c32c46305421cf0eed3c6f3ea91a798"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1370763ce4d4ed8009ae87ca8e08e2db"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga1370763ce4d4ed8009ae87ca8e08e2db">r_jwks_size</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
 <tr class="separator:ga1370763ce4d4ed8009ae87ca8e08e2db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaccfb6d0b8d071c92ceeb5c7bd48047e5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#gaccfb6d0b8d071c92ceeb5c7bd48047e5">r_jwks_get_at</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, size_t index)</td></tr>
@@ -92,6 +96,78 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Manage JWK sets </p>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="ga3779f3432ca378e4db6fd338a86eaa21"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3779f3432ca378e4db6fd338a86eaa21">&#9670;&nbsp;</a></span>r_jwks_import_from_str()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwks_import_from_str </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td>
+          <td class="paramname"><em>jwks</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>input</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Import a JSON in string format into a jwks_t </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwks</td><td>the jwk_t * to import to </td></tr>
+    <tr><td class="paramname">input</td><td>a JWKS in JSON stringified format If jwks is set, JWK will be appended </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error may return RHN_ERROR_PARAM and if at least one JWK is invalid, but the will import the others </dd></dl>
+
+</div>
+</div>
+<a id="ga6c32c46305421cf0eed3c6f3ea91a798"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6c32c46305421cf0eed3c6f3ea91a798">&#9670;&nbsp;</a></span>r_jwks_import_from_json_t()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwks_import_from_json_t </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td>
+          <td class="paramname"><em>jwks</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">json_t *&#160;</td>
+          <td class="paramname"><em>j_input</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Import a JSON in json_t format into a jwk_t </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwk</td><td>the jwk_t * to import to </td></tr>
+    <tr><td class="paramname">j_input</td><td>a JWK in json_t * format If jwks is set, JWK will be appended </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error may return RHN_ERROR_PARAM and if at least one JWK is invalid, but the will import the others </dd></dl>
+
+</div>
+</div>
 <a id="ga1370763ce4d4ed8009ae87ca8e08e2db"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga1370763ce4d4ed8009ae87ca8e08e2db">&#9670;&nbsp;</a></span>r_jwks_size()</h2>
 

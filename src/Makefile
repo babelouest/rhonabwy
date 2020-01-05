@@ -54,7 +54,7 @@ $(PKGCONFIG_FILE):
 
 target: $(OBJECTS)
 
-%.o: %.c $(CONFIG_FILE) $(RHONABWY_INCLUDE)/rhonabwy.h
+%.o: %.c $(RHONABWY_INCLUDE)/rhonabwy.h
 	$(CC) $(CFLAGS) $<
 
 librhonabwy.so: $(OBJECTS)
@@ -65,13 +65,12 @@ librhonabwy.a: $(OBJECTS)
 	ar rcs librhonabwy.a $(OBJECTS)
 
 clean:
-	rm -f *.o *.so *.a $(OUTPUT) $(OUTPUT).* $(CONFIG_FILE) $(PKGCONFIG_FILE)
+	rm -f *.o *.so *.a $(OUTPUT) $(OUTPUT).* $(PKGCONFIG_FILE)
 
 install: all $(PKGCONFIG_FILE)
 	install $(OUTPUT).$(VERSION) $(DESTDIR)/lib
 	install -m644 $(PKGCONFIG_FILE) $(DESTDIR)/lib/pkgconfig
 	install -m644 $(RHONABWY_INCLUDE)/rhonabwy.h $(DESTDIR)/include
-	install -m644 $(CONFIG_FILE) $(DESTDIR)/include
 	-ldconfig $(DESTDIR)/lib
 
 uninstall:

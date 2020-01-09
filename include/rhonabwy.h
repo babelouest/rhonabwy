@@ -22,6 +22,14 @@
  * 
  */
 
+#ifndef __RHONABWY_H_
+#define __RHONABWY_H_
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <jansson.h>
 #include <gnutls/gnutls.h>
 
@@ -491,3 +499,9 @@ int r_jwks_export_to_pem_der(jwks_t * jwks, int format, unsigned char * output, 
 /**
  * @}
  */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __RHONABWY_H_

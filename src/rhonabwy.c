@@ -63,7 +63,7 @@ void r_free_jwks(jwks_t * jwks) {
 }
 
 int r_jwk_is_valid(jwk_t * jwk) {
-  int ret = RHN_OK, has_x5cu = 0, has_pubkey_parameters = 0, has_privkey_parameters = 0, has_kty = 0, has_alg = 0;
+  int ret = RHN_OK, has_pubkey_parameters = 0, has_privkey_parameters = 0, has_kty = 0, has_alg = 0;
   json_t * j_element = NULL;
   size_t index = 0, b64dec_len = 0;
   
@@ -75,9 +75,6 @@ int r_jwk_is_valid(jwk_t * jwk) {
           y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy r_jwk_is_valid - Invalid x5u");
           ret = RHN_ERROR_PARAM;
         } else {
-          if (json_array_size(json_object_get(jwk, "x5u"))) {
-            has_x5cu = 1;
-          }
           json_array_foreach(json_object_get(jwk, "x5u"), index, j_element) {
             if (!json_string_length(j_element) || o_strncasecmp("https://", json_string_value(j_element), o_strlen("https://"))) {
               y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy r_jwk_is_valid - Invalid x5u");
@@ -91,9 +88,6 @@ int r_jwk_is_valid(jwk_t * jwk) {
           y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy r_jwk_is_valid - Invalid x5c");
           ret = RHN_ERROR_PARAM;
         } else {
-          if (json_array_size(json_object_get(jwk, "x5c"))) {
-            has_x5cu = 1;
-          }
           json_array_foreach(json_object_get(jwk, "x5c"), index, j_element) {
             if (!json_string_length(j_element) || !o_base64_decode((const unsigned char *)json_string_value(j_element), json_string_length(j_element), NULL, &b64dec_len) || !b64dec_len) {
               y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy r_jwk_is_valid - Invalid x5c");
@@ -305,7 +299,7 @@ int r_jwk_is_valid(jwk_t * jwk) {
       // Validate if required parameters are present and consistent
       if (ret == RHN_OK) {
         if (!has_kty) {
-          if (!has_x5cu || !has_alg) {
+          if (!has_alg) {
             y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy r_jwk_is_valid - Invalid data");
             ret = RHN_ERROR_PARAM;
           }
@@ -1584,6 +1578,7 @@ int r_jwk_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, siz
   gnutls_privkey_t privkey = NULL;
   gnutls_x509_privkey_t x509_privkey = NULL;
   int res, ret, type = r_jwk_key_type(jwk, x5u_flags);
+  int test_size = (output==NULL);
   
   if (type & R_KEY_TYPE_PRIVATE) {
     if ((privkey = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags)) != NULL) {
@@ -1591,15 +1586,17 @@ int r_jwk_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, siz
         if (!(res = gnutls_x509_privkey_export(x509_privkey, format==R_FORMAT_PEM?GNUTLS_X509_FMT_PEM:GNUTLS_X509_FMT_DER, output, output_len))) {
           ret = RHN_OK;
         } else if (res == GNUTLS_E_SHORT_MEMORY_BUFFER) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey pem der - Error buffer size");
+          if (!test_size) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export privkey pem der - Error buffer size");
+          }
           ret = RHN_ERROR_PARAM;
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey pem der - Error gnutls_x509_privkey_export");
+          y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export privkey pem der - Error gnutls_x509_privkey_export");
           ret = RHN_ERROR;
         }
         gnutls_x509_privkey_deinit(x509_privkey);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey pem der - Error gnutls_privkey_export_x509");
+        y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export privkey pem der - Error gnutls_privkey_export_x509");
         ret = RHN_ERROR;
       }
       gnutls_privkey_deinit(privkey);
@@ -1612,7 +1609,9 @@ int r_jwk_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, siz
       if (!(res = gnutls_pubkey_export(pubkey, format==R_FORMAT_PEM?GNUTLS_X509_FMT_PEM:GNUTLS_X509_FMT_DER, output, output_len))) {
         ret = RHN_OK;
       } else if (res == GNUTLS_E_SHORT_MEMORY_BUFFER) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey pem der - Error buffer size");
+        if (!test_size) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey pem der - Error buffer size");
+        }
         ret = RHN_ERROR_PARAM;
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey pem der - Error gnutls_pubkey_export");

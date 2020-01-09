@@ -10,6 +10,10 @@
 
 #define HTTPS_PORT 7462
 
+const char jwk_simple_hmac[] = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
+const char jwk_simple_rsa[] = "{\"alg\":\"RS256\",\"typ\":\"JWT\"}";
+const char jwk_simple_ecdsa[] = "{\"alg\":\"ES256\",\"typ\":\"JWT\"}";
+
 const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                     "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\"}";
 const char jwk_pubkey_ecdsa_str_invalid_kty[] = "{\"kty\":\"ECC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
@@ -570,6 +574,18 @@ int callback_x5u_ecdsa_crt (const struct _u_request * request, struct _u_respons
 START_TEST(test_rhonabwy_import_from_json_str)
 {
   jwk_t * jwk;
+  
+  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_simple_hmac), RHN_OK);
+  r_free_jwk(jwk);
+  
+  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_simple_rsa), RHN_OK);
+  r_free_jwk(jwk);
+  
+  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_simple_ecdsa), RHN_OK);
+  r_free_jwk(jwk);
   
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);

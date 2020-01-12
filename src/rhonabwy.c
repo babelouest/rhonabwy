@@ -1745,7 +1745,7 @@ size_t r_jwks_size(jwks_t * jwks) {
 
 jwk_t * r_jwks_get_at(jwks_t * jwks, size_t index) {
   if (jwks != NULL) {
-    return json_array_get(json_object_get(jwks, "keys"), index);
+    return json_deep_copy(json_array_get(json_object_get(jwks, "keys"), index));
   } else {
     return NULL;
   }

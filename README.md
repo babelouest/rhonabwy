@@ -1,5 +1,7 @@
 # Rhonabwy - JWK library
 
+[![Build Status](https://travis-ci.com/babelouest/rhonabwy.svg?branch=master)](https://travis-ci.com/babelouest/rhonabwy)
+
 Create, modify, parse or export Json Web Keys as defined in the [RFC 7517](https://tools.ietf.org/html/rfc7517).
 
 ```C

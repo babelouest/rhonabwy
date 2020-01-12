@@ -104,62 +104,71 @@ set(SEARCH_ORCANIA OFF CACHE BOOL "Force to false") # Avoid to search and downlo
 set(SEARCH_ORCANIA_U OFF CACHE BOOL "Force to false") # Avoid to search and download orcania during ulfius search and download
 set(SEARCH_YDER OFF CACHE BOOL "Force to false") # Avoid to search and download yder during ulfius and hoel search and download
 
-set(Orcania_FIND_QUIETLY ON) # force to find Orcania quietly
-include(FindOrcania)
-find_package(Orcania ${ORCANIA_VERSION_REQUIRED} QUIET) # try to find orcania
-if (NOT ORCANIA_FOUND)
-	include(DownloadProject)
-	message(STATUS "Download Orcania ${ORCANIA_VERSION_REQUIRED}")
-	download_project(PROJ orcania # ... otherwise, download archive
-			URL "https://github.com/babelouest/orcania/archive/v${ORCANIA_VERSION_REQUIRED}.tar.gz"
-			QUIET)
-	add_subdirectory(${orcania_SOURCE_DIR} ${orcania_BINARY_DIR})
-	include_directories(${orcania_SOURCE_DIR}/include)
-	add_dependencies(rhonabwy orcania)
-	set(ORCANIA_LIBRARIES orcania)
-	include_directories(${orcania_BINARY_DIR})
+option(SEARCH_ORCANIA_R "Search for ORCANIA library" ON)
+if (SEARCH_ORCANIA_R)
+    set(Orcania_FIND_QUIETLY ON) # force to find Orcania quietly
+    include(FindOrcania)
+    find_package(Orcania ${ORCANIA_VERSION_REQUIRED} QUIET) # try to find orcania
+    if (NOT ORCANIA_FOUND)
+	    include(DownloadProject)
+	    message(STATUS "Download Orcania ${ORCANIA_VERSION_REQUIRED}")
+	    download_project(PROJ orcania # ... otherwise, download archive
+			    URL "https://github.com/babelouest/orcania/archive/v${ORCANIA_VERSION_REQUIRED}.tar.gz"
+			    QUIET)
+	    add_subdirectory(${orcania_SOURCE_DIR} ${orcania_BINARY_DIR})
+	    include_directories(${orcania_SOURCE_DIR}/include)
+	    add_dependencies(rhonabwy orcania)
+	    set(ORCANIA_LIBRARIES orcania)
+	    include_directories(${orcania_BINARY_DIR})
+    endif ()
+    set(LIBS ${LIBS} ${ORCANIA_LIBRARIES})
 endif ()
-set(LIBS ${LIBS} ${ORCANIA_LIBRARIES})
 
-set(Yder_FIND_QUIETLY ON) # force to find Yder quietly
-include(FindYder)
-find_package(Yder ${YDER_VERSION_REQUIRED} QUIET) # try to find Yder
-if (NOT YDER_FOUND)
-	include(DownloadProject)
-	message(STATUS "Download Yder ${YDER_VERSION_REQUIRED}")
-	option(CHECK_ORCANIA "specific param" off)
-	download_project(PROJ yder # ... otherwise, download archive
-			URL "https://github.com/babelouest/yder/archive/v${YDER_VERSION_REQUIRED}.tar.gz"
-			QUIET)
-	add_subdirectory(${yder_SOURCE_DIR} ${yder_BINARY_DIR})
-	include_directories(${yder_SOURCE_DIR}/include)
-	include_directories(${orcania_SOURCE_DIR}/include)
-	add_dependencies(rhonabwy yder)
-	set(YDER_LIBRARIES yder)
-	include_directories(${yder_BINARY_DIR})
+option(SEARCH_YDER_R "Search for YDER library" ON)
+if (SEARCH_YDER_R)
+    set(Yder_FIND_QUIETLY ON) # force to find Yder quietly
+    include(FindYder)
+    find_package(Yder ${YDER_VERSION_REQUIRED} QUIET) # try to find Yder
+    if (NOT YDER_FOUND)
+	    include(DownloadProject)
+	    message(STATUS "Download Yder ${YDER_VERSION_REQUIRED}")
+	    option(CHECK_ORCANIA "specific param" off)
+	    download_project(PROJ yder # ... otherwise, download archive
+			    URL "https://github.com/babelouest/yder/archive/v${YDER_VERSION_REQUIRED}.tar.gz"
+			    QUIET)
+	    add_subdirectory(${yder_SOURCE_DIR} ${yder_BINARY_DIR})
+	    include_directories(${yder_SOURCE_DIR}/include)
+	    include_directories(${orcania_SOURCE_DIR}/include)
+	    add_dependencies(rhonabwy yder)
+	    set(YDER_LIBRARIES yder)
+	    include_directories(${yder_BINARY_DIR})
+    endif ()
+    set(LIBS ${LIBS} ${YDER_LIBRARIES})
 endif ()
-set(LIBS ${LIBS} ${YDER_LIBRARIES})
 
-set(Ulfius_FIND_QUIETLY ON)
-include(FindUlfius)
-find_package(Ulfius ${ULFIUS_VERSION_REQUIRED} QUIET)
-if (NOT ULFIUS_FOUND)
-	include(DownloadProject)
-	option(CHECK_ORCANIA "specific param" off)
-	option(CHECK_YDER "specific param" off)
-	message(STATUS "Download Ulfius ${ULFIUS_VERSION_REQUIRED}")
-	download_project(PROJ ulfius
-			URL "https://github.com/babelouest/ulfius/archive/v${ULFIUS_VERSION_REQUIRED}.tar.gz"
-			QUIET)
-	add_subdirectory(${ulfius_SOURCE_DIR} ${ulfius_BINARY_DIR})
-	include_directories(${yder_SOURCE_DIR}/include)
-	include_directories(${orcania_SOURCE_DIR}/include)
-	include_directories(${ulfius_SOURCE_DIR}/include)
-	add_dependencies(rhonabwy ulfius)
-	set(ULFIUS_LIBRARIES ulfius)
-	include_directories(${ulfius_BINARY_DIR})
+option(SEARCH_ULFIUS_R "Search for ULFIUS library" ON)
+if (SEARCH_ULFIUS_R)
+    set(Ulfius_FIND_QUIETLY ON)
+    include(FindUlfius)
+    find_package(Ulfius ${ULFIUS_VERSION_REQUIRED} QUIET)
+    if (NOT ULFIUS_FOUND)
+	    include(DownloadProject)
+	    option(CHECK_ORCANIA "specific param" off)
+	    option(CHECK_YDER "specific param" off)
+	    message(STATUS "Download Ulfius ${ULFIUS_VERSION_REQUIRED}")
+	    download_project(PROJ ulfius
+			    URL "https://github.com/babelouest/ulfius/archive/v${ULFIUS_VERSION_REQUIRED}.tar.gz"
+			    QUIET)
+	    add_subdirectory(${ulfius_SOURCE_DIR} ${ulfius_BINARY_DIR})
+	    include_directories(${yder_SOURCE_DIR}/include)
+	    include_directories(${orcania_SOURCE_DIR}/include)
+	    include_directories(${ulfius_SOURCE_DIR}/include)
+	    add_dependencies(rhonabwy ulfius)
+	    set(ULFIUS_LIBRARIES ulfius)
+	    include_directories(${ulfius_BINARY_DIR})
+    endif ()
+    set(LIBS ${LIBS} ${ULFIUS_LIBRARIES})
 endif ()
-set(LIBS ${LIBS} ${ULFIUS_LIBRARIES})
 
 # documentation
 

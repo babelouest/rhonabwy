@@ -27,17 +27,30 @@ RHONABWY_INCLUDE=../include
 PKGCONFIG_FILE=../librhonabwy.pc
 PKGCONFIG_TEMPLATE=../librhonabwy.pc.in
 DESTDIR=/usr/local
+CONFIG_FILE=$(RHONABWY_INCLUDE)/rhonabwy-cfg.h
+CONFIG_TEMPLATE=$(RHONABWY_INCLUDE)/rhonabwy-cfg.h.in
 CC=gcc
 CFLAGS+=-c -pedantic -std=gnu99 -fPIC -Wall -Werror -Wextra -D_REENTRANT -I$(RHONABWY_INCLUDE) $(ADDITIONALFLAGS) $(CPPFLAGS)
 LIBS=-L$(DESTDIR)/lib -lc -lorcania -lyder -lulfius -ljansson -lgnutls $(LDFLAGS)
 SONAME=-soname
 OBJECTS=rhonabwy.o
 OUTPUT=librhonabwy.so
-VERSION=0.9.0
+VERSION_MAJOR=0
+VERSION_MINOR=9
+VERSION_PATCH=0
 
 .PHONY: all clean
 
 all: release
+
+$(CONFIG_FILE):
+	@cp $(CONFIG_TEMPLATE) $(CONFIG_FILE)
+	@echo Config file $(CONFIG_FILE) generated
+	@sed -i -e 's/$${PROJECT_VERSION}/$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)/g' $(CONFIG_FILE)        
+	@sed -i -e 's/$${PROJECT_VERSION_MAJOR}/$(VERSION_MAJOR)/g' $(CONFIG_FILE)        
+	@sed -i -e 's/$${PROJECT_VERSION_MINOR}/$(VERSION_MINOR)/g' $(CONFIG_FILE)        
+	@sed -i -e 's/$${PROJECT_VERSION_PATCH}/$(VERSION_PATCH)/g' $(CONFIG_FILE)        
+	@sed -i -e 's/$${PROJECT_VERSION_NUMBER}/$(shell printf '%02d' $(VERSION_MAJOR))$(shell printf '%02d' $(VERSION_MINOR))$(shell printf '%02d' $(VERSION_PATCH))/g' $(CONFIG_FILE)        
 
 $(PKGCONFIG_FILE):
 	@cp $(PKGCONFIG_TEMPLATE) $(PKGCONFIG_FILE)
@@ -57,7 +70,7 @@ target: $(OBJECTS)
 %.o: %.c $(RHONABWY_INCLUDE)/rhonabwy.h
 	$(CC) $(CFLAGS) $<
 
-librhonabwy.so: $(OBJECTS)
+librhonabwy.so: $(CONFIG_FILE) $(OBJECTS)
 	$(CC) -shared -fPIC -Wl,$(SONAME),$(OUTPUT) -o $(OUTPUT).$(VERSION) $(OBJECTS) $(LIBS) $(LYDER) $(LJANSSON) $(LCURL) $(LGNUTLS)
 	ln -sf $(OUTPUT).$(VERSION) $(OUTPUT)
 
@@ -65,7 +78,7 @@ librhonabwy.a: $(OBJECTS)
 	ar rcs librhonabwy.a $(OBJECTS)
 
 clean:
-	rm -f *.o *.so *.a $(OUTPUT) $(OUTPUT).* $(PKGCONFIG_FILE)
+	rm -f *.o *.so *.a $(OUTPUT) $(OUTPUT).* $(PKGCONFIG_FILE) $(CONFIG_FILE)
 
 install: all $(PKGCONFIG_FILE)
 	install $(OUTPUT).$(VERSION) $(DESTDIR)/lib

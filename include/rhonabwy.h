@@ -30,6 +30,8 @@ extern "C"
 {
 #endif
 
+#include "rhonabwy-cfg.h"
+
 #include <jansson.h>
 #include <gnutls/gnutls.h>
 

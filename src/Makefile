@@ -61,7 +61,7 @@ $(PKGCONFIG_FILE):
 	@sed -i -e 's/@PROJECT_NAME@/$(PROJECT_NAME)/g' $(PKGCONFIG_FILE)
 	@sed -i -e 's/@PROJECT_DESCRIPTION@/$(PROJECT_DESCRIPTION)/g' $(PKGCONFIG_FILE)
 	@sed -i -e 's|@PROJECT_BUGREPORT_PATH@|$(PROJECT_BUGREPORT_PATH)|g' $(PKGCONFIG_FILE)
-	@sed -i -e 's/@LIBRARY_VERSION@/$(VERSION)/g' $(PKGCONFIG_FILE)
+	@sed -i -e 's/@LIBRARY_VERSION@/$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)/g' $(PKGCONFIG_FILE)
 	@sed -i -e 's/@PKGCONF_REQ@/$(PKGCONF_REQ)/g' $(PKGCONFIG_FILE)
 	@sed -i -e 's/@PKGCONF_REQ_PRIVATE@/$(PKGCONF_REQ_PRIVATE)/g' $(PKGCONFIG_FILE)
 
@@ -71,25 +71,24 @@ target: $(OBJECTS)
 	$(CC) $(CFLAGS) $<
 
 librhonabwy.so: $(CONFIG_FILE) $(OBJECTS)
-	$(CC) -shared -fPIC -Wl,$(SONAME),$(OUTPUT) -o $(OUTPUT).$(VERSION) $(OBJECTS) $(LIBS) $(LYDER) $(LJANSSON) $(LCURL) $(LGNUTLS)
-	ln -sf $(OUTPUT).$(VERSION) $(OUTPUT)
-
-librhonabwy.a: $(OBJECTS)
-	ar rcs librhonabwy.a $(OBJECTS)
+	$(CC) -shared -fPIC -Wl,$(SONAME),$(OUTPUT) -o $(OUTPUT).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH) $(OBJECTS) $(LIBS) $(LYDER) $(LJANSSON) $(LCURL) $(LGNUTLS)
+	ln -sf $(OUTPUT).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH) $(OUTPUT)
 
 clean:
 	rm -f *.o *.so *.a $(OUTPUT) $(OUTPUT).* $(PKGCONFIG_FILE) $(CONFIG_FILE)
 
 install: all $(PKGCONFIG_FILE)
-	install $(OUTPUT).$(VERSION) $(DESTDIR)/lib
+	install $(OUTPUT).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH) $(DESTDIR)/lib
 	install -m644 $(PKGCONFIG_FILE) $(DESTDIR)/lib/pkgconfig
 	install -m644 $(RHONABWY_INCLUDE)/rhonabwy.h $(DESTDIR)/include
+	install -m644 $(CONFIG_FILE) $(DESTDIR)/include
 	-ldconfig $(DESTDIR)/lib
 
 uninstall:
 	rm -f $(DESTDIR)/lib/$(OUTPUT) $(DESTDIR)/lib/librhonabwy.a
 	rm -f $(DESTDIR)/lib/$(OUTPUT).*
 	rm -f $(DESTDIR)/include/rhonabwy.h
+	rm -f $(DESTDIR)/include/$(CONFIG_FILE)
 	rm -f $(DESTDIR)/lib/pkgconfig/$(PKGCONFIG_FILE)
 
 debug: ADDITIONALFLAGS=-DDEBUG -g -O0

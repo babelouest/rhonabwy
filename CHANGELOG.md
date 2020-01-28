@@ -1,6 +1,6 @@
 # Rhonabwy Changelog
 
-## 0.9.0
+## 0.9.1
 
 - Parses `JWK` in `json_t *` or `char *` format
 - Imports `gnutls`, `PEM` or `DER` keys to `JWK`

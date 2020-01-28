@@ -1105,7 +1105,7 @@ json_t * r_jwk_export_to_json_t(jwk_t * jwk) {
   if (jwk != NULL) {
     return json_deep_copy(jwk);
   } else {
-    return NULL;
+    return json_null();
   }
 }
 
@@ -1802,7 +1802,7 @@ json_t * r_jwks_export_to_json_t(jwks_t * jwks) {
   if (jwks != NULL) {
     return json_deep_copy(jwks);
   } else {
-    return NULL;
+    return json_null();
   }
 }
 

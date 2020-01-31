@@ -4,3 +4,4 @@
 *.pc
 valgrind*.txt
 *.log
+rhonabwy-cfg.h

@@ -35,20 +35,20 @@ all: test
 clean:
 	rm -f *.o $(TARGET) valgrind-*.txt
 
-$(RHONABWY_LIBRARY):
+$(RHONABWY_LIBRARY): $(RHONABWY_LOCATION)/rhonabwy.c $(RHONABWY_INCLUDE)/rhonabwy.h
 	cd $(RHONABWY_LOCATION) && $(MAKE) debug
 
 %: %.c
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-test_%: %
+test_%: % $(RHONABWY_LIBRARY)
 	@if [ "$(MEMCHECK)" = "0" ]; then \
 	  LD_LIBRARY_PATH=$(RHONABWY_LOCATION):$(LD_LIBRARY_PATH) ./$^ ; \
 	else \
 	  CK_FORK=no LD_LIBRARY_PATH=$(RHONABWY_LOCATION):$(LD_LIBRARY_PATH) $(VALGRIND_COMMAND) ./$^ 2>valgrind-$@.txt; \
 	fi
 
-test: $(RHONABWY_LIBRARY) $(TARGET_TEST)
+test: $(TARGET_TEST)
 
 check: test
 

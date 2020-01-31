@@ -1102,7 +1102,7 @@ char * r_jwk_export_to_json_str(jwk_t * jwk, int pretty) {
 }
 
 json_t * r_jwk_export_to_json_t(jwk_t * jwk) {
-  if (jwk != NULL) {
+  if (json_object_size(jwk)) {
     return json_deep_copy(jwk);
   } else {
     return NULL;

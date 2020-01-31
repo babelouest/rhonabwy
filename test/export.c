@@ -327,6 +327,8 @@ START_TEST(test_rhonabwy_export_to_json)
   json_t * j_export;
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_ptr_eq(r_jwk_export_to_json_t(jwk), NULL);
+  
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_ptr_ne((j_export = r_jwk_export_to_json_t(jwk)), NULL);
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "kty")), "EC");

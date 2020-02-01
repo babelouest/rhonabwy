@@ -1,6 +1,7 @@
 # Rhonabwy - JWK library
 
 [![Build Status](https://travis-ci.com/babelouest/rhonabwy.svg?branch=master)](https://travis-ci.com/babelouest/rhonabwy)
+![C/C++ CI](https://github.com/babelouest/rhonabwy/workflows/C/C++%20CI/badge.svg)
 
 Create, modify, parse or export Json Web Keys as defined in the [RFC 7517](https://tools.ietf.org/html/rfc7517).
 

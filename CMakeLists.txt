@@ -116,7 +116,7 @@ set(PKGCONF_REQ_PRIVATE "")
 add_library(rhonabwy SHARED ${LIB_SRC})
 set_target_properties(rhonabwy PROPERTIES
         COMPILE_OPTIONS -Wextra
-        PUBLIC_HEADER "${INC_DIR}/rhonabwy.h"
+        PUBLIC_HEADER "${INC_DIR}/rhonabwy.h;${PROJECT_BINARY_DIR}/rhonabwy-cfg.h"
         VERSION "${LIBRARY_VERSION}"
         SOVERSION "${LIBRARY_SOVERSION}")
 target_link_libraries(rhonabwy ${LIBS})

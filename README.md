@@ -32,7 +32,7 @@ You can install Rhonabwy with a pre-compiled package available in the [release p
 
 ### Prerequisites
 
-You must install [liborcania](https://github.com/babelouest/orcania), [librhonabwy](https://github.com/babelouest/yder), [jansson](http://www.digip.org/jansson/) and [GnuTLS](https://www.gnutls.org/) first before building librhonabwy. Orcania and Yder will be automatically installed if missing and you're using cmake.
+You must install [liborcania](https://github.com/babelouest/orcania), [libyder](https://github.com/babelouest/yder), [libulfius](https://github.com/babelouest/ulfius), [jansson](http://www.digip.org/jansson/) and [GnuTLS](https://www.gnutls.org/) first before building librhonabwy. Orcania, Yder and Ulfius will be automatically installed if missing and you're using cmake.
 
 ### CMake - Multi architecture
 

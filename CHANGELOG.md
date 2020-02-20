@@ -1,5 +1,9 @@
 # Rhonabwy Changelog
 
+## 0.9.3
+
+- Allow import jwks when jwks array is empty
+
 ## 0.9.2
 
 - Parses `JWK` in `json_t *` or `char *` format

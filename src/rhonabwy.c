@@ -1897,26 +1897,21 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input) {
   jwk_t * jwk = NULL;
   
   if (jwks != NULL && j_input != NULL) {
-    if (json_array_size(json_object_get(j_input, "keys"))) {
-      json_array_foreach(json_object_get(j_input, "keys"), index, j_jwk) {
-        if (r_init_jwk(&jwk) == RHN_OK) {
-          if ((res = r_jwk_import_from_json_t(jwk, j_jwk)) == RHN_OK) {
-            r_jwks_append_jwk(jwks, jwk);
-          } else if (res == RHN_ERROR_PARAM) {
-            ret = RHN_ERROR_PARAM;
-          } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "jwks import json_t - Error r_jwk_import_from_json_t");
-            ret = RHN_ERROR;
-          }
-          r_free_jwk(jwk);
+    json_array_foreach(json_object_get(j_input, "keys"), index, j_jwk) {
+      if (r_init_jwk(&jwk) == RHN_OK) {
+        if ((res = r_jwk_import_from_json_t(jwk, j_jwk)) == RHN_OK) {
+          r_jwks_append_jwk(jwks, jwk);
+        } else if (res == RHN_ERROR_PARAM) {
+          ret = RHN_ERROR_PARAM;
         } else {
-          ret = RHN_ERROR_MEMORY;
-          break;
+          y_log_message(Y_LOG_LEVEL_ERROR, "jwks import json_t - Error r_jwk_import_from_json_t");
+          ret = RHN_ERROR;
         }
+        r_free_jwk(jwk);
+      } else {
+        ret = RHN_ERROR_MEMORY;
+        break;
       }
-    } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "jwks import json_t - Invalid JWKS format");
-      ret = RHN_ERROR_PARAM;
     }
   } else {
     ret = RHN_ERROR_PARAM;

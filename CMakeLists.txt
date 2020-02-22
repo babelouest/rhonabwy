@@ -143,6 +143,7 @@ if (SEARCH_ORCANIA_R)
 	    include_directories(${orcania_BINARY_DIR})
     endif ()
     target_link_libraries(rhonabwy ${LIBS} ${ORCANIA_LIBRARIES})
+    set(LIBS ${LIBS} ${ORCANIA_LIBRARIES})
 endif ()
 
 option(SEARCH_YDER_R "Search for YDER library" ON)
@@ -165,6 +166,7 @@ if (SEARCH_YDER_R)
 	    include_directories(${yder_BINARY_DIR})
     endif ()
     target_link_libraries(rhonabwy ${LIBS} ${YDER_LIBRARIES})
+    set(LIBS ${LIBS} ${YDER_LIBRARIES})
 endif ()
 
 option(SEARCH_ULFIUS_R "Search for ULFIUS library" ON)
@@ -189,6 +191,7 @@ if (SEARCH_ULFIUS_R)
 	    include_directories(${ulfius_BINARY_DIR})
     endif ()
     target_link_libraries(rhonabwy ${LIBS} ${ULFIUS_LIBRARIES})
+    set(LIBS ${LIBS} ${ULFIUS_LIBRARIES})
 endif ()
 
 # documentation

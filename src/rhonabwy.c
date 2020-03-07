@@ -1809,14 +1809,17 @@ json_t * r_jwks_export_to_json_t(jwks_t * jwks) {
 gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len, int x5u_flags) {
   gnutls_privkey_t * ret = NULL;
   size_t i;
+  jwk_t * jwk;
   
   if (jwks != NULL && len != NULL && r_jwks_size(jwks)) {
     if ((ret = o_malloc(r_jwks_size(jwks)*sizeof(gnutls_privkey_t))) != NULL) {
       *len = r_jwks_size(jwks);
       for (i=0; i<(*len); i++) {
-        if ((ret[i] = r_jwk_export_to_gnutls_privkey(r_jwks_get_at(jwks, i), x5u_flags)) == NULL) {
+        jwk = r_jwks_get_at(jwks, i);
+        if ((ret[i] = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags)) == NULL) {
           y_log_message(Y_LOG_LEVEL_ERROR, "jwks export privkey - Error exporting privkey at index %zu", i);
         }
+        r_free_jwk(jwk);
       }
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "jwks export privkey - Error allocating resources for ret");
@@ -1828,14 +1831,17 @@ gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len, 
 gnutls_pubkey_t * r_jwks_export_to_gnutls_pubkey(jwks_t * jwks, size_t * len, int x5u_flags) {
   gnutls_pubkey_t * ret = NULL;
   size_t i;
+  jwk_t * jwk;
   
   if (jwks != NULL && len != NULL && r_jwks_size(jwks)) {
     if ((ret = o_malloc(r_jwks_size(jwks)*sizeof(gnutls_pubkey_t))) != NULL) {
       *len = r_jwks_size(jwks);
       for (i=0; i<(*len); i++) {
-        if ((ret[i] = r_jwk_export_to_gnutls_pubkey(r_jwks_get_at(jwks, i), x5u_flags)) == NULL) {
+        jwk = r_jwks_get_at(jwks, i);
+        if ((ret[i] = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags)) == NULL) {
           y_log_message(Y_LOG_LEVEL_ERROR, "jwks export pubkey - Error exporting pubkey at index %zu", i);
         }
+        r_free_jwk(jwk);
       }
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "jwks export pubkey - Error allocating resources for ret");
@@ -1848,18 +1854,22 @@ int r_jwks_export_to_pem_der(jwks_t * jwks, int format, unsigned char * output, 
   size_t array_len, i, cur_len;
   unsigned char * cur_output = output;
   int ret;
+  jwk_t * jwk;
 
   if (jwks != NULL && output != NULL && output_len != NULL && (array_len = r_jwks_size(jwks))) {
     cur_len = *output_len;
     for (i=0; i<array_len; i++) {
-      if ((ret = r_jwk_export_to_pem_der(r_jwks_get_at(jwks, i), format, cur_output, &cur_len, x5u_flags)) != RHN_OK) {
+      jwk = r_jwks_get_at(jwks, i);
+      if ((ret = r_jwk_export_to_pem_der(jwk, format, cur_output, &cur_len, x5u_flags)) != RHN_OK) {
         y_log_message(Y_LOG_LEVEL_ERROR, "jwks export pem der - Error exporting key at index %zu", i);
+        r_free_jwk(jwk);
         break;
       } else {
         cur_output += cur_len;
         *output_len -= cur_len;
         cur_len = *output_len;
       }
+      r_free_jwk(jwk);
     }
   } else {
     ret = RHN_ERROR_PARAM;

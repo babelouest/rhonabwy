@@ -8,6 +8,7 @@
 #include <rhonabwy.h>
 #include <gnutls/abstract.h>
 #include <gnutls/x509.h>
+#include <ulfius.h>
 
 const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                     "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\"}";
@@ -52,6 +53,44 @@ const char jwk_pubkey_rsa_x5c_str[] = "{\"kty\":\"RSA\",\"use\":\"sig\",\"kid\":
                                        "MJyf/RuP2SmmaIzmnw9JiSlYhzo4tpzd5rFXhjRbg4zW9C+2qok+2+qDM1iJ684gPHMIY8aLWrdgQTxkumGmTqgawR+N5MDtdPTEQ0XfIBc2cJEUyMTY5"\
                                        "MPvACWpkA6SdS4xSvdXK3IVfOWA==\"]}";
 const char jwk_pubkey_rsa_str_invalid_n[] = "{\"kty\":\"RSA\",\"n\":42,\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2011-04-29\"}";
+
+int callback_jwks_ok (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  char * jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_x5c_str);
+  json_t * j_jwks = json_loads(jwks_str, JSON_DECODE_ANY, NULL);
+  ulfius_set_json_body_response(response, 200, j_jwks);
+  json_decref(j_jwks);
+  o_free(jwks_str);
+  return U_CALLBACK_CONTINUE;
+}
+
+int callback_jwks_error_content_no_jwks (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  json_t * j_jwks = json_loads(jwk_pubkey_ecdsa_str, JSON_DECODE_ANY, NULL);
+  ulfius_set_json_body_response(response, 200, j_jwks);
+  json_decref(j_jwks);
+  return U_CALLBACK_CONTINUE;
+}
+
+int callback_jwks_error_content_no_json (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  char * jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_x5c_str);
+  ulfius_set_string_body_response(response, 200, jwks_str);
+  o_free(jwks_str);
+  return U_CALLBACK_CONTINUE;
+}
+
+int callback_jwks_error_status (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  char * jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_x5c_str);
+  json_t * j_jwks = json_loads(jwks_str, JSON_DECODE_ANY, NULL);
+  ulfius_set_json_body_response(response, 400, j_jwks);
+  json_decref(j_jwks);
+  o_free(jwks_str);
+  return U_CALLBACK_CONTINUE;
+}
+
+int callback_jwks_redirect (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  u_map_put(response->map_header, "Location", "jwks_ok");
+  response->status = 302;
+  return U_CALLBACK_CONTINUE;
+}
 
 START_TEST(test_rhonabwy_init_jwks)
 {
@@ -325,6 +364,53 @@ START_TEST(test_rhonabwy_jwks_import)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_jwks_import_uri)
+{
+  struct _u_instance instance;
+  jwks_t * jwks;
+  
+  ck_assert_int_eq(ulfius_init_instance(&instance, 7462, NULL, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_ok", NULL, 0, &callback_jwks_ok, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_error_content_no_jwks", NULL, 0, &callback_jwks_error_content_no_jwks, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_error_content_no_json", NULL, 0, &callback_jwks_error_content_no_json, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_error_status", NULL, 0, &callback_jwks_error_status, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_redirect", NULL, 0, &callback_jwks_redirect, NULL), U_OK);
+  
+  ck_assert_int_eq(r_jwks_import_from_uri(NULL, "http://localhost:7462/jwks_ok"), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, NULL), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwks_import_from_uri(NULL, NULL), RHN_ERROR_PARAM);
+
+  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_ok"), RHN_ERROR);
+  r_free_jwk(jwks);
+
+  ck_assert_int_eq(ulfius_start_framework(&instance), U_OK);
+  
+  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_error_content_no_jwks"), RHN_ERROR);
+  r_free_jwk(jwks);
+
+  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_error_content_no_json"), RHN_ERROR);
+  r_free_jwk(jwks);
+
+  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_error_status"), RHN_ERROR);
+  r_free_jwk(jwks);
+
+  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_redirect"), RHN_OK);
+  r_free_jwk(jwks);
+
+  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_ok"), RHN_OK);
+  r_free_jwk(jwks);
+
+  ulfius_stop_framework(&instance);
+  ulfius_clean_instance(&instance);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -340,6 +426,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_jwks_export_pubkey);
   tcase_add_test(tc_core, test_rhonabwy_jwks_export_pem);
   tcase_add_test(tc_core, test_rhonabwy_jwks_import);
+  tcase_add_test(tc_core, test_rhonabwy_jwks_import_uri);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

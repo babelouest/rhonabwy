@@ -1938,6 +1938,8 @@ int r_jwks_import_from_uri(jwks_t * jwks, const char * uri) {
             ret = RHN_ERROR;
           }
           json_decref(j_result);
+        } else {
+          ret = RHN_ERROR;
         }
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "jwks import uri - Error ulfius_send_http_request");

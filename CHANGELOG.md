@@ -1,5 +1,9 @@
 # Rhonabwy Changelog
 
+## 0.9.4
+
+- Add `r_jwks_import_from_uri`
+
 ## 0.9.3
 
 - Allow import jwks when jwks array is empty

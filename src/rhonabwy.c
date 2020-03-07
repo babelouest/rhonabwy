@@ -1896,7 +1896,7 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input) {
   json_t * j_jwk = NULL;
   jwk_t * jwk = NULL;
   
-  if (jwks != NULL && j_input != NULL) {
+  if (jwks != NULL && j_input != NULL && json_is_array(json_object_get(j_input, "keys"))) {
     json_array_foreach(json_object_get(j_input, "keys"), index, j_jwk) {
       if (r_init_jwk(&jwk) == RHN_OK) {
         if ((res = r_jwk_import_from_json_t(jwk, j_jwk)) == RHN_OK) {
@@ -1928,11 +1928,16 @@ int r_jwks_import_from_uri(jwks_t * jwks, const char * uri) {
   if (jwks != NULL && uri != NULL) {
     if (ulfius_init_request(&req) == U_OK && ulfius_init_response(&resp) == U_OK) {
       req.http_url = o_strdup(uri);
+      req.follow_redirect = 1;
       if (ulfius_send_http_request(&req, &resp) == U_OK) {
         if (resp.status >= 200 && resp.status < 300) {
           j_result = ulfius_get_json_body_response(&resp, NULL);
           if (j_result != NULL) {
-            ret = r_jwks_import_from_json_t(jwks, j_result);
+            if (r_jwks_import_from_json_t(jwks, j_result) == RHN_OK) {
+              ret = RHN_OK;
+            } else {
+              ret = RHN_ERROR;
+            }
           } else {
             y_log_message(Y_LOG_LEVEL_DEBUG, "jwks import uri - Error ulfius_get_json_body_response");
             ret = RHN_ERROR;

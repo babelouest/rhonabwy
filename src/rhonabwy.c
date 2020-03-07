@@ -1918,3 +1918,39 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input) {
   }
   return ret;
 }
+
+int r_jwks_import_from_uri(jwks_t * jwks, const char * uri) {
+  struct _u_request req;
+  struct _u_response resp;
+  int ret;
+  json_t * j_result;
+  
+  if (jwks != NULL && uri != NULL) {
+    if (ulfius_init_request(&req) == U_OK && ulfius_init_response(&resp) == U_OK) {
+      req.http_url = o_strdup(uri);
+      if (ulfius_send_http_request(&req, &resp) == U_OK) {
+        if (resp.status >= 200 && resp.status < 300) {
+          j_result = ulfius_get_json_body_response(&resp, NULL);
+          if (j_result != NULL) {
+            ret = r_jwks_import_from_json_t(jwks, j_result);
+          } else {
+            y_log_message(Y_LOG_LEVEL_DEBUG, "jwks import uri - Error ulfius_get_json_body_response");
+            ret = RHN_ERROR;
+          }
+          json_decref(j_result);
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "jwks import uri - Error ulfius_send_http_request");
+        ret = RHN_ERROR;
+      }
+      ulfius_clean_request(&req);
+      ulfius_clean_response(&resp);
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "jwks import uri - Error ulfius_init_request or ulfius_init_response");
+      ret = RHN_ERROR;
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}

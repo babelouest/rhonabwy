@@ -3,6 +3,7 @@
 ## 0.9.4
 
 - Add `r_jwks_import_from_uri`
+- Fix memory leaks
 
 ## 0.9.3
 

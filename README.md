@@ -82,4 +82,4 @@ If you choose to install Rhonabwy in another directory, you must set your enviro
 
 # API Documentation
 
-Documentation is available in the documentation page: [https://babelouest.github.io/rhonabwy/doc/html/](https://babelouest.github.io/rhonabwy/doc/html/)
+Documentation is available in the documentation page: [https://babelouest.github.io/rhonabwy/](https://babelouest.github.io/rhonabwy/)

@@ -423,8 +423,18 @@ size_t r_jwks_size(jwks_t * jwks);
  * @param jwks: the jwks_t * to evaluate
  * @param index: the index of the array to retrieve
  * @return a jwk_t * on success, NULL on error
+ * The returned jwk must be r_free_jwk after use
  */
 jwk_t * r_jwks_get_at(jwks_t * jwks, size_t index);
+
+/**
+ * Get the jwk_t at the specified index of the jwks_t *
+ * @param jwks: the jwks_t * to evaluate
+ * @param kid: the key id of the jwk to retreive
+ * @return a jwk_t * on success, NULL on error
+ * The returned jwk must be r_free_jwk after use
+ */
+jwk_t * r_jwks_get_by_kid(jwks_t * jwks, const char * kid);
 
 /**
  * Append a jwk_t at the end of the array of jwk_t in the jwks_t

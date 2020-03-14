@@ -1751,6 +1751,19 @@ jwk_t * r_jwks_get_at(jwks_t * jwks, size_t index) {
   }
 }
 
+jwk_t * r_jwks_get_by_kid(jwks_t * jwks, const char * kid) {
+  json_t * jwk = NULL;
+  size_t index = 0;
+  if (jwks != NULL && o_strlen(kid)) {
+    json_array_foreach(json_object_get(jwks, "keys"), index, jwk) {
+      if (0 == o_strcmp(kid, json_string_value(json_object_get(jwk, "kid")))) {
+        return json_deep_copy(jwk);
+      }
+    }
+  }
+  return NULL;
+}
+
 int r_jwks_append_jwk(jwks_t * jwks, jwk_t * jwk) {
   if (jwks != NULL) {
     if (!json_array_append(json_object_get(jwks, "keys"), jwk)) {

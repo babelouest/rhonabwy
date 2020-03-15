@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 0.9.5
+
+- Add `r_jwks_get_by_kid`
+- Rename flags `R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE` and `R_X5U_FLAG_FOLLOW_REDIRECT` to `R_FLAG_IGNORE_SERVER_CERTIFICATE` and `R_FLAG_FOLLOW_REDIRECT`
+
 ## 0.9.4
 
 - Add `r_jwks_import_from_uri`

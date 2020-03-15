@@ -63,8 +63,8 @@ extern "C"
 #define R_KEY_TYPE_ECDSA     0x00010000
 #define R_KEY_TYPE_HMAC      0x00100000
 
-#define R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE 0x00000001
-#define R_X5U_FLAG_FOLLOW_REDIRECT           0x00000010
+#define R_FLAG_IGNORE_SERVER_CERTIFICATE 0x00000001
+#define R_FLAG_FOLLOW_REDIRECT           0x00000010
 
 /**
  * @}
@@ -122,8 +122,8 @@ void r_free_jwks(jwks_t * jwks);
  * @param x5u_flags: Flags to retrieve certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
- * - R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
  * @return an integer containing 
  * - R_KEY_TYPE_NONE if the jwk is invalid
  * * the type:
@@ -334,8 +334,8 @@ json_t * r_jwk_export_to_json_t(jwk_t * jwk);
  * @param x5u_flags: Flags to retrieve certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
- * - R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
  * @return a gnutls_privkey_t on success, NULL on error
  */
 gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags);
@@ -346,8 +346,8 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags);
  * @param x5u_flags: Flags to retrieve certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
- * - R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
  * @return a gnutls_pubkey_t on success, NULL on error
  */
 gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags);
@@ -361,8 +361,8 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags);
  * @param x5u_flags: Flags to retrieve certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
- * - R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
  * @return RHN_OK on success, an error value on error
  * @return RHN_ERROR_PARAM if output_len isn't large enough to hold the output, then output_len will be set to the required size
  */
@@ -405,11 +405,15 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input);
  * @param jwk: the jwk_t * to import to
  * @param uri: an uri pointing to a JWKS
  * If jwks is set, JWK will be appended
+ * @param flags: Flags to retrieve certificates
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
  * @return RHN_OK on success, an error value on error
  * may return RHN_ERROR_PARAM if at least one JWK 
  * is invalid, but the will import the others
  */
-int r_jwks_import_from_uri(jwks_t * jwks, const char * uri);
+int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int flags);
 
 /**
  * Get the number of jwk_t in a jwks_t
@@ -483,8 +487,8 @@ json_t * r_jwks_export_to_json_t(jwks_t * jwks);
  * @param x5u_flags: Flags to retrieve certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
- * - R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
  * @return a heap-allocated gnutls_privkey_t * on success, NULL on error
  * an index of the returned array may be NULL if the corresponding jwk isn't a private key
  */
@@ -497,8 +501,8 @@ gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len, 
  * @param x5u_flags: Flags to retrieve certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
- * - R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
  * @return a heap-allocated gnutls_pubkey_t * on success, NULL on error
  */
 gnutls_pubkey_t * r_jwks_export_to_gnutls_pubkey(jwks_t * jwks, size_t * len, int x5u_flags);
@@ -512,8 +516,8 @@ gnutls_pubkey_t * r_jwks_export_to_gnutls_pubkey(jwks_t * jwks, size_t * len, in
  * @param x5u_flags: Flags to retrieve certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
- * - R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
  * @return RHN_OK on success, an error value on error
  * @return RHN_ERROR_PARAM if output_len isn't large enough to hold the output, then output_len will be set to the required size
  */

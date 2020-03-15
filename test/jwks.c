@@ -377,35 +377,36 @@ START_TEST(test_rhonabwy_jwks_import_uri)
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_redirect", NULL, 0, &callback_jwks_redirect, NULL), U_OK);
   
   ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
-  ck_assert_int_eq(r_jwks_import_from_uri(NULL, "http://localhost:7462/jwks_ok"), RHN_ERROR_PARAM);
-  ck_assert_int_eq(r_jwks_import_from_uri(jwks, NULL), RHN_ERROR_PARAM);
-  ck_assert_int_eq(r_jwks_import_from_uri(NULL, NULL), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwks_import_from_uri(NULL, "http://localhost:7462/jwks_ok", 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, NULL, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwks_import_from_uri(NULL, NULL, 0), RHN_ERROR_PARAM);
   r_free_jwk(jwks);
 
   ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
-  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_ok"), RHN_ERROR);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_ok", 0), RHN_ERROR);
   r_free_jwk(jwks);
 
   ck_assert_int_eq(ulfius_start_framework(&instance), U_OK);
   
   ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
-  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_error_content_no_jwks"), RHN_ERROR);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_error_content_no_jwks", 0), RHN_ERROR);
   r_free_jwk(jwks);
 
   ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
-  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_error_content_no_json"), RHN_ERROR);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_error_content_no_json", 0), RHN_ERROR);
   r_free_jwk(jwks);
 
   ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
-  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_error_status"), RHN_ERROR);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_error_status", 0), RHN_ERROR);
   r_free_jwk(jwks);
 
   ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
-  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_redirect"), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_redirect", 0), RHN_ERROR);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_redirect", R_FLAG_FOLLOW_REDIRECT), RHN_OK);
   r_free_jwk(jwks);
 
   ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
-  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_ok"), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_ok", 0), RHN_OK);
   r_free_jwk(jwks);
 
   ulfius_stop_framework(&instance);

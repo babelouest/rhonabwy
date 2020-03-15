@@ -438,8 +438,8 @@ int r_jwk_key_type(jwk_t * jwk, int x5u_flags) {
         if (ulfius_init_response(&response) == U_OK) {
           request.http_verb = o_strdup("GET");
           request.http_url = o_strdup(json_string_value(json_array_get(json_object_get(jwk, "x5u"), 0)));
-          request.check_server_certificate = !(x5u_flags&R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE);
-          request.follow_redirect = x5u_flags&R_X5U_FLAG_FOLLOW_REDIRECT;
+          request.check_server_certificate = !(x5u_flags&R_FLAG_IGNORE_SERVER_CERTIFICATE);
+          request.follow_redirect = x5u_flags&R_FLAG_FOLLOW_REDIRECT;
           if (ulfius_send_http_request(&request, &response) == U_OK && response.status >= 200 && response.status < 300) {
             data.data = response.binary_body;
             data.size = response.binary_body_length;
@@ -1412,8 +1412,8 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
           if (ulfius_init_response(&response) == U_OK) {
             request.http_verb = o_strdup("GET");
             request.http_url = o_strdup(json_string_value(json_array_get(json_object_get(jwk, "x5u"), 0)));
-            request.check_server_certificate = !(x5u_flags&R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE);
-            request.follow_redirect = x5u_flags&R_X5U_FLAG_FOLLOW_REDIRECT;
+            request.check_server_certificate = !(x5u_flags&R_FLAG_IGNORE_SERVER_CERTIFICATE);
+            request.follow_redirect = x5u_flags&R_FLAG_FOLLOW_REDIRECT;
             if (ulfius_send_http_request(&request, &response) == U_OK && response.status >= 200 && response.status < 300) {
               if (!gnutls_x509_crt_init(&crt)) {
                 if (!gnutls_pubkey_init(&pubkey)) {
@@ -1942,7 +1942,7 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input) {
   return ret;
 }
 
-int r_jwks_import_from_uri(jwks_t * jwks, const char * uri) {
+int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int flags) {
   struct _u_request req;
   struct _u_response resp;
   int ret;
@@ -1951,7 +1951,8 @@ int r_jwks_import_from_uri(jwks_t * jwks, const char * uri) {
   if (jwks != NULL && uri != NULL) {
     if (ulfius_init_request(&req) == U_OK && ulfius_init_response(&resp) == U_OK) {
       req.http_url = o_strdup(uri);
-      req.follow_redirect = 1;
+      req.check_server_certificate = !(flags & R_FLAG_IGNORE_SERVER_CERTIFICATE);
+      req.follow_redirect = flags & R_FLAG_FOLLOW_REDIRECT;
       if (ulfius_send_http_request(&req, &resp) == U_OK) {
         if (resp.status >= 200 && resp.status < 300) {
           j_result = ulfius_get_json_body_response(&resp, NULL);

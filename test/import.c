@@ -1151,7 +1151,7 @@ START_TEST(test_rhonabwy_key_type)
   
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_rsa_pub), RHN_OK);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE)), R_KEY_TYPE_NONE);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -1163,7 +1163,7 @@ START_TEST(test_rhonabwy_key_type)
 #if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_ecdsa_pub), RHN_OK);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE)), R_KEY_TYPE_NONE);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);

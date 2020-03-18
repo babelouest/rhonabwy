@@ -51,12 +51,14 @@ Functions</h2></td></tr>
 <tr class="separator:ga3779f3432ca378e4db6fd338a86eaa21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6c32c46305421cf0eed3c6f3ea91a798"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga6c32c46305421cf0eed3c6f3ea91a798">r_jwks_import_from_json_t</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, json_t *j_input)</td></tr>
 <tr class="separator:ga6c32c46305421cf0eed3c6f3ea91a798"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa0389739eda28737b73f93cd865838b8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#gaa0389739eda28737b73f93cd865838b8">r_jwks_import_from_uri</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, const char *uri)</td></tr>
-<tr class="separator:gaa0389739eda28737b73f93cd865838b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0788a318f26b8c9a252916747c27898a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga0788a318f26b8c9a252916747c27898a">r_jwks_import_from_uri</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, const char *uri, int flags)</td></tr>
+<tr class="separator:ga0788a318f26b8c9a252916747c27898a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1370763ce4d4ed8009ae87ca8e08e2db"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga1370763ce4d4ed8009ae87ca8e08e2db">r_jwks_size</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
 <tr class="separator:ga1370763ce4d4ed8009ae87ca8e08e2db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaccfb6d0b8d071c92ceeb5c7bd48047e5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#gaccfb6d0b8d071c92ceeb5c7bd48047e5">r_jwks_get_at</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, size_t index)</td></tr>
 <tr class="separator:gaccfb6d0b8d071c92ceeb5c7bd48047e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7846e6ec4d66f2baec08a6900dd55f02"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga7846e6ec4d66f2baec08a6900dd55f02">r_jwks_get_by_kid</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, const char *kid)</td></tr>
+<tr class="separator:ga7846e6ec4d66f2baec08a6900dd55f02"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga978f43a2f8d02ce7db7a667413ded124"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga978f43a2f8d02ce7db7a667413ded124">r_jwks_append_jwk</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk)</td></tr>
 <tr class="separator:ga978f43a2f8d02ce7db7a667413ded124"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7f28e4d9e3f9af8951e434630eadc779"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga7f28e4d9e3f9af8951e434630eadc779">r_jwks_set_at</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, size_t index, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk)</td></tr>
@@ -149,8 +151,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="gaa0389739eda28737b73f93cd865838b8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gaa0389739eda28737b73f93cd865838b8">&#9670;&nbsp;</a></span>r_jwks_import_from_uri()</h2>
+<a id="ga0788a318f26b8c9a252916747c27898a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0788a318f26b8c9a252916747c27898a">&#9670;&nbsp;</a></span>r_jwks_import_from_uri()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -165,7 +167,13 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>uri</em>&#160;</td>
+          <td class="paramname"><em>uri</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>flags</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -178,6 +186,11 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">jwk</td><td>the jwk_t * to import to </td></tr>
     <tr><td class="paramname">uri</td><td>an uri pointing to a JWKS If jwks is set, JWK will be appended </td></tr>
+    <tr><td class="paramname">flags</td><td>Flags to retrieve certificates Flags available are<ul>
+<li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
+</ul>
+</td></tr>
   </table>
   </dd>
 </dl>
@@ -242,7 +255,43 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>a jwk_t * on success, NULL on error </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>a jwk_t * on success, NULL on error The returned jwk must be r_free_jwk after use </dd></dl>
+
+</div>
+</div>
+<a id="ga7846e6ec4d66f2baec08a6900dd55f02"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7846e6ec4d66f2baec08a6900dd55f02">&#9670;&nbsp;</a></span>r_jwks_get_by_kid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a>* r_jwks_get_by_kid </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td>
+          <td class="paramname"><em>jwks</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>kid</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get the jwk_t at the specified index of the jwks_t * </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwks</td><td>the jwks_t * to evaluate </td></tr>
+    <tr><td class="paramname">kid</td><td>the key id of the jwk to retreive </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a jwk_t * on success, NULL on error The returned jwk must be r_free_jwk after use </dd></dl>
 
 </div>
 </div>
@@ -458,8 +507,8 @@ Functions</h2></td></tr>
     <tr><td class="paramname">jwk</td><td>the jwks_t * to export </td></tr>
     <tr><td class="paramname">len</td><td>set the length of the output array </td></tr>
     <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
-<li>R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
-<li>R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
+<li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
 </ul>
 </td></tr>
   </table>
@@ -505,8 +554,8 @@ Functions</h2></td></tr>
     <tr><td class="paramname">jwk</td><td>the jwks_t * to export </td></tr>
     <tr><td class="paramname">len</td><td>set the length of the output array </td></tr>
     <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
-<li>R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
-<li>R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
+<li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
 </ul>
 </td></tr>
   </table>
@@ -566,8 +615,8 @@ Functions</h2></td></tr>
     <tr><td class="paramname">output</td><td>an unsigned char * that will contain the output </td></tr>
     <tr><td class="paramname">output_len</td><td>the size of output and will be set to the data size that has been written to output </td></tr>
     <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
-<li>R_X5U_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
-<li>R_X5U_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
+<li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
 </ul>
 </td></tr>
   </table>

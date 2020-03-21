@@ -106,7 +106,7 @@ include_directories(${INC_DIR})
 
 set(LIB_SRC
         ${INC_DIR}/rhonabwy.h # allow many IDEs to find and edit it
-        ${SRC_DIR}/rhonabwy.c)
+        ${SRC_DIR}/jwk.c)
 
 set(PKGCONF_REQ "")
 set(PKGCONF_REQ_PRIVATE "")

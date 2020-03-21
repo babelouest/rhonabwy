@@ -494,7 +494,7 @@ int r_jwk_extract_pubkey(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int x5u_flags)
   if (r_jwk_is_valid(jwk_privkey) == RHN_OK && r_jwk_key_type(jwk_privkey, x5u_flags) & R_KEY_TYPE_PRIVATE && jwk_pubkey != NULL) {
     if ((privkey = r_jwk_export_to_gnutls_privkey(jwk_privkey, x5u_flags)) != NULL) {
       if (!gnutls_pubkey_init(&pubkey)) {
-        if (!gnutls_pubkey_import_privkey(pubkey, privkey, GNUTLS_KEY_SHARE_TOP, 0)) {
+        if (!gnutls_pubkey_import_privkey(pubkey, privkey, GNUTLS_KEY_DIGITAL_SIGNATURE|GNUTLS_KEY_KEY_ENCIPHERMENT|GNUTLS_KEY_DATA_ENCIPHERMENT, 0)) {
           if (r_jwk_import_from_gnutls_pubkey(jwk_pubkey, pubkey) == RHN_OK) {
             ret = RHN_OK;
           } else {

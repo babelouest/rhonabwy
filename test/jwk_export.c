@@ -462,7 +462,8 @@ START_TEST(test_rhonabwy_export_to_gnutls_pubkey)
   
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
-  ck_assert_ptr_eq(r_jwk_export_to_gnutls_pubkey(jwk, 0), NULL);
+  ck_assert_ptr_ne((pubkey = r_jwk_export_to_gnutls_pubkey(jwk, 0)), NULL);
+  gnutls_pubkey_deinit(pubkey);
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
@@ -473,7 +474,8 @@ START_TEST(test_rhonabwy_export_to_gnutls_pubkey)
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
-  ck_assert_ptr_eq(r_jwk_export_to_gnutls_pubkey(jwk, 0), NULL);
+  ck_assert_ptr_ne((pubkey = r_jwk_export_to_gnutls_pubkey(jwk, 0)), NULL);
+  gnutls_pubkey_deinit(pubkey);
   r_free_jwk(jwk);
 
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);

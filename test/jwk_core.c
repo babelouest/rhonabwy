@@ -27,6 +27,8 @@ const char jwk_pubkey_rsa_x5c_str[] = "{\"kty\":\"RSA\",\"use\":\"sig\",\"kid\":
                                        "MJyf/RuP2SmmaIzmnw9JiSlYhzo4tpzd5rFXhjRbg4zW9C+2qok+2+qDM1iJ684gPHMIY8aLWrdgQTxkumGmTqgawR+N5MDtdPTEQ0XfIBc2cJEUyMTY5"\
                                        "MPvACWpkA6SdS4xSvdXK3IVfOWA==\"]}";
 
+#define KID "kid_1"
+
 START_TEST(test_rhonabwy_init)
 {
   jwk_t * jwk;
@@ -255,6 +257,94 @@ START_TEST(test_rhonabwy_delete_property)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_generate_key_pair)
+{
+  jwk_t * jwk_privkey, * jwk_pubkey;
+  unsigned int bits = 0;
+  int type;
+  
+  ck_assert_int_eq(r_init_jwk(&jwk_privkey), RHN_OK);
+  ck_assert_int_eq(r_init_jwk(&jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jwk_generate_key_pair(NULL, jwk_pubkey, R_KEY_TYPE_RSA, 4096, KID), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, NULL, R_KEY_TYPE_RSA, 4096, KID), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, jwk_pubkey, 0, 4096, KID), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, jwk_pubkey, R_KEY_TYPE_RSA, 0, KID), RHN_ERROR_PARAM);
+  
+  ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, jwk_pubkey, R_KEY_TYPE_RSA, 4096, KID), RHN_OK);
+  ck_assert_str_eq(KID, r_jwk_get_property_str(jwk_privkey, "kid"));
+  ck_assert_int_ne((type = r_jwk_key_type(jwk_privkey, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 4096);
+  ck_assert_int_eq(type & R_KEY_TYPE_PUBLIC, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_PRIVATE, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
+  ck_assert_str_eq(KID, r_jwk_get_property_str(jwk_pubkey, "kid"));
+  ck_assert_int_ne((type = r_jwk_key_type(jwk_pubkey, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 4096);
+  ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
+  r_free_jwk(jwk_privkey);
+  r_free_jwk(jwk_pubkey);
+  
+  ck_assert_int_eq(r_init_jwk(&jwk_privkey), RHN_OK);
+  ck_assert_int_eq(r_init_jwk(&jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, jwk_pubkey, R_KEY_TYPE_RSA, 4096, NULL), RHN_OK);
+  ck_assert_str_ne(KID, r_jwk_get_property_str(jwk_privkey, "kid"));
+  ck_assert_int_ne((type = r_jwk_key_type(jwk_privkey, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 4096);
+  ck_assert_int_eq(type & R_KEY_TYPE_PUBLIC, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_PRIVATE, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
+  ck_assert_str_ne(KID, r_jwk_get_property_str(jwk_pubkey, "kid"));
+  ck_assert_int_ne((type = r_jwk_key_type(jwk_pubkey, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 4096);
+  ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
+  r_free_jwk(jwk_privkey);
+  r_free_jwk(jwk_pubkey);
+  
+  ck_assert_int_eq(r_init_jwk(&jwk_privkey), RHN_OK);
+  ck_assert_int_eq(r_init_jwk(&jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, jwk_pubkey, R_KEY_TYPE_ECDSA, 1, KID), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, jwk_pubkey, R_KEY_TYPE_ECDSA, 555, KID), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, jwk_pubkey, R_KEY_TYPE_ECDSA, 256, KID), RHN_OK);
+  ck_assert_str_eq(KID, r_jwk_get_property_str(jwk_privkey, "kid"));
+  ck_assert_int_ne((type = r_jwk_key_type(jwk_privkey, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 256);
+  ck_assert_int_eq(type & R_KEY_TYPE_PUBLIC, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_PRIVATE, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_RSA, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
+  ck_assert_str_eq(KID, r_jwk_get_property_str(jwk_pubkey, "kid"));
+  ck_assert_int_ne((type = r_jwk_key_type(jwk_pubkey, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 256);
+  ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_RSA, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
+  r_free_jwk(jwk_privkey);
+  r_free_jwk(jwk_pubkey);
+  
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -266,6 +356,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_get_property);
   tcase_add_test(tc_core, test_rhonabwy_set_property);
   tcase_add_test(tc_core, test_rhonabwy_delete_property);
+  tcase_add_test(tc_core, test_rhonabwy_generate_key_pair);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

@@ -1041,6 +1041,7 @@ START_TEST(test_rhonabwy_key_type)
   jwk_t * jwk;
   int type;
   struct _u_instance instance;
+  unsigned int bits = 0;
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7462, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);
@@ -1050,7 +1051,8 @@ START_TEST(test_rhonabwy_key_type)
   
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 256);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -1060,9 +1062,11 @@ START_TEST(test_rhonabwy_key_type)
   r_free_jwk(jwk);
   
 #if GNUTLS_VERSION_NUMBER >= 0x030600
+  bits = 0;
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 256);
   ck_assert_int_eq(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -1072,9 +1076,11 @@ START_TEST(test_rhonabwy_key_type)
   r_free_jwk(jwk);
 #endif
   
+  bits = 0;
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 2048);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -1083,9 +1089,11 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_free_jwk(jwk);
   
+  bits = 0;
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 2048);
   ck_assert_int_eq(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -1094,9 +1102,11 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_free_jwk(jwk);
   
+  bits = 0;
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_key_symmetric), RHN_OK);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 22);
   ck_assert_int_eq(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -1105,9 +1115,11 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_ne(type & R_KEY_TYPE_HMAC, 0);
   r_free_jwk(jwk);
   
+  bits = 0;
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_str), RHN_OK);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 2048);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -1116,9 +1128,11 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_free_jwk(jwk);
   
+  bits = 0;
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 2048);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -1127,9 +1141,11 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_free_jwk(jwk);
   
+  bits = 0;
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_only), RHN_OK);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 2048);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -1138,9 +1154,11 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_free_jwk(jwk);
   
+  bits = 0;
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_x5c_only), RHN_OK);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 3072);
   ck_assert_int_eq(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -1149,9 +1167,11 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_free_jwk(jwk);
   
+  bits = 0;
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_rsa_pub), RHN_OK);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_SERVER_CERTIFICATE)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 3072);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -1161,9 +1181,11 @@ START_TEST(test_rhonabwy_key_type)
   r_free_jwk(jwk);
   
 #if GNUTLS_VERSION_NUMBER >= 0x030600
+  bits = 0;
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_ecdsa_pub), RHN_OK);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_SERVER_CERTIFICATE)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 256);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -1182,12 +1204,14 @@ START_TEST(test_rhonabwy_extract_pubkey)
 {
   jwk_t * jwk_privkey, * jwk_pubkey;
   int type;
+  unsigned int bits = 0;
   
   ck_assert_int_eq(r_init_jwk(&jwk_privkey), RHN_OK);
   ck_assert_int_eq(r_init_jwk(&jwk_pubkey), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_pem_der(jwk_privkey, R_X509_TYPE_PRIVKEY, R_FORMAT_PEM, rsa_2048_priv, o_strlen((const char *)rsa_2048_priv)), RHN_OK);
   ck_assert_int_eq(r_jwk_extract_pubkey(jwk_privkey, jwk_pubkey, 0), RHN_OK);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk_pubkey, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk_pubkey, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 2048);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -1198,11 +1222,13 @@ START_TEST(test_rhonabwy_extract_pubkey)
   r_free_jwk(jwk_pubkey);
   
 #if GNUTLS_VERSION_NUMBER >= 0x030600
+  bits = 0;
   ck_assert_int_eq(r_init_jwk(&jwk_privkey), RHN_OK);
   ck_assert_int_eq(r_init_jwk(&jwk_pubkey), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_pem_der(jwk_privkey, R_X509_TYPE_PRIVKEY, R_FORMAT_PEM, ecdsa_521_priv, o_strlen((const char *)ecdsa_521_priv)), RHN_OK);
   ck_assert_int_eq(r_jwk_extract_pubkey(jwk_privkey, jwk_pubkey, 0), RHN_OK);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk_pubkey, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk_pubkey, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 512);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);

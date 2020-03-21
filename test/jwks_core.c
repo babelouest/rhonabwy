@@ -267,7 +267,8 @@ START_TEST(test_rhonabwy_jwks_export_pubkey)
   r_free_jwk(jwk);
   ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_pubkey(jwks, &len, 0)), NULL);
   ck_assert_int_eq(len, 1);
-  ck_assert_ptr_eq(out[0], NULL);
+  ck_assert_ptr_ne(out[0], NULL);
+  gnutls_pubkey_deinit(out[0]);
   o_free(out);
   
   ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
@@ -276,8 +277,9 @@ START_TEST(test_rhonabwy_jwks_export_pubkey)
   r_free_jwk(jwk);
   ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_pubkey(jwks, &len, 0)), NULL);
   ck_assert_int_eq(len, 2);
-  ck_assert_ptr_eq(out[0], NULL);
+  ck_assert_ptr_ne(out[0], NULL);
   ck_assert_ptr_ne(out[1], NULL);
+  gnutls_pubkey_deinit(out[0]);
   gnutls_pubkey_deinit(out[1]);
   o_free(out);
   
@@ -287,10 +289,12 @@ START_TEST(test_rhonabwy_jwks_export_pubkey)
   r_free_jwk(jwk);
   ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_pubkey(jwks, &len, 0)), NULL);
   ck_assert_int_eq(len, 3);
-  ck_assert_ptr_eq(out[0], NULL);
+  ck_assert_ptr_ne(out[0], NULL);
   ck_assert_ptr_ne(out[1], NULL);
-  ck_assert_ptr_eq(out[2], NULL);
+  ck_assert_ptr_ne(out[2], NULL);
+  gnutls_pubkey_deinit(out[0]);
   gnutls_pubkey_deinit(out[1]);
+  gnutls_pubkey_deinit(out[2]);
   o_free(out);
   
   r_free_jwk(jwks);

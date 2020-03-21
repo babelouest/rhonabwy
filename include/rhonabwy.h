@@ -71,13 +71,20 @@ extern "C"
  */
 
 /**
- * @defgroup type JWK type
- * Definition of the types jwk_t and jwks_t
+ * @defgroup type JWK, JWKS, JWS type
+ * Definition of the types jwk_t, jwks_t and jws_t
  * @{
  */
 
 typedef json_t jwk_t;
 typedef json_t jwks_t;
+
+typedef struct _jws_t {
+  json_t * j_header;
+  unsigned char * payload;
+  size_t payload_len;
+  char * signature;
+} jws_t;
 
 /**
  * @}
@@ -117,8 +124,22 @@ int r_init_jwks(jwks_t ** jwks);
 void r_free_jwks(jwks_t * jwks);
 
 /**
+ * Initialize a jws_t
+ * @param jws: a reference to a jws_t * to initialize
+ * @return RHN_OK on success, an error value on error
+ */
+int r_init_jws(jws_t ** jws);
+
+/**
+ * Free a jws_t
+ * @param jws: the jws_t * to free
+ */
+void r_free_jws(jws_t * jws);
+
+/**
  * Get the type and algorithm of a jwk_t
  * @param jwk: the jwk_t * to test
+ * @param bits: set the key size in bits (may be NULL)
  * @param x5u_flags: Flags to retrieve certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
@@ -140,7 +161,7 @@ void r_free_jwks(jwks_t * jwks);
  * You can combine type and algorithm values in the bitwise operator
  * Ex: if (r_jwk_key_type(jwk) & (R_KEY_TYPE_RSA|R_KEY_TYPE_PRIVATE)) {
  */
-int r_jwk_key_type(jwk_t * jwk, int x5u_flags);
+int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags);
 
 /**
  * Check if the jwk is valid
@@ -158,6 +179,19 @@ int r_jwk_is_valid(jwk_t * jwk);
  * Logs error message with yder on error
  */
 int r_jwks_is_valid(jwks_t * jwks);
+
+/**
+ * Generates a pair of private and public key using given parameters
+ * @param jwk_privkey: the private key to set, must be initialized
+ * @param jwk_pubkey: the public key to set, must be initialized
+ * @param type: the type of key, values available are
+ * R_KEY_TYPE_RSA or R_KEY_TYPE_ECDSA
+ * @param bits: the key size to generate, if the key type is R_KEY_TYPE_ECDSA,
+ * the key size is the curve length: 256, 384 or 512
+ * @param kid: the key ID to set to the JWKs, if NULL or empty, will be set automatically
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, unsigned int bits, const char * kid);
 
 /**
  * @}
@@ -535,6 +569,18 @@ gnutls_pubkey_t * r_jwks_export_to_gnutls_pubkey(jwks_t * jwks, size_t * len, in
  * @return RHN_ERROR_PARAM if output_len isn't large enough to hold the output, then output_len will be set to the required size
  */
 int r_jwks_export_to_pem_der(jwks_t * jwks, int format, unsigned char * output, size_t * output_len, int x5u_flags);
+
+/**
+ * @}
+ */
+
+/**
+ * @defgroup jws JWS functions
+ * Manage JSON Web Signatures
+ * @{
+ */
+
+int r_jws_set_payload(jws_t * jws, unsigned char * payload, size_t payload_len);
 
 /**
  * @}

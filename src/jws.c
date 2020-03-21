@@ -2,7 +2,7 @@
  * 
  * Rhonabwy JSON Web Key (JWK) library
  * 
- * rhonabwy.c: functions definitions
+ * jws.c: functions definitions
  * 
  * Copyright 2020 Nicolas Mora <mail@babelouest.org>
  *

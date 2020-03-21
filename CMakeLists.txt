@@ -106,7 +106,8 @@ include_directories(${INC_DIR})
 
 set(LIB_SRC
         ${INC_DIR}/rhonabwy.h # allow many IDEs to find and edit it
-        ${SRC_DIR}/jwk.c)
+        ${SRC_DIR}/jwk.c
+	${SRC_DIR}/jws.c)
 
 set(PKGCONF_REQ "")
 set(PKGCONF_REQ_PRIVATE "")
@@ -241,10 +242,10 @@ if (BUILD_RHONABWY_TESTING)
         set(LIBS rhonabwy ${LIBS} ${CHECK_LIBRARIES} ${SUBUNIT_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} "-lm -lrt")
 
         set(TESTS
-            core
-            export
-	    import
-	    jwks)
+            jwk_core
+            jwk_export
+	    jwk_import
+	    jwks_core)
 
         configure_file(
                 "${CMAKE_MODULE_PATH}/CTestCustom.cmake.in"

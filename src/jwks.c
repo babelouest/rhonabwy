@@ -21,6 +21,11 @@
  * 
  */
 
+#include <orcania.h>
+#include <yder.h>
+#include <ulfius.h>
+#include <rhonabwy.h>
+
 int r_init_jwks(jwks_t ** jwks) {
   int ret;
   if (jwks != NULL) {

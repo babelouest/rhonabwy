@@ -22,9 +22,9 @@
  */
 #include <gnutls/abstract.h>
 #include <gnutls/x509.h>
-#include <rhonabwy.h>
 #include <orcania.h>
 #include <yder.h>
+#include <rhonabwy.h>
 
 int r_init_jws(jws_t ** jws) {
   int ret;

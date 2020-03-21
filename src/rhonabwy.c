@@ -486,6 +486,42 @@ int r_jwk_key_type(jwk_t * jwk, int x5u_flags) {
   return ret;
 }
 
+int r_jwk_extract_pubkey(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int x5u_flags) {
+  int ret;
+  gnutls_privkey_t privkey;
+  gnutls_pubkey_t pubkey = NULL;
+  
+  if (r_jwk_is_valid(jwk_privkey) == RHN_OK && r_jwk_key_type(jwk_privkey, x5u_flags) & R_KEY_TYPE_PRIVATE && jwk_pubkey != NULL) {
+    if ((privkey = r_jwk_export_to_gnutls_privkey(jwk_privkey, x5u_flags)) != NULL) {
+      if (!gnutls_pubkey_init(&pubkey)) {
+        if (!gnutls_pubkey_import_privkey(pubkey, privkey, GNUTLS_KEY_SHARE_TOP, 0)) {
+          if (r_jwk_import_from_gnutls_pubkey(jwk_pubkey, pubkey) == RHN_OK) {
+            ret = RHN_OK;
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_extract_pubkey - Error r_init_jwk or r_jwk_import_from_gnutls_pubkey");
+            ret = RHN_ERROR;
+          }
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_extract_pubkey - Error gnutls_pubkey_import_privkey");
+          ret = RHN_ERROR;
+        }
+        gnutls_pubkey_deinit(pubkey);
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_extract_pubkey - Error gnutls_pubkey_init");
+        ret = RHN_ERROR;
+      }
+      gnutls_privkey_deinit(privkey);
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_extract_pubkey - Error r_jwk_export_to_gnutls_privkey");
+      ret = RHN_ERROR;
+    }
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_extract_pubkey - Error invalid parameter");
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
 int r_jwk_import_from_json_str(jwk_t * jwk, const char * input) {
   int ret;
   json_t * jwk_input;
@@ -536,30 +572,30 @@ int r_jwk_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned 
           if (!(res = gnutls_pubkey_import(pub, &data, format==R_FORMAT_PEM?GNUTLS_X509_FMT_PEM:GNUTLS_X509_FMT_DER))) {
             ret = r_jwk_import_from_gnutls_pubkey(jwk, pub);
           } else {
-            y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error r_jwk_import_from_gnutls_pubkey: %s", gnutls_strerror(res));
+            y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy import - Error r_jwk_import_from_gnutls_pubkey: %s", gnutls_strerror(res));
             ret = RHN_ERROR;
           }
           gnutls_pubkey_deinit(pub);
         } else {
-          y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error gnutls_pubkey_init: %s", gnutls_strerror(res));
+          y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy import - Error gnutls_pubkey_init: %s", gnutls_strerror(res));
           ret = RHN_ERROR;
         }
         break;
       case R_X509_TYPE_PRIVKEY:
         if ((res = gnutls_privkey_init(&key)) < 0) {
-          y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error gnutls_privkey_init: %s", gnutls_strerror(res));
+          y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy import - Error gnutls_privkey_init: %s", gnutls_strerror(res));
           ret = RHN_ERROR;
         } else if ((res = gnutls_x509_privkey_init(&x509_key)) < 0) {
-          y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error gnutls_x509_privkey_init: %s", gnutls_strerror(res));
+          y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy import - Error gnutls_x509_privkey_init: %s", gnutls_strerror(res));
           ret = RHN_ERROR;
         } else {
           data.data = (unsigned char *)input;
           data.size = input_len;
           if ((res = gnutls_x509_privkey_import(x509_key, &data, format==R_FORMAT_PEM?GNUTLS_X509_FMT_PEM:GNUTLS_X509_FMT_DER)) < 0) {
-            y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error gnutls_x509_privkey_import: %s", gnutls_strerror(res));
+            y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy import - Error gnutls_x509_privkey_import: %s", gnutls_strerror(res));
             ret = RHN_ERROR_PARAM;
           } else if ((res = gnutls_privkey_import_x509(key, x509_key, 0)) < 0) {
-            y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error gnutls_privkey_import_x509: %s", gnutls_strerror(res));
+            y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy import - Error gnutls_privkey_import_x509: %s", gnutls_strerror(res));
             ret = RHN_ERROR;
           } else {
             ret = r_jwk_import_from_gnutls_privkey(jwk, key);
@@ -575,17 +611,17 @@ int r_jwk_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned 
           if (!(res = gnutls_x509_crt_import(crt, &data, format==R_FORMAT_PEM?GNUTLS_X509_FMT_PEM:GNUTLS_X509_FMT_DER))) {
             ret = r_jwk_import_from_gnutls_x509_crt(jwk, crt);
           } else {
-            y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error r_jwk_import_from_gnutls_x509_crt: %s", gnutls_strerror(res));
+            y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy import - Error r_jwk_import_from_gnutls_x509_crt: %s", gnutls_strerror(res));
             ret = RHN_ERROR_PARAM;
           }
           gnutls_x509_crt_deinit(crt);
         } else {
-          y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error gnutls_x509_crt_init: %s", gnutls_strerror(res));
+          y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy import - Error gnutls_x509_crt_init: %s", gnutls_strerror(res));
           ret = RHN_ERROR;
         }
         break;
       default:
-        y_log_message(Y_LOG_LEVEL_DEBUG, "rhonabwy import - Error invalid type");
+        y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy import - Error invalid type");
         ret = RHN_ERROR_PARAM;
         break;
     }
@@ -844,7 +880,7 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
               ret = RHN_ERROR;
               break;
             }
-            json_object_set_new(jwk, "k", json_string((const char *)b64_enc));
+            json_object_set_new(jwk, "d", json_string((const char *)b64_enc));
             
             switch (curve) {
               case GNUTLS_ECC_CURVE_SECP521R1:

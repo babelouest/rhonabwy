@@ -329,6 +329,7 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_generate_key_pair - Error gnutls_privkey_generate");
           ret = RHN_ERROR;
         }
+#if GNUTLS_VERSION_NUMBER >= 0x030600
       } else if (type == R_KEY_TYPE_ECDSA) {
         if (bits == 256) {
           ec_bits = GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP256R1);
@@ -361,6 +362,9 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_generate_key_pair - Error curve length, values allowed are 256, 384 o 512");
           ret = RHN_ERROR_PARAM;
         }
+#endif
+      } else {
+        ret = RHN_ERROR_PARAM;
       }
       gnutls_privkey_deinit(key);
     } else {

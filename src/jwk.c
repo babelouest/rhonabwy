@@ -305,7 +305,9 @@ int r_jwk_is_valid(jwk_t * jwk) {
 int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, unsigned int bits, const char * kid) {
   int ret;
   gnutls_privkey_t key;
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   unsigned int ec_bits = 0;
+#endif
   
   if (jwk_privkey != NULL && jwk_pubkey != NULL && (type == R_KEY_TYPE_RSA || type == R_KEY_TYPE_ECDSA) && bits) {
     if (!gnutls_privkey_init(&key)) {

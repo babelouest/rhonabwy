@@ -582,6 +582,26 @@ int r_jwks_export_to_pem_der(jwks_t * jwks, int format, unsigned char * output, 
 
 int r_jws_set_payload(jws_t * jws, unsigned char * payload, size_t payload_len);
 
+int r_jws_set_header_str_value(jws_t * jws, const char * key, const char * str_value);
+
+int r_jws_set_header_int_value(jws_t * jws, const char * key, int i_value);
+
+int r_jws_set_header_json_t_value(jws_t * jws, const char * key, json_t * j_value);
+
+const char * r_jws_get_header_str_value(jws_t * jws, const char * key);
+
+int r_jws_get_header_int_value(jws_t * jws, const char * key);
+
+json_t * r_jws_get_header_json_t_value(jws_t * jws, const char * key);
+
+json_t * r_jws_get_full_header_json_t(jws_t * jws);
+
+int r_jws_load_jws_str(jws_t * jws, const char * jws_str);
+
+int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey);
+
+int r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey);
+
 /**
  * @}
  */

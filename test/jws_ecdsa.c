@@ -46,7 +46,6 @@ START_TEST(test_rhonabwy_serialize_error_header)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey, jwk_privkey_ecdsa_no_alg_str), RHN_OK);
   ck_assert_int_eq(r_jws_add_keys(jws, jwk_privkey, NULL), RHN_OK);
 
-  ck_assert_ptr_eq(r_jws_serialize(jws, NULL, 0), NULL);
   ck_assert_ptr_eq(r_jws_serialize(NULL, jwk_privkey, 0), NULL);
   
   r_jws_free(jws);

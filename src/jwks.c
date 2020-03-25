@@ -26,7 +26,7 @@
 #include <ulfius.h>
 #include <rhonabwy.h>
 
-int r_init_jwks(jwks_t ** jwks) {
+int r_jwks_init(jwks_t ** jwks) {
   int ret;
   if (jwks != NULL) {
     *jwks = json_pack("{s[]}", "keys");
@@ -37,7 +37,7 @@ int r_init_jwks(jwks_t ** jwks) {
   return ret;
 }
 
-void r_free_jwks(jwks_t * jwks) {
+void r_jwks_free(jwks_t * jwks) {
   if (jwks != NULL) {
     json_decref(jwks);
   }
@@ -93,6 +93,14 @@ jwk_t * r_jwks_get_by_kid(jwks_t * jwks, const char * kid) {
   return NULL;
 }
 
+jwks_t * r_jwks_copy(jwks_t * jwks) {
+  if (jwks != NULL) {
+    return json_deep_copy(jwks);
+  } else {
+    return NULL;
+  }
+}
+
 int r_jwks_append_jwk(jwks_t * jwks, jwk_t * jwk) {
   if (jwks != NULL) {
     if (!json_array_append(json_object_get(jwks, "keys"), jwk)) {
@@ -132,6 +140,23 @@ int r_jwks_remove_at(jwks_t * jwks, size_t index) {
   }
 }
 
+int r_jwks_empty(jwks_t * jwks) {
+  if (jwks != NULL) {
+    if (!json_array_clear(json_object_get(jwks, "keys"))) {
+      return RHN_OK;
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy jwks empty - error json_array_clear");
+      return RHN_ERROR;
+    }
+  } else {
+    return RHN_ERROR_PARAM;
+  }
+}
+
+int r_jwks_equal(jwks_t * jwks1, jwks_t * jwks2) {
+  return json_equal(jwks1, jwks2);
+}
+
 char * r_jwks_export_to_json_str(jwks_t * jwks, int pretty) {
   char * str_jwk_export = NULL;
   if (jwks != NULL) {
@@ -161,7 +186,7 @@ gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len, 
         if ((ret[i] = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags)) == NULL) {
           y_log_message(Y_LOG_LEVEL_ERROR, "jwks export privkey - Error exporting privkey at index %zu", i);
         }
-        r_free_jwk(jwk);
+        r_jwk_free(jwk);
       }
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "jwks export privkey - Error allocating resources for ret");
@@ -183,7 +208,7 @@ gnutls_pubkey_t * r_jwks_export_to_gnutls_pubkey(jwks_t * jwks, size_t * len, in
         if ((ret[i] = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags)) == NULL) {
           y_log_message(Y_LOG_LEVEL_ERROR, "jwks export pubkey - Error exporting pubkey at index %zu", i);
         }
-        r_free_jwk(jwk);
+        r_jwk_free(jwk);
       }
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "jwks export pubkey - Error allocating resources for ret");
@@ -204,14 +229,14 @@ int r_jwks_export_to_pem_der(jwks_t * jwks, int format, unsigned char * output, 
       jwk = r_jwks_get_at(jwks, i);
       if ((ret = r_jwk_export_to_pem_der(jwk, format, cur_output, &cur_len, x5u_flags)) != RHN_OK) {
         y_log_message(Y_LOG_LEVEL_ERROR, "jwks export pem der - Error exporting key at index %zu", i);
-        r_free_jwk(jwk);
+        r_jwk_free(jwk);
         break;
       } else {
         cur_output += cur_len;
         *output_len -= cur_len;
         cur_len = *output_len;
       }
-      r_free_jwk(jwk);
+      r_jwk_free(jwk);
     }
   } else {
     ret = RHN_ERROR_PARAM;
@@ -250,7 +275,7 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input) {
   
   if (jwks != NULL && j_input != NULL && json_is_array(json_object_get(j_input, "keys"))) {
     json_array_foreach(json_object_get(j_input, "keys"), index, j_jwk) {
-      if (r_init_jwk(&jwk) == RHN_OK) {
+      if (r_jwk_init(&jwk) == RHN_OK) {
         if ((res = r_jwk_import_from_json_t(jwk, j_jwk)) == RHN_OK) {
           r_jwks_append_jwk(jwks, jwk);
         } else if (res == RHN_ERROR_PARAM) {
@@ -259,7 +284,7 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input) {
           y_log_message(Y_LOG_LEVEL_ERROR, "jwks import json_t - Error r_jwk_import_from_json_t");
           ret = RHN_ERROR;
         }
-        r_free_jwk(jwk);
+        r_jwk_free(jwk);
       } else {
         ret = RHN_ERROR_MEMORY;
         break;

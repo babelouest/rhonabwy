@@ -537,7 +537,7 @@ int r_jws_init(jws_t ** jws) {
   
   if (jws != NULL) {
     if ((*jws = o_malloc(sizeof(jws_t))) != NULL) {
-      if (((*jws)->j_header = json_object()) != NULL) {
+      if (((*jws)->j_header = json_pack("{ss}", "alg", "none")) != NULL) {
         if (r_jwks_init(&(*jws)->jwks_pubkey) == RHN_OK) {
           if (r_jwks_init(&(*jws)->jwks_privkey) == RHN_OK) {
             (*jws)->alg = R_JWS_ALG_NONE;
@@ -842,8 +842,8 @@ int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags) {
   
   
   if (jws != NULL && o_strlen(jws_str)) {
-    if (split_string(jws_str, ".", &str_array) == 3) {
-      // Check if all 3 elements are base64url
+    if (split_string(jws_str, ".", &str_array) >= 2) {
+      // Check if all first 2 elements are base64url
       if (o_base64url_decode((unsigned char *)str_array[0], o_strlen(str_array[0]), NULL, &header_len) && o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), NULL, &payload_len)) {
         ret = RHN_OK;
         do {
@@ -924,8 +924,8 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags) {
     }
   }
   
-  if (r_jws_set_token_values(jws, 0) == RHN_OK && jws->signature_b64url != NULL && jws->alg != R_JWS_ALG_NONE) {
-    if (jwk != NULL) {
+  if (r_jws_set_token_values(jws, 0) == RHN_OK && jws->signature_b64url != NULL) {
+    if (jwk != NULL || jws->alg == R_JWS_ALG_NONE) {
       switch (jws->alg) {
         case R_JWS_ALG_HS256:
         case R_JWS_ALG_HS384:
@@ -956,6 +956,9 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags) {
           } else {
             ret = RHN_ERROR_INVALID;
           }
+          break;
+        case R_JWS_ALG_NONE:
+          ret = RHN_OK;
           break;
         default:
           ret = RHN_ERROR_INVALID;
@@ -989,7 +992,7 @@ char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags) {
     r_jws_set_header_str_value(jws, "kid", r_jwk_get_property_str(jwk, "kid"));
   }
   
-  if (jwk != NULL && r_jws_set_token_values(jws, 1) == RHN_OK && jws->alg != R_JWS_ALG_NONE) {
+  if ((jwk != NULL || jws->alg == R_JWS_ALG_NONE) && r_jws_set_token_values(jws, 1) == RHN_OK) {
     switch (jws->alg) {
       case R_JWS_ALG_HS256:
       case R_JWS_ALG_HS384:
@@ -1017,6 +1020,10 @@ char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags) {
           o_free(jws->signature_b64url);
           jws->signature_b64url = r_jws_sign_ecdsa(jws, jwk, x5u_flags);
         }
+        break;
+      case R_JWS_ALG_NONE:
+        o_free(jws->signature_b64url);
+        jws->signature_b64url = (unsigned char *)o_strdup("");
         break;
       default:
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_serialize - Unsupported algorithm");

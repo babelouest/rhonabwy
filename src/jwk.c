@@ -1248,6 +1248,8 @@ int r_jwk_import_from_symmetric_key(jwk_t * jwk, const unsigned char * key, size
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_symmetric_key - Error setting key data in jwk");
           ret = RHN_ERROR;
         }
+      } else {
+        ret = RHN_ERROR_PARAM;
       }
       o_free(key_b64);
     } else {

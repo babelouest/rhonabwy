@@ -28,7 +28,7 @@
 #include <ulfius.h>
 #include <rhonabwy.h>
 
-int r_init_jwk(jwk_t ** jwk) {
+int r_jwk_init(jwk_t ** jwk) {
   int ret;
   if (jwk != NULL) {
     *jwk = json_object();
@@ -39,7 +39,7 @@ int r_init_jwk(jwk_t ** jwk) {
   return ret;
 }
 
-void r_free_jwk(jwk_t * jwk) {
+void r_jwk_free(jwk_t * jwk) {
   if (jwk != NULL) {
     json_decref(jwk);
   }
@@ -408,6 +408,8 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
       } else {
         ret |= R_KEY_TYPE_PUBLIC;
       }
+    } else if (0 == o_strcmp(json_string_value(json_object_get(jwk, "kty")), "oct") && json_string_length(json_object_get(jwk, "k"))) {
+      ret = R_KEY_TYPE_HMAC|R_KEY_TYPE_SYMMETRIC;
     } else if (json_object_get(jwk, "x5c") != NULL) {
         if (o_base64_decode((unsigned char *)json_string_value(json_array_get(json_object_get(jwk, "x5c"), 0)), json_string_length(json_array_get(json_object_get(jwk, "x5c"), 0)), NULL, &data_dec_len)) {
           if ((data_dec = o_malloc((data_dec_len+1)*sizeof(char))) != NULL) {
@@ -524,8 +526,6 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Error ulfius_init_request");
         ret = RHN_ERROR_MEMORY;
       }
-    } else {
-      ret = R_KEY_TYPE_HMAC|R_KEY_TYPE_SYMMETRIC;
     }
   }
   if (bits != NULL && !bits_set) {
@@ -566,7 +566,7 @@ int r_jwk_extract_pubkey(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int x5u_flags)
             }
             ret = RHN_OK;
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_extract_pubkey - Error r_init_jwk or r_jwk_import_from_gnutls_pubkey");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_extract_pubkey - Error r_jwk_init or r_jwk_import_from_gnutls_pubkey");
             ret = RHN_ERROR;
           }
         } else {
@@ -1197,6 +1197,80 @@ int r_jwk_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt) {
   return ret;
 }
 
+int r_jwk_import_from_x5u(jwk_t * jwk, int type, int x5u_flags, const char * x5u) {
+  struct _u_request req;
+  struct _u_response resp;
+  int ret;
+  
+  if (jwk != NULL && x5u != NULL) {
+    if (ulfius_init_request(&req) == U_OK && ulfius_init_response(&resp) == U_OK) {
+      req.http_url = o_strdup(x5u);
+      req.check_server_certificate = !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE);
+      req.follow_redirect = x5u_flags & R_FLAG_FOLLOW_REDIRECT;
+      if (ulfius_send_http_request(&req, &resp) == U_OK) {
+        if (resp.status >= 200 && resp.status < 300) {
+          if (r_jwk_import_from_pem_der(jwk, type, R_FORMAT_PEM, resp.binary_body, resp.binary_body_length) == RHN_OK) {
+            ret = RHN_OK;
+          } else {
+            ret = RHN_ERROR;
+          }
+        } else {
+          ret = RHN_ERROR;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_x5u - Error ulfius_send_http_request");
+        ret = RHN_ERROR;
+      }
+      ulfius_clean_request(&req);
+      ulfius_clean_response(&resp);
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_x5u - Error ulfius_init_request or ulfius_init_response");
+      ret = RHN_ERROR;
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+int r_jwk_import_from_symmetric_key(jwk_t * jwk, const unsigned char * key, size_t key_len) {
+  int ret;
+  unsigned char * key_b64 = NULL;
+  size_t key_b64_len = 0;
+  
+  if (jwk != NULL && key != NULL && key_len) {
+    if ((key_b64 = o_malloc(key_len*2)) != NULL) {
+      if (o_base64url_encode(key, key_len, key_b64, &key_b64_len)) {
+        key_b64[key_b64_len] = '\0';
+        if (r_jwk_set_property_str(jwk, "kty", "oct") == RHN_OK && r_jwk_set_property_str(jwk, "k", (const char *)key_b64) == RHN_OK) {
+          ret = RHN_OK;
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_symmetric_key - Error setting key data in jwk");
+          ret = RHN_ERROR;
+        }
+      }
+      o_free(key_b64);
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_symmetric_key - Error allocating resources for key_b64");
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+jwk_t * r_jwk_copy(jwk_t * jwk) {
+  if (jwk != NULL) {
+    return json_deep_copy(jwk);
+  } else {
+    return NULL;
+  }
+}
+
+int r_jwk_equal(jwk_t * jwk1, jwk_t * jwk2) {
+  return json_equal(jwk1, jwk2);
+}
+
 char * r_jwk_export_to_json_str(jwk_t * jwk, int pretty) {
   char * str_jwk_export = NULL;
   if (jwk != NULL) {
@@ -1482,21 +1556,34 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
         if (o_base64_decode((const unsigned char *)json_string_value(json_array_get(json_object_get(jwk, "x5c"), 0)), json_string_length(json_array_get(json_object_get(jwk, "x5c"), 0)), NULL, &b64_dec_len)) {
           if ((b64_dec = o_malloc((b64_dec_len+1)*sizeof(char))) != NULL) {
             if (o_base64_decode((const unsigned char *)json_string_value(json_array_get(json_object_get(jwk, "x5c"), 0)), json_string_length(json_array_get(json_object_get(jwk, "x5c"), 0)), b64_dec, &b64_dec_len)) {
-              if (!gnutls_pubkey_init(&pubkey)) {
-                data.data = b64_dec;
-                data.size = b64_dec_len;
-                if (!gnutls_pubkey_import(pubkey, &data, GNUTLS_X509_FMT_DER)) {
-                  res = RHN_OK;
+              if (!gnutls_x509_crt_init(&crt)) {
+                if (!gnutls_pubkey_init(&pubkey)) {
+                  data.data = b64_dec;
+                  data.size = b64_dec_len;
+                  if (!gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_DER)) {
+                    if (!gnutls_pubkey_import_x509(pubkey, crt, 0)) {
+                      res = RHN_OK;
+                    } else {
+                      gnutls_pubkey_deinit(pubkey);
+                      pubkey = NULL;
+                      y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey x5c - Error gnutls_pubkey_import_x509");
+                      res = RHN_ERROR;
+                    }
+                  } else {
+                    gnutls_pubkey_deinit(pubkey);
+                    pubkey = NULL;
+                    y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey x5c - Error gnutls_pubkey_import");
+                    res = RHN_ERROR;
+                  }
                 } else {
-                  y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey x5c - Error gnutls_pubkey_import rsa");
+                  y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey x5c - Error gnutls_pubkey_init rsa");
                   res = RHN_ERROR;
-                  gnutls_pubkey_deinit(pubkey);
-                  pubkey = NULL;
                 }
               } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey x5c - Error gnutls_pubkey_init rsa");
+                y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey x5c - Error gnutls_x509_crt_init");
                 res = RHN_ERROR;
               }
+              gnutls_x509_crt_deinit(crt);
             } else {
               y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey x5c - Error o_base64_decode (2)");
               res = RHN_ERROR_MEMORY;
@@ -1729,6 +1816,33 @@ int r_jwk_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, siz
   } else {
     y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey pem der - invalid key type, exptected 'RSA' or 'EC'");
     ret = RHN_ERROR;
+  }
+  return ret;
+}
+
+int r_jwk_export_to_symmetric_key(jwk_t * jwk, unsigned char * key, size_t * key_len) {
+  int ret;
+  const char * k;
+  
+  if (jwk != NULL && key_len != NULL) {
+    if (r_jwk_key_type(jwk, NULL, 0) & R_KEY_TYPE_SYMMETRIC) {
+      k = r_jwk_get_property_str(jwk, "k");
+      if (o_strlen(k)) {
+        if (o_base64url_decode((const unsigned char *)k, o_strlen(k), key, key_len)) {
+          ret = RHN_OK;
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_symmetric_key - Error o_base64url_decode");
+          ret = RHN_ERROR;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_symmetric_key - Error getting key");
+        ret = RHN_ERROR;
+      }
+    } else {
+      ret = RHN_ERROR_PARAM;
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
   }
   return ret;
 }

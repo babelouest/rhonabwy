@@ -284,6 +284,24 @@ START_TEST(test_rhonabwy_parse_android_safetynet_jwt)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_token_unsecure)
+{
+  jws_t * jws_sign, * jws_verify;
+  char * token;
+  
+  ck_assert_int_eq(r_jws_init(&jws_sign), RHN_OK);
+  ck_assert_int_eq(r_jws_init(&jws_verify), RHN_OK);
+  ck_assert_int_eq(r_jws_set_payload(jws_sign, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_ptr_ne((token = r_jws_serialize(jws_sign, NULL, 0)), NULL);
+  
+  ck_assert_int_eq(r_jws_parse(jws_verify, token, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_verify_signature(jws_verify, NULL, 0), RHN_OK);
+  o_free(token);
+  
+  r_jws_free(jws_sign);
+  r_jws_free(jws_verify);
+}
+END_TEST
 
 static Suite *rhonabwy_suite(void)
 {
@@ -301,6 +319,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_set_keys);
   tcase_add_test(tc_core, test_rhonabwy_parse);
   tcase_add_test(tc_core, test_rhonabwy_parse_android_safetynet_jwt);
+  tcase_add_test(tc_core, test_rhonabwy_token_unsecure);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

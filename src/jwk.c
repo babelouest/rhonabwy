@@ -305,7 +305,7 @@ int r_jwk_is_valid(jwk_t * jwk) {
 int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, unsigned int bits, const char * kid) {
   int ret;
   gnutls_privkey_t key;
-#if GNUTLS_VERSION_NUMBER >= 0x030600
+#if GNUTLS_VERSION_NUMBER >= 0x030500
   unsigned int ec_bits = 0;
 #endif
   
@@ -331,7 +331,7 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_generate_key_pair - Error gnutls_privkey_generate");
           ret = RHN_ERROR;
         }
-#if GNUTLS_VERSION_NUMBER >= 0x030600
+#if GNUTLS_VERSION_NUMBER >= 0x030500
       } else if (type == R_KEY_TYPE_ECDSA) {
         if (bits == 256) {
           ec_bits = GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP256R1);
@@ -495,7 +495,7 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
                 bits_set = 1;
                 if (pk_alg == GNUTLS_PK_RSA) {
                   ret = R_KEY_TYPE_RSA;
-#if GNUTLS_VERSION_NUMBER >= 0x030600
+#if GNUTLS_VERSION_NUMBER >= 0x030500
                 } else if (pk_alg == GNUTLS_PK_ECDSA) {
                   ret = R_KEY_TYPE_ECDSA;
 #endif
@@ -706,7 +706,7 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
   gnutls_datum_t m, e, d, p, q, u, e1, e2;
   unsigned char * b64_enc = NULL, kid[64], kid_b64[128];
   size_t b64_enc_len = 0, kid_len = 64, kid_b64_len = 128;
-#if GNUTLS_VERSION_NUMBER >= 0x030600
+#if GNUTLS_VERSION_NUMBER >= 0x030500
   gnutls_datum_t x, y, k;
   gnutls_ecc_curve_t curve;
 #endif
@@ -891,7 +891,7 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
           ret = RHN_ERROR_PARAM;
         }
         break;
-#if GNUTLS_VERSION_NUMBER >= 0x030600
+#if GNUTLS_VERSION_NUMBER >= 0x030500
       case GNUTLS_PK_ECDSA:
         if ((res = gnutls_privkey_export_ecc_raw(key, &curve, &x, &y, &k)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("EC"));
@@ -1008,7 +1008,7 @@ int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
   gnutls_datum_t m, e;
   unsigned char * b64_enc = NULL, kid[64], kid_b64[128];
   size_t b64_enc_len = 0, kid_len = 64, kid_b64_len = 128;
-#if GNUTLS_VERSION_NUMBER >= 0x030600
+#if GNUTLS_VERSION_NUMBER >= 0x030500
   gnutls_datum_t x, y;
   gnutls_ecc_curve_t curve;
 #endif
@@ -1073,7 +1073,7 @@ int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
           ret = RHN_ERROR_PARAM;
         }
         break;
-#if GNUTLS_VERSION_NUMBER >= 0x030600
+#if GNUTLS_VERSION_NUMBER >= 0x030500
       case GNUTLS_PK_ECDSA:
         if ((res = gnutls_pubkey_export_ecc_raw(pub, &curve, &x, &y)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("EC"));

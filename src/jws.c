@@ -281,6 +281,7 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 }
 
 static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
+#if GNUTLS_VERSION_NUMBER >= 0x030500
   gnutls_privkey_t privkey = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags);
   gnutls_datum_t body_dat, sig_dat, r, s;
   unsigned char * binary_sig = NULL, * to_return = NULL;
@@ -354,6 +355,12 @@ static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags)
   }
   gnutls_privkey_deinit(privkey);
   return to_return;
+#else
+  (void)(jws);
+  (void)(jwk);
+  (void)(x5u_flags);
+  return NULL;
+#endif
 }
 
 static int r_jws_verify_sig_hmac(jws_t * jws, jwk_t * jwk) {
@@ -433,6 +440,7 @@ static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 }
 
 static int r_jws_verify_sig_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
+#if GNUTLS_VERSION_NUMBER >= 0x030500
   int alg = 0, ret = RHN_OK;
   gnutls_datum_t sig_dat = {NULL, 0}, r, s, data;
   gnutls_pubkey_t pubkey = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags);
@@ -510,6 +518,12 @@ static int r_jws_verify_sig_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   o_free(data.data);
   gnutls_pubkey_deinit(pubkey);
   return ret;
+#else
+  (void)(jws);
+  (void)(jwk);
+  (void)(x5u_flags);
+  return RHN_ERROR_INVALID;
+#endif
 }
 
 int r_jws_init(jws_t ** jws) {

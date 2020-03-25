@@ -253,7 +253,13 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
     body_dat.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
     body_dat.size = o_strlen((const char *)body_dat.data);
     
-    if (!(res = gnutls_privkey_sign_data2(privkey, alg, flag, &body_dat, &sig_dat))) {
+    if (!(res = 
+#if GNUTLS_VERSION_NUMBER >= 0x030600
+                 gnutls_privkey_sign_data2
+#else
+                 gnutls_privkey_sign_data
+#endif
+                                           (privkey, alg, flag, &body_dat, &sig_dat))) {
       if ((to_return = o_malloc(sig_dat.size*2)) != NULL) {
         if (o_base64url_encode(sig_dat.data, sig_dat.size, to_return, &ret_size)) {
           to_return[ret_size] = '\0';

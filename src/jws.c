@@ -537,10 +537,10 @@ int r_jws_init(jws_t ** jws) {
   
   if (jws != NULL) {
     if ((*jws = o_malloc(sizeof(jws_t))) != NULL) {
-      if (((*jws)->j_header = json_pack("{ss}", "alg", "none")) != NULL) {
+      if (((*jws)->j_header = json_object()) != NULL) {
         if (r_jwks_init(&(*jws)->jwks_pubkey) == RHN_OK) {
           if (r_jwks_init(&(*jws)->jwks_privkey) == RHN_OK) {
-            (*jws)->alg = R_JWS_ALG_NONE;
+            (*jws)->alg = R_JWS_ALG_UNSET;
             (*jws)->header_b64url = NULL;
             (*jws)->payload_b64url = NULL;
             (*jws)->signature_b64url = NULL;
@@ -613,8 +613,10 @@ jws_alg str_to_js_alg(const char * alg) {
     return R_JWS_ALG_PS384;
   } else if (0 == o_strcmp("PS512", alg)) {
     return R_JWS_ALG_PS512;
-  } else {
+  } else if (0 == o_strcmp("none", alg)) {
     return R_JWS_ALG_NONE;
+  } else {
+    return R_JWS_ALG_UNSET;
   }
 }
 
@@ -773,7 +775,7 @@ jws_alg r_jws_get_alg(jws_t * jws) {
   if (jws != NULL) {
     return jws->alg;
   } else {
-    return R_JWS_ALG_NONE;
+    return R_JWS_ALG_UNSET;
   }
 }
 
@@ -817,7 +819,7 @@ int r_jws_add_keys(jws_t * jws, jwk_t * jwk_privkey, jwk_t * jwk_pubkey) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_add_keys - Error setting jwk_privkey");
         ret = RHN_ERROR;
       }
-      if (jws->alg == R_JWS_ALG_NONE && (alg = str_to_js_alg(r_jwk_get_property_str(jwk_privkey, "alg"))) != R_JWS_ALG_NONE) {
+      if (jws->alg == R_JWS_ALG_UNSET && (alg = str_to_js_alg(r_jwk_get_property_str(jwk_privkey, "alg"))) != R_JWS_ALG_NONE) {
         r_jws_set_alg(jws, alg);
       }
     }

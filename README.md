@@ -1,4 +1,4 @@
-# Rhonabwy - JWK library
+# Rhonabwy - JWK, JWKS and JWS library
 
 [![Build Status](https://travis-ci.com/babelouest/rhonabwy.svg?branch=master)](https://travis-ci.com/babelouest/rhonabwy)
 ![C/C++ CI](https://github.com/babelouest/rhonabwy/workflows/C/C++%20CI/badge.svg)

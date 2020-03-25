@@ -314,7 +314,6 @@ START_TEST(test_rhonabwy_generate_key_pair)
   ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk_privkey);
-#if GNUTLS_VERSION_NUMBER >= 0x030500
   r_jwk_free(jwk_pubkey);
   
 #if GNUTLS_VERSION_NUMBER >= 0x030500

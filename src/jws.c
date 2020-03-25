@@ -163,7 +163,7 @@ static int r_jws_set_token_values(jws_t * jws, int force) {
 }
 
 static unsigned char * r_jws_sign_hmac(jws_t * jws, jwk_t * jwk) {
-  int alg;
+  int alg = GNUTLS_DIG_NULL;
   unsigned char * data = NULL, * key = NULL, * sig = NULL, * sig_b64 = NULL, * to_return = NULL;
   size_t data_len = 0, key_len = 0, sig_len = 0, sig_b64_len = 0;
   

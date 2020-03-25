@@ -96,10 +96,10 @@ START_TEST(test_rhonabwy_init_jwks)
 {
   jwks_t * jwks;
   
-  ck_assert_int_eq(r_init_jwks(NULL), RHN_ERROR_PARAM);
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(NULL), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   
-  r_free_jwk(jwks);
+  r_jwk_free(jwks);
 }
 END_TEST
 
@@ -108,48 +108,48 @@ START_TEST(test_rhonabwy_jwks_is_valid)
   jwks_t * jwks;
   jwk_t  * jwk;
   
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   ck_assert_int_eq(r_jwks_is_valid(NULL), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwks_is_valid(jwks), RHN_ERROR_PARAM);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_size(jwks), 0);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
   ck_assert_int_eq(r_jwks_size(jwks), 1);
   ck_assert_int_eq(r_jwks_is_valid(jwks), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
   ck_assert_int_eq(r_jwks_size(jwks), 2);
   ck_assert_int_eq(r_jwks_is_valid(jwks), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
   ck_assert_int_eq(r_jwks_size(jwks), 3);
   ck_assert_int_eq(r_jwks_is_valid(jwks), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
   ck_assert_int_eq(r_jwks_size(jwks), 4);
   ck_assert_int_eq(r_jwks_is_valid(jwks), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwk_set_property_str(jwk, "kty", "error"), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
   ck_assert_int_eq(r_jwks_size(jwks), 5);
   ck_assert_int_eq(r_jwks_is_valid(jwks), RHN_ERROR_PARAM);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   
-  r_free_jwks(jwks);
+  r_jwks_free(jwks);
 }
 END_TEST
 
@@ -159,23 +159,23 @@ START_TEST(test_rhonabwy_jwks_export_str)
   jwk_t  * jwk;
   char * out;
   
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
   ck_assert_int_eq(r_jwks_size(jwks), 2);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   
   ck_assert_ptr_ne((out = r_jwks_export_to_json_str(jwks, 0)), NULL);
   
   o_free(out);
-  r_free_jwk(jwks);
+  r_jwk_free(jwks);
 }
 END_TEST
 
@@ -185,23 +185,23 @@ START_TEST(test_rhonabwy_jwks_export_json_t)
   jwk_t  * jwk;
   json_t * j_out;
   
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
   ck_assert_int_eq(r_jwks_size(jwks), 2);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   
   ck_assert_ptr_ne((j_out = r_jwks_export_to_json_t(jwks)), NULL);
   
   json_decref(j_out);
-  r_free_jwk(jwks);
+  r_jwk_free(jwks);
 }
 END_TEST
 
@@ -212,22 +212,22 @@ START_TEST(test_rhonabwy_jwks_export_privkey)
   gnutls_privkey_t * out = NULL;
   size_t len = 0;
   
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_privkey(jwks, &len, 0)), NULL);
   ck_assert_int_eq(len, 1);
   ck_assert_ptr_ne(out[0], NULL);
   gnutls_privkey_deinit(out[0]);
   o_free(out);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_privkey(jwks, &len, 0)), NULL);
   ck_assert_int_eq(len, 2);
   ck_assert_ptr_ne(out[0], NULL);
@@ -235,10 +235,10 @@ START_TEST(test_rhonabwy_jwks_export_privkey)
   gnutls_privkey_deinit(out[0]);
   o_free(out);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_privkey(jwks, &len, 0)), NULL);
   ck_assert_int_eq(len, 3);
   ck_assert_ptr_ne(out[0], NULL);
@@ -248,7 +248,7 @@ START_TEST(test_rhonabwy_jwks_export_privkey)
   gnutls_privkey_deinit(out[2]);
   o_free(out);
   
-  r_free_jwk(jwks);
+  r_jwk_free(jwks);
 }
 END_TEST
 
@@ -259,22 +259,22 @@ START_TEST(test_rhonabwy_jwks_export_pubkey)
   gnutls_pubkey_t * out = NULL;
   size_t len = 0;
   
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_pubkey(jwks, &len, 0)), NULL);
   ck_assert_int_eq(len, 1);
   ck_assert_ptr_ne(out[0], NULL);
   gnutls_pubkey_deinit(out[0]);
   o_free(out);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_pubkey(jwks, &len, 0)), NULL);
   ck_assert_int_eq(len, 2);
   ck_assert_ptr_ne(out[0], NULL);
@@ -283,10 +283,10 @@ START_TEST(test_rhonabwy_jwks_export_pubkey)
   gnutls_pubkey_deinit(out[1]);
   o_free(out);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_pubkey(jwks, &len, 0)), NULL);
   ck_assert_int_eq(len, 3);
   ck_assert_ptr_ne(out[0], NULL);
@@ -297,7 +297,7 @@ START_TEST(test_rhonabwy_jwks_export_pubkey)
   gnutls_pubkey_deinit(out[2]);
   o_free(out);
   
-  r_free_jwk(jwks);
+  r_jwk_free(jwks);
 }
 END_TEST
 
@@ -308,34 +308,34 @@ START_TEST(test_rhonabwy_jwks_export_pem)
   unsigned char out[4096];
   size_t len = 4096;
   
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   
-  ck_assert_int_eq(r_init_jwk(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
-  r_free_jwk(jwk);
+  r_jwk_free(jwk);
   
   ck_assert_int_eq(r_jwks_export_to_pem_der(jwks, R_FORMAT_PEM, out, &len, 0), RHN_OK);
   ck_assert_int_lt(len, 4096);
   len = 42;
   ck_assert_int_eq(r_jwks_export_to_pem_der(jwks, R_FORMAT_PEM, out, &len, 0), RHN_ERROR_PARAM);
   
-  r_free_jwk(jwks);
+  r_jwk_free(jwks);
 }
 END_TEST
 
@@ -344,7 +344,7 @@ START_TEST(test_rhonabwy_jwks_import)
   char * jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_x5c_str);
   jwks_t * jwks;
   
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   
   ck_assert_int_eq(r_jwks_import_from_str(NULL, jwks_str), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwks_import_from_str(jwks, NULL), RHN_ERROR_PARAM);
@@ -354,15 +354,15 @@ START_TEST(test_rhonabwy_jwks_import)
   ck_assert_int_eq(r_jwks_import_from_str(jwks, "{error}"), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwks_import_from_str(jwks, jwks_str), RHN_OK);
   ck_assert_int_eq(r_jwks_size(jwks), 4);
-  r_free_jwk(jwks);
+  r_jwk_free(jwks);
   o_free(jwks_str);
 
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_str_invalid_n);
   ck_assert_ptr_ne(jwks_str, NULL);
   ck_assert_int_eq(r_jwks_import_from_str(jwks, jwks_str), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwks_size(jwks), 3);
-  r_free_jwk(jwks);
+  r_jwk_free(jwks);
   o_free(jwks_str);
   
 }
@@ -380,38 +380,38 @@ START_TEST(test_rhonabwy_jwks_import_uri)
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_error_status", NULL, 0, &callback_jwks_error_status, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_redirect", NULL, 0, &callback_jwks_redirect, NULL), U_OK);
   
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   ck_assert_int_eq(r_jwks_import_from_uri(NULL, "http://localhost:7462/jwks_ok", 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwks_import_from_uri(jwks, NULL, 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwks_import_from_uri(NULL, NULL, 0), RHN_ERROR_PARAM);
-  r_free_jwk(jwks);
+  r_jwk_free(jwks);
 
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_ok", 0), RHN_ERROR);
-  r_free_jwk(jwks);
+  r_jwk_free(jwks);
 
   ck_assert_int_eq(ulfius_start_framework(&instance), U_OK);
   
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_error_content_no_jwks", 0), RHN_ERROR);
-  r_free_jwk(jwks);
+  r_jwk_free(jwks);
 
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_error_content_no_json", 0), RHN_ERROR);
-  r_free_jwk(jwks);
+  r_jwk_free(jwks);
 
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_error_status", 0), RHN_ERROR);
-  r_free_jwk(jwks);
+  r_jwk_free(jwks);
 
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_redirect", 0), RHN_ERROR);
   ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_redirect", R_FLAG_FOLLOW_REDIRECT), RHN_OK);
-  r_free_jwk(jwks);
+  r_jwk_free(jwks);
 
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_ok", 0), RHN_OK);
-  r_free_jwk(jwks);
+  r_jwk_free(jwks);
 
   ulfius_stop_framework(&instance);
   ulfius_clean_instance(&instance);
@@ -424,7 +424,7 @@ START_TEST(test_rhonabwy_jwks_get_by_kid)
   jwks_t * jwks;
   jwk_t * jwk;
   
-  ck_assert_int_eq(r_init_jwks(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   
   ck_assert_int_eq(r_jwks_import_from_str(jwks, jwks_str), RHN_OK);
   ck_assert_int_eq(r_jwks_size(jwks), 4);
@@ -435,8 +435,93 @@ START_TEST(test_rhonabwy_jwks_get_by_kid)
   jwk = r_jwks_get_by_kid(jwks, "1");
   ck_assert_ptr_ne(jwk, NULL);
   
-  r_free_jwk(jwk);
-  r_free_jwk(jwks);
+  r_jwk_free(jwk);
+  r_jwk_free(jwks);
+  o_free(jwks_str);
+}
+END_TEST
+
+START_TEST(test_rhonabwy_jwks_equal)
+{
+  char * jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_x5c_str),
+       * jwks_str2 = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5c_str);
+  jwks_t * jwks1, * jwks2;
+  
+  ck_assert_int_eq(r_jwks_init(&jwks1), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks2), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_str(jwks1, jwks_str), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_str(jwks2, jwks_str), RHN_OK);
+  
+  ck_assert_int_ne(r_jwks_equal(jwks1, jwks2), 0);
+  
+  r_jwk_free(jwks1);
+  r_jwk_free(jwks2);
+  
+  ck_assert_int_eq(r_jwks_init(&jwks1), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks2), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_str(jwks1, jwks_str), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_str(jwks2, jwks_str2), RHN_OK);
+  
+  ck_assert_int_eq(r_jwks_equal(jwks1, jwks2), 0);
+  
+  r_jwk_free(jwks1);
+  r_jwk_free(jwks2);
+  
+  ck_assert_int_eq(r_jwks_init(&jwks1), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks2), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_str(jwks1, jwks_str), RHN_OK);
+  
+  ck_assert_int_eq(r_jwks_equal(jwks1, jwks2), 0);
+  
+  r_jwk_free(jwks1);
+  r_jwk_free(jwks2);
+  
+  ck_assert_int_eq(r_jwks_init(&jwks1), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks2), RHN_OK);
+  
+  ck_assert_int_ne(r_jwks_equal(jwks1, jwks2), 0);
+  
+  r_jwk_free(jwks1);
+  r_jwk_free(jwks2);
+  
+  o_free(jwks_str);
+  o_free(jwks_str2);
+}
+END_TEST
+
+START_TEST(test_rhonabwy_jwks_empty)
+{
+  char * jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_x5c_str);
+  jwks_t * jwks;
+  
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
+  
+  ck_assert_int_eq(r_jwks_import_from_str(jwks, jwks_str), RHN_OK);
+  ck_assert_int_eq(r_jwks_size(jwks), 4);
+  
+  ck_assert_int_eq(r_jwks_empty(NULL), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwks_empty(jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_size(jwks), 0);
+  
+  r_jwk_free(jwks);
+  o_free(jwks_str);
+}
+END_TEST
+
+START_TEST(test_rhonabwy_jwks_copy)
+{
+  char * jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_x5c_str);
+  jwks_t * jwks1, * jwks2;
+
+  ck_assert_int_eq(r_jwks_init(&jwks1), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_str(jwks1, jwks_str), RHN_OK);
+  ck_assert_ptr_ne((jwks2 = r_jwks_copy(jwks1)), NULL);
+
+  ck_assert_int_ne(r_jwks_equal(jwks1, jwks2), 0);
+
+  r_jwk_free(jwks1);
+  r_jwk_free(jwks2);
+  
   o_free(jwks_str);
 }
 END_TEST
@@ -446,7 +531,7 @@ static Suite *rhonabwy_suite(void)
   Suite *s;
   TCase *tc_core;
 
-  s = suite_create("Rhonabwy core function tests");
+  s = suite_create("Rhonabwy JWKS core function tests");
   tc_core = tcase_create("test_rhonabwy_jwks");
   tcase_add_test(tc_core, test_rhonabwy_init_jwks);
   tcase_add_test(tc_core, test_rhonabwy_jwks_is_valid);
@@ -458,6 +543,9 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_jwks_import);
   tcase_add_test(tc_core, test_rhonabwy_jwks_import_uri);
   tcase_add_test(tc_core, test_rhonabwy_jwks_get_by_kid);
+  tcase_add_test(tc_core, test_rhonabwy_jwks_equal);
+  tcase_add_test(tc_core, test_rhonabwy_jwks_empty);
+  tcase_add_test(tc_core, test_rhonabwy_jwks_copy);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 
@@ -469,7 +557,7 @@ int main(int argc, char *argv[])
   int number_failed;
   Suite *s;
   SRunner *sr;
-  y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy jwks tests");
+  y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWKS jwks tests");
   s = rhonabwy_suite();
   sr = srunner_create(s);
 

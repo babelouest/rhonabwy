@@ -80,19 +80,20 @@ typedef json_t jwk_t;
 typedef json_t jwks_t;
 
 typedef enum {
-  R_JWS_ALG_NONE = 0,
-  R_JWS_ALG_HS256 = 1,
-  R_JWS_ALG_HS384 = 2,
-  R_JWS_ALG_HS512 = 3,
-  R_JWS_ALG_RS256 = 4,
-  R_JWS_ALG_RS384 = 5,
-  R_JWS_ALG_RS512 = 6,
-  R_JWS_ALG_ES256 = 7,
-  R_JWS_ALG_ES384 = 8,
-  R_JWS_ALG_ES512 = 9,
-  R_JWS_ALG_PS256 = 10,
-  R_JWS_ALG_PS384 = 11,
-  R_JWS_ALG_PS512 = 12
+  R_JWS_ALG_UNSET = 0,
+  R_JWS_ALG_NONE  = 1,
+  R_JWS_ALG_HS256 = 2,
+  R_JWS_ALG_HS384 = 3,
+  R_JWS_ALG_HS512 = 4,
+  R_JWS_ALG_RS256 = 5,
+  R_JWS_ALG_RS384 = 6,
+  R_JWS_ALG_RS512 = 7,
+  R_JWS_ALG_ES256 = 8,
+  R_JWS_ALG_ES384 = 9,
+  R_JWS_ALG_ES512 = 10,
+  R_JWS_ALG_PS256 = 11,
+  R_JWS_ALG_PS384 = 12,
+  R_JWS_ALG_PS512 = 13
 } jws_alg;
 
 typedef struct _jws_t {

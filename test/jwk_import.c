@@ -1082,6 +1082,7 @@ START_TEST(test_rhonabwy_import_from_x5u)
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_x5u(jwk, R_X509_TYPE_CERTIFICATE, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7462/x5u_ecdsa_crt"), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
@@ -1093,6 +1094,7 @@ START_TEST(test_rhonabwy_import_from_x5u)
   ck_assert_int_ne(type & R_KEY_TYPE_ECDSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
+#endif
   
   ulfius_stop_framework(&instance);
   ulfius_clean_instance(&instance);

@@ -258,6 +258,48 @@ START_TEST(test_rhonabwy_verify_token_multiple_keys_valid)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_set_alg_serialize_verify_ok)
+{
+  jws_t * jws_sign, * jws_verify;
+  jwk_t * jwk;
+  char * token = NULL;
+  
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jws_init(&jws_sign), RHN_OK);
+  ck_assert_int_eq(r_jws_init(&jws_verify), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_key_symmetric_str), RHN_OK);
+  ck_assert_int_eq(r_jws_set_payload(jws_sign, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  
+  ck_assert_int_eq(r_jws_set_alg(jws_sign, R_JWS_ALG_HS256), RHN_OK);
+  ck_assert_int_eq(r_jws_add_keys(jws_sign, jwk, NULL), RHN_OK);
+  ck_assert_ptr_ne((token = r_jws_serialize(jws_sign, NULL, 0)), NULL);
+  
+  ck_assert_int_eq(r_jws_parse(jws_verify, token, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_verify_signature(jws_verify, jwk, 0), RHN_OK);
+  o_free(token);
+  
+  ck_assert_int_eq(r_jws_set_alg(jws_sign, R_JWS_ALG_HS384), RHN_OK);
+  ck_assert_int_eq(r_jws_add_keys(jws_sign, jwk, NULL), RHN_OK);
+  ck_assert_ptr_ne((token = r_jws_serialize(jws_sign, NULL, 0)), NULL);
+  
+  ck_assert_int_eq(r_jws_parse(jws_verify, token, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_verify_signature(jws_verify, jwk, 0), RHN_OK);
+  o_free(token);
+  
+  ck_assert_int_eq(r_jws_set_alg(jws_sign, R_JWS_ALG_HS512), RHN_OK);
+  ck_assert_int_eq(r_jws_add_keys(jws_sign, jwk, NULL), RHN_OK);
+  ck_assert_ptr_ne((token = r_jws_serialize(jws_sign, NULL, 0)), NULL);
+  
+  ck_assert_int_eq(r_jws_parse(jws_verify, token, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_verify_signature(jws_verify, jwk, 0), RHN_OK);
+  o_free(token);
+  
+  r_jws_free(jws_sign);
+  r_jws_free(jws_verify);
+  r_jwk_free(jwk);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -277,6 +319,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_verify_token_invalid_kid);
   tcase_add_test(tc_core, test_rhonabwy_verify_token_valid);
   tcase_add_test(tc_core, test_rhonabwy_verify_token_multiple_keys_valid);
+  tcase_add_test(tc_core, test_rhonabwy_set_alg_serialize_verify_ok);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

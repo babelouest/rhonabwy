@@ -1,5 +1,13 @@
 # Rhonabwy Changelog
 
+## 0.9.6
+
+- Add [JSON Web Signature](https://tools.ietf.org/html/rfc7515) (JWS) support
+- Add `r_jwk_import_from_x5u`, `r_jwk_import_from_symmetric_key`, `r_jwk_export_to_symmetric_key`
+- Add `r_jwk_copy`, `r_jwk_equal`
+- Add `r_jwks_copy`, `r_jwks_equal` and `r_jwks_empty`
+- Rename functions `r_init_???` to `r_???_init` and `r_free_???` to r_???_free` to be consistent
+
 ## 0.9.5
 
 - Add `r_jwks_get_by_kid`

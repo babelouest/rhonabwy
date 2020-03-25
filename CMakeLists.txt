@@ -30,7 +30,7 @@ set(PROJECT_HOMEPAGE_URL "https://github.com/babelouest/rhonabwy/")
 set(PROJECT_BUGREPORT_PATH "https://github.com/babelouest/rhonabwy/issues")
 set(LIBRARY_VERSION_MAJOR "0")
 set(LIBRARY_VERSION_MINOR "9")
-set(LIBRARY_VERSION_PATCH "5")
+set(LIBRARY_VERSION_PATCH "6")
 set(ORCANIA_VERSION_REQUIRED "2.1.0")
 set(YDER_VERSION_REQUIRED "1.4.10")
 set(ULFIUS_VERSION_REQUIRED "2.6.5")
@@ -246,7 +246,13 @@ if (BUILD_RHONABWY_TESTING)
             jwk_core
             jwk_export
 	    jwk_import
-	    jwks_core)
+	    jwks_core
+	    jws_core
+	    jws_hmac
+	    jws_ecdsa
+	    jws_rsa
+	    jws_rsapss
+	    )
 
         configure_file(
                 "${CMAKE_MODULE_PATH}/CTestCustom.cmake.in"

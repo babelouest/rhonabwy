@@ -45,12 +45,6 @@ static int gnutls_decode_rs_value(const gnutls_datum_t *sig_value, gnutls_datum_
 }
 #endif /* End of pre-3.6 work-arounds. */
 
-#if GNUTLS_VERSION_NUMBER >= 0x030600
-#define GNUTLS_SIGN_FUNCTION gnutls_privkey_sign_data2
-#else
-#define GNUTLS_SIGN_FUNCTION gnutls_privkey_sign_data
-#endif
-
 static int r_jws_extract_header(jws_t * jws, json_t * j_header, int x5u_flags) {
   int ret;
   jwk_t * jwk;
@@ -223,29 +217,32 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   gnutls_privkey_t privkey = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags);
   gnutls_datum_t body_dat, sig_dat;
   unsigned char * to_return = NULL;
-  int alg = GNUTLS_DIG_NULL, res;
+  int alg = GNUTLS_DIG_NULL, res, flag = 0;
   size_t ret_size = 0;
   
   switch (jws->alg) {
     case R_JWS_ALG_RS256:
       alg = GNUTLS_DIG_SHA256;
       break;
-    case R_JWS_ALG_ES384:
+    case R_JWS_ALG_RS384:
       alg = GNUTLS_DIG_SHA384;
       break;
-    case R_JWS_ALG_ES512:
+    case R_JWS_ALG_RS512:
       alg = GNUTLS_DIG_SHA512;
       break;
 /* RSA-PSS signature is available with GnuTLS >= 3.6 */
 #if GNUTLS_VERSION_NUMBER >= 0x030600
     case R_JWS_ALG_PS256:
       alg = GNUTLS_SIGN_RSA_PSS_SHA256;
+      flag = GNUTLS_PRIVKEY_SIGN_FLAG_RSA_PSS;
       break;
     case R_JWS_ALG_PS384:
       alg = GNUTLS_SIGN_RSA_PSS_SHA384;
+      flag = GNUTLS_PRIVKEY_SIGN_FLAG_RSA_PSS;
       break;
     case R_JWS_ALG_PS512:
       alg = GNUTLS_SIGN_RSA_PSS_SHA512;
+      flag = GNUTLS_PRIVKEY_SIGN_FLAG_RSA_PSS;
       break;
 #endif
     default:
@@ -256,7 +253,7 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
     body_dat.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
     body_dat.size = o_strlen((const char *)body_dat.data);
     
-    if (!(res = GNUTLS_SIGN_FUNCTION(privkey, alg, 0, &body_dat, &sig_dat))) {
+    if (!(res = gnutls_privkey_sign_data2(privkey, alg, flag, &body_dat, &sig_dat))) {
       if ((to_return = o_malloc(sig_dat.size*2)) != NULL) {
         if (o_base64url_encode(sig_dat.data, sig_dat.size, to_return, &ret_size)) {
           to_return[ret_size] = '\0';
@@ -270,7 +267,7 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
       }
       gnutls_free(sig_dat.data);
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_rsa - Error gnutls_privkey_sign_data, res %d", res);
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_rsa - Error gnutls_privkey_sign_data2, res %d", res);
     }
     o_free(body_dat.data);
   } else {
@@ -377,7 +374,7 @@ static int r_jws_verify_sig_hmac(jws_t * jws, jwk_t * jwk) {
 }
 
 static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
-  int alg = GNUTLS_DIG_NULL, ret = RHN_OK;
+  int alg = GNUTLS_DIG_NULL, ret = RHN_OK, flag = 0;
   gnutls_datum_t sig_dat = {NULL, 0}, data;
   gnutls_pubkey_t pubkey = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags);
   unsigned char * sig = NULL;
@@ -399,12 +396,15 @@ static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 #if GNUTLS_VERSION_NUMBER >= 0x030600
     case R_JWS_ALG_PS256:
       alg = GNUTLS_SIGN_RSA_PSS_SHA256;
+      flag = GNUTLS_PRIVKEY_SIGN_FLAG_RSA_PSS;
       break;
     case R_JWS_ALG_PS384:
       alg = GNUTLS_SIGN_RSA_PSS_SHA384;
+      flag = GNUTLS_PRIVKEY_SIGN_FLAG_RSA_PSS;
       break;
     case R_JWS_ALG_PS512:
       alg = GNUTLS_SIGN_RSA_PSS_SHA512;
+      flag = GNUTLS_PRIVKEY_SIGN_FLAG_RSA_PSS;
       break;
 #endif
     default:
@@ -417,7 +417,7 @@ static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
       if (o_base64url_decode(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), sig, &sig_len)) {
         sig_dat.data = sig;
         sig_dat.size = sig_len;
-        if (gnutls_pubkey_verify_data2(pubkey, alg, 0, &data, &sig_dat)) {
+        if (gnutls_pubkey_verify_data2(pubkey, alg, flag, &data, &sig_dat)) {
           y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_verify_sig_rsa - Error invalid signature");
           ret = RHN_ERROR_INVALID;
         }

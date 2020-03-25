@@ -30,6 +30,27 @@
 #include <yder.h>
 #include <rhonabwy.h>
 
+/* Workaround to use GnuTLS 3.5 EC signature encode/decode functions that
+ * are not public. */
+#if GNUTLS_VERSION_MAJOR == 3 && GNUTLS_VERSION_MINOR == 5
+extern int _gnutls_encode_ber_rs_raw(gnutls_datum_t *sig_value, const gnutls_datum_t *r, const gnutls_datum_t *s);
+extern int _gnutls_decode_ber_rs_raw(const gnutls_datum_t *sig_value, gnutls_datum_t *r, gnutls_datum_t *s);
+
+static int gnutls_encode_rs_value(gnutls_datum_t *sig_value, const gnutls_datum_t *r, const gnutls_datum_t * s) {
+	return _gnutls_encode_ber_rs_raw(sig_value, r, s);
+}
+
+static int gnutls_decode_rs_value(const gnutls_datum_t *sig_value, gnutls_datum_t *r, gnutls_datum_t *s) {
+	return _gnutls_decode_ber_rs_raw(sig_value, r, s);
+}
+#endif /* End of pre-3.6 work-arounds. */
+
+#if GNUTLS_VERSION_NUMBER >= 0x030600
+#define GNUTLS_SIGN_FUNCTION gnutls_privkey_sign_data2
+#else
+#define GNUTLS_SIGN_FUNCTION gnutls_privkey_sign_data
+#endif
+
 static int r_jws_extract_header(jws_t * jws, json_t * j_header, int x5u_flags) {
   int ret;
   jwk_t * jwk;
@@ -226,16 +247,16 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
     case R_JWS_ALG_PS512:
       alg = GNUTLS_SIGN_RSA_PSS_SHA512;
       break;
+#endif
     default:
       break;
-#endif
   }
   
   if (privkey != NULL && GNUTLS_PK_RSA == gnutls_privkey_get_pk_algorithm(privkey, NULL)) {
     body_dat.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
     body_dat.size = o_strlen((const char *)body_dat.data);
     
-    if (!(res = gnutls_privkey_sign_data2(privkey, alg, 0, &body_dat, &sig_dat))) {
+    if (!(res = GNUTLS_SIGN_FUNCTION(privkey, alg, 0, &body_dat, &sig_dat))) {
       if ((to_return = o_malloc(sig_dat.size*2)) != NULL) {
         if (o_base64url_encode(sig_dat.data, sig_dat.size, to_return, &ret_size)) {
           to_return[ret_size] = '\0';
@@ -249,7 +270,7 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
       }
       gnutls_free(sig_dat.data);
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_rsa - Error gnutls_privkey_sign_data2, res %d", res);
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_rsa - Error gnutls_privkey_sign_data, res %d", res);
     }
     o_free(body_dat.data);
   } else {
@@ -368,6 +389,7 @@ static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
     case R_JWS_ALG_RS512:
       alg = GNUTLS_DIG_SHA512;
       break;
+#if GNUTLS_VERSION_NUMBER >= 0x030600
     case R_JWS_ALG_PS256:
       alg = GNUTLS_SIGN_RSA_PSS_SHA256;
       break;
@@ -377,6 +399,7 @@ static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
     case R_JWS_ALG_PS512:
       alg = GNUTLS_SIGN_RSA_PSS_SHA512;
       break;
+#endif
     default:
       break;
   }

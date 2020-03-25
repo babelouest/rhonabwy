@@ -3,22 +3,49 @@
 [![Build Status](https://travis-ci.com/babelouest/rhonabwy.svg?branch=master)](https://travis-ci.com/babelouest/rhonabwy)
 ![C/C++ CI](https://github.com/babelouest/rhonabwy/workflows/C/C++%20CI/badge.svg)
 
-Create, modify, parse or export Json Web Keys as defined in the [RFC 7517](https://tools.ietf.org/html/rfc7517).
+- Create, modify, parse or export JSON Web Keys (JWK) as defined in the [RFC 7517](https://tools.ietf.org/html/rfc7517).
+- Create, modify, parse, validate and serialize JSON Web Signatures (JWS) as defined in the [RFC 7515](https://tools.ietf.org/html/rfc7515)
+
+Example program:
 
 ```C
-jwk_t * jwk;
-const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
-                                     "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\"}";
-unsigned char output[2048];
-size_t output_len = 2048;
+/**
+ * To compile this program run:
+ * gcc -o demo_rhonabwy demo_rhonabwy.c -lrhonabwy
+ */
+#include <stdio.h>
+#include <rhonabwy.h>
 
-if (r_jwk_init(&jwk) == RHN_OK) {
-  if (r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str) == RHN_OK) {
-    if (r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, output, &output_len) == RHN_OK) {
-      printf("exported key:\n%.*s\n", output_len, output);
+int main(void) {
+  const char jws_token[] = "eyJhbGciOiJFUzI1NiIsImtpZCI6IjEifQ."
+    "VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u."
+    "8SGjljD8Zrj9nZRXFbWny8KYLokjvnuFersudKTYCU7LyiOHed81goqaW3J1gDY-8zIjGnT_EV2YZsT7GVyBjQ";
+  
+  const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
+                                      "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\",\"alg\":\"ES256\"}";
+  
+  unsigned char output[2048];
+  size_t output_len = 2048;
+  jwk_t * jwk;
+  jws_t * jws;
+
+  if (r_jwk_init(&jwk) == RHN_OK) {
+    if (r_jws_init(&jws) == RHN_OK) {
+      if (r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str) == RHN_OK) {
+        if (r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, output, &output_len, 0) == RHN_OK) {
+          printf("Exported key:\n%.*s\n", (int)output_len, output);
+          if (r_jws_parse(jws, jws_token, 0) == RHN_OK) {
+            if (r_jws_verify_signature(jws, jwk, 0) == RHN_OK) {
+              printf("Verified payload:\n%.*s\n", (int)jws->payload_len, jws->payload);
+            }
+          }
+        }
+      }
+      r_jws_free(jws);
     }
+    r_jwk_free(jwk);
   }
-  r_jwk_free(jwk);
+  return 0;
 }
 ```
 
@@ -33,6 +60,8 @@ You can install Rhonabwy with a pre-compiled package available in the [release p
 ### Prerequisites
 
 You must install [liborcania](https://github.com/babelouest/orcania), [libyder](https://github.com/babelouest/yder), [libulfius](https://github.com/babelouest/ulfius), [jansson](http://www.digip.org/jansson/) and [GnuTLS](https://www.gnutls.org/) first before building librhonabwy. Orcania, Yder and Ulfius will be automatically installed if missing and you're using cmake.
+
+You need GnuTLS 3.5 minimum, 3.6 is recommended.
 
 ### CMake - Multi architecture
 

@@ -111,7 +111,6 @@ START_TEST(test_rhonabwy_serialize_with_key_ok)
   ck_assert_int_eq(r_jws_add_keys(jws, jwk_key_symmetric, NULL), RHN_OK);
 
   ck_assert_ptr_ne((token = r_jws_serialize(jws, NULL, 0)), NULL);
-  ck_assert_str_eq(token, HS256_TOKEN);
   o_free(token);
 
   ck_assert_int_eq(r_jws_set_header_str_value(jws, "key", "value"), RHN_OK);

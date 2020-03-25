@@ -1,0 +1,1157 @@
+==30025== Memcheck, a memory error detector
+==30025== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==30025== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
+==30025== Command: ./jws_hmac ../src/librhonabwy.so
+==30025== 
+2020-03-25T00:14:48 - Rhonabwy ERROR: r_jws_serialize - Unsupported algorithm
+2020-03-25T00:14:48 - Rhonabwy ERROR: r_jws_serialize - No signature
+2020-03-25T00:14:48 - Rhonabwy ERROR: r_jws_serialize - Error input parameters
+2020-03-25T00:14:48 - Rhonabwy ERROR: r_jws_serialize - Error input parameters
+2020-03-25T00:14:48 - Rhonabwy ERROR: r_jws_serialize - Unsupported algorithm
+2020-03-25T00:14:48 - Rhonabwy ERROR: r_jws_serialize - No signature
+==30025== Invalid read of size 1
+==30025==    at 0x483EED7: strcmp (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10B4CB: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:94)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025==  Address 0x0 is not stack'd, malloc'd or (recently) free'd
+==30025== 
+==30025== 
+==30025== Process terminating with default action of signal 11 (SIGSEGV)
+==30025==  Access not within mapped region at address 0x0
+==30025==    at 0x483EED7: strcmp (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10B4CB: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:94)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025==  If you believe this happened as a result of a stack
+==30025==  overflow in your program's main thread (unlikely but
+==30025==  possible), you can try to increase the size of the
+==30025==  main thread stack using the --main-stacksize= flag.
+==30025==  The main thread stack size used in this run was 8388608.
+==30025== 
+==30025== HEAP SUMMARY:
+==30025==     in use at exit: 94,365 bytes in 750 blocks
+==30025==   total heap usage: 1,694 allocs, 944 frees, 183,766 bytes allocated
+==30025== 
+==30025== 2 bytes in 1 blocks are still reachable in loss record 1 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC5B14: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC845C: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A6D48A: r_jws_set_header_str_value (jws.c:713)
+==30025==    by 0x4A6E017: r_jws_serialize (jws.c:992)
+==30025==    by 0x10B4A1: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:94)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 8 bytes in 1 blocks are still reachable in loss record 2 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x5BF15BD: CRYPTO_zalloc (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x5B31468: ??? (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x5B315B9: BN_set_word (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x590E7F7: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x590FA6E: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x5900311: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025== 
+==30025== 8 bytes in 1 blocks are still reachable in loss record 3 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F524: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E87B: suite_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E443: rhonabwy_suite (jws_hmac.c:306)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 8 bytes in 1 blocks are still reachable in loss record 4 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F524: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EA34: tcase_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E453: rhonabwy_suite (jws_hmac.c:307)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 8 bytes in 1 blocks are still reachable in loss record 5 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F524: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EA3D: tcase_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E453: rhonabwy_suite (jws_hmac.c:307)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 8 bytes in 1 blocks are still reachable in loss record 6 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F524: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EA46: tcase_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E453: rhonabwy_suite (jws_hmac.c:307)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 8 bytes in 1 blocks are still reachable in loss record 7 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F524: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EA4F: tcase_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E453: rhonabwy_suite (jws_hmac.c:307)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 8 bytes in 1 blocks are still reachable in loss record 8 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F524: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10ED8A: srunner_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E783: main (jws_hmac.c:334)
+==30025== 
+==30025== 8 bytes in 1 blocks are still reachable in loss record 9 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F524: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x11213D: srunner_init_logging (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110BDE: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 9 bytes in 1 blocks are still reachable in loss record 10 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4A54F4D: o_malloc (memory.c:23)
+==30025==    by 0x4A53C4D: o_strndup (orcania.c:189)
+==30025==    by 0x4A53C12: o_strdup (orcania.c:175)
+==30025==    by 0x4A5AA5E: y_write_log (yder.c:231)
+==30025==    by 0x4A5AD37: y_init_logs (yder.c:314)
+==30025==    by 0x10E76E: main (jws_hmac.c:332)
+==30025== 
+==30025== 12 bytes in 1 blocks are still reachable in loss record 11 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EDA7: srunner_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E783: main (jws_hmac.c:334)
+==30025== 
+==30025== 16 bytes in 1 blocks are still reachable in loss record 12 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E862: suite_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E443: rhonabwy_suite (jws_hmac.c:306)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 16 bytes in 1 blocks are still reachable in loss record 13 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4A54F4D: o_malloc (memory.c:23)
+==30025==    by 0x4A53C4D: o_strndup (orcania.c:189)
+==30025==    by 0x4A6BB85: r_jws_set_token_values (jws.c:123)
+==30025==    by 0x4A6E03F: r_jws_serialize (jws.c:995)
+==30025==    by 0x10B4A1: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:94)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 21 bytes in 3 blocks are still reachable in loss record 14 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x11053D: pass_msg (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x11078A: receive_result_info_nofork (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110A99: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 24 bytes in 1 blocks are still reachable in loss record 15 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x5BF15BD: CRYPTO_zalloc (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x5B30ADD: BN_new (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x590E7DE: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x590FA6E: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x5900311: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 24 bytes in 1 blocks are still reachable in loss record 16 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x5BF15BD: CRYPTO_zalloc (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x5B30ADD: BN_new (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x590E824: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x590FA6E: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x5900311: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 24 bytes in 1 blocks are still reachable in loss record 17 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x5BF15BD: CRYPTO_zalloc (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x5B30ADD: BN_new (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x590E853: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x590FA6E: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x5900311: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 24 bytes in 1 blocks are still reachable in loss record 18 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x5BF15BD: CRYPTO_zalloc (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x5B30ADD: BN_new (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x590E886: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x590FA6E: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x5900311: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 24 bytes in 1 blocks are still reachable in loss record 19 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x5BF15BD: CRYPTO_zalloc (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x5B30ADD: BN_new (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x590E8BD: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x590FA6E: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x5900311: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 24 bytes in 1 blocks are still reachable in loss record 20 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F50A: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E87B: suite_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E443: rhonabwy_suite (jws_hmac.c:306)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 24 bytes in 1 blocks are still reachable in loss record 21 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F50A: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EA2B: tcase_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E453: rhonabwy_suite (jws_hmac.c:307)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 24 bytes in 1 blocks are still reachable in loss record 22 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F50A: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EA34: tcase_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E453: rhonabwy_suite (jws_hmac.c:307)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 24 bytes in 1 blocks are still reachable in loss record 23 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F50A: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EA3D: tcase_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E453: rhonabwy_suite (jws_hmac.c:307)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 24 bytes in 1 blocks are still reachable in loss record 24 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F50A: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EA46: tcase_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E453: rhonabwy_suite (jws_hmac.c:307)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 24 bytes in 1 blocks are still reachable in loss record 25 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F50A: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EA4F: tcase_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E453: rhonabwy_suite (jws_hmac.c:307)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 24 bytes in 1 blocks are still reachable in loss record 26 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F50A: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10ED8A: srunner_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E783: main (jws_hmac.c:334)
+==30025== 
+==30025== 24 bytes in 1 blocks are still reachable in loss record 27 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F50A: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EDC4: srunner_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E783: main (jws_hmac.c:334)
+==30025== 
+==30025== 24 bytes in 1 blocks are still reachable in loss record 28 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F50A: check_list_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x11213D: srunner_init_logging (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110BDE: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 24 bytes in 1 blocks are still reachable in loss record 29 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x111F85: srunner_register_lfun (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x112169: srunner_init_logging (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110BDE: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 31 bytes in 4 blocks are still reachable in loss record 30 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC4BDC: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC50D8: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC5395: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC550B: json_loads (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A65604: r_jwk_import_from_json_str (jwk.c:598)
+==30025==    by 0x10B2FE: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:90)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 31 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x5001323: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 32 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x500133F: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 33 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x5001362: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 34 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x500137E: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 35 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x500139A: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 36 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x50013D9: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 37 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x50013F5: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 38 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x5001411: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 39 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x5001434: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 40 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x5001450: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 41 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x500146C: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 42 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x5001488: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 43 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x50014A4: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 44 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x50014C0: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 45 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x50014DC: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 46 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x500157B: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 47 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x5001597: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 48 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x50015B3: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 49 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F45272: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x50015CF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0DF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 50 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EB27: _tcase_add_test (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E488: rhonabwy_suite (jws_hmac.c:308)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 51 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EB27: _tcase_add_test (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E4BD: rhonabwy_suite (jws_hmac.c:309)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 52 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EB27: _tcase_add_test (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E4F2: rhonabwy_suite (jws_hmac.c:310)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 53 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EB27: _tcase_add_test (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E527: rhonabwy_suite (jws_hmac.c:311)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 54 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EB27: _tcase_add_test (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E55C: rhonabwy_suite (jws_hmac.c:312)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 55 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EB27: _tcase_add_test (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E591: rhonabwy_suite (jws_hmac.c:313)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 56 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EB27: _tcase_add_test (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E5C6: rhonabwy_suite (jws_hmac.c:314)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 57 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EB27: _tcase_add_test (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E5FB: rhonabwy_suite (jws_hmac.c:315)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 58 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EB27: _tcase_add_test (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E630: rhonabwy_suite (jws_hmac.c:316)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 59 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EB27: _tcase_add_test (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E665: rhonabwy_suite (jws_hmac.c:317)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 60 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EB27: _tcase_add_test (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E69A: rhonabwy_suite (jws_hmac.c:318)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 61 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EB27: _tcase_add_test (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E6CF: rhonabwy_suite (jws_hmac.c:319)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 62 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EB27: _tcase_add_test (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E704: rhonabwy_suite (jws_hmac.c:320)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 63 of 101
+==30025==    at 0x483CFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F4A8: erealloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F4F5: maybe_grow (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F5A5: check_list_add_end (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x1108C6: srunner_add_failure.isra.4 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x1110E3: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 32 bytes in 1 blocks are still reachable in loss record 64 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC842E: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A6D48A: r_jws_set_header_str_value (jws.c:713)
+==30025==    by 0x4A6E017: r_jws_serialize (jws.c:992)
+==30025==    by 0x10B4A1: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:94)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 33 bytes in 3 blocks are still reachable in loss record 65 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x490253E: strdup (strdup.c:42)
+==30025==    by 0x110458: punpack (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10FAA6: receive_test_result (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110749: receive_result_info_nofork (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110A99: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 40 bytes in 1 blocks are still reachable in loss record 66 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F31EE4: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C099: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 40 bytes in 1 blocks are still reachable in loss record 67 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4F31EE4: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F2C0AF: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 40 bytes in 1 blocks are still reachable in loss record 68 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC869A: json_array (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC71AC: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC714C: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC7746: json_vpack_ex (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC796F: json_pack (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A6A72F: r_jwks_init (jwks.c:32)
+==30025==    by 0x4A6CCF9: r_jws_init (jws.c:541)
+==30025==    by 0x10B27A: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:89)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 40 bytes in 1 blocks are still reachable in loss record 69 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC869A: json_array (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC71AC: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC714C: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC7746: json_vpack_ex (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC796F: json_pack (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A6A72F: r_jwks_init (jwks.c:32)
+==30025==    by 0x4A6CD14: r_jws_init (jws.c:542)
+==30025==    by 0x10B27A: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:89)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 52 bytes in 1 blocks are still reachable in loss record 70 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC3AF8: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC9036: json_object_set_new_nocheck (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A6D4A4: r_jws_set_header_str_value (jws.c:713)
+==30025==    by 0x4A6E017: r_jws_serialize (jws.c:992)
+==30025==    by 0x10B4A1: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:94)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 53 bytes in 1 blocks are still reachable in loss record 71 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC3AF8: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC9036: json_object_set_new_nocheck (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC70AD: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC7746: json_vpack_ex (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC796F: json_pack (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A6A72F: r_jwks_init (jwks.c:32)
+==30025==    by 0x4A6CCF9: r_jws_init (jws.c:541)
+==30025==    by 0x10B27A: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:89)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 53 bytes in 1 blocks are still reachable in loss record 72 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC3AF8: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC9036: json_object_set_new_nocheck (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC70AD: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC7746: json_vpack_ex (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC796F: json_pack (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A6A72F: r_jwks_init (jwks.c:32)
+==30025==    by 0x4A6CD14: r_jws_init (jws.c:542)
+==30025==    by 0x10B27A: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:89)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 63 bytes in 1 blocks are still reachable in loss record 73 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4A54F4D: o_malloc (memory.c:23)
+==30025==    by 0x4A6D0E8: r_jws_set_payload (jws.c:627)
+==30025==    by 0x10B391: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:91)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 64 bytes in 1 blocks are still reachable in loss record 74 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E922: tcase_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E453: rhonabwy_suite (jws_hmac.c:307)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 64 bytes in 1 blocks are still reachable in loss record 75 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10ED82: srunner_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E783: main (jws_hmac.c:334)
+==30025== 
+==30025== 64 bytes in 1 blocks are still reachable in loss record 76 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC86CA: json_array (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC71AC: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC714C: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC7746: json_vpack_ex (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC796F: json_pack (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A6A72F: r_jwks_init (jwks.c:32)
+==30025==    by 0x4A6CCF9: r_jws_init (jws.c:541)
+==30025==    by 0x10B27A: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:89)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 64 bytes in 1 blocks are still reachable in loss record 77 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC86CA: json_array (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC71AC: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC714C: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC7746: json_vpack_ex (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC796F: json_pack (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A6A72F: r_jwks_init (jwks.c:32)
+==30025==    by 0x4A6CD14: r_jws_init (jws.c:542)
+==30025==    by 0x10B27A: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:89)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 72 bytes in 1 blocks are still reachable in loss record 78 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC849A: json_object (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A63047: r_jwk_init (jwk.c:34)
+==30025==    by 0x10B245: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:88)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 72 bytes in 1 blocks are still reachable in loss record 79 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4A54F4D: o_malloc (memory.c:23)
+==30025==    by 0x4A6CCB2: r_jws_init (jws.c:539)
+==30025==    by 0x10B27A: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:89)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 72 bytes in 1 blocks are still reachable in loss record 80 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC849A: json_object (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A6CCD5: r_jws_init (jws.c:540)
+==30025==    by 0x10B27A: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:89)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 72 bytes in 1 blocks are still reachable in loss record 81 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC849A: json_object (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC7084: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC7746: json_vpack_ex (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC796F: json_pack (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A6A72F: r_jwks_init (jwks.c:32)
+==30025==    by 0x4A6CCF9: r_jws_init (jws.c:541)
+==30025==    by 0x10B27A: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:89)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 72 bytes in 1 blocks are still reachable in loss record 82 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC849A: json_object (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC7084: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC7746: json_vpack_ex (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC796F: json_pack (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A6A72F: r_jwks_init (jwks.c:32)
+==30025==    by 0x4A6CD14: r_jws_init (jws.c:542)
+==30025==    by 0x10B27A: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:89)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 85 bytes in 1 blocks are still reachable in loss record 83 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4A54F4D: o_malloc (memory.c:23)
+==30025==    by 0x4A53C4D: o_strndup (orcania.c:189)
+==30025==    by 0x4A6BC92: r_jws_set_token_values (jws.c:144)
+==30025==    by 0x4A6E03F: r_jws_serialize (jws.c:995)
+==30025==    by 0x10B4A1: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:94)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 102 bytes in 5 blocks are still reachable in loss record 84 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x558C817: ??? (in /usr/lib/x86_64-linux-gnu/libtasn1.so.6.5.6)
+==30025==    by 0x558DAF7: asn1_array2tree (in /usr/lib/x86_64-linux-gnu/libtasn1.so.6.5.6)
+==30025==    by 0x4F2C004: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 128 bytes in 1 blocks are still reachable in loss record 85 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x5BF15BD: CRYPTO_zalloc (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x5B31468: ??? (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x5B3187E: BN_bin2bn (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x590E844: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x590FA6E: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x5900311: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025== 
+==30025== 128 bytes in 1 blocks are still reachable in loss record 86 of 101
+==30025==    at 0x483CFAF: realloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F4A8: erealloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F4F5: maybe_grow (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10F5A5: check_list_add_end (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E630: rhonabwy_suite (jws_hmac.c:316)
+==30025==    by 0x10E773: main (jws_hmac.c:333)
+==30025== 
+==30025== 128 bytes in 1 blocks are still reachable in loss record 87 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC389C: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC84C6: json_object (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A63047: r_jwk_init (jwk.c:34)
+==30025==    by 0x10B245: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:88)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 128 bytes in 1 blocks are still reachable in loss record 88 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC389C: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC84C6: json_object (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A6CCD5: r_jws_init (jws.c:540)
+==30025==    by 0x10B27A: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:89)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 128 bytes in 1 blocks are still reachable in loss record 89 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC389C: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC84C6: json_object (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC7084: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC7746: json_vpack_ex (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC796F: json_pack (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A6A72F: r_jwks_init (jwks.c:32)
+==30025==    by 0x4A6CCF9: r_jws_init (jws.c:541)
+==30025==    by 0x10B27A: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:89)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 128 bytes in 1 blocks are still reachable in loss record 90 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC389C: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC84C6: json_object (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC7084: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC7746: json_vpack_ex (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC796F: json_pack (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A6A72F: r_jwks_init (jwks.c:32)
+==30025==    by 0x4A6CD14: r_jws_init (jws.c:542)
+==30025==    by 0x10B27A: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:89)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 128 bytes in 4 blocks are still reachable in loss record 91 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC842E: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC4FF8: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC50E6: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC5395: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC550B: json_loads (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A65604: r_jwk_import_from_json_str (jwk.c:598)
+==30025==    by 0x10B2FE: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:90)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 168 bytes in 3 blocks are still reachable in loss record 92 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x10F478: emalloc (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10EF1D: tr_create (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10FAC1: receive_test_result (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110749: receive_result_info_nofork (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110A99: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 206 bytes in 4 blocks are still reachable in loss record 93 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4EC3AF8: ??? (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC9036: json_object_set_new_nocheck (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4EC9232: json_object_update (in /usr/lib/x86_64-linux-gnu/libjansson.so.4.11.1)
+==30025==    by 0x4A65687: r_jwk_import_from_json_t (jwk.c:614)
+==30025==    by 0x4A65622: r_jwk_import_from_json_str (jwk.c:599)
+==30025==    by 0x10B2FE: test_rhonabwy_no_set_alg_serialize_ok (jws_hmac.c:90)
+==30025==    by 0x110AAA: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 232 bytes in 1 blocks are still reachable in loss record 94 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x4896209: newlocale (newlocale.c:201)
+==30025==    by 0x536CB6C: ??? (in /usr/lib/x86_64-linux-gnu/libp11-kit.so.0.3.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 256 bytes in 1 blocks are still reachable in loss record 95 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x5BF15BD: CRYPTO_zalloc (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x5B31468: ??? (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x5B3187E: BN_bin2bn (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x590E873: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x590FA6E: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x5900311: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025== 
+==30025== 488 bytes in 1 blocks are still reachable in loss record 96 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x48E5242: fdopen@@GLIBC_2.2.5 (iofdopen.c:122)
+==30025==    by 0x10F9C7: open_tmp_file (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10FA5B: setup_pipe (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10FABC: receive_test_result (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110749: receive_result_info_nofork (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110A99: tcase_run_tfun_nofork.isra.9 (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x110E6B: srunner_run (in /media/donjon/workspace/angharad/rhonabwy/test/jws_hmac)
+==30025==    by 0x10E798: main (jws_hmac.c:336)
+==30025== 
+==30025== 512 bytes in 1 blocks are still reachable in loss record 97 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x5BF15BD: CRYPTO_zalloc (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x5B31468: ??? (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x5B3187E: BN_bin2bn (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x590E8AA: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x590FA6E: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x5900311: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025== 
+==30025== 1,024 bytes in 1 blocks are still reachable in loss record 98 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x5BF15BD: CRYPTO_zalloc (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x5B31468: ??? (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x5B3187E: BN_bin2bn (in /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1)
+==30025==    by 0x590E8E1: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x590FA6E: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x5900311: ??? (in /usr/lib/x86_64-linux-gnu/libssh.so.4.8.1)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025== 
+==30025== 1,411 bytes in 65 blocks are still reachable in loss record 99 of 101
+==30025==    at 0x483A7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x558C817: ??? (in /usr/lib/x86_64-linux-gnu/libtasn1.so.6.5.6)
+==30025==    by 0x558DAF7: asn1_array2tree (in /usr/lib/x86_64-linux-gnu/libtasn1.so.6.5.6)
+==30025==    by 0x4F2BF88: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 13,680 bytes in 90 blocks are still reachable in loss record 100 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x558C4EB: ??? (in /usr/lib/x86_64-linux-gnu/libtasn1.so.6.5.6)
+==30025==    by 0x558DABE: asn1_array2tree (in /usr/lib/x86_64-linux-gnu/libtasn1.so.6.5.6)
+==30025==    by 0x4F2C004: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== 72,656 bytes in 478 blocks are still reachable in loss record 101 of 101
+==30025==    at 0x483CD99: calloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==30025==    by 0x558C4EB: ??? (in /usr/lib/x86_64-linux-gnu/libtasn1.so.6.5.6)
+==30025==    by 0x558DABE: asn1_array2tree (in /usr/lib/x86_64-linux-gnu/libtasn1.so.6.5.6)
+==30025==    by 0x4F2BF88: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4F00414: ??? (in /usr/lib/x86_64-linux-gnu/libgnutls.so.30.25.0)
+==30025==    by 0x4011029: call_init.part.0 (dl-init.c:72)
+==30025==    by 0x4011130: call_init (dl-init.c:30)
+==30025==    by 0x4011130: _dl_init (dl-init.c:119)
+==30025==    by 0x4001139: ??? (in /lib/x86_64-linux-gnu/ld-2.30.so)
+==30025==    by 0x1: ???
+==30025==    by 0x1FFF0000EA: ???
+==30025==    by 0x1FFF0000F5: ???
+==30025== 
+==30025== LEAK SUMMARY:
+==30025==    definitely lost: 0 bytes in 0 blocks
+==30025==    indirectly lost: 0 bytes in 0 blocks
+==30025==      possibly lost: 0 bytes in 0 blocks
+==30025==    still reachable: 94,365 bytes in 750 blocks
+==30025==         suppressed: 0 bytes in 0 blocks
+==30025== 
+==30025== For lists of detected and suppressed errors, rerun with: -s
+==30025== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+Segmentation fault (core dumped)

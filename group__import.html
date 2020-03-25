@@ -59,6 +59,16 @@ Functions</h2></td></tr>
 <tr class="separator:ga9501f98c61a2c15ba6eb5a0c1963c8f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga79cd34a22fa17847082410e413ff9be8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__import.html#ga79cd34a22fa17847082410e413ff9be8">r_jwk_import_from_gnutls_x509_crt</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, gnutls_x509_crt_t crt)</td></tr>
 <tr class="separator:ga79cd34a22fa17847082410e413ff9be8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0ee019bdc3cbe8d9e5bf2e61f0b45db8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__import.html#ga0ee019bdc3cbe8d9e5bf2e61f0b45db8">r_jwk_import_from_x5u</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, int type, int x5u_flags, const char *x5u)</td></tr>
+<tr class="separator:ga0ee019bdc3cbe8d9e5bf2e61f0b45db8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7c1d69c5db756215249054a7a659f612"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__import.html#ga7c1d69c5db756215249054a7a659f612">r_jwk_import_from_symmetric_key</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, const unsigned char *key, size_t key_len)</td></tr>
+<tr class="separator:ga7c1d69c5db756215249054a7a659f612"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac76ba127a4eadcb2122abeb0d49814c3"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__import.html#gac76ba127a4eadcb2122abeb0d49814c3">r_jwk_extract_pubkey</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_privkey, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_pubkey, int x5u_flags)</td></tr>
+<tr class="separator:gac76ba127a4eadcb2122abeb0d49814c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa883365c50b00e028b96442f70af84df"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__import.html#gaa883365c50b00e028b96442f70af84df">r_jwk_copy</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk)</td></tr>
+<tr class="separator:gaa883365c50b00e028b96442f70af84df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab9aff4d5b56fe075b66f9f84169ecdaf"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__import.html#gab9aff4d5b56fe075b66f9f84169ecdaf">r_jwk_equal</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk1, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk2)</td></tr>
+<tr class="separator:gab9aff4d5b56fe075b66f9f84169ecdaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Import a jwk from JSON data, gnutls inner types or PEM/DER </p>
@@ -297,6 +307,207 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="ga0ee019bdc3cbe8d9e5bf2e61f0b45db8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0ee019bdc3cbe8d9e5bf2e61f0b45db8">&#9670;&nbsp;</a></span>r_jwk_import_from_x5u()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwk_import_from_x5u </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
+          <td class="paramname"><em>jwk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x5u_flags</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>x5u</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Import a certificate from an URL </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwk</td><td>the jwk_t * to import to </td></tr>
+    <tr><td class="paramname">type</td><td>the type of the input, values available are R_X509_TYPE_PUBKEY, R_X509_TYPE_PRIVKEY or R_X509_TYPE_CERTIFICATE </td></tr>
+    <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates </td></tr>
+    <tr><td class="paramname">x5u</td><td>the url to retreive the certificate If jwk is set, values will be overwritten </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="ga7c1d69c5db756215249054a7a659f612"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7c1d69c5db756215249054a7a659f612">&#9670;&nbsp;</a></span>r_jwk_import_from_symmetric_key()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwk_import_from_symmetric_key </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
+          <td class="paramname"><em>jwk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const unsigned char *&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>key_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Import a symmetric key into a jwk The key will be converted to base64url format </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwk</td><td>the jwk_t * to import to </td></tr>
+    <tr><td class="paramname">key</td><td>the key to import </td></tr>
+    <tr><td class="paramname">key_len</td><td>the size of the key </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="gac76ba127a4eadcb2122abeb0d49814c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac76ba127a4eadcb2122abeb0d49814c3">&#9670;&nbsp;</a></span>r_jwk_extract_pubkey()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwk_extract_pubkey </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
+          <td class="paramname"><em>jwk_privkey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
+          <td class="paramname"><em>jwk_pubkey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x5u_flags</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Extract the public key from the private key jwk_privkey and set it into jwk_pubkey </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwk_privkey</td><td>the jwt containing a private key </td></tr>
+    <tr><td class="paramname">jwk_pubkey</td><td>the jwt that will be set with the public key data </td></tr>
+    <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
+<li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
+</ul>
+</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="gaa883365c50b00e028b96442f70af84df"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa883365c50b00e028b96442f70af84df">&#9670;&nbsp;</a></span>r_jwk_copy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a>* r_jwk_copy </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
+          <td class="paramname"><em>jwk</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Return a copy of the jwk </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwk</td><td>the jwk to copy </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a copy of the jwk </dd></dl>
+
+</div>
+</div>
+<a id="gab9aff4d5b56fe075b66f9f84169ecdaf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab9aff4d5b56fe075b66f9f84169ecdaf">&#9670;&nbsp;</a></span>r_jwk_equal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwk_equal </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
+          <td class="paramname"><em>jwk1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
+          <td class="paramname"><em>jwk2</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Compare 2 jwk </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwk1</td><td>the first JWK to compare </td></tr>
+    <tr><td class="paramname">jwk2</td><td>the second JWK to compare </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>1 if both jwk1 and jwk2 are equal, 0 otherwise </dd></dl>
 
 </div>
 </div>

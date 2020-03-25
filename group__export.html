@@ -57,6 +57,8 @@ Functions</h2></td></tr>
 <tr class="separator:ga0f530df0770b526d3cdc7857ab994450"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga74345c97b9d9df7ed96e8fe691818ad1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__export.html#ga74345c97b9d9df7ed96e8fe691818ad1">r_jwk_export_to_pem_der</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, int format, unsigned char *output, size_t *output_len, int x5u_flags)</td></tr>
 <tr class="separator:ga74345c97b9d9df7ed96e8fe691818ad1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6f749573cd5178bbf61fa2f7d10a3160"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__export.html#ga6f749573cd5178bbf61fa2f7d10a3160">r_jwk_export_to_symmetric_key</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, unsigned char *key, size_t *key_len)</td></tr>
+<tr class="separator:ga6f749573cd5178bbf61fa2f7d10a3160"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Export a jwk to JSON data, gnutls inner types or PEM/DER </p>
@@ -256,6 +258,51 @@ Functions</h2></td></tr>
 <li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
 </ul>
 </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd>
+<dd>
+RHN_ERROR_PARAM if output_len isn't large enough to hold the output, then output_len will be set to the required size </dd></dl>
+
+</div>
+</div>
+<a id="ga6f749573cd5178bbf61fa2f7d10a3160"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6f749573cd5178bbf61fa2f7d10a3160">&#9670;&nbsp;</a></span>r_jwk_export_to_symmetric_key()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwk_export_to_symmetric_key </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
+          <td class="paramname"><em>jwk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned char *&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>key_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Export a jwk_t into a symmetric key in binary format </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwk</td><td>the jwk_t * to export </td></tr>
+    <tr><td class="paramname">key</td><td>an unsigned char * that will contain the key </td></tr>
+    <tr><td class="paramname">key_len</td><td>the size of key and will be set to the data size that has been written to output </td></tr>
   </table>
   </dd>
 </dl>

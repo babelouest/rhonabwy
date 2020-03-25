@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Rhonabwy: JWK type</title>
+<title>Rhonabwy: JWK, JWKS, JWS type</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -39,21 +39,54 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#typedef-members">Typedefs</a>  </div>
+<a href="#nested-classes">Data Structures</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a>  </div>
   <div class="headertitle">
-<div class="title">JWK type</div>  </div>
+<div class="title">JWK, JWKS, JWS type</div>  </div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__jws__t.html">_jws_t</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
 <tr class="memitem:gac7d996dfabdc443bcd0da0b6574e22ef"><td class="memItemLeft" align="right" valign="top">typedef json_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a></td></tr>
 <tr class="separator:gac7d996dfabdc443bcd0da0b6574e22ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad1e7e9d151ac27e89f550389ee397494"><td class="memItemLeft" align="right" valign="top">typedef json_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a></td></tr>
 <tr class="separator:gad1e7e9d151ac27e89f550389ee397494"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga55c3c91c60412271976f34903edf8858"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="struct__jws__t.html">_jws_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__type.html#ga55c3c91c60412271976f34903edf8858">jws_t</a></td></tr>
+<tr class="separator:ga55c3c91c60412271976f34903edf8858"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:gacd93c6bb1baf8f261d24f04d618aa1e9"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__type.html#gacd93c6bb1baf8f261d24f04d618aa1e9">jws_alg</a> { <br />
+&#160;&#160;<a class="el" href="group__type.html#ggacd93c6bb1baf8f261d24f04d618aa1e9a43de623155991566188fd44e937dee16">R_JWS_ALG_UNSET</a> = 0, 
+<a class="el" href="group__type.html#ggacd93c6bb1baf8f261d24f04d618aa1e9ac9ac7a0bc68a1d7f117b97edc7c6e326">R_JWS_ALG_NONE</a> = 1, 
+<a class="el" href="group__type.html#ggacd93c6bb1baf8f261d24f04d618aa1e9a0c5d7c488a299e0cb88373281de0ddce">R_JWS_ALG_HS256</a> = 2, 
+<a class="el" href="group__type.html#ggacd93c6bb1baf8f261d24f04d618aa1e9a4a97e9cd3c9cf1f662e50aefb03ceb1e">R_JWS_ALG_HS384</a> = 3, 
+<br />
+&#160;&#160;<a class="el" href="group__type.html#ggacd93c6bb1baf8f261d24f04d618aa1e9a95aca4715256724d2f76e4241c3f0ddf">R_JWS_ALG_HS512</a> = 4, 
+<a class="el" href="group__type.html#ggacd93c6bb1baf8f261d24f04d618aa1e9a360d0436340915d6117c849917f75c80">R_JWS_ALG_RS256</a> = 5, 
+<a class="el" href="group__type.html#ggacd93c6bb1baf8f261d24f04d618aa1e9a06e0d8e81a2ec216af26cc7db226dfc1">R_JWS_ALG_RS384</a> = 6, 
+<a class="el" href="group__type.html#ggacd93c6bb1baf8f261d24f04d618aa1e9ab7ddfda6bc6a06584087fbf5d0f30a19">R_JWS_ALG_RS512</a> = 7, 
+<br />
+&#160;&#160;<a class="el" href="group__type.html#ggacd93c6bb1baf8f261d24f04d618aa1e9af1064e6a4f630aa0040fa569ec1d7df7">R_JWS_ALG_ES256</a> = 8, 
+<a class="el" href="group__type.html#ggacd93c6bb1baf8f261d24f04d618aa1e9a7f0eaf3af9583378864bd47194dd396f">R_JWS_ALG_ES384</a> = 9, 
+<a class="el" href="group__type.html#ggacd93c6bb1baf8f261d24f04d618aa1e9af5e4c539e69f352ee5db134758a3f73c">R_JWS_ALG_ES512</a> = 10, 
+<a class="el" href="group__type.html#ggacd93c6bb1baf8f261d24f04d618aa1e9abd6504ebf556c3bee3517e35cd579085">R_JWS_ALG_PS256</a> = 11, 
+<br />
+&#160;&#160;<a class="el" href="group__type.html#ggacd93c6bb1baf8f261d24f04d618aa1e9a7b5b940245dfae9f34ce4ccdee164d10">R_JWS_ALG_PS384</a> = 12, 
+<a class="el" href="group__type.html#ggacd93c6bb1baf8f261d24f04d618aa1e9a3fa8e183e96bd39673d0a258daabab7d">R_JWS_ALG_PS512</a> = 13
+<br />
+ }</td></tr>
+<tr class="separator:gacd93c6bb1baf8f261d24f04d618aa1e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<p>Definition of the types jwk_t and jwks_t </p>
+<p>Definition of the types jwk_t, jwks_t and jws_t </p>
 <h2 class="groupheader">Typedef Documentation</h2>
 <a id="gac7d996dfabdc443bcd0da0b6574e22ef"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gac7d996dfabdc443bcd0da0b6574e22ef">&#9670;&nbsp;</a></span>jwk_t</h2>
@@ -80,6 +113,51 @@ Typedefs</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+</div>
+</div>
+<a id="ga55c3c91c60412271976f34903edf8858"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga55c3c91c60412271976f34903edf8858">&#9670;&nbsp;</a></span>jws_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="struct__jws__t.html">_jws_t</a>  <a class="el" href="group__type.html#ga55c3c91c60412271976f34903edf8858">jws_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="gacd93c6bb1baf8f261d24f04d618aa1e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gacd93c6bb1baf8f261d24f04d618aa1e9">&#9670;&nbsp;</a></span>jws_alg</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__type.html#gacd93c6bb1baf8f261d24f04d618aa1e9">jws_alg</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggacd93c6bb1baf8f261d24f04d618aa1e9a43de623155991566188fd44e937dee16"></a>R_JWS_ALG_UNSET&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ggacd93c6bb1baf8f261d24f04d618aa1e9ac9ac7a0bc68a1d7f117b97edc7c6e326"></a>R_JWS_ALG_NONE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ggacd93c6bb1baf8f261d24f04d618aa1e9a0c5d7c488a299e0cb88373281de0ddce"></a>R_JWS_ALG_HS256&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ggacd93c6bb1baf8f261d24f04d618aa1e9a4a97e9cd3c9cf1f662e50aefb03ceb1e"></a>R_JWS_ALG_HS384&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ggacd93c6bb1baf8f261d24f04d618aa1e9a95aca4715256724d2f76e4241c3f0ddf"></a>R_JWS_ALG_HS512&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ggacd93c6bb1baf8f261d24f04d618aa1e9a360d0436340915d6117c849917f75c80"></a>R_JWS_ALG_RS256&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ggacd93c6bb1baf8f261d24f04d618aa1e9a06e0d8e81a2ec216af26cc7db226dfc1"></a>R_JWS_ALG_RS384&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ggacd93c6bb1baf8f261d24f04d618aa1e9ab7ddfda6bc6a06584087fbf5d0f30a19"></a>R_JWS_ALG_RS512&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ggacd93c6bb1baf8f261d24f04d618aa1e9af1064e6a4f630aa0040fa569ec1d7df7"></a>R_JWS_ALG_ES256&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ggacd93c6bb1baf8f261d24f04d618aa1e9a7f0eaf3af9583378864bd47194dd396f"></a>R_JWS_ALG_ES384&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ggacd93c6bb1baf8f261d24f04d618aa1e9af5e4c539e69f352ee5db134758a3f73c"></a>R_JWS_ALG_ES512&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ggacd93c6bb1baf8f261d24f04d618aa1e9abd6504ebf556c3bee3517e35cd579085"></a>R_JWS_ALG_PS256&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ggacd93c6bb1baf8f261d24f04d618aa1e9a7b5b940245dfae9f34ce4ccdee164d10"></a>R_JWS_ALG_PS384&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="ggacd93c6bb1baf8f261d24f04d618aa1e9a3fa8e183e96bd39673d0a258daabab7d"></a>R_JWS_ALG_PS512&#160;</td><td class="fielddoc"></td></tr>
+</table>
 
 </div>
 </div>

@@ -53,6 +53,8 @@ Functions</h2></td></tr>
 <tr class="separator:ga6c32c46305421cf0eed3c6f3ea91a798"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0788a318f26b8c9a252916747c27898a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga0788a318f26b8c9a252916747c27898a">r_jwks_import_from_uri</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, const char *uri, int flags)</td></tr>
 <tr class="separator:ga0788a318f26b8c9a252916747c27898a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga39a3c880b62eb0bb1f718bec976ca0a7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga39a3c880b62eb0bb1f718bec976ca0a7">r_jwks_copy</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
+<tr class="separator:ga39a3c880b62eb0bb1f718bec976ca0a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1370763ce4d4ed8009ae87ca8e08e2db"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga1370763ce4d4ed8009ae87ca8e08e2db">r_jwks_size</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
 <tr class="separator:ga1370763ce4d4ed8009ae87ca8e08e2db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaccfb6d0b8d071c92ceeb5c7bd48047e5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#gaccfb6d0b8d071c92ceeb5c7bd48047e5">r_jwks_get_at</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, size_t index)</td></tr>
@@ -65,6 +67,10 @@ Functions</h2></td></tr>
 <tr class="separator:ga7f28e4d9e3f9af8951e434630eadc779"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga752d6568af9e368b9af26e14af3a0de3"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga752d6568af9e368b9af26e14af3a0de3">r_jwks_remove_at</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, size_t index)</td></tr>
 <tr class="separator:ga752d6568af9e368b9af26e14af3a0de3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae7414ee22817baaa8af684996040974c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#gae7414ee22817baaa8af684996040974c">r_jwks_empty</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
+<tr class="separator:gae7414ee22817baaa8af684996040974c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6923abe88efaec930137b3f4a7ea3128"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga6923abe88efaec930137b3f4a7ea3128">r_jwks_equal</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks1, <a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks2)</td></tr>
+<tr class="separator:ga6923abe88efaec930137b3f4a7ea3128"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac8fdbe5c1a9c9b2f977b756a242c72b3"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#gac8fdbe5c1a9c9b2f977b756a242c72b3">r_jwks_export_to_json_str</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, int pretty)</td></tr>
 <tr class="separator:gac8fdbe5c1a9c9b2f977b756a242c72b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga4b8109a53301b08ca9b5b13465a99551"><td class="memItemLeft" align="right" valign="top">json_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga4b8109a53301b08ca9b5b13465a99551">r_jwks_export_to_json_t</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
@@ -198,6 +204,31 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga39a3c880b62eb0bb1f718bec976ca0a7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga39a3c880b62eb0bb1f718bec976ca0a7">&#9670;&nbsp;</a></span>r_jwks_copy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a>* r_jwks_copy </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td>
+          <td class="paramname"><em>jwks</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Return a copy of the jwks </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwks</td><td>the jwks to copy </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a copy of the jwks </dd></dl>
+
+</div>
+</div>
 <a id="ga1370763ce4d4ed8009ae87ca8e08e2db"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga1370763ce4d4ed8009ae87ca8e08e2db">&#9670;&nbsp;</a></span>r_jwks_size()</h2>
 
@@ -255,7 +286,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>a jwk_t * on success, NULL on error The returned jwk must be r_free_jwk after use </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>a jwk_t * on success, NULL on error The returned jwk must be r_jwk_free after use </dd></dl>
 
 </div>
 </div>
@@ -291,7 +322,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>a jwk_t * on success, NULL on error The returned jwk must be r_free_jwk after use </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>a jwk_t * on success, NULL on error The returned jwk must be r_jwk_free after use </dd></dl>
 
 </div>
 </div>
@@ -407,6 +438,67 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="gae7414ee22817baaa8af684996040974c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae7414ee22817baaa8af684996040974c">&#9670;&nbsp;</a></span>r_jwks_empty()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwks_empty </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td>
+          <td class="paramname"><em>jwks</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Empty a JWKS </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwks</td><td>the jwks_t * to update </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="ga6923abe88efaec930137b3f4a7ea3128"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6923abe88efaec930137b3f4a7ea3128">&#9670;&nbsp;</a></span>r_jwks_equal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwks_equal </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td>
+          <td class="paramname"><em>jwks1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td>
+          <td class="paramname"><em>jwks2</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Compare 2 jwks The key content and order are compared </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwks1</td><td>the first JWKS to compare </td></tr>
+    <tr><td class="paramname">jwks2</td><td>the second JWKS to compare </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>1 if both jwks1 and jwks2 are equal, 0 otherwise </dd></dl>
 
 </div>
 </div>

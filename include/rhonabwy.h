@@ -46,7 +46,7 @@ extern "C"
 #define RHN_ERROR_MEMORY       2
 #define RHN_ERROR_PARAM        3
 #define RHN_ERROR_UNSUPPORTED  4
-#define RHN_ERROR_JWK_INVALID  5
+#define RHN_ERROR_INVALID      5
 
 #define R_X509_TYPE_PUBKEY      1
 #define R_X509_TYPE_PRIVKEY     2
@@ -79,11 +79,32 @@ extern "C"
 typedef json_t jwk_t;
 typedef json_t jwks_t;
 
+typedef enum {
+  R_JWS_ALG_NONE = 0,
+  R_JWS_ALG_HS256 = 1,
+  R_JWS_ALG_HS384 = 2,
+  R_JWS_ALG_HS512 = 3,
+  R_JWS_ALG_RS256 = 4,
+  R_JWS_ALG_RS384 = 5,
+  R_JWS_ALG_RS512 = 6,
+  R_JWS_ALG_ES256 = 7,
+  R_JWS_ALG_ES384 = 8,
+  R_JWS_ALG_ES512 = 9,
+  R_JWS_ALG_PS256 = 10,
+  R_JWS_ALG_PS384 = 11,
+  R_JWS_ALG_PS512 = 12
+} jws_alg;
+
 typedef struct _jws_t {
+  unsigned char * header_b64url;
+  unsigned char * payload_b64url;
+  unsigned char * signature_b64url;
+  jws_alg alg;
+  jwks_t * jwks_privkey;
+  jwks_t * jwks_pubkey;
   json_t * j_header;
   unsigned char * payload;
   size_t payload_len;
-  char * signature;
 } jws_t;
 
 /**
@@ -102,39 +123,39 @@ typedef struct _jws_t {
  * @param jwk: a reference to a jwk_t * to initialize
  * @return RHN_OK on success, an error value on error
  */
-int r_init_jwk(jwk_t ** jwk);
+int r_jwk_init(jwk_t ** jwk);
 
 /**
  * Free a jwk_t
  * @param jwk: the jwk_t * to free
  */
-void r_free_jwk(jwk_t * jwk);
+void r_jwk_free(jwk_t * jwk);
 
 /**
  * Initialize a jwks_t
  * @param jwks: a reference to a jwks_t * to initialize
  * @return RHN_OK on success, an error value on error
  */
-int r_init_jwks(jwks_t ** jwks);
+int r_jwks_init(jwks_t ** jwks);
 
 /**
  * Free a jwks_t
  * @param jwks: the jwks_t * to free
  */
-void r_free_jwks(jwks_t * jwks);
+void r_jwks_free(jwks_t * jwks);
 
 /**
  * Initialize a jws_t
  * @param jws: a reference to a jws_t * to initialize
  * @return RHN_OK on success, an error value on error
  */
-int r_init_jws(jws_t ** jws);
+int r_jws_init(jws_t ** jws);
 
 /**
  * Free a jws_t
  * @param jws: the jws_t * to free
  */
-void r_free_jws(jws_t * jws);
+void r_jws_free(jws_t * jws);
 
 /**
  * Get the type and algorithm of a jwk_t
@@ -338,6 +359,27 @@ int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub);
 int r_jwk_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt);
 
 /**
+ * Import a certificate from an URL
+ * @param jwk: the jwk_t * to import to
+ * @param type: the type of the input, values available are R_X509_TYPE_PUBKEY, R_X509_TYPE_PRIVKEY or R_X509_TYPE_CERTIFICATE
+ * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u: the url to retreive the certificate
+ * If jwk is set, values will be overwritten
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwk_import_from_x5u(jwk_t * jwk, int type, int x5u_flags, const char * x5u);
+
+/**
+ * Import a symmetric key into a jwk
+ * The key will be converted to base64url format
+ * @param jwk: the jwk_t * to import to
+ * @param key: the key to import
+ * @param key_len: the size of the key
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwk_import_from_symmetric_key(jwk_t * jwk, const unsigned char * key, size_t key_len);
+
+/**
  * Extract the public key from the private key jwk_privkey and set it into jwk_pubkey
  * @param jwk_privkey: the jwt containing a private key
  * @param jwk_pubkey: the jwt that will be set with the public key data
@@ -349,6 +391,21 @@ int r_jwk_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt);
  * @return RHN_OK on success, an error value on error
  */
 int r_jwk_extract_pubkey(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int x5u_flags);
+
+/**
+ * Return a copy of the jwk
+ * @param jwk: the jwk to copy
+ * @return a copy of the jwk
+ */
+jwk_t * r_jwk_copy(jwk_t * jwk);
+
+/**
+ * Compare 2 jwk
+ * @param jwk1: the first JWK to compare
+ * @param jwk2: the second JWK to compare
+ * @return 1 if both jwk1 and jwk2 are equal, 0 otherwise
+ */
+int r_jwk_equal(jwk_t * jwk1, jwk_t * jwk2);
 
 /**
  * @}
@@ -416,6 +473,16 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags);
 int r_jwk_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, size_t * output_len, int x5u_flags);
 
 /**
+ * Export a jwk_t into a symmetric key in binary format
+ * @param jwk: the jwk_t * to export
+ * @param key: an unsigned char * that will contain the key
+ * @param key_len: the size of key and will be set to the data size that has been written to output
+ * @return RHN_OK on success, an error value on error
+ * @return RHN_ERROR_PARAM if output_len isn't large enough to hold the output, then output_len will be set to the required size
+ */
+int r_jwk_export_to_symmetric_key(jwk_t * jwk, unsigned char * key, size_t * key_len);
+
+/**
  * @}
  */
 
@@ -463,6 +530,13 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input);
 int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int flags);
 
 /**
+ * Return a copy of the jwks
+ * @param jwks: the jwks to copy
+ * @return a copy of the jwks
+ */
+jwks_t * r_jwks_copy(jwks_t * jwks);
+
+/**
  * Get the number of jwk_t in a jwks_t
  * @param jwk: the jwks_t * to evaluate
  * @return the number of jwk_t in a jwks_t
@@ -474,7 +548,7 @@ size_t r_jwks_size(jwks_t * jwks);
  * @param jwks: the jwks_t * to evaluate
  * @param index: the index of the array to retrieve
  * @return a jwk_t * on success, NULL on error
- * The returned jwk must be r_free_jwk after use
+ * The returned jwk must be r_jwk_free after use
  */
 jwk_t * r_jwks_get_at(jwks_t * jwks, size_t index);
 
@@ -483,7 +557,7 @@ jwk_t * r_jwks_get_at(jwks_t * jwks, size_t index);
  * @param jwks: the jwks_t * to evaluate
  * @param kid: the key id of the jwk to retreive
  * @return a jwk_t * on success, NULL on error
- * The returned jwk must be r_free_jwk after use
+ * The returned jwk must be r_jwk_free after use
  */
 jwk_t * r_jwks_get_by_kid(jwks_t * jwks, const char * kid);
 
@@ -511,6 +585,22 @@ int r_jwks_set_at(jwks_t * jwks, size_t index, jwk_t * jwk);
  * @return RHN_OK on success, an error value on error
  */
 int r_jwks_remove_at(jwks_t * jwks, size_t index);
+
+/**
+ * Empty a JWKS
+ * @param jwks: the jwks_t * to update
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwks_empty(jwks_t * jwks);
+
+/**
+ * Compare 2 jwks
+ * The key content and order are compared
+ * @param jwks1: the first JWKS to compare
+ * @param jwks2: the second JWKS to compare
+ * @return 1 if both jwks1 and jwks2 are equal, 0 otherwise
+ */
+int r_jwks_equal(jwks_t * jwks1, jwks_t * jwks2);
 
 /**
  * Export a jwks_t into a stringified JSON format
@@ -580,27 +670,143 @@ int r_jwks_export_to_pem_der(jwks_t * jwks, int format, unsigned char * output, 
  * @{
  */
 
-int r_jws_set_payload(jws_t * jws, unsigned char * payload, size_t payload_len);
+/**
+ * Set the payload of the jws
+ * @param jws: the jws_t to update
+ * @param payload: the payload to set
+ * @param payload_len: the size of the payload
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_set_payload(jws_t * jws, const unsigned char * payload, size_t payload_len);
 
+/**
+ * Get the JWS payload
+ * @param jws: the jws_t to get the payload from
+ * @param payload_len: the length of the JWS payload, may be NULL
+ * @return a pointer to the JWS payload
+ */
+const unsigned char * r_jws_get_payload(jws_t * jws, size_t * payload_len);
+
+/**
+ * Set the JWS alg to use for signature
+ * @param jws: the jws_t to update
+ * @param alg: the algorithm to use
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_set_alg(jws_t * jws, jws_alg alg);
+
+/**
+ * Adds a string value to the JWS header
+ * @param jws: the jws_t to update
+ * @param key: the key to set to the JWS header
+ * @param str_value: the value to set
+ * @return RHN_OK on success, an error value on error
+ */
 int r_jws_set_header_str_value(jws_t * jws, const char * key, const char * str_value);
 
+/**
+ * Adds an integer value to the JWS header
+ * @param jws: the jws_t to update
+ * @param key: the key to set to the JWS header
+ * @param i_value: the value to set
+ * @return RHN_OK on success, an error value on error
+ */
 int r_jws_set_header_int_value(jws_t * jws, const char * key, int i_value);
 
+/**
+ * Adds a JSON value to the JWS header
+ * @param jws: the jws_t to update
+ * @param key: the key to set to the JWS header
+ * @param j_value: the value to set
+ * @return RHN_OK on success, an error value on error
+ */
 int r_jws_set_header_json_t_value(jws_t * jws, const char * key, json_t * j_value);
 
+/**
+ * Get the JWS alg used for signature
+ * @param jws: the jws_t to update
+ * @return the algorithm used
+ */
+jws_alg r_jws_get_alg(jws_t * jws);
+
+/**
+ * Gets a string value from the JWS header
+ * @param jws: the jws_t to get the value
+ * @param key: the key to retreive the value
+ * @return a string value, NULL if not present
+ */
 const char * r_jws_get_header_str_value(jws_t * jws, const char * key);
 
+/**
+ * Gets an integer value from the JWS header
+ * @param jws: the jws_t to get the value
+ * @param key: the key to retreive the value
+ * @return an int value, 0 if not present
+ */
 int r_jws_get_header_int_value(jws_t * jws, const char * key);
 
+/**
+ * Gets a JSON value from the JWS header
+ * @param jws: the jws_t to get the value
+ * @param key: the key to retreive the value
+ * @return a json_t * value, NULL if not present
+ */
 json_t * r_jws_get_header_json_t_value(jws_t * jws, const char * key);
 
+/**
+ * Return the full JWS header in JSON format
+ * @param jws: the jws_t to get the value
+ * @return a json_t * value
+ */
 json_t * r_jws_get_full_header_json_t(jws_t * jws);
 
-int r_jws_load_jws_str(jws_t * jws, const char * jws_str);
+/**
+ * Sets the private and public keys for the signature and verification
+ * @param jws: the jws_t to update
+ * @param jwk_privkey: the private key in jwk_t * format, can be NULL
+ * @param jwk_pubkey: the public key in jwk_t * format, can be NULL
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_add_keys(jws_t * jws, jwk_t * jwk_privkey, jwk_t * jwk_pubkey);
 
-int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey);
+/**
+ * Parses the JWS, verify the signature if the JWS header contains the public key
+ * @param jws: the jws_t to update
+ * @param jws_str: the jws serialized to parse
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags);
 
-int r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey);
+/**
+ * Verifies the signature of the JWS
+ * The JWS must contain a signature
+ * @param jws: the jws_t to update
+ * @param jwk_pubkey: the public key to check the signature,
+ * can be NULL if jws already contains a public key
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags);
+
+/**
+ * Serialize a JWS into its string format (xxx.yyy.zzz)
+ * @param jws: the JWS to serialize
+ * @param jwk_privkey: the private key to use to sign the JWS
+ * can be NULL if jws already contains a private key
+ * @return the JWS in serialized format, returned value must be o_free'd after use
+ */
+char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags);
+
+/**
+ * Get the jws_alg corresponding to the string algorithm specified
+ * @param alg: the algorithm to convert
+ * @return the converted jws_alg, R_JWS_ALG_NONE if alg is unknown
+ */
+jws_alg str_to_js_alg(const char * alg);
 
 /**
  * @}

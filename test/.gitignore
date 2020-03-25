@@ -2,3 +2,8 @@ jwk_core
 jwk_import
 jwk_export
 jwks_core
+jws_core
+jws_hmac
+jws_ecdsa
+jws_rsa
+jws_rsapss

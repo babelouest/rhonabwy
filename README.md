@@ -69,7 +69,7 @@ You can install Rhonabwy with a pre-compiled package available in the [release p
 
 You must install [liborcania](https://github.com/babelouest/orcania), [libyder](https://github.com/babelouest/yder), [libulfius](https://github.com/babelouest/ulfius), [jansson](http://www.digip.org/jansson/) and [GnuTLS](https://www.gnutls.org/) first before building librhonabwy. Orcania, Yder and Ulfius will be automatically installed if missing and you're using cmake.
 
-You need GnuTLS 3.5 minimum, 3.6 is recommended.
+GnuTLS is required, 3.5 minimum for ECDSA signatures, 3.6 minimum for Ed25519 (EDDSA) signatures.
 
 ### CMake - Multi architecture
 

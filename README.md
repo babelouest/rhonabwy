@@ -3,9 +3,17 @@
 [![Build Status](https://travis-ci.com/babelouest/rhonabwy.svg?branch=master)](https://travis-ci.com/babelouest/rhonabwy)
 ![C/C++ CI](https://github.com/babelouest/rhonabwy/workflows/C/C++%20CI/badge.svg)
 
-- Create, modify, parse or export JSON Web Keys (JWK) as defined in the [RFC 7517](https://tools.ietf.org/html/rfc7517).
-- Create, modify, parse, validate and serialize JSON Web Signatures (JWS) as defined in the [RFC 7515](https://tools.ietf.org/html/rfc7515)
+- Create, modify, parse, import or export [JSON Web Keys](https://tools.ietf.org/html/rfc7517) (JWK) and JSON Web Keys Set (JWKS)
+- Create, modify, parse, validate or serialize [JSON Web Signatures](https://tools.ietf.org/html/rfc7515) (JWS)
 
+- Supported Cryptographic Algorithms for Digital Signatures and MACs:
+  - HMAC with SHA-2 Functions: `HS256`, `HS384`, `HS512`
+  - Digital Signature with RSASSA-PKCS1-v1_5: `RS256`, `RS384`, `RS512`
+  - Digital Signature with ECDSA: `ES256`, `ES384`, `ES512`
+  - Digital Signature with RSASSA-PSS: `PS256`, `PS384`, `PS512`
+  - Digital Signature with Ed25519 Elliptic Curve: `EDDSA`
+  - Unsecured: `none`
+  
 Example program:
 
 ```C

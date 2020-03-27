@@ -312,6 +312,7 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
   gnutls_pubkey_t pubkey;
 #if GNUTLS_VERSION_NUMBER >= 0x030500
   unsigned int ec_bits = 0;
+  gnutls_pk_algorithm_t alg = GNUTLS_PK_UNKNOWN;
 #endif
   
   if (jwk_privkey != NULL && jwk_pubkey != NULL && (type == R_KEY_TYPE_RSA || type == R_KEY_TYPE_ECDSA || type == R_KEY_TYPE_EDDSA) && bits) {
@@ -344,17 +345,25 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
         }
 #if GNUTLS_VERSION_NUMBER >= 0x030500
       } else if (type == R_KEY_TYPE_ECDSA || type == R_KEY_TYPE_EDDSA) {
-        if (type == R_KEY_TYPE_EDDSA) {
+        if (type == R_KEY_TYPE_ECDSA) {
+          if (bits == 256) {
+            ec_bits = GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP256R1);
+            alg = GNUTLS_PK_ECDSA;
+          } else if (bits == 384) {
+            ec_bits = GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP384R1);
+            alg = GNUTLS_PK_ECDSA;
+          } else if (bits == 512) {
+            ec_bits = GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP521R1);
+            alg = GNUTLS_PK_ECDSA;
+          }
+#if GNUTLS_VERSION_NUMBER >= 0x030600
+        } else {
           ec_bits = GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_ED25519);
-        } else if (bits == 256) {
-          ec_bits = GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP256R1);
-        } else if (bits == 384) {
-          ec_bits = GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP384R1);
-        } else if (bits == 512) {
-          ec_bits = GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP521R1);
+          alg = GNUTLS_PK_EDDSA_ED25519;
+#endif // GNUTLS_VERSION_NUMBER >= 0x030600
         }
         if (ec_bits) {
-          if (!gnutls_privkey_generate(privkey, type==R_KEY_TYPE_ECDSA?GNUTLS_PK_ECDSA:GNUTLS_PK_EDDSA_ED25519, ec_bits, 0)) {
+          if (!gnutls_privkey_generate(privkey, alg, ec_bits, 0)) {
             if (!gnutls_pubkey_import_privkey(pubkey, privkey, GNUTLS_KEY_DIGITAL_SIGNATURE|GNUTLS_KEY_DATA_ENCIPHERMENT, 0)) {
               if (r_jwk_import_from_gnutls_privkey(jwk_privkey, privkey) == RHN_OK) {
                 if (r_jwk_import_from_gnutls_pubkey(jwk_pubkey, pubkey) == RHN_OK) {
@@ -383,7 +392,7 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_generate_key_pair - Error curve length, values allowed are 256, 384 or 512");
           ret = RHN_ERROR_PARAM;
         }
-#endif
+#endif // GNUTLS_VERSION_NUMBER >= 0x030500
       } else {
         ret = RHN_ERROR_PARAM;
       }
@@ -451,6 +460,8 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
 #if GNUTLS_VERSION_NUMBER >= 0x030500
                       } else if (pk_alg == GNUTLS_PK_ECDSA) {
                         ret = R_KEY_TYPE_ECDSA;
+#endif
+#if GNUTLS_VERSION_NUMBER >= 0x030600
                       } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
                         ret = R_KEY_TYPE_EDDSA;
 #endif
@@ -464,6 +475,8 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
 #if GNUTLS_VERSION_NUMBER >= 0x030500
                       } else if (pk_alg == GNUTLS_PK_ECDSA) {
                         ret = R_KEY_TYPE_ECDSA;
+#endif
+#if GNUTLS_VERSION_NUMBER >= 0x030600
                       } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
                         ret = R_KEY_TYPE_EDDSA;
 #endif
@@ -477,6 +490,8 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
 #if GNUTLS_VERSION_NUMBER >= 0x030500
                       } else if (pk_alg == GNUTLS_PK_ECDSA) {
                         ret = R_KEY_TYPE_ECDSA;
+#endif
+#if GNUTLS_VERSION_NUMBER >= 0x030600
                       } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
                         ret = R_KEY_TYPE_EDDSA;
 #endif
@@ -534,6 +549,8 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
 #if GNUTLS_VERSION_NUMBER >= 0x030500
                 } else if (pk_alg == GNUTLS_PK_ECDSA) {
                   ret = R_KEY_TYPE_ECDSA;
+#endif
+#if GNUTLS_VERSION_NUMBER >= 0x030600
                 } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
                   ret = R_KEY_TYPE_EDDSA;
 #endif
@@ -1031,6 +1048,8 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
           ret = RHN_ERROR_PARAM;
         }
         break;
+#endif
+#if GNUTLS_VERSION_NUMBER >= 0x030600
       case GNUTLS_PK_EDDSA_ED25519:
         if ((res = gnutls_privkey_export_ecc_raw(key, &curve, &x, NULL, &k)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("EC"));
@@ -1255,6 +1274,8 @@ int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
           ret = RHN_ERROR_PARAM;
         }
         break;
+#endif
+#if GNUTLS_VERSION_NUMBER >= 0x030600
       case GNUTLS_PK_EDDSA_ED25519:
         if ((res = gnutls_pubkey_export_ecc_raw(pub, &curve, &x, NULL)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("EC"));
@@ -1682,6 +1703,7 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags) {
       o_free(x.data);
       o_free(y.data);
       o_free(k.data);
+#if GNUTLS_VERSION_NUMBER >= 0x030600
     } else if (type & R_KEY_TYPE_EDDSA) {
       res = RHN_OK;
       do {
@@ -1729,6 +1751,7 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags) {
       }
       o_free(x.data);
       o_free(k.data);
+#endif
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export privkey - invalid key format, expected 'RSA' or 'EC'");
     }
@@ -1956,6 +1979,7 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
       }
       o_free(x.data);
       o_free(y.data);
+#if GNUTLS_VERSION_NUMBER >= 0x030600
     } else if (type & R_KEY_TYPE_EDDSA) {
       res = RHN_OK;
       do {
@@ -1990,6 +2014,7 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
         }
       }
       o_free(x.data);
+#endif
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export pubkey - Error invalid key type");
     }

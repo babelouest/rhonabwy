@@ -342,7 +342,9 @@ START_TEST(test_rhonabwy_generate_key_pair)
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk_privkey);
   r_jwk_free(jwk_pubkey);
+#endif
 
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
   ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
   ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, jwk_pubkey, R_KEY_TYPE_EDDSA, 256, KID), RHN_OK);

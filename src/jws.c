@@ -308,7 +308,7 @@ static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags)
     adj = 32;
   }
   
-  if (privkey != NULL && (GNUTLS_PK_EC == gnutls_privkey_get_pk_algorithm(privkey, NULL) || GNUTLS_PK_EDDSA_ED25519 == gnutls_privkey_get_pk_algorithm(privkey, NULL))) {
+  if (privkey != NULL && GNUTLS_PK_EC == gnutls_privkey_get_pk_algorithm(privkey, NULL)) {
     body_dat.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
     body_dat.size = o_strlen((const char *)body_dat.data);
     
@@ -371,14 +371,14 @@ static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags)
 }
 
 static unsigned char * r_jws_sign_eddsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
-#if GNUTLS_VERSION_NUMBER >= 0x030500
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   gnutls_privkey_t privkey = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags);
   gnutls_datum_t body_dat, sig_dat;
   unsigned char * to_return = NULL;
   int res;
   size_t ret_size = 0;
   
-  if (privkey != NULL && (GNUTLS_PK_EC == gnutls_privkey_get_pk_algorithm(privkey, NULL) || GNUTLS_PK_EDDSA_ED25519 == gnutls_privkey_get_pk_algorithm(privkey, NULL))) {
+  if (privkey != NULL && GNUTLS_PK_EDDSA_ED25519 == gnutls_privkey_get_pk_algorithm(privkey, NULL)) {
     body_dat.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
     body_dat.size = o_strlen((const char *)body_dat.data);
     
@@ -579,7 +579,7 @@ static int r_jws_verify_sig_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 }
 
 static int r_jws_verify_sig_eddsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
-#if GNUTLS_VERSION_NUMBER >= 0x030500
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   int ret = RHN_OK;
   gnutls_datum_t sig_dat = {NULL, 0}, data;
   gnutls_pubkey_t pubkey = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags);

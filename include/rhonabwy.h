@@ -62,6 +62,7 @@ extern "C"
 #define R_KEY_TYPE_RSA       0x00001000
 #define R_KEY_TYPE_ECDSA     0x00010000
 #define R_KEY_TYPE_HMAC      0x00100000
+#define R_KEY_TYPE_EDDSA     0x01000000
 
 #define R_FLAG_IGNORE_SERVER_CERTIFICATE 0x00000001
 #define R_FLAG_FOLLOW_REDIRECT           0x00000010
@@ -91,9 +92,10 @@ typedef enum {
   R_JWS_ALG_ES256 = 8,
   R_JWS_ALG_ES384 = 9,
   R_JWS_ALG_ES512 = 10,
-  R_JWS_ALG_PS256 = 11,
-  R_JWS_ALG_PS384 = 12,
-  R_JWS_ALG_PS512 = 13
+  R_JWS_ALG_EDDSA = 11,
+  R_JWS_ALG_PS256 = 12,
+  R_JWS_ALG_PS384 = 13,
+  R_JWS_ALG_PS512 = 14
 } jws_alg;
 
 typedef struct _jws_t {

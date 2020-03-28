@@ -38,7 +38,7 @@ const char jwk_pubkey_eddsa_str[] = "{\"kty\":\"EC\",\"x\":\"vG-37qz4ywqzukNS-jM
 const char jwk_privkey_eddsa_str[] = "{\"kty\":\"EC\",\"x\":\"vG-37qz4ywqzukNS-jMAfXSSA7V28y0vv9RxlibxgPw\","\
                                      "\"d\":\"DGw7wgt65TPJAxEjuUmCjTjmafg4mKUPj3S3iAVoTYQ\",\"crv\":\"Ed25519\",\"kid\":\"3\"}";
 
-#if GNUTLS_VERSION_NUMBER >= 0x030500
+#if GNUTLS_VERSION_NUMBER >= 0x030600
 START_TEST(test_rhonabwy_serialize_error_header)
 {
   jws_t * jws;
@@ -320,7 +320,6 @@ START_TEST(test_rhonabwy_set_alg_serialize_verify_ok)
 }
 END_TEST
 
-#if GNUTLS_VERSION_NUMBER >= 0x030600
 START_TEST(test_rhonabwy_eddsa_serialize_verify_ok)
 {
   jws_t * jws_sign, * jws_verify;
@@ -350,9 +349,8 @@ START_TEST(test_rhonabwy_eddsa_serialize_verify_ok)
   r_jwk_free(jwk_pubkey);
 }
 END_TEST
-#endif // GNUTLS_VERSION_NUMBER >= 0x030600
 
-#endif // GNUTLS_VERSION_NUMBER >= 0x030500
+#endif
 
 static Suite *rhonabwy_suite(void)
 {
@@ -361,7 +359,7 @@ static Suite *rhonabwy_suite(void)
 
   s = suite_create("Rhonabwy JWS ECDSA function tests");
   tc_core = tcase_create("test_rhonabwy_ecdsa");
-#if GNUTLS_VERSION_NUMBER >= 0x030500
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   tcase_add_test(tc_core, test_rhonabwy_serialize_error_header);
   tcase_add_test(tc_core, test_rhonabwy_serialize_error_payload);
   tcase_add_test(tc_core, test_rhonabwy_set_alg_serialize_ok);
@@ -375,10 +373,8 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_verify_token_valid);
   tcase_add_test(tc_core, test_rhonabwy_verify_token_multiple_keys_valid);
   tcase_add_test(tc_core, test_rhonabwy_set_alg_serialize_verify_ok);
-#if GNUTLS_VERSION_NUMBER >= 0x030600
   tcase_add_test(tc_core, test_rhonabwy_eddsa_serialize_verify_ok);
-#endif // GNUTLS_VERSION_NUMBER >= 0x030600
-#endif // GNUTLS_VERSION_NUMBER >= 0x030500
+#endif
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 
@@ -390,7 +386,7 @@ int main(int argc, char *argv[])
   int number_failed;
   Suite *s;
   SRunner *sr;
-  y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWS ECDSA tests");
+  //y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWS ECDSA tests");
   s = rhonabwy_suite();
   sr = srunner_create(s);
 
@@ -398,6 +394,6 @@ int main(int argc, char *argv[])
   number_failed = srunner_ntests_failed(sr);
   srunner_free(sr);
   
-  y_close_logs();
+  //y_close_logs();
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

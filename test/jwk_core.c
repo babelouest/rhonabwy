@@ -316,7 +316,7 @@ START_TEST(test_rhonabwy_generate_key_pair)
   r_jwk_free(jwk_privkey);
   r_jwk_free(jwk_pubkey);
   
-#if GNUTLS_VERSION_NUMBER >= 0x030500
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
   ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
   ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, jwk_pubkey, R_KEY_TYPE_ECDSA, 1, KID), RHN_ERROR_PARAM);
@@ -342,9 +342,7 @@ START_TEST(test_rhonabwy_generate_key_pair)
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk_privkey);
   r_jwk_free(jwk_pubkey);
-#endif
 
-#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
   ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
   ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, jwk_pubkey, R_KEY_TYPE_EDDSA, 256, KID), RHN_OK);
@@ -425,7 +423,7 @@ int main(int argc, char *argv[])
   int number_failed;
   Suite *s;
   SRunner *sr;
-  y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWK core tests");
+  //y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWK core tests");
   s = rhonabwy_suite();
   sr = srunner_create(s);
 
@@ -433,6 +431,6 @@ int main(int argc, char *argv[])
   number_failed = srunner_ntests_failed(sr);
   srunner_free(sr);
   
-  y_close_logs();
+  //y_close_logs();
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

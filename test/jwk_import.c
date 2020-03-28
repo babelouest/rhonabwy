@@ -982,7 +982,7 @@ START_TEST(test_rhonabwy_import_from_pem)
   ck_assert_int_eq(r_jwk_is_valid(jwk), RHN_OK);
   r_jwk_free(jwk);
   
-#if GNUTLS_VERSION_NUMBER >= 0x030500
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_pem_der(jwk, R_X509_TYPE_PUBKEY, R_FORMAT_PEM, ecdsa_521_pub, o_strlen((const char *)ecdsa_521_pub)), RHN_OK);
   ck_assert_int_eq(r_jwk_is_valid(jwk), RHN_OK);
@@ -999,7 +999,7 @@ START_TEST(test_rhonabwy_import_from_pem)
   ck_assert_int_eq(r_jwk_is_valid(jwk), RHN_OK);
   r_jwk_free(jwk);
   
-#if GNUTLS_VERSION_NUMBER >= 0x030500
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_pem_der(jwk, R_X509_TYPE_PRIVKEY, R_FORMAT_PEM, ecdsa_521_priv, o_strlen((const char *)ecdsa_521_priv)), RHN_OK);
   ck_assert_int_eq(r_jwk_is_valid(jwk), RHN_OK);
@@ -1026,7 +1026,7 @@ START_TEST(test_rhonabwy_import_from_der)
   ck_assert_int_eq(r_jwk_is_valid(jwk), RHN_OK);
   r_jwk_free(jwk);
   
-#if GNUTLS_VERSION_NUMBER >= 0x030500
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(o_base64_decode(ecdsa_521_pub_der, o_strlen((const char *)ecdsa_521_pub_der), der_decoded, &der_dec_len), 1);
   ck_assert_int_eq(r_jwk_import_from_pem_der(jwk, R_X509_TYPE_PUBKEY, R_FORMAT_DER, der_decoded, der_dec_len), RHN_OK);
@@ -1046,7 +1046,7 @@ START_TEST(test_rhonabwy_import_from_der)
   ck_assert_int_eq(r_jwk_is_valid(jwk), RHN_OK);
   r_jwk_free(jwk);
   
-#if GNUTLS_VERSION_NUMBER >= 0x030500
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(o_base64_decode(ecdsa_521_priv_der, o_strlen((const char *)ecdsa_521_priv_der), der_decoded, &der_dec_len), 1);
   ck_assert_int_eq(r_jwk_import_from_pem_der(jwk, R_X509_TYPE_PRIVKEY, R_FORMAT_DER, der_decoded, der_dec_len), RHN_OK);
@@ -1082,7 +1082,7 @@ START_TEST(test_rhonabwy_import_from_x5u)
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
-#if GNUTLS_VERSION_NUMBER >= 0x030500
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_x5u(jwk, R_X509_TYPE_CERTIFICATE, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7462/x5u_ecdsa_crt"), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
@@ -1126,7 +1126,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
-#if GNUTLS_VERSION_NUMBER >= 0x030500
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   bits = 0;
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
@@ -1245,7 +1245,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
-#if GNUTLS_VERSION_NUMBER >= 0x030500
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   bits = 0;
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_ecdsa_pub), RHN_OK);
@@ -1286,7 +1286,7 @@ START_TEST(test_rhonabwy_extract_pubkey)
   r_jwk_free(jwk_privkey);
   r_jwk_free(jwk_pubkey);
   
-#if GNUTLS_VERSION_NUMBER >= 0x030500
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   bits = 0;
   ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
   ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
@@ -1339,7 +1339,7 @@ int main(int argc, char *argv[])
   int number_failed;
   Suite *s;
   SRunner *sr;
-  y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWK import tests");
+  //y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWK import tests");
   s = rhonabwy_suite();
   sr = srunner_create(s);
 
@@ -1347,6 +1347,6 @@ int main(int argc, char *argv[])
   number_failed = srunner_ntests_failed(sr);
   srunner_free(sr);
   
-  y_close_logs();
+  //y_close_logs();
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

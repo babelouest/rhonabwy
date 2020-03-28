@@ -303,6 +303,35 @@ START_TEST(test_rhonabwy_token_unsecure)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_copy)
+{
+  jws_t * jws, * jws_copy;
+  jwk_t * jwk_privkey, * jwk_pubkey;
+  char * token = NULL, * token_copy;
+  
+  ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey, jwk_privkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_pubkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jws_set_payload(jws, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_int_eq(r_jws_add_keys(jws, jwk_privkey, NULL), RHN_OK);
+  
+  ck_assert_int_eq(r_jws_set_alg(jws, R_JWS_ALG_RS256), RHN_OK);
+  ck_assert_ptr_ne((token = r_jws_serialize(jws, NULL, 0)), NULL);
+  
+  ck_assert_ptr_ne((jws_copy = r_jws_copy(jws)), NULL);
+  ck_assert_ptr_ne((token_copy = r_jws_serialize(jws_copy, NULL, 0)), NULL);
+  
+  ck_assert_str_eq(token, token_copy);
+  
+  o_free(token);
+  o_free(token_copy);
+  r_jws_free(jws);
+  r_jws_free(jws_copy);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -320,6 +349,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_parse);
   tcase_add_test(tc_core, test_rhonabwy_parse_android_safetynet_jwt);
   tcase_add_test(tc_core, test_rhonabwy_token_unsecure);
+  tcase_add_test(tc_core, test_rhonabwy_copy);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

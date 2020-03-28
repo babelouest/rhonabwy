@@ -110,6 +110,17 @@ typedef struct _jws_t {
   size_t payload_len;
 } jws_t;
 
+typedef struct _jwe_t {
+  unsigned char * header_b64url;
+  unsigned char * encrypted_key_b64url;
+  unsigned char * iv_b64url;
+  unsigned char * ciphertext_b64url;
+  unsigned char * auth_tag_b64url;
+  json_t * j_header;
+  unsigned char * payload;
+  size_t payload_len;
+} jwe_t;
+
 /**
  * @}
  */
@@ -396,7 +407,7 @@ int r_jwk_import_from_symmetric_key(jwk_t * jwk, const unsigned char * key, size
 int r_jwk_extract_pubkey(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int x5u_flags);
 
 /**
- * Return a copy of the jwk
+ * Return a copy of the JWK
  * @param jwk: the jwk to copy
  * @return a copy of the jwk
  */
@@ -533,7 +544,7 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input);
 int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int flags);
 
 /**
- * Return a copy of the jwks
+ * Return a copy of the JWKS
  * @param jwks: the jwks to copy
  * @return a copy of the jwks
  */
@@ -672,6 +683,13 @@ int r_jwks_export_to_pem_der(jwks_t * jwks, int format, unsigned char * output, 
  * Manage JSON Web Signatures
  * @{
  */
+
+/**
+ * Return a copy of the JWS
+ * @param jws: the jws_t to duplicate
+ * @return a copy of jws
+ */
+jws_t * r_jws_copy(jws_t * jws);
 
 /**
  * Set the payload of the jws

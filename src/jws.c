@@ -1,6 +1,6 @@
 /**
  * 
- * Rhonabwy JSON Web Key (JWK) library
+ * Rhonabwy JSON Web Signature (JWS) library
  * 
  * jws.c: functions definitions
  * 
@@ -677,6 +677,30 @@ void r_jws_free(jws_t * jws) {
     o_free(jws->payload);
     o_free(jws);
   }
+}
+
+jws_t * r_jws_copy(jws_t * jws) {
+  jws_t * jws_copy = NULL;
+  if (jws != NULL) {
+    if (r_jws_init(&jws_copy) == RHN_OK) {
+      if (r_jws_set_payload(jws_copy, jws->payload, jws->payload_len) == RHN_OK) {
+        jws_copy->header_b64url = (unsigned char *)o_strdup((const char *)jws->header_b64url);
+        jws_copy->payload_b64url = (unsigned char *)o_strdup((const char *)jws->payload_b64url);
+        jws_copy->signature_b64url = (unsigned char *)o_strdup((const char *)jws->signature_b64url);
+        jws_copy->alg = jws->alg;
+        jws_copy->jwks_privkey = r_jwks_copy(jws->jwks_privkey);
+        jws_copy->jwks_pubkey = r_jwks_copy(jws->jwks_pubkey);
+        jws_copy->j_header = json_deep_copy(jws->j_header);
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_copy - Error allocating resources for jws_copy->payload");
+        r_jws_free(jws_copy);
+        jws_copy = NULL;
+      }
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_copy - Error r_jws_init");
+    }
+  }
+  return jws_copy;
 }
 
 jws_alg str_to_js_alg(const char * alg) {

@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 0.9.7
+
+- Add [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE) support
+- Refactor functions names
+
 ## 0.9.6
 
 - Add [JSON Web Signature](https://tools.ietf.org/html/rfc7515) (JWS) support

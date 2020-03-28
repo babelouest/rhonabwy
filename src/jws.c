@@ -30,21 +30,6 @@
 #include <yder.h>
 #include <rhonabwy.h>
 
-/* Workaround to use GnuTLS 3.5 EC signature encode/decode functions that
- * are not public. */
-#if GNUTLS_VERSION_MAJOR == 3 && GNUTLS_VERSION_MINOR == 5
-extern int _gnutls_encode_ber_rs_raw(gnutls_datum_t *sig_value, const gnutls_datum_t *r, const gnutls_datum_t *s);
-extern int _gnutls_decode_ber_rs_raw(const gnutls_datum_t *sig_value, gnutls_datum_t *r, gnutls_datum_t *s);
-
-static int gnutls_encode_rs_value(gnutls_datum_t *sig_value, const gnutls_datum_t *r, const gnutls_datum_t * s) {
-	return _gnutls_encode_ber_rs_raw(sig_value, r, s);
-}
-
-static int gnutls_decode_rs_value(const gnutls_datum_t *sig_value, gnutls_datum_t *r, gnutls_datum_t *s) {
-	return _gnutls_decode_ber_rs_raw(sig_value, r, s);
-}
-#endif /* End of pre-3.6 work-arounds. */
-
 static int r_jws_extract_header(jws_t * jws, json_t * j_header, int x5u_flags) {
   int ret;
   jwk_t * jwk;
@@ -285,7 +270,7 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 }
 
 static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
-#if GNUTLS_VERSION_NUMBER >= 0x030500
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   gnutls_privkey_t privkey = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags);
   gnutls_datum_t body_dat, sig_dat, r, s;
   unsigned char * binary_sig = NULL, * to_return = NULL;
@@ -492,7 +477,7 @@ static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 }
 
 static int r_jws_verify_sig_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
-#if GNUTLS_VERSION_NUMBER >= 0x030500
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   int alg = 0, ret = RHN_OK;
   gnutls_datum_t sig_dat = {NULL, 0}, r, s, data;
   gnutls_pubkey_t pubkey = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags);

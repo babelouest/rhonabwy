@@ -33,11 +33,11 @@ CC=gcc
 CFLAGS+=-c -pedantic -std=gnu99 -fPIC -Wall -Werror -Wextra -D_REENTRANT -I$(RHONABWY_INCLUDE) $(ADDITIONALFLAGS) $(CPPFLAGS)
 LIBS=-L$(DESTDIR)/lib -lc -lorcania -lyder -lulfius -ljansson -lgnutls $(LDFLAGS)
 SONAME=-soname
-OBJECTS=jwk.o jwks.o jws.o
+OBJECTS=jwk.o jwks.o jws.o jwe.o misc.o
 OUTPUT=librhonabwy.so
 VERSION_MAJOR=0
 VERSION_MINOR=9
-VERSION_PATCH=6
+VERSION_PATCH=7
 
 .PHONY: all clean
 
@@ -71,7 +71,7 @@ target: $(OBJECTS)
 	$(CC) $(CFLAGS) $<
 
 librhonabwy.so: $(CONFIG_FILE) $(OBJECTS)
-	$(CC) -shared -fPIC -Wl,$(SONAME),$(OUTPUT) -o $(OUTPUT).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH) $(OBJECTS) $(LIBS) $(LYDER) $(LJANSSON) $(LCURL) $(LGNUTLS)
+	$(CC) -shared -fPIC -Wl,$(SONAME),$(OUTPUT) -o $(OUTPUT).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH) $(OBJECTS) $(LIBS) $(LYDER) $(LJANSSON) $(LGNUTLS)
 	ln -sf $(OUTPUT).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH) $(OUTPUT)
 
 clean:

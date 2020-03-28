@@ -45,7 +45,7 @@ static int r_jws_extract_header(jws_t * jws, json_t * j_header, int x5u_flags) {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_extract_header - Invalid alg");
       ret = RHN_ERROR_PARAM;
     } else {
-      jws->alg = str_to_js_alg(json_string_value(json_object_get(j_header, "alg")));
+      jws->alg = str_to_jwa_alg(json_string_value(json_object_get(j_header, "alg")));
     }
     
     if (json_string_length(json_object_get(j_header, "jku"))) {
@@ -153,11 +153,11 @@ static unsigned char * r_jws_sign_hmac(jws_t * jws, jwk_t * jwk) {
   unsigned char * data = NULL, * key = NULL, * sig = NULL, * sig_b64 = NULL, * to_return = NULL;
   size_t data_len = 0, key_len = 0, sig_len = 0, sig_b64_len = 0;
   
-  if (jws->alg == R_JWS_ALG_HS256) {
+  if (jws->alg == R_JWA_ALG_HS256) {
     alg = GNUTLS_DIG_SHA256;
-  } else if (jws->alg == R_JWS_ALG_HS384) {
+  } else if (jws->alg == R_JWA_ALG_HS384) {
     alg = GNUTLS_DIG_SHA384;
-  } else if (jws->alg == R_JWS_ALG_HS512) {
+  } else if (jws->alg == R_JWA_ALG_HS512) {
     alg = GNUTLS_DIG_SHA512;
   }
   
@@ -207,26 +207,26 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   size_t ret_size = 0;
   
   switch (jws->alg) {
-    case R_JWS_ALG_RS256:
+    case R_JWA_ALG_RS256:
       alg = GNUTLS_DIG_SHA256;
       break;
-    case R_JWS_ALG_RS384:
+    case R_JWA_ALG_RS384:
       alg = GNUTLS_DIG_SHA384;
       break;
-    case R_JWS_ALG_RS512:
+    case R_JWA_ALG_RS512:
       alg = GNUTLS_DIG_SHA512;
       break;
 /* RSA-PSS signature is available with GnuTLS >= 3.6 */
 #if GNUTLS_VERSION_NUMBER >= 0x030600
-    case R_JWS_ALG_PS256:
+    case R_JWA_ALG_PS256:
       alg = GNUTLS_SIGN_RSA_PSS_SHA256;
       flag = GNUTLS_PRIVKEY_SIGN_FLAG_RSA_PSS;
       break;
-    case R_JWS_ALG_PS384:
+    case R_JWA_ALG_PS384:
       alg = GNUTLS_SIGN_RSA_PSS_SHA384;
       flag = GNUTLS_PRIVKEY_SIGN_FLAG_RSA_PSS;
       break;
-    case R_JWS_ALG_PS512:
+    case R_JWA_ALG_PS512:
       alg = GNUTLS_SIGN_RSA_PSS_SHA512;
       flag = GNUTLS_PRIVKEY_SIGN_FLAG_RSA_PSS;
       break;
@@ -279,16 +279,16 @@ static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags)
   int r_padding = 0, s_padding = 0, r_out_padding = 0, s_out_padding = 0;
   size_t sig_size, ret_size = 0;
     
-  if (jws->alg == R_JWS_ALG_ES256) {
+  if (jws->alg == R_JWA_ALG_ES256) {
     alg = GNUTLS_DIG_SHA256;
     adj = 32;
-  } else if (jws->alg == R_JWS_ALG_ES384) {
+  } else if (jws->alg == R_JWA_ALG_ES384) {
     alg = GNUTLS_DIG_SHA384;
     adj = 48;
-  } else if (jws->alg == R_JWS_ALG_ES512) {
+  } else if (jws->alg == R_JWA_ALG_ES512) {
     alg = GNUTLS_DIG_SHA512;
     adj = 66;
-  } else if (jws->alg == R_JWS_ALG_EDDSA) {
+  } else if (jws->alg == R_JWA_ALG_EDDSA) {
     alg = GNUTLS_DIG_SHA512;
     adj = 32;
   }
@@ -421,25 +421,25 @@ static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   data.size = o_strlen((const char *)data.data);
   
   switch (jws->alg) {
-    case R_JWS_ALG_RS256:
+    case R_JWA_ALG_RS256:
       alg = GNUTLS_DIG_SHA256;
       break;
-    case R_JWS_ALG_RS384:
+    case R_JWA_ALG_RS384:
       alg = GNUTLS_DIG_SHA384;
       break;
-    case R_JWS_ALG_RS512:
+    case R_JWA_ALG_RS512:
       alg = GNUTLS_DIG_SHA512;
       break;
 #if GNUTLS_VERSION_NUMBER >= 0x030600
-    case R_JWS_ALG_PS256:
+    case R_JWA_ALG_PS256:
       alg = GNUTLS_SIGN_RSA_PSS_SHA256;
       flag = GNUTLS_PRIVKEY_SIGN_FLAG_RSA_PSS;
       break;
-    case R_JWS_ALG_PS384:
+    case R_JWA_ALG_PS384:
       alg = GNUTLS_SIGN_RSA_PSS_SHA384;
       flag = GNUTLS_PRIVKEY_SIGN_FLAG_RSA_PSS;
       break;
-    case R_JWS_ALG_PS512:
+    case R_JWA_ALG_PS512:
       alg = GNUTLS_SIGN_RSA_PSS_SHA512;
       flag = GNUTLS_PRIVKEY_SIGN_FLAG_RSA_PSS;
       break;
@@ -488,13 +488,13 @@ static int r_jws_verify_sig_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   data.size = o_strlen((const char *)data.data);
   
   switch (jws->alg) {
-    case R_JWS_ALG_ES256:
+    case R_JWA_ALG_ES256:
       alg = GNUTLS_SIGN_ECDSA_SHA256;
       break;
-    case R_JWS_ALG_ES384:
+    case R_JWA_ALG_ES384:
       alg = GNUTLS_SIGN_ECDSA_SHA384;
       break;
-    case R_JWS_ALG_ES512:
+    case R_JWA_ALG_ES512:
       alg = GNUTLS_SIGN_ECDSA_SHA512;
       break;
     default:
@@ -616,7 +616,7 @@ int r_jws_init(jws_t ** jws) {
       if (((*jws)->j_header = json_object()) != NULL) {
         if (r_jwks_init(&(*jws)->jwks_pubkey) == RHN_OK) {
           if (r_jwks_init(&(*jws)->jwks_privkey) == RHN_OK) {
-            (*jws)->alg = R_JWS_ALG_UNSET;
+            (*jws)->alg = R_JWA_ALG_UNKNOWN;
             (*jws)->header_b64url = NULL;
             (*jws)->payload_b64url = NULL;
             (*jws)->signature_b64url = NULL;
@@ -688,40 +688,6 @@ jws_t * r_jws_copy(jws_t * jws) {
   return jws_copy;
 }
 
-jws_alg str_to_js_alg(const char * alg) {
-  if (0 == o_strcmp("HS256", alg)) {
-    return R_JWS_ALG_HS256;
-  } else if (0 == o_strcmp("HS384", alg)) {
-    return R_JWS_ALG_HS384;
-  } else if (0 == o_strcmp("HS512", alg)) {
-    return R_JWS_ALG_HS512;
-  } else if (0 == o_strcmp("RS256", alg)) {
-    return R_JWS_ALG_RS256;
-  } else if (0 == o_strcmp("RS384", alg)) {
-    return R_JWS_ALG_RS384;
-  } else if (0 == o_strcmp("RS512", alg)) {
-    return R_JWS_ALG_RS512;
-  } else if (0 == o_strcmp("ES256", alg)) {
-    return R_JWS_ALG_ES256;
-  } else if (0 == o_strcmp("ES384", alg)) {
-    return R_JWS_ALG_ES384;
-  } else if (0 == o_strcmp("ES512", alg)) {
-    return R_JWS_ALG_ES512;
-  } else if (0 == o_strcmp("EdDSA", alg)) {
-    return R_JWS_ALG_EDDSA;
-  } else if (0 == o_strcmp("PS256", alg)) {
-    return R_JWS_ALG_PS256;
-  } else if (0 == o_strcmp("PS384", alg)) {
-    return R_JWS_ALG_PS384;
-  } else if (0 == o_strcmp("PS512", alg)) {
-    return R_JWS_ALG_PS512;
-  } else if (0 == o_strcmp("none", alg)) {
-    return R_JWS_ALG_NONE;
-  } else {
-    return R_JWS_ALG_UNSET;
-  }
-}
-
 int r_jws_set_payload(jws_t * jws, const unsigned char * payload, size_t payload_len) {
   int ret;
   
@@ -757,50 +723,50 @@ const unsigned char * r_jws_get_payload(jws_t * jws, size_t * payload_len) {
   return NULL;
 }
 
-int r_jws_set_alg(jws_t * jws, jws_alg alg) {
+int r_jws_set_alg(jws_t * jws, jwa_alg alg) {
   if (jws != NULL) {
     jws->alg = alg;
     switch (alg) {
-      case R_JWS_ALG_NONE:
+      case R_JWA_ALG_NONE:
         json_object_set_new(jws->j_header, "alg", json_string("none"));
         break;
-      case R_JWS_ALG_HS256:
+      case R_JWA_ALG_HS256:
         json_object_set_new(jws->j_header, "alg", json_string("HS256"));
         break;
-      case R_JWS_ALG_HS384:
+      case R_JWA_ALG_HS384:
         json_object_set_new(jws->j_header, "alg", json_string("HS384"));
         break;
-      case R_JWS_ALG_HS512:
+      case R_JWA_ALG_HS512:
         json_object_set_new(jws->j_header, "alg", json_string("HS512"));
         break;
-      case R_JWS_ALG_RS256:
+      case R_JWA_ALG_RS256:
         json_object_set_new(jws->j_header, "alg", json_string("RS256"));
         break;
-      case R_JWS_ALG_RS384:
+      case R_JWA_ALG_RS384:
         json_object_set_new(jws->j_header, "alg", json_string("RS384"));
         break;
-      case R_JWS_ALG_RS512:
+      case R_JWA_ALG_RS512:
         json_object_set_new(jws->j_header, "alg", json_string("RS512"));
         break;
-      case R_JWS_ALG_ES256:
+      case R_JWA_ALG_ES256:
         json_object_set_new(jws->j_header, "alg", json_string("ES256"));
         break;
-      case R_JWS_ALG_ES384:
+      case R_JWA_ALG_ES384:
         json_object_set_new(jws->j_header, "alg", json_string("ES384"));
         break;
-      case R_JWS_ALG_ES512:
+      case R_JWA_ALG_ES512:
         json_object_set_new(jws->j_header, "alg", json_string("ES512"));
         break;
-      case R_JWS_ALG_PS256:
+      case R_JWA_ALG_PS256:
         json_object_set_new(jws->j_header, "alg", json_string("PS256"));
         break;
-      case R_JWS_ALG_PS384:
+      case R_JWA_ALG_PS384:
         json_object_set_new(jws->j_header, "alg", json_string("PS384"));
         break;
-      case R_JWS_ALG_PS512:
+      case R_JWA_ALG_PS512:
         json_object_set_new(jws->j_header, "alg", json_string("PS512"));
         break;
-      case R_JWS_ALG_EDDSA:
+      case R_JWA_ALG_EDDSA:
         json_object_set_new(jws->j_header, "alg", json_string("EdDSA"));
         break;
       default:
@@ -812,111 +778,88 @@ int r_jws_set_alg(jws_t * jws, jws_alg alg) {
   }
 }
 
+jwa_alg r_jws_get_alg(jws_t * jws) {
+  if (jws != NULL) {
+    return jws->alg;
+  } else {
+    return R_JWA_ALG_UNKNOWN;
+  }
+}
+
 int r_jws_set_header_str_value(jws_t * jws, const char * key, const char * str_value) {
   int ret;
   
-  if (jws != NULL && o_strlen(key)) {
-    if (str_value != NULL) {
-      if (!json_object_set_new(jws->j_header, key, json_string(str_value))) {
-        o_free(jws->header_b64url);
-        jws->header_b64url = NULL;
-        ret = RHN_OK;
-      } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_header_str_value - Error json_object_set_new");
-        ret = RHN_ERROR;
-      }
-    } else {
-      json_object_del(jws->j_header, key);
-      ret = RHN_OK;
+  if (jws != NULL) {
+    if ((ret = _r_header_set_str_value(jws->j_header, key, str_value)) == RHN_OK) {
+      o_free(jws->header_b64url);
+      jws->header_b64url = NULL;
     }
+    return ret;
   } else {
-    ret = RHN_ERROR_PARAM;
+    return RHN_ERROR_PARAM;
   }
-  return ret;
 }
 
 int r_jws_set_header_int_value(jws_t * jws, const char * key, int i_value) {
   int ret;
   
-  if (jws != NULL && o_strlen(key)) {
-    if (!json_object_set_new(jws->j_header, key, json_integer(i_value))) {
+  if (jws != NULL) {
+    if ((ret = _r_header_set_int_value(jws->j_header, key, i_value)) == RHN_OK) {
       o_free(jws->header_b64url);
       jws->header_b64url = NULL;
-      ret = RHN_OK;
-    } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_header_int_value - Error json_object_set_new");
-      ret = RHN_ERROR;
     }
+    return ret;
   } else {
-    ret = RHN_ERROR_PARAM;
+    return RHN_ERROR_PARAM;
   }
-  return ret;
 }
 
 int r_jws_set_header_json_t_value(jws_t * jws, const char * key, json_t * j_value) {
   int ret;
   
-  if (jws != NULL && o_strlen(key)) {
-    if (j_value != NULL) {
-      if (!json_object_set_new(jws->j_header, key, json_deep_copy(j_value))) {
-        o_free(jws->header_b64url);
-        jws->header_b64url = NULL;
-        ret = RHN_OK;
-      } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_header_json_t_value - Error json_object_set_new");
-        ret = RHN_ERROR;
-      }
-    } else {
-      json_object_del(jws->j_header, key);
-      ret = RHN_OK;
+  if (jws != NULL) {
+    if ((ret = _r_header_set_json_t_value(jws->j_header, key, j_value)) == RHN_OK) {
+      o_free(jws->header_b64url);
+      jws->header_b64url = NULL;
     }
+    return ret;
   } else {
     ret = RHN_ERROR_PARAM;
   }
   return ret;
 }
 
-jws_alg r_jws_get_alg(jws_t * jws) {
-  if (jws != NULL) {
-    return jws->alg;
-  } else {
-    return R_JWS_ALG_UNSET;
-  }
-}
-
 const char * r_jws_get_header_str_value(jws_t * jws, const char * key) {
-  if (jws != NULL && o_strlen(key)) {
-    return json_string_value(json_object_get(jws->j_header, key));
+  if (jws != NULL) {
+    return _r_header_get_str_value(jws->j_header, key);
   }
   return NULL;
 }
 
 int r_jws_get_header_int_value(jws_t * jws, const char * key) {
-  if (jws != NULL && o_strlen(key)) {
-    return json_integer_value(json_object_get(jws->j_header, key));
+  if (jws != NULL) {
+    return _r_header_get_int_value(jws->j_header, key);
   }
   return 0;
 }
 
 json_t * r_jws_get_header_json_t_value(jws_t * jws, const char * key) {
-  json_t * j_value;
-  
-  if (jws != NULL && o_strlen(key) && (j_value = json_object_get(jws->j_header, key)) != NULL) {
-    return json_deep_copy(j_value);
+  if (jws != NULL) {
+    return _r_header_get_json_t_value(jws->j_header, key);
   }
   return NULL;
 }
 
 json_t * r_jws_get_full_header_json_t(jws_t * jws) {
   if (jws != NULL) {
-    return json_deep_copy(jws->j_header);
+    return _r_header_get_full_json_t(jws->j_header);
   }
   return NULL;
 }
 
 int r_jws_add_keys(jws_t * jws, jwk_t * jwk_privkey, jwk_t * jwk_pubkey) {
   int ret = RHN_OK;
-  jws_alg alg;
+  jwa_alg alg;
   
   if (jws != NULL && (jwk_privkey != NULL || jwk_pubkey != NULL)) {
     if (jwk_privkey != NULL) {
@@ -924,7 +867,7 @@ int r_jws_add_keys(jws_t * jws, jwk_t * jwk_privkey, jwk_t * jwk_pubkey) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_add_keys - Error setting jwk_privkey");
         ret = RHN_ERROR;
       }
-      if (jws->alg == R_JWS_ALG_UNSET && (alg = str_to_js_alg(r_jwk_get_property_str(jwk_privkey, "alg"))) != R_JWS_ALG_NONE) {
+      if (jws->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(jwk_privkey, "alg"))) != R_JWA_ALG_NONE) {
         r_jws_set_alg(jws, alg);
       }
     }
@@ -1032,46 +975,46 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags) {
   }
   
   if (r_jws_set_token_values(jws, 0) == RHN_OK && jws->signature_b64url != NULL) {
-    if (jwk != NULL || jws->alg == R_JWS_ALG_NONE) {
+    if (jwk != NULL || jws->alg == R_JWA_ALG_NONE) {
       switch (jws->alg) {
-        case R_JWS_ALG_HS256:
-        case R_JWS_ALG_HS384:
-        case R_JWS_ALG_HS512:
+        case R_JWA_ALG_HS256:
+        case R_JWA_ALG_HS384:
+        case R_JWA_ALG_HS512:
           if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_HMAC) {
             ret = r_jws_verify_sig_hmac(jws, jwk);
           } else {
             ret = RHN_ERROR_INVALID;
           }
           break;
-        case R_JWS_ALG_RS256:
-        case R_JWS_ALG_RS384:
-        case R_JWS_ALG_RS512:
-        case R_JWS_ALG_PS256:
-        case R_JWS_ALG_PS384:
-        case R_JWS_ALG_PS512:
+        case R_JWA_ALG_RS256:
+        case R_JWA_ALG_RS384:
+        case R_JWA_ALG_RS512:
+        case R_JWA_ALG_PS256:
+        case R_JWA_ALG_PS384:
+        case R_JWA_ALG_PS512:
           if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_RSA) {
             ret = r_jws_verify_sig_rsa(jws, jwk, x5u_flags);
           } else {
             ret = RHN_ERROR_INVALID;
           }
           break;
-        case R_JWS_ALG_ES256:
-        case R_JWS_ALG_ES384:
-        case R_JWS_ALG_ES512:
+        case R_JWA_ALG_ES256:
+        case R_JWA_ALG_ES384:
+        case R_JWA_ALG_ES512:
           if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_ECDSA) {
             ret = r_jws_verify_sig_ecdsa(jws, jwk, x5u_flags);
           } else {
             ret = RHN_ERROR_INVALID;
           }
           break;
-        case R_JWS_ALG_EDDSA:
+        case R_JWA_ALG_EDDSA:
           if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_EDDSA) {
             ret = r_jws_verify_sig_eddsa(jws, jwk, x5u_flags);
           } else {
             ret = RHN_ERROR_INVALID;
           }
           break;
-        case R_JWS_ALG_NONE:
+        case R_JWA_ALG_NONE:
           ret = RHN_OK;
           break;
         default:
@@ -1106,42 +1049,42 @@ char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags) {
     r_jws_set_header_str_value(jws, "kid", r_jwk_get_property_str(jwk, "kid"));
   }
   
-  if ((jwk != NULL || jws->alg == R_JWS_ALG_NONE) && r_jws_set_token_values(jws, 1) == RHN_OK) {
+  if ((jwk != NULL || jws->alg == R_JWA_ALG_NONE) && r_jws_set_token_values(jws, 1) == RHN_OK) {
     switch (jws->alg) {
-      case R_JWS_ALG_HS256:
-      case R_JWS_ALG_HS384:
-      case R_JWS_ALG_HS512:
+      case R_JWA_ALG_HS256:
+      case R_JWA_ALG_HS384:
+      case R_JWA_ALG_HS512:
         if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_HMAC) {
           o_free(jws->signature_b64url);
           jws->signature_b64url = r_jws_sign_hmac(jws, jwk);
         }
         break;
-      case R_JWS_ALG_RS256:
-      case R_JWS_ALG_RS384:
-      case R_JWS_ALG_RS512:
-      case R_JWS_ALG_PS256:
-      case R_JWS_ALG_PS384:
-      case R_JWS_ALG_PS512:
+      case R_JWA_ALG_RS256:
+      case R_JWA_ALG_RS384:
+      case R_JWA_ALG_RS512:
+      case R_JWA_ALG_PS256:
+      case R_JWA_ALG_PS384:
+      case R_JWA_ALG_PS512:
         if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_RSA) {
           o_free(jws->signature_b64url);
           jws->signature_b64url = r_jws_sign_rsa(jws, jwk, x5u_flags);
         }
         break;
-      case R_JWS_ALG_ES256:
-      case R_JWS_ALG_ES384:
-      case R_JWS_ALG_ES512:
+      case R_JWA_ALG_ES256:
+      case R_JWA_ALG_ES384:
+      case R_JWA_ALG_ES512:
         if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_ECDSA) {
           o_free(jws->signature_b64url);
           jws->signature_b64url = r_jws_sign_ecdsa(jws, jwk, x5u_flags);
         }
         break;
-      case R_JWS_ALG_EDDSA:
+      case R_JWA_ALG_EDDSA:
         if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_EDDSA) {
           o_free(jws->signature_b64url);
           jws->signature_b64url = r_jws_sign_eddsa(jws, jwk, x5u_flags);
         }
         break;
-      case R_JWS_ALG_NONE:
+      case R_JWA_ALG_NONE:
         o_free(jws->signature_b64url);
         jws->signature_b64url = (unsigned char *)o_strdup("");
         break;

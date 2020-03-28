@@ -49,7 +49,7 @@ START_TEST(test_rhonabwy_serialize_error_payload)
   ck_assert_int_eq(r_jwk_init(&jwk_key_symmetric), RHN_OK);
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_key_symmetric, jwk_key_symmetric_no_alg_str), RHN_OK);
-  ck_assert_int_eq(r_jws_set_alg(jws, R_JWS_ALG_HS256), RHN_OK);
+  ck_assert_int_eq(r_jws_set_alg(jws, R_JWA_ALG_HS256), RHN_OK);
   ck_assert_int_eq(r_jws_add_keys(jws, jwk_key_symmetric, NULL), RHN_OK);
 
   ck_assert_ptr_eq(r_jws_serialize(jws, NULL, 0), NULL);
@@ -69,7 +69,7 @@ START_TEST(test_rhonabwy_set_alg_serialize_ok)
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_key_symmetric, jwk_key_symmetric_no_alg_str), RHN_OK);
   ck_assert_int_eq(r_jws_set_payload(jws, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
-  ck_assert_int_eq(r_jws_set_alg(jws, R_JWS_ALG_HS256), RHN_OK);
+  ck_assert_int_eq(r_jws_set_alg(jws, R_JWA_ALG_HS256), RHN_OK);
   ck_assert_int_eq(r_jws_add_keys(jws, jwk_key_symmetric, NULL), RHN_OK);
 
   ck_assert_ptr_ne((token = r_jws_serialize(jws, NULL, 0)), NULL);
@@ -152,7 +152,7 @@ START_TEST(test_rhonabwy_parse_token)
   
   ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN, 0), RHN_OK);
   ck_assert_ptr_ne((payload = r_jws_get_payload(jws, &payload_len)), NULL);
-  ck_assert_int_eq(R_JWS_ALG_HS256, r_jws_get_alg(jws));
+  ck_assert_int_eq(R_JWA_ALG_HS256, r_jws_get_alg(jws));
   ck_assert_int_gt(payload_len, 0);
   ck_assert_int_eq(0, o_strncmp(PAYLOAD, (const char *)payload, payload_len));
   
@@ -207,7 +207,7 @@ START_TEST(test_rhonabwy_verify_token_invalid_kid)
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
   ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
   ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN, 0), RHN_OK);
-  ck_assert_int_eq(R_JWS_ALG_HS256, r_jws_get_alg(jws));
+  ck_assert_int_eq(R_JWA_ALG_HS256, r_jws_get_alg(jws));
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_key_symmetric_str), RHN_OK);
   r_jwk_set_property_str(jwk_pubkey, "kid", "42");
   r_jws_add_keys(jws, NULL, jwk_pubkey);
@@ -242,7 +242,7 @@ START_TEST(test_rhonabwy_verify_token_multiple_keys_valid)
   
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
   ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN, 0), RHN_OK);
-  ck_assert_int_eq(R_JWS_ALG_HS256, r_jws_get_alg(jws));
+  ck_assert_int_eq(R_JWA_ALG_HS256, r_jws_get_alg(jws));
   ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_key_symmetric_str_2), RHN_OK);
   r_jws_add_keys(jws, NULL, jwk_pubkey);
@@ -270,21 +270,21 @@ START_TEST(test_rhonabwy_set_alg_serialize_verify_ok)
   ck_assert_int_eq(r_jws_set_payload(jws_sign, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
   ck_assert_int_eq(r_jws_add_keys(jws_sign, jwk, NULL), RHN_OK);
   
-  ck_assert_int_eq(r_jws_set_alg(jws_sign, R_JWS_ALG_HS256), RHN_OK);
+  ck_assert_int_eq(r_jws_set_alg(jws_sign, R_JWA_ALG_HS256), RHN_OK);
   ck_assert_ptr_ne((token = r_jws_serialize(jws_sign, NULL, 0)), NULL);
   
   ck_assert_int_eq(r_jws_parse(jws_verify, token, 0), RHN_OK);
   ck_assert_int_eq(r_jws_verify_signature(jws_verify, jwk, 0), RHN_OK);
   o_free(token);
   
-  ck_assert_int_eq(r_jws_set_alg(jws_sign, R_JWS_ALG_HS384), RHN_OK);
+  ck_assert_int_eq(r_jws_set_alg(jws_sign, R_JWA_ALG_HS384), RHN_OK);
   ck_assert_ptr_ne((token = r_jws_serialize(jws_sign, NULL, 0)), NULL);
   
   ck_assert_int_eq(r_jws_parse(jws_verify, token, 0), RHN_OK);
   ck_assert_int_eq(r_jws_verify_signature(jws_verify, jwk, 0), RHN_OK);
   o_free(token);
   
-  ck_assert_int_eq(r_jws_set_alg(jws_sign, R_JWS_ALG_HS512), RHN_OK);
+  ck_assert_int_eq(r_jws_set_alg(jws_sign, R_JWA_ALG_HS512), RHN_OK);
   ck_assert_ptr_ne((token = r_jws_serialize(jws_sign, NULL, 0)), NULL);
   
   ck_assert_int_eq(r_jws_parse(jws_verify, token, 0), RHN_OK);

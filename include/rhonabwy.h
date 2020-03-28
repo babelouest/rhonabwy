@@ -72,8 +72,8 @@ extern "C"
  */
 
 /**
- * @defgroup type JWK, JWKS, JWS type
- * Definition of the types jwk_t, jwks_t and jws_t
+ * @defgroup type JWK, JWKS, JWS, JWE type
+ * Definition of the types jwk_t, jwks_t, jws_t and jwe_t
  * @{
  */
 
@@ -81,44 +81,79 @@ typedef json_t jwk_t;
 typedef json_t jwks_t;
 
 typedef enum {
-  R_JWS_ALG_UNSET = 0,
-  R_JWS_ALG_NONE  = 1,
-  R_JWS_ALG_HS256 = 2,
-  R_JWS_ALG_HS384 = 3,
-  R_JWS_ALG_HS512 = 4,
-  R_JWS_ALG_RS256 = 5,
-  R_JWS_ALG_RS384 = 6,
-  R_JWS_ALG_RS512 = 7,
-  R_JWS_ALG_ES256 = 8,
-  R_JWS_ALG_ES384 = 9,
-  R_JWS_ALG_ES512 = 10,
-  R_JWS_ALG_EDDSA = 11,
-  R_JWS_ALG_PS256 = 12,
-  R_JWS_ALG_PS384 = 13,
-  R_JWS_ALG_PS512 = 14
-} jws_alg;
+  R_JWA_ALG_UNKNOWN        = 0,
+  R_JWA_ALG_NONE           = 1,
+  R_JWA_ALG_HS256          = 2,
+  R_JWA_ALG_HS384          = 3,
+  R_JWA_ALG_HS512          = 4,
+  R_JWA_ALG_RS256          = 5,
+  R_JWA_ALG_RS384          = 6,
+  R_JWA_ALG_RS512          = 7,
+  R_JWA_ALG_ES256          = 8,
+  R_JWA_ALG_ES384          = 9,
+  R_JWA_ALG_ES512          = 10,
+  R_JWA_ALG_EDDSA          = 11,
+  R_JWA_ALG_PS256          = 12,
+  R_JWA_ALG_PS384          = 13,
+  R_JWA_ALG_PS512          = 14,
+  R_JWA_ALG_RSA1_5         = 15,
+  R_JWA_ALG_RSA_OAEP       = 16,
+  R_JWA_ALG_RSA_OAEP_256   = 17,
+  R_JWA_ALG_A128KW         = 18,
+  R_JWA_ALG_A192KW         = 19,
+  R_JWA_ALG_A256KW         = 20,
+  R_JWA_ALG_DIR            = 21,
+  R_JWA_ALG_ECDH_ES        = 22,
+  R_JWA_ALG_ECDH_ES_A128KW = 23,
+  R_JWA_ALG_ECDH_ES_A192KW = 24,
+  R_JWA_ALG_ECDH_ES_A256KW = 25,
+  R_JWA_ALG_A128GCMKW      = 26,
+  R_JWA_ALG_A192GCMKW      = 27,
+  R_JWA_ALG_A256GCMKW      = 28,
+  R_JWA_ALG_PBES2_H256     = 29,
+  R_JWA_ALG_PBES2_H384     = 30,
+  R_JWA_ALG_PBES2_H512     = 31
+} jwa_alg;
 
-typedef struct _jws_t {
+typedef enum {
+  R_JWA_ENC_UNKNOWN = 0,
+  R_JWA_ENC_A128CBC = 1,
+  R_JWA_ENC_A192CBC = 2,
+  R_JWA_ENC_A256CBC = 3,
+  R_JWA_ENC_A128GCM = 4,
+  R_JWA_ENC_A192GCM = 5,
+  R_JWA_ENC_A256GCM = 6
+} jwa_enc;
+
+typedef struct {
   unsigned char * header_b64url;
   unsigned char * payload_b64url;
   unsigned char * signature_b64url;
-  jws_alg alg;
-  jwks_t * jwks_privkey;
-  jwks_t * jwks_pubkey;
-  json_t * j_header;
+  json_t        * j_header;
+  jwa_alg         alg;
+  jwks_t        * jwks_privkey;
+  jwks_t        * jwks_pubkey;
   unsigned char * payload;
-  size_t payload_len;
+  size_t          payload_len;
 } jws_t;
 
-typedef struct _jwe_t {
+typedef struct {
   unsigned char * header_b64url;
   unsigned char * encrypted_key_b64url;
   unsigned char * iv_b64url;
   unsigned char * ciphertext_b64url;
   unsigned char * auth_tag_b64url;
-  json_t * j_header;
+  json_t        * j_header;
+  jwa_alg         alg;
+  jwa_enc         enc;
+  jwks_t        * jwks_privkey;
+  jwks_t        * jwks_pubkey;
+  unsigned char * key;
+  size_t          key_len;
+  unsigned char * iv;
+  size_t          iv_len;
   unsigned char * payload;
-  size_t payload_len;
+  size_t          payload_len;
 } jwe_t;
 
 /**
@@ -170,6 +205,19 @@ int r_jws_init(jws_t ** jws);
  * @param jws: the jws_t * to free
  */
 void r_jws_free(jws_t * jws);
+
+/**
+ * Initialize a jwe_t
+ * @param jwe: a reference to a jwe_t * to initialize
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_init(jwe_t ** jwe);
+
+/**
+ * Free a jwe_t
+ * @param jwe: the jwe_t * to free
+ */
+void r_jwe_free(jwe_t * jwe);
 
 /**
  * Get the type and algorithm of a jwk_t
@@ -227,6 +275,20 @@ int r_jwks_is_valid(jwks_t * jwks);
  * @return RHN_OK on success, an error value on error
  */
 int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, unsigned int bits, const char * kid);
+
+/**
+ * Get the jwa_alg corresponding to the string algorithm specified
+ * @param alg: the algorithm to convert
+ * @return the converted jwa_alg, R_JWA_ALG_NONE if alg is unknown
+ */
+jwa_alg str_to_jwa_alg(const char * alg);
+
+/**
+ * Get the jwa_enc corresponding to the string algorithm specified
+ * @param enc: the algorithm to convert
+ * @return the converted jwa_enc, R_JWA_ENC_NONE if enc is unknown
+ */
+jwa_enc str_to_jwa_enc(const char * enc);
 
 /**
  * @}
@@ -714,7 +776,7 @@ const unsigned char * r_jws_get_payload(jws_t * jws, size_t * payload_len);
  * @param alg: the algorithm to use
  * @return RHN_OK on success, an error value on error
  */
-int r_jws_set_alg(jws_t * jws, jws_alg alg);
+int r_jws_set_alg(jws_t * jws, jwa_alg alg);
 
 /**
  * Adds a string value to the JWS header
@@ -748,7 +810,7 @@ int r_jws_set_header_json_t_value(jws_t * jws, const char * key, json_t * j_valu
  * @param jws: the jws_t to update
  * @return the algorithm used
  */
-jws_alg r_jws_get_alg(jws_t * jws);
+jwa_alg r_jws_get_alg(jws_t * jws);
 
 /**
  * Gets a string value from the JWS header
@@ -823,15 +885,284 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags);
 char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags);
 
 /**
- * Get the jws_alg corresponding to the string algorithm specified
- * @param alg: the algorithm to convert
- * @return the converted jws_alg, R_JWS_ALG_NONE if alg is unknown
+ * @}
  */
-jws_alg str_to_js_alg(const char * alg);
+
+/**
+ * @defgroup jws JWE functions
+ * Manage JSON Web Encryption
+ * @{
+ */
+
+/**
+ * Return a copy of the JWE
+ * @param jwe: the jwe_t to duplicate
+ * @return a copy of jwe
+ */
+jwe_t * r_jwe_copy(jwe_t * jwe);
+
+/**
+ * Set the payload of the jwe
+ * @param jwe: the jwe_t to update
+ * @param payload: the payload to set
+ * @param payload_len: the size of the payload
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_set_payload(jwe_t * jwe, const unsigned char * payload, size_t payload_len);
+
+/**
+ * Get the JWE payload
+ * @param jwe: the jwe_t to get the payload from
+ * @param payload_len: the length of the JWE payload, may be NULL
+ * @return a pointer to the JWE payload
+ */
+const unsigned char * r_jwe_get_payload(jwe_t * jwe, size_t * payload_len);
+
+/**
+ * Set the JWE alg to use for key encryption
+ * @param jwe: the jwe_t to update
+ * @param alg: the algorithm to use
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_set_alg(jwe_t * jwe, jwa_alg alg);
+
+/**
+ * Get the JWE alg used for key encryption
+ * @param jwe: the jwe_t to update
+ * @return the algorithm used
+ */
+jwa_alg r_jwe_get_alg(jwe_t * jwe);
+
+/**
+ * Set the JWE enc to use for key encryption
+ * @param jwe: the jwe_t to update
+ * @param enc: the encorithm to use
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_set_enc(jwe_t * jwe, jwa_enc enc);
+
+/**
+ * Get the JWE enc used for key encryption
+ * @param jwe: the jwe_t to update
+ * @return the encorithm used
+ */
+jwa_enc r_jwe_get_enc(jwe_t * jwe);
+
+/**
+ * Adds a string value to the JWE header
+ * @param jwe: the jwe_t to update
+ * @param key: the key to set to the JWE header
+ * @param str_value: the value to set
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_set_header_str_value(jwe_t * jwe, const char * key, const char * str_value);
+
+/**
+ * Adds an integer value to the JWE header
+ * @param jwe: the jwe_t to update
+ * @param key: the key to set to the JWE header
+ * @param i_value: the value to set
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_set_header_int_value(jwe_t * jwe, const char * key, int i_value);
+
+/**
+ * Adds a JSON value to the JWE header
+ * @param jwe: the jwe_t to update
+ * @param key: the key to set to the JWE header
+ * @param j_value: the value to set
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_set_header_json_t_value(jwe_t * jwe, const char * key, json_t * j_value);
+
+/**
+ * Gets a string value from the JWE header
+ * @param jwe: the jwe_t to get the value
+ * @param key: the key to retreive the value
+ * @return a string value, NULL if not present
+ */
+const char * r_jwe_get_header_str_value(jwe_t * jwe, const char * key);
+
+/**
+ * Gets an integer value from the JWE header
+ * @param jwe: the jwe_t to get the value
+ * @param key: the key to retreive the value
+ * @return an int value, 0 if not present
+ */
+int r_jwe_get_header_int_value(jwe_t * jwe, const char * key);
+
+/**
+ * Gets a JSON value from the JWE header
+ * @param jwe: the jwe_t to get the value
+ * @param key: the key to retreive the value
+ * @return a json_t * value, NULL if not present
+ */
+json_t * r_jwe_get_header_json_t_value(jwe_t * jwe, const char * key);
+
+/**
+ * Return the full JWE header in JSON format
+ * @param jwe: the jwe_t to get the value
+ * @return a json_t * value
+ */
+json_t * r_jwe_get_full_header_json_t(jwe_t * jwe);
+
+/**
+ * Sets the private and public keys for the cypher key encryption and decryption
+ * @param jwe: the jwe_t to update
+ * @param jwk_privkey: the private key in jwk_t * format, can be NULL
+ * @param jwk_pubkey: the public key in jwk_t * format, can be NULL
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_add_keys(jwe_t * jwe, jwk_t * jwk_privkey, jwk_t * jwk_pubkey);
+
+/**
+ * Sets the cypher key to encrypt or decrypt the payload
+ * @param jwe: the jwe_t to update
+ * @param key: the key to encrypt or decrypt the payload
+ * @param key_len: the size of the key
+ * @param enc: the enc type to use
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_set_cypher_key(jwe_t * jwe, const unsigned char * key, size_t key_len, jwa_enc enc);
+
+/**
+ * Gets the cypher key to encrypt or decrypt the payload
+ * @param jwe: the jwe_t to get the value
+ * @param key_len: set the size of the key, may be NULL
+ * @param enc: the enc type to use
+ * @return the key to encrypt or decrypt the payload
+ */
+const unsigned char * r_jwe_get_cypher_key(jwe_t * jwe, size_t * key_len);
+
+/**
+ * Generates a random cypher key
+ * @param jwe: the jwe_t to update
+ * @param bits: the size of the key
+ * @param enc: the enc type
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_generate_cypher_key(jwe_t * jwe, unsigned int bits, jwa_enc enc);
+
+/**
+ * Sets the Initialization Vector (iv)
+ * @param jwe: the jwe_t to update
+ * @param iv: the iv to set
+ * @param iv_len: the size of the iv
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_set_iv(jwe_t * jwe, const unsigned char * iv, size_t iv_len);
+
+/**
+ * Gets the Initialization Vector (iv)
+ * @param jwe: the jwe_t to get the value
+ * @param iv_len: set the size of the iv, may be NULL
+ * @return the iv
+ */
+const unsigned char * r_jwe_get_iv(jwe_t * jwe, size_t * iv_len);
+
+/**
+ * Generates a random Initialization Vector (iv)
+ * @param jwe: the jwe_t to update
+ * @param length: the size of the iv
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_generate_iv(jwe_t * jwe, size_t length);
+
+/**
+ * Encrypts the payload using its key and iv
+ * @param jwe: the jwe_t to update
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_encrypt_payload(jwe_t * jwe);
+
+/**
+ * Decrypts the payload using its key and iv
+ * @param jwe: the jwe_t to update
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_decrypt_payload(jwe_t * jwe, const unsigned char * key, size_t key_len);
+
+/**
+ * Encrypts the key
+ * @param jwe: the jwe_t to update
+ * @param jwk_pubkey: the jwk to encrypt the key, may be NULL
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags);
+
+/**
+ * Decrypts the key
+ * @param jwe: the jwe_t to update
+ * @param jwk_privkey: the jwk to decrypt the key, may be NULL
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
+
+/**
+ * Parses the JWE
+ * @param jwe: the jwe_t to update
+ * @param jwe_str: the jwe serialized to parse
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags);
+
+/**
+ * Decrypts the payload of the JWE
+ * @param jwe: the jwe_t to update
+ * @param jwk_privkey: the private key to decrypt cypher key,
+ * can be NULL if jwe already contains a private key
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
+
+/**
+ * Serialize a JWE into its string format (aaa.bbb.ccc.xxx.yyy.zzz)
+ * @param jwe: the JWE to serialize
+ * @param jwk_pubkey: the public key to encrypt the cypher key,
+ * can be NULL if jwe already contains a public key
+ * @return the JWE in serialized format, returned value must be o_free'd after use
+ */
+char * r_jwe_serialize(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags);
 
 /**
  * @}
  */
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+/**
+ * Internal functions
+ */
+int _r_header_set_str_value(json_t * j_header, const char * key, const char * str_value);
+
+int _r_header_set_int_value(json_t * j_header, const char * key, int i_value);
+
+int _r_header_set_json_t_value(json_t * j_header, const char * key, json_t * j_value);
+
+const char * _r_header_get_str_value(json_t * j_header, const char * key);
+
+int _r_header_get_int_value(json_t * j_header, const char * key);
+
+json_t * _r_header_get_json_t_value(json_t * j_header, const char * key);
+
+json_t * _r_header_get_full_json_t(json_t * j_header);
+
+#endif
 
 #ifdef __cplusplus
 }

@@ -1744,7 +1744,7 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags) {
       y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export privkey - invalid key format, expected 'RSA' or 'EC'");
     }
   } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy export privkey - invalid key type, expected private key");
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_privkey - invalid key type, expected private key");
   }
   return privkey;
 }
@@ -1908,6 +1908,7 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
       }
       o_free(m.data);
       o_free(e.data);
+#if GNUTLS_VERSION_NUMBER >= 0x030600
     } else if (type & R_KEY_TYPE_ECDSA) {
       res = RHN_OK;
       do {
@@ -1967,7 +1968,6 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
       }
       o_free(x.data);
       o_free(y.data);
-#if GNUTLS_VERSION_NUMBER >= 0x030600
     } else if (type & R_KEY_TYPE_EDDSA) {
       res = RHN_OK;
       do {

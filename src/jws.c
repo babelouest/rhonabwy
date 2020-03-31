@@ -151,7 +151,7 @@ static int r_jws_set_token_values(jws_t * jws, int force) {
 static unsigned char * r_jws_sign_hmac(jws_t * jws, jwk_t * jwk) {
   int alg = GNUTLS_DIG_NULL;
   unsigned char * data = NULL, * key = NULL, * sig = NULL, * sig_b64 = NULL, * to_return = NULL;
-  size_t data_len = 0, key_len = 0, sig_len = 0, sig_b64_len = 0;
+  size_t key_len = 0, sig_len = 0, sig_b64_len = 0;
   
   if (jws->alg == R_JWA_ALG_HS256) {
     alg = GNUTLS_DIG_SHA256;
@@ -180,7 +180,7 @@ static unsigned char * r_jws_sign_hmac(jws_t * jws, jwk_t * jwk) {
   
   if (key != NULL && sig != NULL && sig_b64 != NULL) {
     data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
-    if (!gnutls_hmac_fast(alg, key, key_len, data, data_len, sig)) {
+    if (!gnutls_hmac_fast(alg, key, key_len, data, o_strlen((const char *)data), sig)) {
       if (o_base64url_encode(sig, sig_len, sig_b64, &sig_b64_len)) {
         to_return = (unsigned char *)o_strndup((const char *)sig_b64, sig_b64_len);
       } else {
@@ -401,6 +401,7 @@ static int r_jws_verify_sig_hmac(jws_t * jws, jwk_t * jwk) {
   unsigned char * sig = r_jws_sign_hmac(jws, jwk);
   int ret;
   
+  //y_log_message(Y_LOG_LEVEL_DEBUG, "sig %s", sig);
   if (sig != NULL && 0 == o_strcmp((const char *)jws->signature_b64url, (const char *)sig)) {
     ret = RHN_OK;
   } else {
@@ -673,8 +674,11 @@ jws_t * r_jws_copy(jws_t * jws) {
         jws_copy->payload_b64url = (unsigned char *)o_strdup((const char *)jws->payload_b64url);
         jws_copy->signature_b64url = (unsigned char *)o_strdup((const char *)jws->signature_b64url);
         jws_copy->alg = jws->alg;
+        r_jwks_free(jws_copy->jwks_privkey);
         jws_copy->jwks_privkey = r_jwks_copy(jws->jwks_privkey);
+        r_jwks_free(jws_copy->jwks_pubkey);
         jws_copy->jwks_pubkey = r_jwks_copy(jws->jwks_pubkey);
+        json_decref(jws_copy->j_header);
         jws_copy->j_header = json_deep_copy(jws->j_header);
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_copy - Error allocating resources for jws_copy->payload");
@@ -724,8 +728,9 @@ const unsigned char * r_jws_get_payload(jws_t * jws, size_t * payload_len) {
 }
 
 int r_jws_set_alg(jws_t * jws, jwa_alg alg) {
+  int ret = RHN_OK;
+  
   if (jws != NULL) {
-    jws->alg = alg;
     switch (alg) {
       case R_JWA_ALG_NONE:
         json_object_set_new(jws->j_header, "alg", json_string("none"));
@@ -770,12 +775,16 @@ int r_jws_set_alg(jws_t * jws, jwa_alg alg) {
         json_object_set_new(jws->j_header, "alg", json_string("EdDSA"));
         break;
       default:
+        ret = RHN_ERROR_PARAM;
         break;
     }
-    return RHN_OK;
+    if (ret == RHN_OK) {
+      jws->alg = alg;
+    }
   } else {
-    return RHN_ERROR_PARAM;
+    ret = RHN_ERROR_PARAM;
   }
+  return ret;
 }
 
 jwa_alg r_jws_get_alg(jws_t * jws) {
@@ -887,12 +896,12 @@ int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags) {
   int ret;
   char ** str_array = NULL;
   char * str_header = NULL;
-  size_t header_len = 0, payload_len = 0;
+  size_t header_len = 0, payload_len = 0, split_size = 0;
   json_t * j_header = NULL;
   
   
   if (jws != NULL && o_strlen(jws_str)) {
-    if (split_string(jws_str, ".", &str_array) >= 2) {
+    if ((split_size = split_string(jws_str, ".", &str_array)) == 2 || split_size == 3) {
       // Check if all first 2 elements are base64url
       if (o_base64url_decode((unsigned char *)str_array[0], o_strlen(str_array[0]), NULL, &header_len) && o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), NULL, &payload_len)) {
         ret = RHN_OK;
@@ -964,13 +973,15 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags) {
   int ret;
   jwk_t * jwk = NULL;
   
-  if (jwk_pubkey != NULL) {
-    jwk = r_jwk_copy(jwk_pubkey);
-  } else {
-    if (r_jws_get_header_str_value(jws, "kid") != NULL) {
-      jwk = r_jwks_get_by_kid(jws->jwks_pubkey, r_jws_get_header_str_value(jws, "kid"));
-    } else if (r_jwks_size(jws->jwks_pubkey) == 1) {
-      jwk = r_jwks_get_at(jws->jwks_pubkey, 0);
+  if (jws != NULL) {
+    if (jwk_pubkey != NULL) {
+      jwk = r_jwk_copy(jwk_pubkey);
+    } else {
+      if (r_jws_get_header_str_value(jws, "kid") != NULL) {
+        jwk = r_jwks_get_by_kid(jws->jwks_pubkey, r_jws_get_header_str_value(jws, "kid"));
+      } else if (r_jwks_size(jws->jwks_pubkey) == 1) {
+        jwk = r_jwks_get_at(jws->jwks_pubkey, 0);
+      }
     }
   }
   
@@ -1035,13 +1046,15 @@ char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags) {
   jwk_t * jwk = NULL;
   char * jws_str = NULL;
   
-  if (jwk_privkey != NULL) {
-    jwk = r_jwk_copy(jwk_privkey);
-  } else {
-    if (r_jws_get_header_str_value(jws, "kid") != NULL) {
-      jwk = r_jwks_get_by_kid(jws->jwks_privkey, r_jws_get_header_str_value(jws, "kid"));
-    } else if (jws != NULL && r_jwks_size(jws->jwks_privkey) == 1) {
-      jwk = r_jwks_get_at(jws->jwks_privkey, 0);
+  if (jws != NULL) {
+    if (jwk_privkey != NULL) {
+      jwk = r_jwk_copy(jwk_privkey);
+    } else {
+      if (r_jws_get_header_str_value(jws, "kid") != NULL) {
+        jwk = r_jwks_get_by_kid(jws->jwks_privkey, r_jws_get_header_str_value(jws, "kid"));
+      } else if (jws != NULL && r_jwks_size(jws->jwks_privkey) == 1) {
+        jwk = r_jwks_get_at(jws->jwks_privkey, 0);
+      }
     }
   }
   
@@ -1049,7 +1062,7 @@ char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags) {
     r_jws_set_header_str_value(jws, "kid", r_jwk_get_property_str(jwk, "kid"));
   }
   
-  if ((jwk != NULL || jws->alg == R_JWA_ALG_NONE) && r_jws_set_token_values(jws, 1) == RHN_OK) {
+  if (jws != NULL && (jwk != NULL || jws->alg == R_JWA_ALG_NONE) && r_jws_set_token_values(jws, 1) == RHN_OK) {
     switch (jws->alg) {
       case R_JWA_ALG_HS256:
       case R_JWA_ALG_HS384:

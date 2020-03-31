@@ -7,3 +7,5 @@ jws_hmac
 jws_ecdsa
 jws_rsa
 jws_rsapss
+jwe_core
+jwe_rsa

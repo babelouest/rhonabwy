@@ -106,9 +106,11 @@ include_directories(${INC_DIR})
 
 set(LIB_SRC
         ${INC_DIR}/rhonabwy.h # allow many IDEs to find and edit it
+        ${SRC_DIR}/misc.c
         ${SRC_DIR}/jwk.c
         ${SRC_DIR}/jwks.c
-	${SRC_DIR}/jws.c)
+	${SRC_DIR}/jws.c
+	${SRC_DIR}/jwe.c)
 
 set(PKGCONF_REQ "")
 set(PKGCONF_REQ_PRIVATE "")
@@ -277,6 +279,8 @@ if (BUILD_RHONABWY_TESTING)
 	    jws_ecdsa
 	    jws_rsa
 	    jws_rsapss
+	    jwe_core
+	    jwe_rsa
 	    )
 
         configure_file(

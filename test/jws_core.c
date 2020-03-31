@@ -329,6 +329,8 @@ START_TEST(test_rhonabwy_copy)
   o_free(token_copy);
   r_jws_free(jws);
   r_jws_free(jws_copy);
+  r_jwk_free(jwk_privkey);
+  r_jwk_free(jwk_pubkey);
 }
 END_TEST
 

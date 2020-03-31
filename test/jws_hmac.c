@@ -9,16 +9,16 @@
 
 #define PAYLOAD "The true sign of intelligence is not knowledge but imagination."
 
-#define HS256_TOKEN "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.PdtqfpescIy_55JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
-#define HS256_TOKEN_INVALID_HEADER "eyJhbGciOiJIUzI1NiIsImtpZCI6Ij.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.PdtqfpescIy_55JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
-#define HS256_TOKEN_INVALID_HEADER_B64 ";error;.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.PdtqfpescIy_55JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
-#define HS256_TOKEN_INVALID_PAYLOAD_B64 "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.;error;.PdtqfpescIy_55JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
-#define HS256_TOKEN_INVALID_SIGNATURE "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.PdtqfpescIy_65JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
-#define HS256_TOKEN_INVALID_DOTS "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQVGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.PdtqfpescIy_55JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
+#define HS256_TOKEN "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.GKxWqRBFr-6X4HfflzGeGvKVsJ8v1-J39Ho2RslC-5o"
+#define HS256_TOKEN_INVALID_HEADER "eyJhbGciOiJIUzI1NiIsImtpZCI6Ij.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.GKxWqRBFr-6X4HfflzGeGvKVsJ8v1-J39Ho2RslC-5o"
+#define HS256_TOKEN_INVALID_HEADER_B64 ";error;.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.GKxWqRBFr-6X4HfflzGeGvKVsJ8v1-J39Ho2RslC-5o"
+#define HS256_TOKEN_INVALID_PAYLOAD_B64 "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.;error;.GKxWqRBFr-6X4HfflzGeGvKVsJ8v1-J39Ho2RslC-5o"
+#define HS256_TOKEN_INVALID_SIGNATURE "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.GKxWqRBFr-5X4HfflzGeGvKVsJ8v1-J39Ho2RslC-5o"
+#define HS256_TOKEN_INVALID_DOTS "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQVGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.GKxWqRBFr-6X4HfflzGeGvKVsJ8v1-J39Ho2RslC-5o"
 
-const char jwk_key_symmetric_str[] = "{\"kty\":\"oct\",\"alg\":\"HS256\",\"k\":\"c2VjcmV0Cg\",\"kid\":\"1\"}";
-const char jwk_key_symmetric_str_2[] = "{\"kty\":\"oct\",\"alg\":\"HS256\",\"k\":\"dGVyY2VzCg\",\"kid\":\"2\"}";
-const char jwk_key_symmetric_no_alg_str[] = "{\"kty\":\"oct\",\"k\":\"c2VjcmV0Cg\",\"kid\":\"1\"}";
+const char jwk_key_symmetric_str[] = "{\"kty\":\"oct\",\"alg\":\"HS256\",\"k\":\"c2VjcmV0\",\"kid\":\"1\"}";
+const char jwk_key_symmetric_str_2[] = "{\"kty\":\"oct\",\"alg\":\"HS256\",\"k\":\"dGVyY2Vz\",\"kid\":\"2\"}";
+const char jwk_key_symmetric_no_alg_str[] = "{\"kty\":\"oct\",\"k\":\"c2VjcmV0\",\"kid\":\"1\"}";
 const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                     "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\",\"alg\":\"ES256\"}";
 

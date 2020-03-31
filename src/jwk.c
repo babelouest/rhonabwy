@@ -1754,9 +1754,12 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
   gnutls_x509_crt_t crt;
   unsigned char * b64_dec;
   size_t b64_dec_len = 0;
-  gnutls_datum_t m = {NULL, 0}, e = {NULL, 0}, x = {NULL, 0}, y = {NULL, 0}, data = {NULL, 0};
+  gnutls_datum_t m = {NULL, 0}, e = {NULL, 0}, data = {NULL, 0};
   int res, type = r_jwk_key_type(jwk, NULL, x5u_flags);
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   gnutls_ecc_curve_t curve;
+  gnutls_datum_t x = {NULL, 0}, y = {NULL, 0};
+#endif
 
   struct _u_request request;
   struct _u_response response;

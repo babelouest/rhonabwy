@@ -1020,10 +1020,9 @@ int r_jwe_add_keys(jwe_t * jwe, jwk_t * jwk_privkey, jwk_t * jwk_pubkey);
  * @param jwe: the jwe_t to update
  * @param key: the key to encrypt or decrypt the payload
  * @param key_len: the size of the key
- * @param enc: the enc type to use
  * @return RHN_OK on success, an error value on error
  */
-int r_jwe_set_cypher_key(jwe_t * jwe, const unsigned char * key, size_t key_len, jwa_enc enc);
+int r_jwe_set_cypher_key(jwe_t * jwe, const unsigned char * key, size_t key_len);
 
 /**
  * Gets the cypher key to encrypt or decrypt the payload
@@ -1041,7 +1040,7 @@ const unsigned char * r_jwe_get_cypher_key(jwe_t * jwe, size_t * key_len);
  * @param enc: the enc type
  * @return RHN_OK on success, an error value on error
  */
-int r_jwe_generate_cypher_key(jwe_t * jwe, unsigned int bits, jwa_enc enc);
+int r_jwe_generate_cypher_key(jwe_t * jwe);
 
 /**
  * Sets the Initialization Vector (iv)
@@ -1066,7 +1065,7 @@ const unsigned char * r_jwe_get_iv(jwe_t * jwe, size_t * iv_len);
  * @param length: the size of the iv
  * @return RHN_OK on success, an error value on error
  */
-int r_jwe_generate_iv(jwe_t * jwe, size_t length);
+int r_jwe_generate_iv(jwe_t * jwe);
 
 /**
  * Encrypts the payload using its key and iv
@@ -1080,7 +1079,7 @@ int r_jwe_encrypt_payload(jwe_t * jwe);
  * @param jwe: the jwe_t to update
  * @return RHN_OK on success, an error value on error
  */
-int r_jwe_decrypt_payload(jwe_t * jwe, const unsigned char * key, size_t key_len);
+int r_jwe_decrypt_payload(jwe_t * jwe);
 
 /**
  * Encrypts the key

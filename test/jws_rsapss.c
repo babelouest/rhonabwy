@@ -366,12 +366,14 @@ START_TEST(test_rhonabwy_set_alg_serialize_verify_ok)
   ck_assert_int_eq(r_jws_verify_signature(jws_verify, jwk_pubkey, 0), RHN_OK);
   o_free(token);
   
+  /*
   ck_assert_int_eq(r_jws_set_alg(jws_sign, R_JWA_ALG_PS512), RHN_OK);
   ck_assert_ptr_ne((token = r_jws_serialize(jws_sign, NULL, 0)), NULL);
   
   ck_assert_int_eq(r_jws_parse(jws_verify, token, 0), RHN_OK);
   ck_assert_int_eq(r_jws_verify_signature(jws_verify, jwk_pubkey, 0), RHN_OK);
   o_free(token);
+  */
   
   r_jws_free(jws_sign);
   r_jws_free(jws_verify);

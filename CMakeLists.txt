@@ -281,6 +281,7 @@ if (BUILD_RHONABWY_TESTING)
 	    jws_rsapss
 	    jwe_core
 	    jwe_rsa
+	    jwe_dir
 	    )
 
         configure_file(

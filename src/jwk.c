@@ -416,7 +416,7 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
   gnutls_datum_t        data;
   int ret = R_KEY_TYPE_NONE, pk_alg;
   unsigned char * data_dec = NULL;
-  size_t data_dec_len = 0;
+  size_t data_dec_len = 0, k_len = 0;
   int bits_set = 0;
   
   struct _u_request request;
@@ -594,7 +594,12 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
         *bits = 256;
       }
     } else if (ret & R_KEY_TYPE_HMAC) {
-      *bits = (unsigned int)json_string_length(json_object_get(jwk, "k"));
+      if (o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "k")), json_string_length(json_object_get(jwk, "k")), NULL, &k_len)) {
+        *bits = (unsigned int)k_len;
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type - Error invalid base64url k value");
+        ret = RHN_ERROR_PARAM;
+      }
     }
   }
   return ret;

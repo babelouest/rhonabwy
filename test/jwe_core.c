@@ -255,6 +255,9 @@ START_TEST(test_rhonabwy_encrypt_payload_invalid)
   ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_set_iv(jwe, NULL, 0), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_ERROR_PARAM);
   
   r_jwe_free(jwe);
 }
@@ -265,6 +268,72 @@ START_TEST(test_rhonabwy_encrypt_payload)
   jwe_t * jwe;
   ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
+  ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_ptr_eq(jwe->ciphertext_b64url, NULL);
+  ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_OK);
+  ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
+  ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
+  ck_assert_int_eq(0, o_strncmp(PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(PAYLOAD)));
+  
+  r_jwe_free(jwe);
+}
+END_TEST
+
+START_TEST(test_rhonabwy_encrypt_payload_all_format)
+{
+  jwe_t * jwe;
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
+  ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_ptr_eq(jwe->ciphertext_b64url, NULL);
+  ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_OK);
+  ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
+  ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
+  ck_assert_int_eq(0, o_strncmp(PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(PAYLOAD)));
+  
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A192CBC), RHN_OK);
+  ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_ptr_eq(jwe->ciphertext_b64url, NULL);
+  ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_OK);
+  ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
+  ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
+  ck_assert_int_eq(0, o_strncmp(PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(PAYLOAD)));
+  
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A256CBC), RHN_OK);
+  ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_ptr_eq(jwe->ciphertext_b64url, NULL);
+  ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_OK);
+  ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
+  ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
+  ck_assert_int_eq(0, o_strncmp(PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(PAYLOAD)));
+  
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128GCM), RHN_OK);
+  ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_ptr_eq(jwe->ciphertext_b64url, NULL);
+  ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_OK);
+  ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
+  ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
+  ck_assert_int_eq(0, o_strncmp(PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(PAYLOAD)));
+  
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A192GCM), RHN_OK);
+  ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_ptr_eq(jwe->ciphertext_b64url, NULL);
+  ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_ERROR_PARAM); // R_JWA_ENC_A192GCM not supported on 
+  
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A256GCM), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
@@ -291,7 +360,6 @@ START_TEST(test_rhonabwy_decrypt_payload_invalid_key_no_tag)
   ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_OK);
   ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
   jwe->key[18]++;
-  ck_assert_int_eq(r_jwe_set_payload(jwe, NULL, 0), RHN_OK);
   ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
   ck_assert_int_ne(memcmp(payload_control, jwe->payload, jwe->payload_len), 0);
   
@@ -312,7 +380,6 @@ START_TEST(test_rhonabwy_encrypt_payload_zip)
   r_jwe_set_header_str_value(jwe, "zip", "DEF");
   ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_OK);
   ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
-  ck_assert_int_eq(r_jwe_set_payload(jwe, NULL, 0), RHN_OK);
   ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
   ck_assert_int_eq(0, o_strncmp(PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(PAYLOAD)));
   
@@ -395,7 +462,6 @@ START_TEST(test_rhonabwy_decrypt_key_invalid_encrypted_key)
   ck_assert_int_eq(r_jwe_encrypt_key(jwe, jwk_pubkey_rsa, 0), RHN_OK);
   ck_assert_int_gt(o_strlen((const char *)jwe->encrypted_key_b64url), 0);
   ck_assert_int_eq(r_jwe_decrypt_key(jwe, jwk_pubkey_rsa, 0), RHN_ERROR_PARAM);
-  ck_assert_int_eq(r_jwe_set_cypher_key(jwe, NULL, 0), RHN_OK);
   if (jwe->encrypted_key_b64url[2] == 'a') {
     jwe->encrypted_key_b64url[2] = 'e';
   } else {
@@ -432,10 +498,7 @@ START_TEST(test_rhonabwy_decrypt_key_valid)
   ck_assert_int_eq(o_strlen((const char *)jwe->encrypted_key_b64url), 0);
   ck_assert_int_eq(r_jwe_encrypt_key(jwe, jwk_pubkey_rsa, 0), RHN_OK);
   ck_assert_int_gt(o_strlen((const char *)jwe->encrypted_key_b64url), 0);
-  ck_assert_int_eq(r_jwe_set_cypher_key(jwe, NULL, 0), RHN_OK);
   ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
-  ck_assert_int_eq(jwe->key_len, 0);
-  ck_assert_ptr_eq(jwe->key, NULL);
   ck_assert_int_eq(r_jwe_decrypt_key(jwe, jwk_privkey_rsa, 0), RHN_OK);
   ck_assert_int_gt(jwe->key_len, 0);
   ck_assert_ptr_ne(jwe->key, NULL);
@@ -467,6 +530,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_generate_iv);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_payload_invalid);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_payload);
+  tcase_add_test(tc_core, test_rhonabwy_encrypt_payload_all_format);
   tcase_add_test(tc_core, test_rhonabwy_decrypt_payload_invalid_key_no_tag);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_payload_zip);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_key_invalid);

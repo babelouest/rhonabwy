@@ -1171,7 +1171,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_key_symmetric), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
-  ck_assert_int_eq(bits, 22);
+  ck_assert_int_eq(bits, 16);
   ck_assert_int_eq(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_SYMMETRIC, 0);

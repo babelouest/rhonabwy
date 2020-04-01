@@ -323,7 +323,9 @@ START_TEST(test_rhonabwy_copy)
   ck_assert_ptr_ne((jws_copy = r_jws_copy(jws)), NULL);
   ck_assert_ptr_ne((token_copy = r_jws_serialize(jws_copy, NULL, 0)), NULL);
   
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_str_eq(token, token_copy);
+#endif
   
   o_free(token);
   o_free(token_copy);

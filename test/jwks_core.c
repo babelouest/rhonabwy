@@ -261,6 +261,7 @@ START_TEST(test_rhonabwy_jwks_export_pubkey)
   
   ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
@@ -282,6 +283,29 @@ START_TEST(test_rhonabwy_jwks_export_pubkey)
   gnutls_pubkey_deinit(out[0]);
   gnutls_pubkey_deinit(out[1]);
   o_free(out);
+#else
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
+  r_jwk_free(jwk);
+  ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_pubkey(jwks, &len, 0)), NULL);
+  ck_assert_int_eq(len, 1);
+  ck_assert_ptr_ne(out[0], NULL);
+  gnutls_pubkey_deinit(out[0]);
+  o_free(out);
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_str), RHN_OK);
+  ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
+  r_jwk_free(jwk);
+  ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_pubkey(jwks, &len, 0)), NULL);
+  ck_assert_int_eq(len, 2);
+  ck_assert_ptr_ne(out[0], NULL);
+  ck_assert_ptr_ne(out[1], NULL);
+  gnutls_pubkey_deinit(out[0]);
+  gnutls_pubkey_deinit(out[1]);
+  o_free(out);
+#endif
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
@@ -310,6 +334,7 @@ START_TEST(test_rhonabwy_jwks_export_pem)
   
   ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
@@ -319,6 +344,7 @@ START_TEST(test_rhonabwy_jwks_export_pem)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
   r_jwk_free(jwk);
+#endif
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);

@@ -51,7 +51,7 @@ static gnutls_cipher_algorithm_t get_alg_from_enc(jwa_enc enc) {
       alg = GNUTLS_CIPHER_AES_128_GCM;
       break;
     case R_JWA_ENC_A192GCM:
-      alg = GNUTLS_CIPHER_AES_192_CBC;
+      alg = GNUTLS_CIPHER_UNKNOWN; // Unsupported on GnuTLS 3.6
       break;
     case R_JWA_ENC_A256GCM:
       alg = GNUTLS_CIPHER_AES_256_GCM;
@@ -244,7 +244,7 @@ static void r_remove_padding(unsigned char * text, size_t * text_len, unsigned i
   }
 }
 
-static int r_compute_tag(jwe_t * jwe, unsigned char * cyphertext, size_t cyphertext_len, unsigned char * tag, size_t * tag_len) {
+static int r_compute_hmac_tag(jwe_t * jwe, unsigned char * cyphertext, size_t cyphertext_len, unsigned char * tag, size_t * tag_len) {
   int ret, res;
   unsigned char al[8], * compute_hmac = NULL;
   uint64_t aad_len;
@@ -271,12 +271,12 @@ static int r_compute_tag(jwe_t * jwe, unsigned char * cyphertext, size_t cyphert
       *tag_len = gnutls_hmac_get_len(mac)/2;
       ret = RHN_OK;
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_compute_tag - Error gnutls_hmac_fast: '%s'", gnutls_strerror(res));
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_compute_hmac_tag - Error gnutls_hmac_fast: '%s'", gnutls_strerror(res));
       ret = RHN_ERROR;
     }
     o_free(compute_hmac);
   } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "r_compute_tag - Error allocating resources for compute_hmac");
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_compute_hmac_tag - Error allocating resources for compute_hmac");
     ret = RHN_ERROR;
   }
   return ret;
@@ -385,6 +385,10 @@ int r_jwe_set_payload(jwe_t * jwe, const unsigned char * payload, size_t payload
   int ret;
   
   if (jwe != NULL) {
+    o_free(jwe->ciphertext_b64url);
+    jwe->ciphertext_b64url = NULL;
+    o_free(jwe->auth_tag_b64url);
+    jwe->auth_tag_b64url = NULL;
     o_free(jwe->payload);
     if (payload != NULL && payload_len) {
       if ((jwe->payload = o_malloc(payload_len)) != NULL) {
@@ -420,6 +424,8 @@ int r_jwe_set_cypher_key(jwe_t * jwe, const unsigned char * key, size_t key_len)
   int ret;
   
   if (jwe != NULL) {
+    o_free(jwe->encrypted_key_b64url);
+    jwe->encrypted_key_b64url = NULL;
     o_free(jwe->key);
     if (key != NULL && key_len) {
       if ((jwe->key = o_malloc(key_len)) != NULL) {
@@ -455,6 +461,8 @@ int r_jwe_generate_cypher_key(jwe_t * jwe) {
   int ret;
   
   if (jwe != NULL && jwe->enc != R_JWA_ENC_UNKNOWN) {
+    o_free(jwe->encrypted_key_b64url);
+    jwe->encrypted_key_b64url = NULL;
     jwe->key_len = get_key_size(jwe->enc);
     o_free(jwe->key);
     if ((jwe->key = o_malloc(jwe->key_len)) != NULL) {
@@ -478,6 +486,8 @@ int r_jwe_set_iv(jwe_t * jwe, const unsigned char * iv, size_t iv_len) {
   int ret;
   
   if (jwe != NULL) {
+    o_free(jwe->iv_b64url);
+    jwe->iv_b64url = NULL;
     o_free(jwe->iv);
     if (iv != NULL && iv_len) {
       if ((jwe->iv = o_malloc(iv_len)) != NULL) {
@@ -515,6 +525,8 @@ int r_jwe_generate_iv(jwe_t * jwe) {
   size_t iv_b64_len = 0;
   
   if (jwe != NULL && jwe->enc != R_JWA_ENC_UNKNOWN) {
+    o_free(jwe->iv_b64url);
+    jwe->iv_b64url = NULL;
     jwe->iv_len = gnutls_cipher_get_iv_size(get_alg_from_enc(jwe->enc));
     o_free(jwe->iv);
     jwe->iv = NULL;
@@ -843,7 +855,7 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
 
     if (ret == RHN_OK) {
       key.data = jwe->key+(jwe->key_len/2);
-      key.size = gnutls_hmac_get_len(get_digest_from_enc(jwe->enc))/2;
+      key.size = (jwe->key_len/2);
       iv.data = jwe->iv;
       iv.size = jwe->iv_len;
       if (!(res = gnutls_cipher_init(&handle, get_alg_from_enc(jwe->enc), &key, &iv))) {
@@ -852,7 +864,7 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
             if (o_base64url_encode(ptext, ptext_len, ciphertext_b64url, &ciphertext_b64url_len)) {
               o_free(jwe->ciphertext_b64url);
               jwe->ciphertext_b64url = (unsigned char *)o_strndup((const char *)ciphertext_b64url, ciphertext_b64url_len);
-              if (r_compute_tag(jwe, ptext, ptext_len, tag, &tag_len) == RHN_OK) {
+              if (r_compute_hmac_tag(jwe, ptext, ptext_len, tag, &tag_len) == RHN_OK) {
                 if ((tag_b64url = o_malloc(tag_len*2)) != NULL) {
                   if (o_base64url_encode(tag, tag_len, tag_b64url, &tag_b64url_len)) {
                     o_free(jwe->auth_tag_b64url);
@@ -867,7 +879,7 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
                   ret = RHN_ERROR_MEMORY;
                 }
               } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error r_compute_tag");
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error r_compute_hmac_tag");
                 ret = RHN_ERROR;
               }
             } else {
@@ -936,7 +948,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
       iv.data = jwe->iv;
       iv.size = jwe->iv_len;
       if (!(res = gnutls_cipher_init(&handle, get_alg_from_enc(jwe->enc), &key, &iv))) {
-        if (r_compute_tag(jwe, payload_enc, payload_enc_len, tag, &tag_len) == RHN_OK) {
+        if (r_compute_hmac_tag(jwe, payload_enc, payload_enc_len, tag, &tag_len) == RHN_OK) {
           if ((tag_b64url = o_malloc(tag_len*2)) != NULL) {
             if (o_base64url_encode(tag, tag_len, tag_b64url, &tag_b64url_len)) {
               if (0 != memcmp(tag_b64url, jwe->auth_tag_b64url, tag_b64url_len)) {
@@ -953,7 +965,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
             ret = RHN_ERROR_MEMORY;
           }
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_compute_tag");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_compute_hmac_tag");
           ret = RHN_ERROR;
         }
         if (!(res = gnutls_cipher_decrypt(handle, payload_enc, payload_enc_len))) {
@@ -1131,6 +1143,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
                 cypherkey.data = cypherkey_dec;
                 if (!(res = gnutls_privkey_decrypt_data(g_priv, 0, &cypherkey, &plainkey))) {
                   o_free(jwe->key);
+                  jwe->key = NULL;
                   if (r_jwe_set_cypher_key(jwe, plainkey.data, plainkey.size) == RHN_OK) {
                     ret = RHN_OK;
                   } else {
@@ -1204,15 +1217,16 @@ int r_jwe_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags) {
   char ** str_array = NULL;
   char * str_header = NULL;
   unsigned char * iv = NULL;
-  size_t header_len = 0, iv_len = 0, cypher_len = 0, split_size = 0;
+  size_t header_len = 0, iv_len = 0, cypher_len = 0, tag_len = 0;
   json_t * j_header = NULL;
   
   if (jwe != NULL && o_strlen(jwe_str)) {
-    if ((split_size = split_string(jwe_str, ".", &str_array)) == 4 || split_size == 5) {
+    if (split_string(jwe_str, ".", &str_array) == 5) {
       // Check if all elements 0, 2 and 3 are base64url encoded
       if (o_base64url_decode((unsigned char *)str_array[0], o_strlen(str_array[0]), NULL, &header_len) && 
           o_base64url_decode((unsigned char *)str_array[2], o_strlen(str_array[2]), NULL, &iv_len) &&
-          o_base64url_decode((unsigned char *)str_array[3], o_strlen(str_array[3]), NULL, &cypher_len)) {
+          o_base64url_decode((unsigned char *)str_array[3], o_strlen(str_array[3]), NULL, &cypher_len) &&
+          o_base64url_decode((unsigned char *)str_array[4], o_strlen(str_array[4]), NULL, &tag_len)) {
         ret = RHN_OK;
         do {
           // Decode header

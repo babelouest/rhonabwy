@@ -1052,7 +1052,7 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags) {
     }
   }
   
-  if (jwe->key != NULL && jwe->key_len && jwe->alg != R_JWA_ALG_UNKNOWN && jwe->alg != R_JWA_ALG_NONE) {
+  if (jwe != NULL && jwe->key != NULL && jwe->key_len && jwe->alg != R_JWA_ALG_UNKNOWN && jwe->alg != R_JWA_ALG_NONE) {
       switch (jwe->alg) {
         case R_JWA_ALG_RSA1_5:
           if (jwk != NULL && (g_pub = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags)) != NULL) {
@@ -1156,7 +1156,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
     }
   }
   
-  if (jwe->alg != R_JWA_ALG_UNKNOWN && jwe->alg != R_JWA_ALG_NONE) {
+  if (jwe != NULL && jwe->alg != R_JWA_ALG_UNKNOWN && jwe->alg != R_JWA_ALG_NONE) {
       switch (jwe->alg) {
         case R_JWA_ALG_RSA1_5:
           if (jwk != NULL && o_strlen((const char *)jwe->encrypted_key_b64url) && (g_priv = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags)) != NULL) {

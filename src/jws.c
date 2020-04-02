@@ -60,11 +60,6 @@ static int r_jws_extract_header(jws_t * jws, json_t * j_header, int x5u_flags) {
         if (r_jwks_append_jwk(jws->jwks_pubkey, jwk) != RHN_OK) {
           ret = RHN_ERROR;
         }
-        if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_HMAC) {
-          if (r_jwks_append_jwk(jws->jwks_privkey, jwk) != RHN_OK) {
-            ret = RHN_ERROR;
-          }
-        }
       } else {
         ret = RHN_ERROR_PARAM;
       }
@@ -76,11 +71,6 @@ static int r_jws_extract_header(jws_t * jws, json_t * j_header, int x5u_flags) {
       if (r_jwk_import_from_json_t(jwk, j_header) == RHN_OK) {
         if (r_jwks_append_jwk(jws->jwks_pubkey, jwk) != RHN_OK) {
           ret = RHN_ERROR;
-        }
-        if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_HMAC) {
-          if (r_jwks_append_jwk(jws->jwks_privkey, jwk) != RHN_OK) {
-            ret = RHN_ERROR;
-          }
         }
       } else {
         ret = RHN_ERROR_PARAM;

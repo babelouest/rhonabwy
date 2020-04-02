@@ -140,6 +140,8 @@ jwa_alg str_to_jwa_alg(const char * alg) {
     return R_JWA_ALG_PS256;
   } else if (0 == o_strcmp("PS384", alg)) {
     return R_JWA_ALG_PS384;
+  } else if (0 == o_strcmp("PS512", alg)) {
+    return R_JWA_ALG_PS512;
   } else if (0 == o_strcmp("RSA1_5", alg)) {
     return R_JWA_ALG_RSA1_5;
   } else if (0 == o_strcmp("RSA-OAEP", alg)) {
@@ -195,4 +197,52 @@ jwa_enc str_to_jwa_enc(const char * enc) {
   } else {
     return R_JWA_ENC_UNKNOWN;
   }
+}
+
+json_t * r_library_info_json_t() {
+  json_t * j_info = json_pack("{sss{s[sssssss]}s{s[s]s[ssssss]}}",
+                              "version", RHONABWY_VERSION_STR,
+                              "jws",
+                                "alg",
+                                  "none",
+                                  "HS256",
+                                  "HS384",
+                                  "HS512",
+                                  "RS256",
+                                  "RS384",
+                                  "RS512",
+                              "jwe",
+                                "alg",
+                                  "RSA1_5",
+                                "enc",
+                                  "A128CBC-HS256",
+                                  "A192CBC-HS384",
+                                  "A256CBC-HS512",
+                                  "A128GCM",
+                                  "A192GCM",
+                                  "A256GCM");
+#if GNUTLS_VERSION_NUMBER >= 0x030600
+  json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES256"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES384"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES512"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("EdDSA"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS256"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS384"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS512"));
+#endif
+  return j_info;
+}
+
+char * r_library_info_json_str() {
+  char * to_return = NULL;
+  json_t * j_info = r_library_info_json_t();
+  if (j_info != NULL) {
+    to_return = json_dumps(j_info, JSON_COMPACT);
+  }
+  json_decref(j_info);
+  return to_return;
+}
+
+void r_free(void * data) {
+  o_free(data);
 }

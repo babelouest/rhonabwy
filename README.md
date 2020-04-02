@@ -11,7 +11,7 @@
   - HMAC with SHA-2 Functions: `HS256`, `HS384`, `HS512`
   - Digital Signature with RSASSA-PKCS1-v1_5: `RS256`, `RS384`, `RS512`
   - Digital Signature with ECDSA: `ES256`, `ES384`, `ES512`
-  - Digital Signature with RSASSA-PSS: `PS256`, `PS384`
+  - Digital Signature with RSASSA-PSS: `PS256`, `PS384`, `PS512`
   - Digital Signature with Ed25519 Elliptic Curve: `EDDSA`
   - Unsecured: `none`
 

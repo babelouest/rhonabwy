@@ -2079,12 +2079,13 @@ int r_jwk_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, siz
 int r_jwk_export_to_symmetric_key(jwk_t * jwk, unsigned char * key, size_t * key_len) {
   int ret;
   const char * k;
+  size_t k_len = 0;
   
   if (jwk != NULL && key_len != NULL) {
     if (r_jwk_key_type(jwk, NULL, 0) & R_KEY_TYPE_SYMMETRIC) {
       k = r_jwk_get_property_str(jwk, "k");
-      if (o_strlen(k)) {
-        if (o_base64url_decode((const unsigned char *)k, o_strlen(k), key, key_len)) {
+      if ((k_len = o_strlen(k))) {
+        if (o_base64url_decode((const unsigned char *)k, k_len, key, key_len)) {
           ret = RHN_OK;
         } else {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_symmetric_key - Error o_base64url_decode");

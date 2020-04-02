@@ -168,6 +168,31 @@ typedef struct {
  */
 
 /**
+ * Get the library information as a json_t * object
+ * - library version
+ * - supported JWS algorithms
+ * - supported JWE algorithms
+ * @return the library information
+ */
+json_t * r_library_info_json_t();
+
+/**
+ * Get the library information as a JSON object in string format
+ * - library version
+ * - supported JWS algorithms
+ * - supported JWE algorithms
+ * @return the library information, must be r_free'd after use
+ */
+char * r_library_info_json_str();
+
+/**
+ * Free a heap allocated variable
+ * previously returned by a rhonabwy function
+ * @param data: the data to free
+ */
+void r_free(void * data);
+
+/**
  * Initialize a jwk_t
  * @param jwk: a reference to a jwk_t * to initialize
  * @return RHN_OK on success, an error value on error
@@ -497,7 +522,7 @@ int r_jwk_equal(jwk_t * jwk1, jwk_t * jwk2);
  * Export a jwk_t into a stringified JSON format
  * @param jwk: the jwk_t * to export
  * @param pretty: indent or compact JSON output
- * @return a char * on success, NULL on error
+ * @return a char * on success, NULL on error, must be r_free'd after use
  */
 char * r_jwk_export_to_json_str(jwk_t * jwk, int pretty);
 
@@ -682,7 +707,7 @@ int r_jwks_equal(jwks_t * jwks1, jwks_t * jwks2);
  * Export a jwks_t into a stringified JSON format
  * @param jwk: the jwks_t * to export
  * @param pretty: indent or compact JSON output
- * @return a char * on success, NULL on error
+ * @return a char * on success, NULL on error, must be r_free'd after use
  */
 char * r_jwks_export_to_json_str(jwks_t * jwks, int pretty);
 
@@ -880,7 +905,7 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags);
  * @param jws: the JWS to serialize
  * @param jwk_privkey: the private key to use to sign the JWS
  * can be NULL if jws already contains a private key
- * @return the JWS in serialized format, returned value must be o_free'd after use
+ * @return the JWS in serialized format, returned value must be r_free'd after use
  */
 char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags);
 
@@ -1134,7 +1159,7 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
  * @param jwe: the JWE to serialize
  * @param jwk_pubkey: the public key to encrypt the cypher key,
  * can be NULL if jwe already contains a public key
- * @return the JWE in serialized format, returned value must be o_free'd after use
+ * @return the JWE in serialized format, returned value must be r_free'd after use
  */
 char * r_jwe_serialize(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags);
 

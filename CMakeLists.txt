@@ -270,7 +270,8 @@ if (BUILD_RHONABWY_TESTING)
         set(LIBS rhonabwy ${LIBS} ${CHECK_LIBRARIES} ${SUBUNIT_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} "-lm -lrt")
 
         set(TESTS
-            jwk_core
+            misc
+	    jwk_core
             jwk_export
 	    jwk_import
 	    jwks_core

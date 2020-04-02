@@ -182,6 +182,36 @@ START_TEST(test_rhonabwy_encrypt_decrypt_ok)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_encrypt_decrypt_2_ok)
+{
+  jwe_t * jwe, * jwe_decrypt;
+  jwk_t * jwk_privkey, * jwk_pubkey;
+  char * token = NULL;
+  
+  ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey, jwk_privkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_pubkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  
+  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_RSA1_5), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
+  ck_assert_ptr_ne((token = r_jwe_serialize(jwe, jwk_pubkey, 0)), NULL);
+  
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, token, 0), RHN_OK);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_OK);
+  ck_assert_int_eq(0, memcmp(jwe_decrypt->payload, PAYLOAD, jwe_decrypt->payload_len));
+  
+  o_free(token);
+  r_jwk_free(jwk_privkey);
+  r_jwk_free(jwk_pubkey);
+  r_jwe_free(jwe);
+  r_jwe_free(jwe_decrypt);
+}
+END_TEST
+
 START_TEST(test_rhonabwy_flood_ok)
 {
   jwe_t * jwe, * jwe_decrypt;
@@ -306,6 +336,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_decrypt_token_invalid);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_invalid_privkey);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_ok);
+  tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_2_ok);
   tcase_add_test(tc_core, test_rhonabwy_flood_ok);
   tcase_add_test(tc_core, test_rhonabwy_decrypt_rfc_ok);
   tcase_set_timeout(tc_core, 30);

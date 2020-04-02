@@ -4,6 +4,7 @@
 
 - Add [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE) support
 - Refactor functions names
+- Add `r_library_info_json_t`, `r_library_info_json_str` and `r_free`
 
 ## 0.9.6
 

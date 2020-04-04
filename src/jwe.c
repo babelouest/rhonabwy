@@ -295,20 +295,14 @@ int r_jwe_init(jwe_t ** jwe) {
             (*jwe)->payload_len = 0;
             ret = RHN_OK;
           } else {
-            o_free(*jwe);
-            r_jwks_free((*jwe)->jwks_pubkey);
-            json_decref((*jwe)->j_header);
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_init - Error allocating resources for jwks_privkey");
             ret = RHN_ERROR_MEMORY;
           }
         } else {
-          o_free(*jwe);
-          json_decref((*jwe)->j_header);
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_init - Error allocating resources for jwks_pubkey");
           ret = RHN_ERROR_MEMORY;
         }
       } else {
-        o_free(*jwe);
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_init - Error allocating resources for j_header");
         ret = RHN_ERROR_MEMORY;
       }
@@ -318,6 +312,10 @@ int r_jwe_init(jwe_t ** jwe) {
     }
   } else {
     ret = RHN_ERROR_PARAM;
+  }
+  if (ret != RHN_OK && jwe != NULL) {
+    r_jwe_free(*jwe);
+    jwe = NULL;
   }
   return ret;
 }
@@ -467,6 +465,7 @@ int r_jwe_generate_cypher_key(jwe_t * jwe) {
       ret = RHN_ERROR_MEMORY;
     }
   } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_generate_cypher_key - Error input parameters");
     ret = RHN_ERROR_PARAM;
   }
   return ret;
@@ -682,7 +681,7 @@ int r_jwe_set_header_str_value(jwe_t * jwe, const char * key, const char * str_v
   int ret;
   
   if (jwe != NULL) {
-    if ((ret = _r_header_set_str_value(jwe->j_header, key, str_value)) == RHN_OK) {
+    if ((ret = _r_json_set_str_value(jwe->j_header, key, str_value)) == RHN_OK) {
       o_free(jwe->header_b64url);
       jwe->header_b64url = NULL;
     }
@@ -696,7 +695,7 @@ int r_jwe_set_header_int_value(jwe_t * jwe, const char * key, int i_value) {
   int ret;
   
   if (jwe != NULL) {
-    if ((ret = _r_header_set_int_value(jwe->j_header, key, i_value)) == RHN_OK) {
+    if ((ret = _r_json_set_int_value(jwe->j_header, key, i_value)) == RHN_OK) {
       o_free(jwe->header_b64url);
       jwe->header_b64url = NULL;
     }
@@ -710,7 +709,7 @@ int r_jwe_set_header_json_t_value(jwe_t * jwe, const char * key, json_t * j_valu
   int ret;
   
   if (jwe != NULL) {
-    if ((ret = _r_header_set_json_t_value(jwe->j_header, key, j_value)) == RHN_OK) {
+    if ((ret = _r_json_set_json_t_value(jwe->j_header, key, j_value)) == RHN_OK) {
       o_free(jwe->header_b64url);
       jwe->header_b64url = NULL;
     }
@@ -723,28 +722,28 @@ int r_jwe_set_header_json_t_value(jwe_t * jwe, const char * key, json_t * j_valu
 
 const char * r_jwe_get_header_str_value(jwe_t * jwe, const char * key) {
   if (jwe != NULL) {
-    return _r_header_get_str_value(jwe->j_header, key);
+    return _r_json_get_str_value(jwe->j_header, key);
   }
   return NULL;
 }
 
 int r_jwe_get_header_int_value(jwe_t * jwe, const char * key) {
   if (jwe != NULL) {
-    return _r_header_get_int_value(jwe->j_header, key);
+    return _r_json_get_int_value(jwe->j_header, key);
   }
   return 0;
 }
 
 json_t * r_jwe_get_header_json_t_value(jwe_t * jwe, const char * key) {
   if (jwe != NULL) {
-    return _r_header_get_json_t_value(jwe->j_header, key);
+    return _r_json_get_json_t_value(jwe->j_header, key);
   }
   return NULL;
 }
 
 json_t * r_jwe_get_full_header_json_t(jwe_t * jwe) {
   if (jwe != NULL) {
-    return _r_header_get_full_json_t(jwe->j_header);
+    return _r_json_get_full_json_t(jwe->j_header);
   }
   return NULL;
 }
@@ -755,7 +754,7 @@ int r_jwe_add_keys(jwe_t * jwe, jwk_t * jwk_privkey, jwk_t * jwk_pubkey) {
   
   if (jwe != NULL && (jwk_privkey != NULL || jwk_pubkey != NULL)) {
     if (jwk_privkey != NULL) {
-      if (r_jwks_empty(jwe->jwks_privkey) != RHN_OK || r_jwks_append_jwk(jwe->jwks_privkey, jwk_privkey) != RHN_OK) {
+      if (r_jwks_append_jwk(jwe->jwks_privkey, jwk_privkey) != RHN_OK) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_add_keys - Error setting jwk_privkey");
         ret = RHN_ERROR;
       }
@@ -764,7 +763,7 @@ int r_jwe_add_keys(jwe_t * jwe, jwk_t * jwk_privkey, jwk_t * jwk_pubkey) {
       }
     }
     if (jwk_pubkey != NULL) {
-      if (r_jwks_empty(jwe->jwks_pubkey) != RHN_OK || r_jwks_append_jwk(jwe->jwks_pubkey, jwk_pubkey) != RHN_OK) {
+      if (r_jwks_append_jwk(jwe->jwks_pubkey, jwk_pubkey) != RHN_OK) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_add_keys - Error setting jwk_pubkey");
         ret = RHN_ERROR;
       }
@@ -1027,10 +1026,14 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags) {
   unsigned int bits = 0;
   unsigned char * cypherkey_b64 = NULL, * key = NULL;
   size_t cypherkey_b64_len = 0, key_len = 0;
+  jwa_alg alg;
   
   if (jwe != NULL) {
     if (jwk_pubkey != NULL) {
       jwk = r_jwk_copy(jwk_pubkey);
+      if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(jwk, "alg"))) != R_JWA_ALG_NONE) {
+        r_jwe_set_alg(jwe, alg);
+      }
     } else {
       if (r_jwe_get_header_str_value(jwe, "kid") != NULL) {
         jwk = r_jwks_get_by_kid(jwe->jwks_pubkey, r_jwe_get_header_str_value(jwe, "kid"));

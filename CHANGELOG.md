@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 0.9.8
+
+- Add [JSON Web Token](https://tools.ietf.org/html/rfc7519) (JWT) support
+- Another set of refactoring
+
 ## 0.9.7
 
 - Add [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE) support

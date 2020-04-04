@@ -290,6 +290,10 @@ if (BUILD_RHONABWY_TESTING)
 	    jwe_core
 	    jwe_rsa
 	    jwe_dir
+	    jwt_core
+	    jwt_encrypt
+	    jwt_sign
+	    jwt_nested
 	    )
 
         configure_file(

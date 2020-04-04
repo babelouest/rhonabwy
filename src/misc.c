@@ -25,19 +25,19 @@
 #include <yder.h>
 #include <rhonabwy.h>
 
-int _r_header_set_str_value(json_t * j_header, const char * key, const char * str_value) {
+int _r_json_set_str_value(json_t * j_json, const char * key, const char * str_value) {
   int ret;
   
-  if (j_header != NULL && o_strlen(key)) {
+  if (j_json != NULL && o_strlen(key)) {
     if (str_value != NULL) {
-      if (!json_object_set_new(j_header, key, json_string(str_value))) {
+      if (!json_object_set_new(j_json, key, json_string(str_value))) {
         ret = RHN_OK;
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "_r_header_set_str_value - Error json_object_set_new");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_json_set_str_value - Error json_object_set_new");
         ret = RHN_ERROR;
       }
     } else {
-      json_object_del(j_header, key);
+      json_object_del(j_json, key);
       ret = RHN_OK;
     }
   } else {
@@ -46,14 +46,14 @@ int _r_header_set_str_value(json_t * j_header, const char * key, const char * st
   return ret;
 }
 
-int _r_header_set_int_value(json_t * j_header, const char * key, int i_value) {
+int _r_json_set_int_value(json_t * j_json, const char * key, int i_value) {
   int ret;
   
-  if (j_header != NULL && o_strlen(key)) {
-    if (!json_object_set_new(j_header, key, json_integer(i_value))) {
+  if (j_json != NULL && o_strlen(key)) {
+    if (!json_object_set_new(j_json, key, json_integer(i_value))) {
       ret = RHN_OK;
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "_r_header_set_int_value - Error json_object_set_new");
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_json_set_int_value - Error json_object_set_new");
       ret = RHN_ERROR;
     }
   } else {
@@ -62,19 +62,19 @@ int _r_header_set_int_value(json_t * j_header, const char * key, int i_value) {
   return ret;
 }
 
-int _r_header_set_json_t_value(json_t * j_header, const char * key, json_t * j_value) {
+int _r_json_set_json_t_value(json_t * j_json, const char * key, json_t * j_value) {
   int ret;
   
-  if (j_header != NULL && o_strlen(key)) {
+  if (j_json != NULL && o_strlen(key)) {
     if (j_value != NULL) {
-      if (!json_object_set_new(j_header, key, json_deep_copy(j_value))) {
+      if (!json_object_set_new(j_json, key, json_deep_copy(j_value))) {
         ret = RHN_OK;
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "_r_header_set_json_t_value - Error json_object_set_new");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_json_set_json_t_value - Error json_object_set_new");
         ret = RHN_ERROR;
       }
     } else {
-      json_object_del(j_header, key);
+      json_object_del(j_json, key);
       ret = RHN_OK;
     }
   } else {
@@ -83,32 +83,32 @@ int _r_header_set_json_t_value(json_t * j_header, const char * key, json_t * j_v
   return ret;
 }
 
-const char * _r_header_get_str_value(json_t * j_header, const char * key) {
-  if (j_header != NULL && o_strlen(key)) {
-    return json_string_value(json_object_get(j_header, key));
+const char * _r_json_get_str_value(json_t * j_json, const char * key) {
+  if (j_json != NULL && o_strlen(key)) {
+    return json_string_value(json_object_get(j_json, key));
   }
   return NULL;
 }
 
-int _r_header_get_int_value(json_t * j_header, const char * key) {
-  if (j_header != NULL && o_strlen(key)) {
-    return json_integer_value(json_object_get(j_header, key));
+int _r_json_get_int_value(json_t * j_json, const char * key) {
+  if (j_json != NULL && o_strlen(key)) {
+    return json_integer_value(json_object_get(j_json, key));
   }
   return 0;
 }
 
-json_t * _r_header_get_json_t_value(json_t * j_header, const char * key) {
+json_t * _r_json_get_json_t_value(json_t * j_json, const char * key) {
   json_t * j_value;
   
-  if (j_header != NULL && o_strlen(key) && (j_value = json_object_get(j_header, key)) != NULL) {
+  if (j_json != NULL && o_strlen(key) && (j_value = json_object_get(j_json, key)) != NULL) {
     return json_deep_copy(j_value);
   }
   return NULL;
 }
 
-json_t * _r_header_get_full_json_t(json_t * j_header) {
-  if (j_header != NULL) {
-    return json_deep_copy(j_header);
+json_t * _r_json_get_full_json_t(json_t * j_json) {
+  if (j_json != NULL) {
+    return json_deep_copy(j_json);
   }
   return NULL;
 }

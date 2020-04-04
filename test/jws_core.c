@@ -134,7 +134,7 @@ END_TEST
 START_TEST(test_rhonabwy_set_header)
 {
   jws_t * jws;
-  json_t * j_value = json_pack("{sssiso}", "str", "plop", "int", 42, "obj", json_true());
+  json_t * j_value = json_pack("{sssiso}", "str", "grut", "int", 42, "obj", json_true());
   
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
   
@@ -160,7 +160,7 @@ END_TEST
 START_TEST(test_rhonabwy_get_header)
 {
   jws_t * jws;
-  json_t * j_value = json_pack("{sssiso}", "str", "plop", "int", 42, "obj", json_true()), * j_result;
+  json_t * j_value = json_pack("{sssiso}", "str", "grut", "int", 42, "obj", json_true()), * j_result;
   
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
   
@@ -185,7 +185,7 @@ END_TEST
 START_TEST(test_rhonabwy_get_full_header)
 {
   jws_t * jws;
-  json_t * j_value = json_pack("{sssiso}", "str", "plop", "int", 42, "obj", json_true()), * j_header = json_pack("{sssssisO}", "alg", "RS256", "keystr", "value", "keyint", 42, "keyjson", j_value), * j_result;
+  json_t * j_value = json_pack("{sssiso}", "str", "grut", "int", 42, "obj", json_true()), * j_header = json_pack("{sssssisO}", "alg", "RS256", "keystr", "value", "keyint", 42, "keyjson", j_value), * j_result;
   
   ck_assert_ptr_ne(j_header, NULL);
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);

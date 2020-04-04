@@ -10,4 +10,8 @@ jws_rsapss
 jwe_core
 jwe_rsa
 jwe_dir
+jwt_core
+jwt_sign
+jwt_encrypt
+jwt_nested
 misc

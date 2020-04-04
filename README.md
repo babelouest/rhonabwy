@@ -1,4 +1,4 @@
-# Rhonabwy - JWK, JWKS, JWS and JWE library
+# Rhonabwy - JWK, JWKS, JWS, JWE and JWT library
 
 [![Build Status](https://travis-ci.com/babelouest/rhonabwy.svg?branch=master)](https://travis-ci.com/babelouest/rhonabwy)
 ![C/C++ CI](https://github.com/babelouest/rhonabwy/workflows/C/C++%20CI/badge.svg)
@@ -6,6 +6,9 @@
 - Create, modify, parse, import or export [JSON Web Keys](https://tools.ietf.org/html/rfc7517) (JWK) and JSON Web Keys Set (JWKS)
 - Create, modify, parse, validate or serialize [JSON Web Signatures](https://tools.ietf.org/html/rfc7515) (JWS)
 - Create, modify, parse, validate or serialize [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE) (limited and experimental)
+- Create, modify, parse, validate or serialize [JSON Web Token](https://tools.ietf.org/html/rfc7519) (JWT)
+
+JWT Relies on JWS and JWE functions, so it supports the same functionnalities as the other 2. JWT functionnalities also support nesting serilization (JWE nested in a JWS or the opposite).
 
 - Supported Cryptographic Algorithms for Digital Signatures and MACs:
   - HMAC with SHA-2 Functions: `HS256`, `HS384`, `HS512`
@@ -17,7 +20,7 @@
 
 JWE support is experimental and limited, please use with great caution!
 - Supported Encryption Algorithm (`enc`) for JWE payload encryption: `A128CBC-HS256`, `A192CBC-HS384`, `A256CBC-HS512`, `A128GCM`, `A256GCM`
-- Supported Cryptographic Algorithms for Key Management: `RSA1_5` (RSAES-PKCS1-v1_5), `dir` (Direct use of a shared symmetric)
+- Supported Cryptographic Algorithms for Key Management: `RSA1_5` (RSAES-PKCS1-v1_5), `dir` (Direct use of a shared symmetric key)
 
 Example program to parse and verify the signature of a JWT using its publick key in JWK format:
 
@@ -30,9 +33,9 @@ Example program to parse and verify the signature of a JWT using its publick key
 #include <rhonabwy.h>
 
 int main(void) {
-  const char jws_token[] = "eyJhbGciOiJFUzI1NiIsImtpZCI6IjEifQ."
-    "VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u."
-    "8SGjljD8Zrj9nZRXFbWny8KYLokjvnuFersudKTYCU7LyiOHed81goqaW3J1gDY-8zIjGnT_EV2YZsT7GVyBjQ";
+  const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjEifQ."
+  "eyJzdHIiOiJwbG9wIiwiaW50Ijo0Miwib2JqIjp0cnVlfQ."
+  "ooXNEt3JWFGMuvkGUM-szUOU1QTu4DvyC3qQP64UGeeJQuMGupBCVATnGkiqNLiPSJ9uBsjZbyUrWe8z7Iag_A";
   
   const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                       "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\",\"alg\":\"ES256\"}";
@@ -40,23 +43,38 @@ int main(void) {
   unsigned char output[2048];
   size_t output_len = 2048;
   jwk_t * jwk;
-  jws_t * jws;
+  jwt_t * jwt;
+  char * claims;
 
   if (r_jwk_init(&jwk) == RHN_OK) {
-    if (r_jws_init(&jws) == RHN_OK) {
+    if (r_jwt_init(&jwt) == RHN_OK) {
       if (r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str) == RHN_OK) {
         if (r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, output, &output_len, 0) == RHN_OK) {
           printf("Exported key:\n%.*s\n", (int)output_len, output);
-          if (r_jws_parse(jws, jws_token, 0) == RHN_OK) {
-            if (r_jws_verify_signature(jws, jwk, 0) == RHN_OK) {
-              printf("Verified payload:\n%.*s\n", (int)jws->payload_len, jws->payload);
+          if (r_jwt_parse(jwt, token, 0) == RHN_OK) {
+            if (r_jwt_verify_signature(jwt, jwk, 0) == RHN_OK) {
+              claims = r_jwt_get_full_claims_str(jwt);
+              printf("Verified payload:\n%s\n", claims);
+              r_free(claims);
+            } else {
+              fprintf(stderr, "Error r_jwt_verify_signature\n");
             }
+          } else {
+            fprintf(stderr, "Error r_jwt_parse\n");
           }
+        } else {
+          fprintf(stderr, "Error r_jwk_export_to_pem_der\n");
         }
+      } else {
+        fprintf(stderr, "Error r_jwk_import_from_json_str\n");
       }
-      r_jws_free(jws);
+      r_jwt_free(jwt);
+    } else {
+      fprintf(stderr, "Error r_jwt_init\n");
     }
     r_jwk_free(jwk);
+  } else {
+    fprintf(stderr, "Error r_jwk_init\n");
   }
   return 0;
 }

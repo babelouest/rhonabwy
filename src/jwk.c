@@ -104,20 +104,7 @@ int r_jwk_is_valid(jwk_t * jwk) {
         }
       }
       if (json_object_get(jwk, "alg") != NULL) {
-        if (0 != o_strcmp("HS256", json_string_value(json_object_get(jwk, "alg"))) &&
-            0 != o_strcmp("HS384", json_string_value(json_object_get(jwk, "alg"))) &&
-            0 != o_strcmp("HS512", json_string_value(json_object_get(jwk, "alg"))) &&
-            0 != o_strcmp("RS256", json_string_value(json_object_get(jwk, "alg"))) &&
-            0 != o_strcmp("RS384", json_string_value(json_object_get(jwk, "alg"))) &&
-            0 != o_strcmp("RS512", json_string_value(json_object_get(jwk, "alg"))) &&
-            0 != o_strcmp("ES256", json_string_value(json_object_get(jwk, "alg"))) &&
-            0 != o_strcmp("ES384", json_string_value(json_object_get(jwk, "alg"))) &&
-            0 != o_strcmp("ES512", json_string_value(json_object_get(jwk, "alg"))) &&
-            0 != o_strcmp("EDDSA", json_string_value(json_object_get(jwk, "alg"))) &&
-            0 != o_strcmp("PS256", json_string_value(json_object_get(jwk, "alg"))) &&
-            0 != o_strcmp("PS384", json_string_value(json_object_get(jwk, "alg"))) &&
-            0 != o_strcmp("PS512", json_string_value(json_object_get(jwk, "alg"))) &&
-            0 != o_strcmp("none", json_string_value(json_object_get(jwk, "alg")))) {
+        if (str_to_jwa_alg(json_string_value(json_object_get(jwk, "alg"))) == R_JWA_ALG_UNKNOWN) {
           y_log_message(Y_LOG_LEVEL_ERROR, "rhonabwy r_jwk_is_valid - Invalid alg");
           ret = RHN_ERROR_PARAM;
         }

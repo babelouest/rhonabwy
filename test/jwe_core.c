@@ -331,7 +331,7 @@ START_TEST(test_rhonabwy_encrypt_payload_all_format)
   ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
   ck_assert_ptr_eq(jwe->ciphertext_b64url, NULL);
-  ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_ERROR_PARAM); // R_JWA_ENC_A192GCM not supported on 
+  ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_ERROR_PARAM); // R_JWA_ENC_A192GCM not supported by GnuTLS
   
   ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A256GCM), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);

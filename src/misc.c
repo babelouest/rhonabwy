@@ -200,7 +200,7 @@ jwa_enc str_to_jwa_enc(const char * enc) {
 }
 
 json_t * r_library_info_json_t() {
-  json_t * j_info = json_pack("{sss{s[sssssss]}s{s[s]s[sss]}}",
+  json_t * j_info = json_pack("{sss{s[sssssss]}s{s[ss]s[sssss]}}",
                               "version", RHONABWY_VERSION_STR,
                               "jws",
                                 "alg",
@@ -214,10 +214,13 @@ json_t * r_library_info_json_t() {
                               "jwe",
                                 "alg",
                                   "RSA1_5",
+                                  "dir",
                                 "enc",
                                   "A128CBC-HS256",
                                   "A192CBC-HS384",
-                                  "A256CBC-HS512");
+                                  "A256CBC-HS512",
+                                  "A128GCM",
+                                  "A256GCM");
 #if GNUTLS_VERSION_NUMBER >= 0x030600
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES256"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES384"));

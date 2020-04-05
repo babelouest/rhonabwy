@@ -69,6 +69,10 @@ Functions</h2></td></tr>
 <tr class="separator:ga9fe136eb9a9a8c256f4cdb091c14da52"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga14172c6cf13d0e96abf27d660d87037b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga14172c6cf13d0e96abf27d660d87037b">r_jwe_free</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe)</td></tr>
 <tr class="separator:ga14172c6cf13d0e96abf27d660d87037b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad5d9ca3960b9bf0c07dc1c1cbc8680c2"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gad5d9ca3960b9bf0c07dc1c1cbc8680c2">r_jwt_init</a> (<a class="el" href="structjwt__t.html">jwt_t</a> **jwt)</td></tr>
+<tr class="separator:gad5d9ca3960b9bf0c07dc1c1cbc8680c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga676cff4810db612ac0047c57ff5eff87"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga676cff4810db612ac0047c57ff5eff87">r_jwt_free</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt)</td></tr>
+<tr class="separator:ga676cff4810db612ac0047c57ff5eff87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5fa9e08adde86a02bf7716fee2356446"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5fa9e08adde86a02bf7716fee2356446">r_jwk_key_type</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, unsigned int *bits, int x5u_flags)</td></tr>
 <tr class="separator:ga5fa9e08adde86a02bf7716fee2356446"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9a0282a7adbde59806ba012dc1ef61e5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga9a0282a7adbde59806ba012dc1ef61e5">r_jwk_is_valid</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk)</td></tr>
@@ -357,6 +361,61 @@ Functions</h2></td></tr>
 <p>Free a <a class="el" href="structjwe__t.html">jwe_t</a> </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> * to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="gad5d9ca3960b9bf0c07dc1c1cbc8680c2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad5d9ca3960b9bf0c07dc1c1cbc8680c2">&#9670;&nbsp;</a></span>r_jwt_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwt_init </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> **&#160;</td>
+          <td class="paramname"><em>jwt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Initialize a <a class="el" href="structjwt__t.html">jwt_t</a> </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwt</td><td>a reference to a <a class="el" href="structjwt__t.html">jwt_t</a> * to initialize </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error</dd></dl>
+<p>Rhonabwy JSON Web Token (JWT) library</p>
+<p><a class="el" href="jwt_8c.html">jwt.c</a>: functions definitions</p>
+<p>Copyright 2020 Nicolas Mora <a href="#" onclick="location.href='mai'+'lto:'+'mai'+'l@'+'bab'+'el'+'oue'+'st'+'.or'+'g'; return false;">mail@<span style="display: none;">.nosp@m.</span>babe<span style="display: none;">.nosp@m.</span>loues<span style="display: none;">.nosp@m.</span>t.or<span style="display: none;">.nosp@m.</span>g</a></p>
+<p>This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; version 2.1 of the License.</p>
+<p>This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU GENERAL PUBLIC LICENSE for more details.</p>
+<p>You should have received a copy of the GNU General Public License along with this library. If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>. </p>
+
+</div>
+</div>
+<a id="ga676cff4810db612ac0047c57ff5eff87"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga676cff4810db612ac0047c57ff5eff87">&#9670;&nbsp;</a></span>r_jwt_free()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void r_jwt_free </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Free a <a class="el" href="structjwt__t.html">jwt_t</a> </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwt</td><td>the <a class="el" href="structjwt__t.html">jwt_t</a> * to free </td></tr>
   </table>
   </dd>
 </dl>

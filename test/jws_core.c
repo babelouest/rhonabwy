@@ -234,6 +234,65 @@ START_TEST(test_rhonabwy_set_keys)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_set_jwks)
+{
+  jws_t * jws;
+  jwk_t * jwk_pubkey_ecdsa, * jwk_privkey_ecdsa, * jwk_pubkey_rsa, * jwk_privkey_rsa;
+  jwks_t * jwks_pubkey, * jwks_privkey, * jwks;
+  
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jwks_init(&jwks_privkey), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey_ecdsa), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_privkey_ecdsa), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey_rsa), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_privkey_rsa), RHN_OK);
+  
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey_ecdsa, jwk_pubkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwks_append_jwk(jwks_pubkey, jwk_pubkey_ecdsa), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey_rsa, jwk_pubkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwks_append_jwk(jwks_pubkey, jwk_pubkey_rsa), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey_ecdsa, jwk_privkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwks_append_jwk(jwks_privkey, jwk_privkey_ecdsa), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey_rsa, jwk_privkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwks_append_jwk(jwks_privkey, jwk_privkey_rsa), RHN_OK);
+  
+  jwks = r_jws_get_jwks_privkey(jws);
+  ck_assert_int_eq(0, r_jwks_size(jwks));
+  ck_assert_int_eq(0, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  jwks = r_jws_get_jwks_pubkey(jws);
+  ck_assert_int_eq(0, r_jwks_size(jwks));
+  ck_assert_int_eq(0, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  ck_assert_int_eq(0, r_jwks_size(jws->jwks_privkey));
+  ck_assert_int_eq(0, r_jwks_size(jws->jwks_pubkey));
+  ck_assert_int_eq(r_jws_add_jwks(jws, jwks_privkey, jwks_pubkey), RHN_OK);
+  ck_assert_int_eq(2, r_jwks_size(jws->jwks_privkey));
+  ck_assert_int_eq(2, r_jwks_size(jws->jwks_pubkey));
+  
+  jwks = r_jws_get_jwks_privkey(jws);
+  ck_assert_int_eq(2, r_jwks_size(jwks));
+  ck_assert_int_eq(2, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  jwks = r_jws_get_jwks_pubkey(jws);
+  ck_assert_int_eq(2, r_jwks_size(jwks));
+  ck_assert_int_eq(2, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  r_jwk_free(jwk_pubkey_ecdsa);
+  r_jwk_free(jwk_privkey_ecdsa);
+  r_jwk_free(jwk_pubkey_rsa);
+  r_jwk_free(jwk_privkey_rsa);
+  r_jwks_free(jwks_pubkey);
+  r_jwks_free(jwks_privkey);
+  r_jws_free(jws);
+}
+END_TEST
+
 START_TEST(test_rhonabwy_parse)
 {
   jws_t * jws;
@@ -350,6 +409,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_get_header);
   tcase_add_test(tc_core, test_rhonabwy_get_full_header);
   tcase_add_test(tc_core, test_rhonabwy_set_keys);
+  tcase_add_test(tc_core, test_rhonabwy_set_jwks);
   tcase_add_test(tc_core, test_rhonabwy_parse);
   tcase_add_test(tc_core, test_rhonabwy_parse_android_safetynet_jwt);
   tcase_add_test(tc_core, test_rhonabwy_token_unsecure);

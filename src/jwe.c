@@ -125,13 +125,9 @@ static size_t r_jwe_get_key_size(jwa_enc enc) {
       size = 64;
       break;
     case R_JWA_ENC_A128GCM:
-      size = 32;
-      break;
     case R_JWA_ENC_A192GCM:
-      size = 48;
-      break;
     case R_JWA_ENC_A256GCM:
-      size = 64;
+      size = 32;
       break;
     default:
       size = 0;
@@ -234,7 +230,7 @@ static void r_jwe_remove_padding(unsigned char * text, size_t * text_len, unsign
   }
 }
 
-static int r_jwe_compute_hmac_tag(jwe_t * jwe, unsigned char * cyphertext, size_t cyphertext_len, unsigned char * tag, size_t * tag_len) {
+static int r_jwe_compute_hmac_tag(jwe_t * jwe, unsigned char * ciphertext, size_t cyphertext_len, unsigned char * tag, size_t * tag_len) {
   int ret, res;
   unsigned char al[8], * compute_hmac = NULL;
   uint64_t aad_len;
@@ -252,7 +248,7 @@ static int r_jwe_compute_hmac_tag(jwe_t * jwe, unsigned char * cyphertext, size_
     hmac_size += aad_size;
     memcpy(compute_hmac+hmac_size, jwe->iv, jwe->iv_len);
     hmac_size += jwe->iv_len;
-    memcpy(compute_hmac+hmac_size, cyphertext, cyphertext_len);
+    memcpy(compute_hmac+hmac_size, ciphertext, cyphertext_len);
     hmac_size += cyphertext_len;
     memcpy(compute_hmac+hmac_size, al, 8);
     hmac_size += 8;
@@ -375,8 +371,6 @@ int r_jwe_set_payload(jwe_t * jwe, const unsigned char * payload, size_t payload
   if (jwe != NULL) {
     o_free(jwe->ciphertext_b64url);
     jwe->ciphertext_b64url = NULL;
-    o_free(jwe->auth_tag_b64url);
-    jwe->auth_tag_b64url = NULL;
     o_free(jwe->payload);
     if (payload != NULL && payload_len) {
       if ((jwe->payload = o_malloc(payload_len)) != NULL) {
@@ -782,6 +776,7 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
   unsigned char * ptext = NULL, * text_zip = NULL, * ciphertext_b64url = NULL, tag[128] = {0}, * tag_b64url = NULL, * str_header_b64 = NULL;
   size_t ptext_len = 0, ciphertext_b64url_len = 0, tag_len = 0, tag_b64url_len = 0, str_header_b64_len = 0;
   char * str_header = NULL;
+  int cipher_cbc;
   
   if (jwe != NULL && jwe->payload != NULL && jwe->payload_len && jwe->enc != R_JWA_ENC_UNKNOWN && jwe->key != NULL && jwe->key_len && jwe->iv != NULL && jwe->iv_len && jwe->key_len == r_jwe_get_key_size(jwe->enc)) {
     if ((str_header = json_dumps(jwe->j_header, JSON_COMPACT)) != NULL) {
@@ -790,17 +785,17 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
           o_free(jwe->header_b64url);
           jwe->header_b64url = (unsigned char *)o_strndup((const char *)str_header_b64, str_header_b64_len);
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_base64url_encode str_header");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error o_base64url_encode str_header");
           ret = RHN_ERROR;
         }
         o_free(str_header_b64);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error allocating resources for str_header_b64");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error allocating resources for str_header_b64");
         ret = RHN_ERROR_MEMORY;
       }
       o_free(str_header);
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error json_dumps j_header");
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error json_dumps j_header");
       ret = RHN_ERROR;
     }
 
@@ -843,8 +838,15 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
     }
 
     if (ret == RHN_OK) {
-      key.data = jwe->key+(jwe->key_len/2);
-      key.size = (jwe->key_len/2);
+      if (jwe->enc == R_JWA_ENC_A128CBC || jwe->enc == R_JWA_ENC_A192CBC || jwe->enc == R_JWA_ENC_A256CBC) {
+        key.data = jwe->key+(jwe->key_len/2);
+        key.size = (jwe->key_len/2);
+        cipher_cbc = 1;
+      } else {
+        key.data = jwe->key;
+        key.size = jwe->key_len;
+        cipher_cbc = 0;
+      }
       iv.data = jwe->iv;
       iv.size = jwe->iv_len;
       if (!(res = gnutls_cipher_init(&handle, r_jwe_get_alg_from_enc(jwe->enc), &key, &iv))) {
@@ -853,24 +855,6 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
             if (o_base64url_encode(ptext, ptext_len, ciphertext_b64url, &ciphertext_b64url_len)) {
               o_free(jwe->ciphertext_b64url);
               jwe->ciphertext_b64url = (unsigned char *)o_strndup((const char *)ciphertext_b64url, ciphertext_b64url_len);
-              if (r_jwe_compute_hmac_tag(jwe, ptext, ptext_len, tag, &tag_len) == RHN_OK) {
-                if ((tag_b64url = o_malloc(tag_len*2)) != NULL) {
-                  if (o_base64url_encode(tag, tag_len, tag_b64url, &tag_b64url_len)) {
-                    o_free(jwe->auth_tag_b64url);
-                    jwe->auth_tag_b64url = (unsigned char *)o_strndup((const char *)tag_b64url, tag_b64url_len);
-                  } else {
-                    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error o_base64url_encode tag_b64url");
-                    ret = RHN_ERROR;
-                  }
-                  o_free(tag_b64url);
-                } else {
-                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error allocating resources for tag_b64url");
-                  ret = RHN_ERROR_MEMORY;
-                }
-              } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error r_jwe_compute_hmac_tag");
-                ret = RHN_ERROR;
-              }
             } else {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error o_base64url_encode ciphertext");
               ret = RHN_ERROR;
@@ -883,6 +867,39 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
         } else {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error gnutls_cipher_encrypt: '%s'", gnutls_strerror(res));
           ret = RHN_ERROR;
+        }
+        if (ret == RHN_OK) {
+          if (cipher_cbc) {
+            if (r_jwe_compute_hmac_tag(jwe, ptext, ptext_len, tag, &tag_len) != RHN_OK) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error r_jwe_compute_hmac_tag");
+              ret = RHN_ERROR;
+            }
+          } else {
+            // This doesn't work at all according to the RFC example
+            // https://tools.ietf.org/html/rfc7516#appendix-A.1
+            // TODO: Fix AES GCM tag
+            tag_len = gnutls_cipher_get_tag_size(r_jwe_get_alg_from_enc(jwe->enc));
+            memset(tag, 0, tag_len);
+            if ((res = gnutls_cipher_tag(handle, tag, tag_len))) {
+              y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwe_encrypt_payload - Error gnutls_cipher_tag: '%s'", gnutls_strerror(res));
+              ret = RHN_ERROR;
+            }
+          }
+          if (ret == RHN_OK) {
+            if ((tag_b64url = o_malloc(tag_len*2)) != NULL) {
+              if (o_base64url_encode(tag, tag_len, tag_b64url, &tag_b64url_len)) {
+                o_free(jwe->auth_tag_b64url);
+                jwe->auth_tag_b64url = (unsigned char *)o_strndup((const char *)tag_b64url, tag_b64url_len);
+              } else {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error o_base64url_encode tag_b64url");
+                ret = RHN_ERROR;
+              }
+              o_free(tag_b64url);
+            } else {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error allocating resources for tag_b64url");
+              ret = RHN_ERROR_MEMORY;
+            }
+          }
         }
         gnutls_cipher_deinit(handle);
       } else {
@@ -901,11 +918,12 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
   int ret = RHN_OK, res;
   gnutls_cipher_hd_t handle;
   gnutls_datum_t key, iv;
-  unsigned char * payload_enc = NULL;
-  size_t payload_enc_len = 0;
+  unsigned char * payload_enc = NULL, * ciphertext = NULL;
+  size_t payload_enc_len = 0, ciphertext_len = 0;
   z_stream infstream;
   unsigned char inf_out[256] = {0}, tag[128], * tag_b64url = NULL;
   size_t tag_len = 0, tag_b64url_len = 0;
+  int cipher_cbc;
   
   if (jwe != NULL && jwe->enc != R_JWA_ENC_UNKNOWN && o_strlen((const char *)jwe->ciphertext_b64url) && o_strlen((const char *)jwe->iv_b64url) && jwe->key != NULL && jwe->key_len && jwe->key_len == r_jwe_get_key_size(jwe->enc)) {
     // Decode iv and payload_b64
@@ -913,13 +931,13 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
     if ((jwe->iv = o_malloc(o_strlen((const char *)jwe->iv_b64url))) != NULL) {
       if (o_base64url_decode(jwe->iv_b64url, o_strlen((const char *)jwe->iv_b64url), jwe->iv, &jwe->iv_len)) {
         jwe->iv = o_realloc(jwe->iv, jwe->iv_len);
-        if ((payload_enc = o_malloc(o_strlen((const char *)jwe->ciphertext_b64url))) != NULL) {
-          if (!o_base64url_decode(jwe->ciphertext_b64url, o_strlen((const char *)jwe->ciphertext_b64url), payload_enc, &payload_enc_len)) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_base64url_decode payload_enc");
+        if ((payload_enc = o_malloc(o_strlen((const char *)jwe->ciphertext_b64url))) != NULL && (ciphertext = o_malloc(o_strlen((const char *)jwe->ciphertext_b64url))) != NULL) {
+          if (!o_base64url_decode(jwe->ciphertext_b64url, o_strlen((const char *)jwe->ciphertext_b64url), ciphertext, &ciphertext_len)) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_base64url_decode ciphertext");
             ret = RHN_ERROR;
           }
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error allocating resources for payload_enc");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error allocating resources for payload_enc or ciphertext");
           ret = RHN_ERROR_MEMORY;
         }
       } else {
@@ -932,31 +950,20 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
     }
     
     if (ret == RHN_OK) {
-      key.data = jwe->key+(jwe->key_len/2);
-      key.size = gnutls_hmac_get_len(r_jwe_get_digest_from_enc(jwe->enc))/2;
+      if (jwe->enc == R_JWA_ENC_A128CBC || jwe->enc == R_JWA_ENC_A192CBC || jwe->enc == R_JWA_ENC_A256CBC) {
+        key.data = jwe->key+(jwe->key_len/2);
+        key.size = gnutls_hmac_get_len(r_jwe_get_digest_from_enc(jwe->enc))/2;
+        cipher_cbc = 1;
+      } else {
+        key.data = jwe->key;
+        key.size = jwe->key_len;
+        cipher_cbc = 0;
+      }
       iv.data = jwe->iv;
       iv.size = jwe->iv_len;
+      payload_enc_len = ciphertext_len;
       if (!(res = gnutls_cipher_init(&handle, r_jwe_get_alg_from_enc(jwe->enc), &key, &iv))) {
-        if (r_jwe_compute_hmac_tag(jwe, payload_enc, payload_enc_len, tag, &tag_len) == RHN_OK) {
-          if ((tag_b64url = o_malloc(tag_len*2)) != NULL) {
-            if (o_base64url_encode(tag, tag_len, tag_b64url, &tag_b64url_len)) {
-              if (tag_b64url_len != o_strlen((const char *)jwe->auth_tag_b64url) || 0 != memcmp(tag_b64url, jwe->auth_tag_b64url, tag_b64url_len)) {
-                ret = RHN_ERROR_INVALID;
-              }
-            } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_base64url_encode tag_b64url");
-              ret = RHN_ERROR;
-            }
-            o_free(tag_b64url);
-          } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error allocating resources for tag_b64url");
-            ret = RHN_ERROR_MEMORY;
-          }
-        } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_jwe_compute_hmac_tag");
-          ret = RHN_ERROR;
-        }
-        if (!(res = gnutls_cipher_decrypt(handle, payload_enc, payload_enc_len))) {
+        if (!(res = gnutls_cipher_decrypt2(handle, ciphertext, ciphertext_len, payload_enc, payload_enc_len))) {
           r_jwe_remove_padding(payload_enc, &payload_enc_len, gnutls_cipher_get_block_size(r_jwe_get_alg_from_enc(jwe->enc)));
           if (0 == o_strcmp("DEF", json_string_value(json_object_get(jwe->j_header, "zip")))) {
             infstream.zalloc = Z_NULL;
@@ -998,10 +1005,46 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
             }
           }
         } else if (res == GNUTLS_E_DECRYPTION_FAILED) {
+          y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwe_decrypt_payload - decryption failed: '%s'", gnutls_strerror(res));
           ret = RHN_ERROR_INVALID;
         } else {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_decrypt: '%s'", gnutls_strerror(res));
           ret = RHN_ERROR;
+        }
+        if (ret == RHN_OK) {
+          if (cipher_cbc) {
+            if (r_jwe_compute_hmac_tag(jwe, ciphertext, ciphertext_len, tag, &tag_len) != RHN_OK) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_jwe_compute_hmac_tag");
+              ret = RHN_ERROR;
+            }
+          } else {
+            // This doesn't work at all according to the RFC example
+            // https://tools.ietf.org/html/rfc7516#appendix-A.1
+            // TODO: Fix AES GCM tag
+            tag_len = gnutls_cipher_get_tag_size(r_jwe_get_alg_from_enc(jwe->enc));
+            memset(tag, 0, tag_len);
+            if ((res = gnutls_cipher_tag(handle, tag, tag_len))) {
+              y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwe_decrypt_payload - Error gnutls_cipher_tag: '%s'", gnutls_strerror(res));
+              ret = RHN_ERROR;
+            }
+          }
+          if (ret == RHN_OK) {
+            if ((tag_b64url = o_malloc(tag_len*2)) != NULL) {
+              if (o_base64url_encode(tag, tag_len, tag_b64url, &tag_b64url_len)) {
+                if (tag_b64url_len != o_strlen((const char *)jwe->auth_tag_b64url) || 0 != memcmp(tag_b64url, jwe->auth_tag_b64url, tag_b64url_len)) {
+                  y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwe_decrypt_payload - Invalid tag");
+                  ret = RHN_ERROR_INVALID;
+                }
+              } else {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_base64url_encode tag_b64url");
+                ret = RHN_ERROR;
+              }
+              o_free(tag_b64url);
+            } else {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error allocating resources for tag_b64url");
+              ret = RHN_ERROR_MEMORY;
+            }
+          }
         }
         gnutls_cipher_deinit(handle);
       } else {
@@ -1014,6 +1057,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
     ret = RHN_ERROR_PARAM;
   }
   o_free(payload_enc);
+  o_free(ciphertext);
   
   return ret;
 }

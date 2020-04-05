@@ -768,6 +768,55 @@ int r_jwe_add_keys(jwe_t * jwe, jwk_t * jwk_privkey, jwk_t * jwk_pubkey) {
   return ret;
 }
 
+int r_jwe_add_jwks(jwe_t * jwe, jwks_t * jwks_privkey, jwks_t * jwks_pubkey) {
+  size_t i;
+  int ret, res;
+  jwk_t * jwk;
+  
+  if (jwe != NULL && (jwks_privkey != NULL || jwks_pubkey != NULL)) {
+    ret = RHN_OK;
+    if (jwks_privkey != NULL) {
+      for (i=0; ret==RHN_OK && i<r_jwks_size(jwks_privkey); i++) {
+        jwk = r_jwks_get_at(jwks_privkey, i);
+        if ((res = r_jwe_add_keys(jwe, jwk, NULL)) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_add_jwks - Error r_jwe_add_keys private key at %zu", i);
+          ret = res;
+        }
+        r_jwk_free(jwk);
+      }
+    }
+    if (jwks_pubkey != NULL) {
+      for (i=0; ret==RHN_OK && i<r_jwks_size(jwks_pubkey); i++) {
+        jwk = r_jwks_get_at(jwks_pubkey, i);
+        if ((res = r_jwe_add_keys(jwe, NULL, jwk)) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_add_jwks - Error r_jwe_add_keys public key at %zu", i);
+          ret = res;
+        }
+        r_jwk_free(jwk);
+      }
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+jwks_t * r_jwe_get_jwks_privkey(jwe_t * jwe) {
+  if (jwe != NULL) {
+    return r_jwks_copy(jwe->jwks_privkey);
+  } else {
+    return NULL;
+  }
+}
+
+jwks_t * r_jwe_get_jwks_pubkey(jwe_t * jwe) {
+  if (jwe != NULL) {
+    return r_jwks_copy(jwe->jwks_pubkey);
+  } else {
+    return NULL;
+  }
+}
+
 int r_jwe_encrypt_payload(jwe_t * jwe) {
   int ret = RHN_OK, res;
   gnutls_cipher_hd_t handle;
@@ -850,22 +899,27 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
       iv.data = jwe->iv;
       iv.size = jwe->iv_len;
       if (!(res = gnutls_cipher_init(&handle, r_jwe_get_alg_from_enc(jwe->enc), &key, &iv))) {
-        if (!(res = gnutls_cipher_encrypt(handle, ptext, ptext_len))) {
-          if ((ciphertext_b64url = o_malloc(2*ptext_len)) != NULL) {
-            if (o_base64url_encode(ptext, ptext_len, ciphertext_b64url, &ciphertext_b64url_len)) {
-              o_free(jwe->ciphertext_b64url);
-              jwe->ciphertext_b64url = (unsigned char *)o_strndup((const char *)ciphertext_b64url, ciphertext_b64url_len);
+        if (cipher_cbc || !(res = gnutls_cipher_add_auth(handle, jwe->header_b64url, o_strlen((const char *)jwe->header_b64url)))) {
+          if (!(res = gnutls_cipher_encrypt(handle, ptext, ptext_len))) {
+            if ((ciphertext_b64url = o_malloc(2*ptext_len)) != NULL) {
+              if (o_base64url_encode(ptext, ptext_len, ciphertext_b64url, &ciphertext_b64url_len)) {
+                o_free(jwe->ciphertext_b64url);
+                jwe->ciphertext_b64url = (unsigned char *)o_strndup((const char *)ciphertext_b64url, ciphertext_b64url_len);
+              } else {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error o_base64url_encode ciphertext");
+                ret = RHN_ERROR;
+              }
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error o_base64url_encode ciphertext");
-              ret = RHN_ERROR;
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error allocating resources for ciphertext_b64url");
+              ret = RHN_ERROR_MEMORY;
             }
+            o_free(ciphertext_b64url);
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error allocating resources for ciphertext_b64url");
-            ret = RHN_ERROR_MEMORY;
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error gnutls_cipher_encrypt: '%s'", gnutls_strerror(res));
+            ret = RHN_ERROR;
           }
-          o_free(ciphertext_b64url);
-        } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error gnutls_cipher_encrypt: '%s'", gnutls_strerror(res));
+        } else if (!cipher_cbc) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error gnutls_cipher_add_auth: '%s'", gnutls_strerror(res));
           ret = RHN_ERROR;
         }
         if (ret == RHN_OK) {
@@ -875,9 +929,6 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
               ret = RHN_ERROR;
             }
           } else {
-            // This doesn't work at all according to the RFC example
-            // https://tools.ietf.org/html/rfc7516#appendix-A.1
-            // TODO: Fix AES GCM tag
             tag_len = gnutls_cipher_get_tag_size(r_jwe_get_alg_from_enc(jwe->enc));
             memset(tag, 0, tag_len);
             if ((res = gnutls_cipher_tag(handle, tag, tag_len))) {
@@ -963,52 +1014,57 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
       iv.size = jwe->iv_len;
       payload_enc_len = ciphertext_len;
       if (!(res = gnutls_cipher_init(&handle, r_jwe_get_alg_from_enc(jwe->enc), &key, &iv))) {
-        if (!(res = gnutls_cipher_decrypt2(handle, ciphertext, ciphertext_len, payload_enc, payload_enc_len))) {
-          r_jwe_remove_padding(payload_enc, &payload_enc_len, gnutls_cipher_get_block_size(r_jwe_get_alg_from_enc(jwe->enc)));
-          if (0 == o_strcmp("DEF", json_string_value(json_object_get(jwe->j_header, "zip")))) {
-            infstream.zalloc = Z_NULL;
-            infstream.zfree = Z_NULL;
-            infstream.opaque = Z_NULL;
-            infstream.avail_in = (uInt)payload_enc_len;
-            infstream.next_in = (Bytef *)payload_enc;
-            infstream.avail_out = 256;
-            infstream.next_out = (Bytef *)inf_out;
-            
-            if (inflateInit(&infstream) == Z_OK) {
-              o_free(jwe->payload);
-              jwe->payload = NULL;
-              jwe->payload_len = 0;
-              do {
-                memset(inf_out, 0, 256);
-                if ((res = inflate(&infstream, Z_NO_FLUSH)) > 0) {
-                  if ((jwe->payload = o_realloc(jwe->payload, (jwe->payload_len + infstream.total_out))) != NULL) {
-                    memcpy(jwe->payload+jwe->payload_len, inf_out, infstream.total_out);
-                    jwe->payload_len += infstream.total_out;
+        if (cipher_cbc || !(res = gnutls_cipher_add_auth(handle, jwe->header_b64url, o_strlen((const char *)jwe->header_b64url)))) {
+          if (!(res = gnutls_cipher_decrypt2(handle, ciphertext, ciphertext_len, payload_enc, payload_enc_len))) {
+            r_jwe_remove_padding(payload_enc, &payload_enc_len, gnutls_cipher_get_block_size(r_jwe_get_alg_from_enc(jwe->enc)));
+            if (0 == o_strcmp("DEF", json_string_value(json_object_get(jwe->j_header, "zip")))) {
+              infstream.zalloc = Z_NULL;
+              infstream.zfree = Z_NULL;
+              infstream.opaque = Z_NULL;
+              infstream.avail_in = (uInt)payload_enc_len;
+              infstream.next_in = (Bytef *)payload_enc;
+              infstream.avail_out = 256;
+              infstream.next_out = (Bytef *)inf_out;
+              
+              if (inflateInit(&infstream) == Z_OK) {
+                o_free(jwe->payload);
+                jwe->payload = NULL;
+                jwe->payload_len = 0;
+                do {
+                  memset(inf_out, 0, 256);
+                  if ((res = inflate(&infstream, Z_NO_FLUSH)) > 0) {
+                    if ((jwe->payload = o_realloc(jwe->payload, (jwe->payload_len + infstream.total_out))) != NULL) {
+                      memcpy(jwe->payload+jwe->payload_len, inf_out, infstream.total_out);
+                      jwe->payload_len += infstream.total_out;
+                    } else {
+                      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_realloc for payload");
+                      ret = RHN_ERROR;
+                    }
                   } else {
-                    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_realloc for payload");
+                    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error inflate");
                     ret = RHN_ERROR;
                   }
-                } else {
-                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error inflate");
-                  ret = RHN_ERROR;
-                }
-              } while (res != Z_STREAM_END && ret == RHN_OK);
-              inflateEnd(&infstream);
+                } while (res != Z_STREAM_END && ret == RHN_OK);
+                inflateEnd(&infstream);
+              } else {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error inflateInit");
+                ret = RHN_ERROR;
+              }
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error inflateInit");
-              ret = RHN_ERROR;
+              if (r_jwe_set_payload(jwe, payload_enc, payload_enc_len) != RHN_OK) {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_jwe_set_payload");
+                ret = RHN_ERROR;
+              }
             }
+          } else if (res == GNUTLS_E_DECRYPTION_FAILED) {
+            y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwe_decrypt_payload - decryption failed: '%s'", gnutls_strerror(res));
+            ret = RHN_ERROR_INVALID;
           } else {
-            if (r_jwe_set_payload(jwe, payload_enc, payload_enc_len) != RHN_OK) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_jwe_set_payload");
-              ret = RHN_ERROR;
-            }
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_decrypt: '%s'", gnutls_strerror(res));
+            ret = RHN_ERROR;
           }
-        } else if (res == GNUTLS_E_DECRYPTION_FAILED) {
-          y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwe_decrypt_payload - decryption failed: '%s'", gnutls_strerror(res));
-          ret = RHN_ERROR_INVALID;
-        } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_decrypt: '%s'", gnutls_strerror(res));
+        } else if (!cipher_cbc) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_add_auth: '%s'", gnutls_strerror(res));
           ret = RHN_ERROR;
         }
         if (ret == RHN_OK) {

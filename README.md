@@ -5,7 +5,7 @@
 
 - Create, modify, parse, import or export [JSON Web Keys](https://tools.ietf.org/html/rfc7517) (JWK) and JSON Web Keys Set (JWKS)
 - Create, modify, parse, validate or serialize [JSON Web Signatures](https://tools.ietf.org/html/rfc7515) (JWS)
-- Create, modify, parse, validate or serialize [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE) (limited and experimental)
+- Create, modify, parse, validate or serialize [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE) **limited and experimental!**
 - Create, modify, parse, validate or serialize [JSON Web Token](https://tools.ietf.org/html/rfc7519) (JWT)
 
 JWT Relies on JWS and JWE functions, so it supports the same functionnalities as the other 2. JWT functionnalities also support nesting serilization (JWE nested in a JWS or the opposite).
@@ -19,7 +19,7 @@ JWT Relies on JWS and JWE functions, so it supports the same functionnalities as
   - Unsecured: `none`
 
 JWE support is experimental and limited, please use with great caution!
-- Supported Encryption Algorithm (`enc`) for JWE payload encryption: `A128CBC-HS256`, `A192CBC-HS384`, `A256CBC-HS512`, `A128GCM`, `A256GCM`
+- Supported Encryption Algorithm (`enc`) for JWE payload encryption: `A128CBC-HS256`, `A192CBC-HS384`, `A256CBC-HS512`
 - Supported Cryptographic Algorithms for Key Management: `RSA1_5` (RSAES-PKCS1-v1_5), `dir` (Direct use of a shared symmetric key)
 
 Example program to parse and verify the signature of a JWT using its publick key in JWK format:

@@ -315,7 +315,7 @@ int r_jwe_init(jwe_t ** jwe) {
   }
   if (ret != RHN_OK && jwe != NULL) {
     r_jwe_free(*jwe);
-    jwe = NULL;
+    *jwe = NULL;
   }
   return ret;
 }

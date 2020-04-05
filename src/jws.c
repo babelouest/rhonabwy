@@ -634,7 +634,7 @@ int r_jws_init(jws_t ** jws) {
   }
   if (ret != RHN_OK && jws != NULL) {
     r_jws_free(*jws);
-    jws = NULL;
+    *jws = NULL;
   }
   return ret;
 }

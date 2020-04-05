@@ -75,7 +75,7 @@ int r_jwt_init(jwt_t ** jwt) {
   }
   if (ret != RHN_OK && jwt != NULL) {
     r_jwt_free(*jwt);
-    jwt = NULL;
+    *jwt = NULL;
   }
   return ret;
 }

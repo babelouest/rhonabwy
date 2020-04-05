@@ -908,6 +908,29 @@ json_t * r_jws_get_full_header_json_t(jws_t * jws);
 int r_jws_add_keys(jws_t * jws, jwk_t * jwk_privkey, jwk_t * jwk_pubkey);
 
 /**
+ * Adds private and/or public keys sets for the signature and verification
+ * @param jws: the jws_t to update
+ * @param jwks_privkey: the private key set in jwk_t * format, can be NULL
+ * @param jwks_pubkey: the public key set in jwk_t * format, can be NULL
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_add_jwks(jws_t * jws, jwks_t * jwks_privkey, jwks_t * jwks_pubkey);
+
+/**
+ * Get private keys set for the signature
+ * @param jws: the jws_t to get the value
+ * @return the private key set in jwks_t * format
+ */
+jwks_t * r_jws_get_jwks_privkey(jws_t * jws);
+
+/**
+ * Get public keys set for the verification
+ * @param jws: the jws_t to get the value
+ * @return the public key set in jwks_t * format
+ */
+jwks_t * r_jws_get_jwks_pubkey(jws_t * jws);
+
+/**
  * Parses the JWS, verify the signature if the JWS header contains the public key
  * @param jws: the jws_t to update
  * @param jws_str: the jws serialized to parse
@@ -1063,13 +1086,36 @@ json_t * r_jwe_get_header_json_t_value(jwe_t * jwe, const char * key);
 json_t * r_jwe_get_full_header_json_t(jwe_t * jwe);
 
 /**
- * Sets the private and public keys for the cypher key encryption and decryption
+ * Adds private and/or public keys for the cypher key encryption and decryption
  * @param jwe: the jwe_t to update
  * @param jwk_privkey: the private key in jwk_t * format, can be NULL
  * @param jwk_pubkey: the public key in jwk_t * format, can be NULL
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_add_keys(jwe_t * jwe, jwk_t * jwk_privkey, jwk_t * jwk_pubkey);
+
+/**
+ * Adds private and/or public keys sets for the cypher key encryption and decryption
+ * @param jwe: the jwe_t to update
+ * @param jwks_privkey: the private key set in jwks_t * format, can be NULL
+ * @param jwks_pubkey: the public key set in jwks_t * format, can be NULL
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_add_jwks(jwe_t * jwe, jwks_t * jwks_privkey, jwks_t * jwks_pubkey);
+
+/**
+ * Get private keys set for the cypher key decryption
+ * @param jwe: the jwe_t to get the value
+ * @return the private key set in jwks_t * format
+ */
+jwks_t * r_jwe_get_jwks_privkey(jwe_t * jwe);
+
+/**
+ * Get public keys set for the cypher key encryption
+ * @param jwe: the jwe_t to get the value
+ * @return the public key set in jwks_t * format
+ */
+jwks_t * r_jwe_get_jwks_pubkey(jwe_t * jwe);
 
 /**
  * Sets the cypher key to encrypt or decrypt the payload
@@ -1369,6 +1415,29 @@ int r_jwt_append_claims_json_t(jwt_t * jwt, json_t * j_claim);
 int r_jwt_add_sign_keys(jwt_t * jwt, jwk_t * privkey, jwk_t * pubkey);
 
 /**
+ * Adds private and/or public keys sets for the signature and verification
+ * @param jwt: the jwt_t to update
+ * @param jwks_privkey: the private key set in jwk_t * format, can be NULL
+ * @param jwks_pubkey: the public key set in jwk_t * format, can be NULL
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_add_sign_jwks(jwt_t * jwt, jwks_t * jwks_privkey, jwks_t * jwks_pubkey);
+
+/**
+ * Get private keys set for the signature
+ * @param jwt: the jwt_t to get the value
+ * @return the private key set in jwks_t * format
+ */
+jwks_t * r_jwt_get_sign_jwks_privkey(jwt_t * jwt);
+
+/**
+ * Get public keys set for the verification
+ * @param jwt: the jwt_t to get the value
+ * @return the public key set in jwks_t * format
+ */
+jwks_t * r_jwt_get_sign_jwks_pubkey(jwt_t * jwt);
+
+/**
  * Add keys to perform encryption ot decryption to the JWT
  * @param jwt: the jwt_t to update
  * @param privkey: the private key to decrypt the JWT
@@ -1376,6 +1445,29 @@ int r_jwt_add_sign_keys(jwt_t * jwt, jwk_t * privkey, jwk_t * pubkey);
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_add_enc_keys(jwt_t * jwt, jwk_t * privkey, jwk_t * pubkey);
+
+/**
+ * Adds private and/or public keys sets for the cypher key encryption and decryption
+ * @param jwt: the jwt_t to update
+ * @param jwks_privkey: the private key set in jwks_t * format, can be NULL
+ * @param jwks_pubkey: the public key set in jwks_t * format, can be NULL
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_add_enc_jwks(jwt_t * jwt, jwks_t * jwks_privkey, jwks_t * jwks_pubkey);
+
+/**
+ * Get private keys set for the cypher key decryption
+ * @param jwt: the jwt_t to get the value
+ * @return the private key set in jwks_t * format
+ */
+jwks_t * r_jwt_get_enc_jwks_privkey(jwt_t * jwt);
+
+/**
+ * Get public keys set for the cypher key encryption
+ * @param jwt: the jwt_t to get the value
+ * @return the public key set in jwks_t * format
+ */
+jwks_t * r_jwt_get_enc_jwks_pubkey(jwt_t * jwt);
 
 /**
  * Set the JWT alg to use for signature

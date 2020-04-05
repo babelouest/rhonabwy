@@ -297,6 +297,55 @@ int r_jwt_add_sign_keys(jwt_t * jwt, jwk_t * privkey, jwk_t * pubkey) {
   return ret;
 }
 
+int r_jwt_add_sign_jwks(jwt_t * jwt, jwks_t * jwks_privkey, jwks_t * jwks_pubkey) {
+  size_t i;
+  int ret, res;
+  jwk_t * jwk;
+  
+  if (jwt != NULL && (jwks_privkey != NULL || jwks_pubkey != NULL)) {
+    ret = RHN_OK;
+    if (jwks_privkey != NULL) {
+      for (i=0; ret==RHN_OK && i<r_jwks_size(jwks_privkey); i++) {
+        jwk = r_jwks_get_at(jwks_privkey, i);
+        if ((res = r_jwt_add_sign_keys(jwt, jwk, NULL)) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_jwks - Error r_jwt_add_sign_keys private key at %zu", i);
+          ret = res;
+        }
+        r_jwk_free(jwk);
+      }
+    }
+    if (jwks_pubkey != NULL) {
+      for (i=0; ret==RHN_OK && i<r_jwks_size(jwks_pubkey); i++) {
+        jwk = r_jwks_get_at(jwks_pubkey, i);
+        if ((res = r_jwt_add_sign_keys(jwt, NULL, jwk)) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_jwks - Error r_jwt_add_sign_keys public key at %zu", i);
+          ret = res;
+        }
+        r_jwk_free(jwk);
+      }
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+jwks_t * r_jwt_get_sign_jwks_privkey(jwt_t * jwt) {
+  if (jwt != NULL) {
+    return r_jwks_copy(jwt->jwks_privkey_sign);
+  } else {
+    return NULL;
+  }
+}
+
+jwks_t * r_jwt_get_sign_jwks_pubkey(jwt_t * jwt) {
+  if (jwt != NULL) {
+    return r_jwks_copy(jwt->jwks_pubkey_sign);
+  } else {
+    return NULL;
+  }
+}
+
 int r_jwt_add_enc_keys(jwt_t * jwt, jwk_t * privkey, jwk_t * pubkey) {
   int ret = RHN_OK;
   jwa_alg alg;
@@ -321,6 +370,55 @@ int r_jwt_add_enc_keys(jwt_t * jwt, jwk_t * privkey, jwk_t * pubkey) {
     ret = RHN_ERROR_PARAM;
   }
   return ret;
+}
+
+int r_jwt_add_enc_jwks(jwt_t * jwt, jwks_t * jwks_privkey, jwks_t * jwks_pubkey) {
+  size_t i;
+  int ret, res;
+  jwk_t * jwk;
+  
+  if (jwt != NULL && (jwks_privkey != NULL || jwks_pubkey != NULL)) {
+    ret = RHN_OK;
+    if (jwks_privkey != NULL) {
+      for (i=0; ret==RHN_OK && i<r_jwks_size(jwks_privkey); i++) {
+        jwk = r_jwks_get_at(jwks_privkey, i);
+        if ((res = r_jwt_add_enc_keys(jwt, jwk, NULL)) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_jwks - Error r_jwt_add_enc_keys private key at %zu", i);
+          ret = res;
+        }
+        r_jwk_free(jwk);
+      }
+    }
+    if (jwks_pubkey != NULL) {
+      for (i=0; ret==RHN_OK && i<r_jwks_size(jwks_pubkey); i++) {
+        jwk = r_jwks_get_at(jwks_pubkey, i);
+        if ((res = r_jwt_add_enc_keys(jwt, NULL, jwk)) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_jwks - Error r_jwt_add_enc_keys public key at %zu", i);
+          ret = res;
+        }
+        r_jwk_free(jwk);
+      }
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+jwks_t * r_jwt_get_enc_jwks_privkey(jwt_t * jwt) {
+  if (jwt != NULL) {
+    return r_jwks_copy(jwt->jwks_privkey_enc);
+  } else {
+    return NULL;
+  }
+}
+
+jwks_t * r_jwt_get_enc_jwks_pubkey(jwt_t * jwt) {
+  if (jwt != NULL) {
+    return r_jwks_copy(jwt->jwks_pubkey_enc);
+  } else {
+    return NULL;
+  }
 }
 
 int r_jwt_set_sign_alg(jwt_t * jwt, jwa_alg alg) {

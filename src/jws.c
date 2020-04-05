@@ -879,6 +879,55 @@ int r_jws_add_keys(jws_t * jws, jwk_t * jwk_privkey, jwk_t * jwk_pubkey) {
   return ret;
 }
 
+int r_jws_add_jwks(jws_t * jws, jwks_t * jwks_privkey, jwks_t * jwks_pubkey) {
+  size_t i;
+  int ret, res;
+  jwk_t * jwk;
+  
+  if (jws != NULL && (jwks_privkey != NULL || jwks_pubkey != NULL)) {
+    ret = RHN_OK;
+    if (jwks_privkey != NULL) {
+      for (i=0; ret==RHN_OK && i<r_jwks_size(jwks_privkey); i++) {
+        jwk = r_jwks_get_at(jwks_privkey, i);
+        if ((res = r_jws_add_keys(jws, jwk, NULL)) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_add_jwks - Error r_jws_add_keys private key at %zu", i);
+          ret = res;
+        }
+        r_jwk_free(jwk);
+      }
+    }
+    if (jwks_pubkey != NULL) {
+      for (i=0; ret==RHN_OK && i<r_jwks_size(jwks_pubkey); i++) {
+        jwk = r_jwks_get_at(jwks_pubkey, i);
+        if ((res = r_jws_add_keys(jws, NULL, jwk)) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_add_jwks - Error r_jws_add_keys public key at %zu", i);
+          ret = res;
+        }
+        r_jwk_free(jwk);
+      }
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+jwks_t * r_jws_get_jwks_privkey(jws_t * jws) {
+  if (jws != NULL) {
+    return r_jwks_copy(jws->jwks_privkey);
+  } else {
+    return NULL;
+  }
+}
+
+jwks_t * r_jws_get_jwks_pubkey(jws_t * jws) {
+  if (jws != NULL) {
+    return r_jwks_copy(jws->jwks_pubkey);
+  } else {
+    return NULL;
+  }
+}
+
 int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags) {
   int ret;
   char ** str_array = NULL;

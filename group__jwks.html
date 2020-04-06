@@ -47,6 +47,8 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ga7f1dc22797e2eff901845aad8215f9cc"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga7f1dc22797e2eff901845aad8215f9cc">r_jwks_is_valid</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
+<tr class="separator:ga7f1dc22797e2eff901845aad8215f9cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga3779f3432ca378e4db6fd338a86eaa21"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga3779f3432ca378e4db6fd338a86eaa21">r_jwks_import_from_str</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, const char *input)</td></tr>
 <tr class="separator:ga3779f3432ca378e4db6fd338a86eaa21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6c32c46305421cf0eed3c6f3ea91a798"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga6c32c46305421cf0eed3c6f3ea91a798">r_jwks_import_from_json_t</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, json_t *j_input)</td></tr>
@@ -85,6 +87,31 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Manage JWK sets </p>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="ga7f1dc22797e2eff901845aad8215f9cc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7f1dc22797e2eff901845aad8215f9cc">&#9670;&nbsp;</a></span>r_jwks_is_valid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwks_is_valid </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td>
+          <td class="paramname"><em>jwks</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Check if the jwks is valid </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwks</td><td>the jwks_t * to test </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error Stops at the first error in the array Logs error message with yder on error </dd></dl>
+
+</div>
+</div>
 <a id="ga3779f3432ca378e4db6fd338a86eaa21"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga3779f3432ca378e4db6fd338a86eaa21">&#9670;&nbsp;</a></span>r_jwks_import_from_str()</h2>
 

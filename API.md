@@ -88,7 +88,7 @@ void r_free(void * data);
 
 ## Libary information
 
-Te functions `r_library_info_json_t()` and `r_library_info_json_str()` return a JSON object that represents the signature and encryption algorithms supported, as well as the library versio.
+The functions `r_library_info_json_t()` and `r_library_info_json_str()` return a JSON object that represents the signature and encryption algorithms supported, as well as the library version.
 
 Example output:
 
@@ -139,7 +139,7 @@ Example of JWK:
 
 The standard allows to store public and private keys for RSA and ECC algorithms, it also allows to store symmetric keys. In a JWK, every raw value is encoded in Base64Url format to fit in the JSON object without any issue.
 
-A JWK is represented using the typedef `jwt_t *`.
+A JWK is represented in Rhonabwy library using the type `jwk_t *`.
 
 ### Import and Export JWK
 
@@ -154,11 +154,11 @@ If the imported JWK contains a `x5u` property, the key or certificate will be do
 - `R_FLAG_FOLLOW_REDIRECT`: follow redirections if necessary
 - `R_FLAG_IGNORE_REMOTE`: do not download remote key, but the function may return an error
 
-The values `R_FLAG_IGNORE_SERVER_CERTIFICATE` and `R_FLAG_FOLLOW_REDIRECT` can be added: `R_FLAG_IGNORE_SERVER_CERTIFICATE|R_FLAG_FOLLOW_REDIRECT`
+The values `R_FLAG_IGNORE_SERVER_CERTIFICATE` and `R_FLAG_FOLLOW_REDIRECT` can be merged: `R_FLAG_IGNORE_SERVER_CERTIFICATE|R_FLAG_FOLLOW_REDIRECT`
 
 ### Manipulate JWK properties
 
-You can manipulate the JWK properties directly using the `*property*` functions:
+You can manipulate the JWK properties directly using the dedicated functions:
 
 ```C
 const char * r_jwk_get_property_str(jwk_t * jwk, const char * key);
@@ -182,7 +182,11 @@ The function `r_jwk_is_valid` will check the validity of a JWK, i.e. check if al
 
 ### Generate a random key pair
 
-You can use Rhonabwy to generate a random key pair for RSA or ECC algorithms. The `jwk_t *` parameters must be initialized first. The `type` parameter can have one of the following values: `R_KEY_TYPE_RSA` or `R_KEY_TYPE_ECDSA`. The `bits` parameter specifies the length of the key. A RSA key must be at least 2048 bits, and the values allowed for an ECC key are 256, 384 or 512.
+You can use Rhonabwy to generate a random key pair for RSA or ECC algorithms. The `jwk_t *` parameters must be initialized first.
+
+The `type` parameter can have one of the following values: `R_KEY_TYPE_RSA` or `R_KEY_TYPE_ECDSA`. The `bits` parameter specifies the length of the key. A RSA key must be at least 2048 bits, and the bits value allowed for an ECC key are 256, 384 or 512.
+
+If the parameter `kid` is used, the generated key kid property will heve the kid specified, otherwise a `kid` will be generated to identify the key pair.
 
 ```C
 int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, unsigned int bits, const char * kid);
@@ -217,7 +221,23 @@ Example of JWKS:
 }
 ```
 
-Because a JWKS is a set of JWK, the functions dedicated to the JWKS are mostly importing/exporting from JSON in `char *`, `json_t *` or GnuTLS format, or from an URL, and manipulating all the JWK contained inside the JWKS.
+In Rhonabwy library, you can manipulate the JWKs inside a JWKS by iteration or get a JWK by its kid.
+
+```C
+jwk_t * r_jwks_get_at(jwks_t * jwks, size_t index);
+
+jwk_t * r_jwks_get_by_kid(jwks_t * jwks, const char * kid);
+```
+
+You can also import a JWKS using a JSON object or an URL.
+
+```C
+int r_jwks_import_from_str(jwks_t * jwks, const char * input);
+
+int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input);
+
+int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int flags);
+```
 
 ## JWS
 
@@ -350,6 +370,8 @@ BASE64URL(JWE Authentication Tag)
 In Rhonabwy library, the supported algorithms are the following:
 - Supported Encryption Algorithm (`enc`) for JWE payload encryption: `A128CBC-HS256`, `A192CBC-HS384`, `A256CBC-HS512`, `A128GCM`, `A256GCM`
 - Supported Cryptographic Algorithms for Key Management: `RSA1_5` (RSAES-PKCS1-v1_5), `dir` (Direct use of a shared symmetric key)
+
+If you don't specify a Content Encryption Key or an Initialization Vector before the serialization, Rhonabwy will automatically generate one or the other or both depending on the algorithm specified.
 
 ### JWE example
 

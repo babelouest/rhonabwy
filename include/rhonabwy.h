@@ -280,6 +280,29 @@ int r_jwt_init(jwt_t ** jwt);
 void r_jwt_free(jwt_t * jwt);
 
 /**
+ * Get the jwa_alg corresponding to the string algorithm specified
+ * @param alg: the algorithm to convert
+ * @return the converted jwa_alg, R_JWA_ALG_NONE if alg is unknown
+ */
+jwa_alg str_to_jwa_alg(const char * alg);
+
+/**
+ * Get the jwa_enc corresponding to the string algorithm specified
+ * @param enc: the algorithm to convert
+ * @return the converted jwa_enc, R_JWA_ENC_NONE if enc is unknown
+ */
+jwa_enc str_to_jwa_enc(const char * enc);
+
+/**
+ * @}
+ */
+
+/**
+ * @defgroup jwk_validate Validate a JWK and generate a key pair
+ * @{
+ */
+
+/**
  * Get the type and algorithm of a jwk_t
  * @param jwk: the jwk_t * to test
  * @param bits: set the key size in bits (may be NULL)
@@ -316,15 +339,6 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags);
 int r_jwk_is_valid(jwk_t * jwk);
 
 /**
- * Check if the jwks is valid
- * @param jwks: the jwks_t * to test
- * @return RHN_OK on success, an error value on error
- * Stops at the first error in the array
- * Logs error message with yder on error
- */
-int r_jwks_is_valid(jwks_t * jwks);
-
-/**
  * Generates a pair of private and public key using given parameters
  * @param jwk_privkey: the private key to set, must be initialized
  * @param jwk_pubkey: the public key to set, must be initialized
@@ -338,25 +352,11 @@ int r_jwks_is_valid(jwks_t * jwks);
 int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, unsigned int bits, const char * kid);
 
 /**
- * Get the jwa_alg corresponding to the string algorithm specified
- * @param alg: the algorithm to convert
- * @return the converted jwa_alg, R_JWA_ALG_NONE if alg is unknown
- */
-jwa_alg str_to_jwa_alg(const char * alg);
-
-/**
- * Get the jwa_enc corresponding to the string algorithm specified
- * @param enc: the algorithm to convert
- * @return the converted jwa_enc, R_JWA_ENC_NONE if enc is unknown
- */
-jwa_enc str_to_jwa_enc(const char * enc);
-
-/**
  * @}
  */
 
 /**
- * @defgroup properties Properties
+ * @defgroup jwk_properties JWK Properties
  * read/write/delete jwk properties
  * @{
  */
@@ -433,7 +433,7 @@ int r_jwk_delete_property_array_at(jwk_t * jwk, const char * key, size_t index);
  */
 
 /**
- * @defgroup import Import functions
+ * @defgroup import JWK Import functions
  * Import a jwk from JSON data, gnutls inner types or PEM/DER
  * @{
  */
@@ -553,7 +553,7 @@ int r_jwk_equal(jwk_t * jwk1, jwk_t * jwk2);
  */
 
 /**
- * @defgroup export Export functions
+ * @defgroup export JWK Export functions
  * Export a jwk to JSON data, gnutls inner types or PEM/DER
  * @{
  */
@@ -635,6 +635,15 @@ int r_jwk_export_to_symmetric_key(jwk_t * jwk, unsigned char * key, size_t * key
  * Manage JWK sets
  * @{
  */
+
+/**
+ * Check if the jwks is valid
+ * @param jwks: the jwks_t * to test
+ * @return RHN_OK on success, an error value on error
+ * Stops at the first error in the array
+ * Logs error message with yder on error
+ */
+int r_jwks_is_valid(jwks_t * jwks);
 
 /**
  * Import a JWKS in string format into a jwks_t

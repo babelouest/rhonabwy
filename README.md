@@ -15,12 +15,16 @@ JWT Relies on JWS and JWE functions, so it supports the same functionnalities as
   - Digital Signature with RSASSA-PKCS1-v1_5: `RS256`, `RS384`, `RS512`
   - Digital Signature with ECDSA: `ES256`, `ES384`, `ES512`
   - Digital Signature with RSASSA-PSS: `PS256`, `PS384`, `PS512`
-  - Digital Signature with Ed25519 Elliptic Curve: `EDDSA`
+  - Digital Signature with Ed25519 Elliptic Curve: `EDdSA`
   - Unsecured: `none`
 
 JWE support is experimental and limited, please use with great caution!
-- Supported Encryption Algorithm (`enc`) for JWE payload encryption: `A128CBC-HS256`, `A192CBC-HS384`, `A256CBC-HS512`
+- Supported Encryption Algorithm (`enc`) for JWE payload encryption: `A128CBC-HS256`, `A192CBC-HS384`, `A256CBC-HS512`, `A128GCM`, `A256GCM`
 - Supported Cryptographic Algorithms for Key Management: `RSA1_5` (RSAES-PKCS1-v1_5), `dir` (Direct use of a shared symmetric key)
+
+# API Documentation
+
+Documentation is available in the documentation page: [https://babelouest.github.io/rhonabwy/](https://babelouest.github.io/rhonabwy/)
 
 Example program to parse and verify the signature of a JWT using its publick key in JWK format:
 
@@ -143,7 +147,3 @@ $ make && make DESTDIR=/tmp install
 You can install Rhonabwy without root permission if your user has write access to `$(DESTDIR)`.
 A `ldconfig` command is executed at the end of the install, it will probably fail if you don't have root permission, but this is harmless.
 If you choose to install Rhonabwy in another directory, you must set your environment variable `LD_LIBRARY_PATH` properly.
-
-# API Documentation
-
-Documentation is available in the documentation page: [https://babelouest.github.io/rhonabwy/](https://babelouest.github.io/rhonabwy/)

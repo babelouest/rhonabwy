@@ -1482,7 +1482,7 @@ char * r_jwe_serialize(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags) {
       }
     }
   }
-  if (res == RHN_OK && r_jwe_encrypt_payload(jwe) == RHN_OK && r_jwe_encrypt_key(jwe, jwk_pubkey, x5u_flags) == RHN_OK) {
+  if (res == RHN_OK && r_jwe_encrypt_key(jwe, jwk_pubkey, x5u_flags) == RHN_OK && r_jwe_encrypt_payload(jwe) == RHN_OK) {
     jwe_str = msprintf("%s.%s.%s.%s.%s", 
                       jwe->header_b64url, 
                       jwe->encrypted_key_b64url!=NULL?(const char *)jwe->encrypted_key_b64url:"",

@@ -1,5 +1,12 @@
 # Rhonabwy Changelog
 
+## 0.9.9
+
+- Fix JWE payload encryption with AES-GCM
+- Add `x5u_flag` value `R_FLAG_IGNORE_REMOTE` to avoid downloading remote keys if not required
+- Add functions `r_jwt_set_full_claims_json_str`, `r_jwt_get_type`
+- Add API documentation
+
 ## 0.9.8
 
 - Add [JSON Web Token](https://tools.ietf.org/html/rfc7519) (JWT) support

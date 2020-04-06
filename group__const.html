@@ -89,10 +89,18 @@ Macros</h2></td></tr>
 <tr class="separator:gaeab5e0d900e891cea0c55fa75838988e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa642522071e8778a70d853d2f7ae9a18"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gaa642522071e8778a70d853d2f7ae9a18">R_FLAG_FOLLOW_REDIRECT</a>&#160;&#160;&#160;0x00000010</td></tr>
 <tr class="separator:gaa642522071e8778a70d853d2f7ae9a18"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga0d2627950ddfedd6e6839ac6ccdc62c6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga0d2627950ddfedd6e6839ac6ccdc62c6">R_JWT_NESTED_SIGN_THEN_ENCRYPT</a>&#160;&#160;&#160;0</td></tr>
-<tr class="separator:ga0d2627950ddfedd6e6839ac6ccdc62c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gacb3320061e399e239002f22cf1f87dce"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gacb3320061e399e239002f22cf1f87dce">R_JWT_NESTED_ENCRYPT_THEN_SIGN</a>&#160;&#160;&#160;1</td></tr>
-<tr class="separator:gacb3320061e399e239002f22cf1f87dce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga990068ff6ea715b8cd7917a8823c55a3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga990068ff6ea715b8cd7917a8823c55a3">R_FLAG_IGNORE_REMOTE</a>&#160;&#160;&#160;0x00000100</td></tr>
+<tr class="separator:ga990068ff6ea715b8cd7917a8823c55a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5cfe315db9ee345324e6ec53ef0ddfe0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga5cfe315db9ee345324e6ec53ef0ddfe0">R_JWT_TYPE_NONE</a>&#160;&#160;&#160;0</td></tr>
+<tr class="separator:ga5cfe315db9ee345324e6ec53ef0ddfe0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga28ec40b53d967e23956a93030609df28"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga28ec40b53d967e23956a93030609df28">R_JWT_TYPE_SIGN</a>&#160;&#160;&#160;1</td></tr>
+<tr class="separator:ga28ec40b53d967e23956a93030609df28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaaa339eea99f15460076a9394023944df"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gaaa339eea99f15460076a9394023944df">R_JWT_TYPE_ENCRYPT</a>&#160;&#160;&#160;2</td></tr>
+<tr class="separator:gaaa339eea99f15460076a9394023944df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0ea30b964bf8c7f02c45b7f889c1b541"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga0ea30b964bf8c7f02c45b7f889c1b541">R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT</a>&#160;&#160;&#160;3</td></tr>
+<tr class="separator:ga0ea30b964bf8c7f02c45b7f889c1b541"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadb6dcba9e6610dbe8017c9f1b2b8d95c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gadb6dcba9e6610dbe8017c9f1b2b8d95c">R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN</a>&#160;&#160;&#160;4</td></tr>
+<tr class="separator:gadb6dcba9e6610dbe8017c9f1b2b8d95c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Constant values used as input or output </p>
@@ -391,28 +399,84 @@ Macros</h2></td></tr>
 
 </div>
 </div>
-<a id="ga0d2627950ddfedd6e6839ac6ccdc62c6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga0d2627950ddfedd6e6839ac6ccdc62c6">&#9670;&nbsp;</a></span>R_JWT_NESTED_SIGN_THEN_ENCRYPT</h2>
+<a id="ga990068ff6ea715b8cd7917a8823c55a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga990068ff6ea715b8cd7917a8823c55a3">&#9670;&nbsp;</a></span>R_FLAG_IGNORE_REMOTE</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define R_JWT_NESTED_SIGN_THEN_ENCRYPT&#160;&#160;&#160;0</td>
+          <td class="memname">#define R_FLAG_IGNORE_REMOTE&#160;&#160;&#160;0x00000100</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="gacb3320061e399e239002f22cf1f87dce"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gacb3320061e399e239002f22cf1f87dce">&#9670;&nbsp;</a></span>R_JWT_NESTED_ENCRYPT_THEN_SIGN</h2>
+<a id="ga5cfe315db9ee345324e6ec53ef0ddfe0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5cfe315db9ee345324e6ec53ef0ddfe0">&#9670;&nbsp;</a></span>R_JWT_TYPE_NONE</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define R_JWT_NESTED_ENCRYPT_THEN_SIGN&#160;&#160;&#160;1</td>
+          <td class="memname">#define R_JWT_TYPE_NONE&#160;&#160;&#160;0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ga28ec40b53d967e23956a93030609df28"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga28ec40b53d967e23956a93030609df28">&#9670;&nbsp;</a></span>R_JWT_TYPE_SIGN</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define R_JWT_TYPE_SIGN&#160;&#160;&#160;1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="gaaa339eea99f15460076a9394023944df"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaaa339eea99f15460076a9394023944df">&#9670;&nbsp;</a></span>R_JWT_TYPE_ENCRYPT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define R_JWT_TYPE_ENCRYPT&#160;&#160;&#160;2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ga0ea30b964bf8c7f02c45b7f889c1b541"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0ea30b964bf8c7f02c45b7f889c1b541">&#9670;&nbsp;</a></span>R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT&#160;&#160;&#160;3</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="gadb6dcba9e6610dbe8017c9f1b2b8d95c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gadb6dcba9e6610dbe8017c9f1b2b8d95c">&#9670;&nbsp;</a></span>R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN&#160;&#160;&#160;4</td>
         </tr>
       </table>
 </div><div class="memdoc">

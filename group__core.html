@@ -459,7 +459,8 @@ Functions</h2></td></tr>
     <tr><td class="paramname">bits</td><td>set the key size in bits (may be NULL) </td></tr>
     <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
 <li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
-<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>
+<li>R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error </li>
 </ul>
 </td></tr>
   </table>

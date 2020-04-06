@@ -77,6 +77,12 @@ Functions</h2></td></tr>
 <tr class="separator:gae73471c36fbda1b9c4a01ccb3822935f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7f718031ee9be3799d85a35805a48c0d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga7f718031ee9be3799d85a35805a48c0d">r_jwe_add_keys</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_privkey, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_pubkey)</td></tr>
 <tr class="separator:ga7f718031ee9be3799d85a35805a48c0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafbc401e6ade2993d571ff1a15044119e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gafbc401e6ade2993d571ff1a15044119e">r_jwe_add_jwks</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks_privkey, <a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks_pubkey)</td></tr>
+<tr class="separator:gafbc401e6ade2993d571ff1a15044119e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9f064cdee9cd51ade9b65a11ed314c51"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga9f064cdee9cd51ade9b65a11ed314c51">r_jwe_get_jwks_privkey</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe)</td></tr>
+<tr class="separator:ga9f064cdee9cd51ade9b65a11ed314c51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga80db7ecf3cf21ad0ce4b4f882833c714"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga80db7ecf3cf21ad0ce4b4f882833c714">r_jwe_get_jwks_pubkey</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe)</td></tr>
+<tr class="separator:ga80db7ecf3cf21ad0ce4b4f882833c714"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga8fa80477fce4e62f4a7352beba6ee62f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga8fa80477fce4e62f4a7352beba6ee62f">r_jwe_set_cypher_key</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, const unsigned char *key, size_t key_len)</td></tr>
 <tr class="separator:ga8fa80477fce4e62f4a7352beba6ee62f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf6c5325cb914ab0726712870d7e6afed"><td class="memItemLeft" align="right" valign="top">const unsigned char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gaf6c5325cb914ab0726712870d7e6afed">r_jwe_get_cypher_key</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, size_t *key_len)</td></tr>
@@ -626,7 +632,7 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Sets the private and public keys for the cypher key encryption and decryption </p><dl class="params"><dt>Parameters</dt><dd>
+<p>Adds private and/or public keys for the cypher key encryption and decryption </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
     <tr><td class="paramname">jwk_privkey</td><td>the private key in jwk_t * format, can be NULL </td></tr>
@@ -635,6 +641,99 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="gafbc401e6ade2993d571ff1a15044119e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafbc401e6ade2993d571ff1a15044119e">&#9670;&nbsp;</a></span>r_jwe_add_jwks()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwe_add_jwks </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwe__t.html">jwe_t</a> *&#160;</td>
+          <td class="paramname"><em>jwe</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td>
+          <td class="paramname"><em>jwks_privkey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td>
+          <td class="paramname"><em>jwks_pubkey</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Adds private and/or public keys sets for the cypher key encryption and decryption </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
+    <tr><td class="paramname">jwks_privkey</td><td>the private key set in jwks_t * format, can be NULL </td></tr>
+    <tr><td class="paramname">jwks_pubkey</td><td>the public key set in jwks_t * format, can be NULL </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="ga9f064cdee9cd51ade9b65a11ed314c51"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9f064cdee9cd51ade9b65a11ed314c51">&#9670;&nbsp;</a></span>r_jwe_get_jwks_privkey()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a>* r_jwe_get_jwks_privkey </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwe__t.html">jwe_t</a> *&#160;</td>
+          <td class="paramname"><em>jwe</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get private keys set for the cypher key decryption </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to get the value </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the private key set in jwks_t * format </dd></dl>
+
+</div>
+</div>
+<a id="ga80db7ecf3cf21ad0ce4b4f882833c714"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga80db7ecf3cf21ad0ce4b4f882833c714">&#9670;&nbsp;</a></span>r_jwe_get_jwks_pubkey()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a>* r_jwe_get_jwks_pubkey </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwe__t.html">jwe_t</a> *&#160;</td>
+          <td class="paramname"><em>jwe</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get public keys set for the cypher key encryption </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to get the value </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the public key set in jwks_t * format </dd></dl>
 
 </div>
 </div>
@@ -937,7 +1036,8 @@ Functions</h2></td></tr>
     <tr><td class="paramname">jwk_pubkey</td><td>the jwk to encrypt the key, may be NULL </td></tr>
     <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
 <li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
-<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>
+<li>R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error </li>
 </ul>
 </td></tr>
   </table>
@@ -984,7 +1084,8 @@ Functions</h2></td></tr>
     <tr><td class="paramname">jwk_privkey</td><td>the jwk to decrypt the key, may be NULL </td></tr>
     <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
 <li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
-<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>
+<li>R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error </li>
 </ul>
 </td></tr>
   </table>
@@ -1031,7 +1132,8 @@ Functions</h2></td></tr>
     <tr><td class="paramname">jwe_str</td><td>the jwe serialized to parse </td></tr>
     <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
 <li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
-<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>
+<li>R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error </li>
 </ul>
 </td></tr>
   </table>

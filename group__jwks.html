@@ -600,7 +600,8 @@ Functions</h2></td></tr>
     <tr><td class="paramname">len</td><td>set the length of the output array </td></tr>
     <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
 <li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
-<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>
+<li>R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL </li>
 </ul>
 </td></tr>
   </table>
@@ -647,7 +648,8 @@ Functions</h2></td></tr>
     <tr><td class="paramname">len</td><td>set the length of the output array </td></tr>
     <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
 <li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
-<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>
+<li>R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL </li>
 </ul>
 </td></tr>
   </table>
@@ -708,7 +710,8 @@ Functions</h2></td></tr>
     <tr><td class="paramname">output_len</td><td>the size of output and will be set to the data size that has been written to output </td></tr>
     <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
 <li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
-<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>
+<li>R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error </li>
 </ul>
 </td></tr>
   </table>

@@ -228,7 +228,6 @@ START_TEST(test_rhonabwy_verify_token_valid)
   ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN, 0), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_key_symmetric, jwk_key_symmetric_str), RHN_OK);
   ck_assert_int_eq(r_jws_verify_signature(jws, jwk_key_symmetric, 0), RHN_OK);
-  ck_assert_int_eq(r_jws_verify_signature(jws, jwk_key_symmetric, 0), RHN_OK);
   r_jws_free(jws);
   r_jwk_free(jwk_key_symmetric);
   

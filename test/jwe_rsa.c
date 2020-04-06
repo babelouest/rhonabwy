@@ -7,7 +7,7 @@
 #include <orcania.h>
 #include <rhonabwy.h>
 
-#define PAYLOAD "The true sign of intelligence is not knowledge but imagination..."
+#define PAYLOAD "The true sign of intelligence is not knowledge but imagination."
 
 #define TOKEN "eyJhbGciOiJSU0ExXzUiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.q3rOIk7Tl3z9RTtguFTV7LLs7K7xegFelcRu245n73tXloZS5FojCE_Ib4HdX_Hw5qG7-Rq_6_3zSJ72NuLzvHm2HsJmCbGxEIf3hOgDUqeNKZ_zpc1ivMjqlynplqXxk9llkmizUGSz_4o9zI6_4ZkRuJK_jeAhqcnDMT1z53a2p7xcbkpDzrQQnIHUcPoe7v19r8kwk7wgaF0i64_l0oyvqCwIMDm07nsCPB_Ry55U-k1YftsfricboBk8jWLia7ObNKxtjxw3ntZjJAXxPdCaeYMoBi7D5iZfW-1OIsVJWEujhSbpwdAJEpBvOnHwDZXQ42rzg4R14mE46aq3Ew.m08H3x7QMOgukOdgsFod9Q.BlnT2QPAZnruTe4xi78e2ufYrZQqb8k0b7wy4tEuGmANid7fb56oDuCxNz0oWQd-yEfp0j1eUUuKn0gG9Mef-1W4Fk3sg8ekPD1PPWNjK5M.UZtem8uW9B2yKQIkFi4TTg"
 #define TOKEN_INVALID_HEADER "eyJhbGciOiJSU0ExXzUiLCJlbmMiOiJBMTI4Q0JDLUhTMjU.q3rOIk7Tl3z9RTtguFTV7LLs7K7xegFelcRu245n73tXloZS5FojCE_Ib4HdX_Hw5qG7-Rq_6_3zSJ72NuLzvHm2HsJmCbGxEIf3hOgDUqeNKZ_zpc1ivMjqlynplqXxk9llkmizUGSz_4o9zI6_4ZkRuJK_jeAhqcnDMT1z53a2p7xcbkpDzrQQnIHUcPoe7v19r8kwk7wgaF0i64_l0oyvqCwIMDm07nsCPB_Ry55U-k1YftsfricboBk8jWLia7ObNKxtjxw3ntZjJAXxPdCaeYMoBi7D5iZfW-1OIsVJWEujhSbpwdAJEpBvOnHwDZXQ42rzg4R14mE46aq3Ew.m08H3x7QMOgukOdgsFod9Q.BlnT2QPAZnruTe4xi78e2ufYrZQqb8k0b7wy4tEuGmANid7fb56oDuCxNz0oWQd-yEfp0j1eUUuKn0gG9Mef-1W4Fk3sg8ekPD1PPWNjK5M.UZtem8uW9B2yKQIkFi4TTg"
@@ -169,6 +169,7 @@ START_TEST(test_rhonabwy_encrypt_decrypt_ok)
   ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_RSA1_5), RHN_OK);
   ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
   ck_assert_ptr_ne((token = r_jwe_serialize(jwe, NULL, 0)), NULL);
+  y_log_message(Y_LOG_LEVEL_DEBUG, "token %s", token);
   
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, token, 0), RHN_OK);
   ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_OK);
@@ -350,7 +351,7 @@ int main(int argc, char *argv[])
   int number_failed;
   Suite *s;
   SRunner *sr;
-  //y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWE RSA key encryption tests");
+  y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWE RSA key encryption tests");
   s = rhonabwy_suite();
   sr = srunner_create(s);
 
@@ -358,6 +359,6 @@ int main(int argc, char *argv[])
   number_failed = srunner_ntests_failed(sr);
   srunner_free(sr);
   
-  //y_close_logs();
+  y_close_logs();
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

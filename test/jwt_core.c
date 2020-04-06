@@ -226,6 +226,31 @@ START_TEST(test_rhonabwy_set_full_claims)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_set_full_claims_str)
+{
+  jwt_t * jwt;
+  char str_value[] = "{\"str\":\"grut\",\"int\":42,\"obj\":true}";
+  json_t * j_value = json_pack("{sssiso}", "str", "grut", "int", 42, "obj", json_true()), * j_claims;
+  
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "keystr", "value"), RHN_OK);
+  ck_assert_str_eq("value", r_jwt_get_claim_str_value(jwt, "keystr"));
+  
+  ck_assert_int_eq(r_jwt_set_full_claims_json_str(jwt, str_value), RHN_OK);
+  
+  ck_assert_ptr_eq(NULL, r_jwt_get_claim_str_value(jwt, "keystr"));
+  
+  ck_assert_ptr_ne(j_claims = r_jwt_get_full_claims_json_t(jwt), NULL);
+  ck_assert_int_eq(1, json_equal(j_claims, j_value));
+  
+  json_decref(j_value);
+  json_decref(j_claims);
+  
+  r_jwt_free(jwt);
+}
+END_TEST
+
 START_TEST(test_rhonabwy_get_full_claims)
 {
   jwt_t * jwt;
@@ -469,6 +494,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_set_claim);
   tcase_add_test(tc_core, test_rhonabwy_get_claim);
   tcase_add_test(tc_core, test_rhonabwy_set_full_claims);
+  tcase_add_test(tc_core, test_rhonabwy_set_full_claims_str);
   tcase_add_test(tc_core, test_rhonabwy_get_full_claims);
   tcase_add_test(tc_core, test_rhonabwy_append_claims);
   tcase_add_test(tc_core, test_rhonabwy_set_sign_keys);

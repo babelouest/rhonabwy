@@ -173,6 +173,7 @@ START_TEST(test_rhonabwy_decrypt_error_key)
   ck_assert_int_eq(r_jwk_init(&jwk_privkey_rsa), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey_rsa, jwk_privkey_rsa_str_2), RHN_OK);
   ck_assert_int_eq(r_jwt_parse(jwt, TOKEN, 0), RHN_OK);
+  ck_assert_int_eq(r_jwt_get_type(jwt), R_JWT_TYPE_ENCRYPT);
   ck_assert_int_eq(r_jwt_decrypt(jwt, jwk_privkey_rsa, 0), RHN_ERROR_INVALID);
   
   r_jwk_free(jwk_privkey_rsa);
@@ -192,6 +193,7 @@ START_TEST(test_rhonabwy_decrypt_error_key_with_add_keys)
   ck_assert_int_eq(r_jwk_init(&jwk_privkey_rsa), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey_rsa, jwk_privkey_rsa_str_2), RHN_OK);
   ck_assert_int_eq(r_jwt_parse(jwt, TOKEN, 0), RHN_OK);
+  ck_assert_int_eq(r_jwt_get_type(jwt), R_JWT_TYPE_ENCRYPT);
   ck_assert_int_eq(r_jwt_add_enc_keys(jwt, jwk_privkey_rsa, NULL), RHN_OK);
   ck_assert_int_eq(r_jwt_decrypt(jwt, NULL, 0), RHN_ERROR_INVALID);
   
@@ -227,6 +229,7 @@ START_TEST(test_rhonabwy_decrypt_error_encryption_invalid)
   ck_assert_int_eq(r_jwk_init(&jwk_privkey_rsa), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey_rsa, jwk_privkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwt_parse(jwt, TOKEN_INVALID_SIGNATURE, 0), RHN_OK);
+  ck_assert_int_eq(r_jwt_get_type(jwt), R_JWT_TYPE_ENCRYPT);
   ck_assert_int_eq(r_jwt_decrypt(jwt, jwk_privkey_rsa, 0), RHN_ERROR_INVALID);
   
   r_jwk_free(jwk_privkey_rsa);
@@ -246,6 +249,7 @@ START_TEST(test_rhonabwy_decrypt_encryption_ok)
   ck_assert_int_eq(r_jwk_init(&jwk_privkey_rsa), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey_rsa, jwk_privkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwt_parse(jwt, TOKEN, 0), RHN_OK);
+  ck_assert_int_eq(r_jwt_get_type(jwt), R_JWT_TYPE_ENCRYPT);
   ck_assert_int_eq(r_jwt_decrypt(jwt, jwk_privkey_rsa, 0), RHN_OK);
   
   r_jwk_free(jwk_privkey_rsa);
@@ -265,6 +269,7 @@ START_TEST(test_rhonabwy_decrypt_encryption_with_add_keys_ok)
   ck_assert_int_eq(r_jwk_init(&jwk_privkey_rsa), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey_rsa, jwk_privkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwt_parse(jwt, TOKEN, 0), RHN_OK);
+  ck_assert_int_eq(r_jwt_get_type(jwt), R_JWT_TYPE_ENCRYPT);
   ck_assert_int_eq(r_jwt_add_enc_keys(jwt, NULL, jwk_privkey_rsa), RHN_OK);
   ck_assert_int_eq(r_jwt_decrypt(jwt, jwk_privkey_rsa, 0), RHN_OK);
   

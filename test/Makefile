@@ -27,7 +27,6 @@ CFLAGS+=-Wall -D_REENTRANT -I$(RHONABWY_INCLUDE) -DDEBUG -g -O0 $(CPPFLAGS)
 LDFLAGS=-lc -lorcania -lyder -ljansson -lgnutls -lrhonabwy -L$(RHONABWY_LOCATION) $(shell pkg-config --libs check) -lulfius
 VALGRIND_COMMAND=valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all
 TARGET=jwk_core jwk_import jwk_export jwks_core jws_core jws_hmac jws_rsa jws_ecdsa jws_rsapss jwe_core jwe_rsa jwe_dir jwt_core jwt_sign jwt_encrypt jwt_nested misc
-TARGET_TEST=test_jwk_core test_jwk_import test_jwk_export test_jwks_core test_jws_core test_jws_hmac test_jws_rsa test_jws_ecdsa test_jws_rsapss test_jwe_core test_jwe_rsa test_jwe_dir test_jwt_core test_jwt_sign test_jwt_encrypt test_jwt_nested test_misc
 MEMCHECK=0
 
 all: test
@@ -48,7 +47,15 @@ test_%: % $(RHONABWY_LIBRARY)
 	  CK_FORK=no LD_LIBRARY_PATH=$(RHONABWY_LOCATION):$(LD_LIBRARY_PATH) $(VALGRIND_COMMAND) ./$^ 2>valgrind-$@.txt; \
 	fi
 
-test: $(TARGET_TEST)
+test-jwk: test_jwk_core test_jwk_import test_jwk_export test_jwks_core test_jws_core
+
+test-jws: test_jws_core test_jws_hmac test_jws_rsa test_jws_ecdsa test_jws_rsapss
+
+test-jwe: test_jwe_core test_jwe_rsa test_jwe_dir
+
+test-jwt: test_jwt_core test_jwt_sign test_jwt_encrypt test_jwt_nested
+
+test: $(TARGET) test_misc test-jwk test-jws test-jwe test-jwt
 
 check: test
 

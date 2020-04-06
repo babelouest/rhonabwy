@@ -1184,6 +1184,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_str), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_REMOTE)), RHN_ERROR_UNSUPPORTED);
   ck_assert_int_eq(bits, 2048);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
@@ -1197,6 +1198,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_REMOTE)), RHN_ERROR_UNSUPPORTED);
   ck_assert_int_eq(bits, 2048);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
@@ -1210,6 +1212,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_only), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_REMOTE)), RHN_ERROR_UNSUPPORTED);
   ck_assert_int_eq(bits, 2048);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
@@ -1223,6 +1226,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_x5c_only), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_REMOTE)), RHN_ERROR_UNSUPPORTED);
   ck_assert_int_eq(bits, 3072);
   ck_assert_int_eq(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_PRIVATE, 0);

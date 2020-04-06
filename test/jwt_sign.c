@@ -144,6 +144,7 @@ START_TEST(test_rhonabwy_verify_error_key)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey_ecdsa, jwk_pubkey_sign_str_2), RHN_OK);
   
   ck_assert_int_eq(r_jwt_parse(jwt, TOKEN, 0), RHN_OK);
+  ck_assert_int_eq(r_jwt_get_type(jwt), R_JWT_TYPE_SIGN);
   ck_assert_int_eq(r_jwt_verify_signature(jwt, NULL, 0), RHN_ERROR_INVALID);
   ck_assert_int_eq(r_jwt_verify_signature(jwt, jwk_pubkey_rsa, 0), RHN_ERROR_INVALID);
   ck_assert_int_eq(r_jwt_verify_signature(jwt, jwk_pubkey_ecdsa, 0), RHN_ERROR_INVALID);
@@ -166,6 +167,7 @@ START_TEST(test_rhonabwy_verify_error_key_with_add_keys)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey_ecdsa, jwk_pubkey_sign_str_2), RHN_OK);
   
   ck_assert_int_eq(r_jwt_parse(jwt, TOKEN, 0), RHN_OK);
+  ck_assert_int_eq(r_jwt_get_type(jwt), R_JWT_TYPE_SIGN);
   ck_assert_int_eq(r_jwt_add_sign_keys(jwt, NULL, jwk_pubkey_rsa), RHN_OK);
   ck_assert_int_eq(r_jwt_add_sign_keys(jwt, NULL, jwk_pubkey_ecdsa), RHN_OK);
   
@@ -202,6 +204,7 @@ START_TEST(test_rhonabwy_verify_error_signature_invalid)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey_ecdsa, jwk_pubkey_sign_str), RHN_OK);
   
   ck_assert_int_eq(r_jwt_parse(jwt, TOKEN_INVALID_SIGNATURE, 0), RHN_OK);
+  ck_assert_int_eq(r_jwt_get_type(jwt), R_JWT_TYPE_SIGN);
   ck_assert_int_eq(r_jwt_add_sign_keys(jwt, NULL, jwk_pubkey_ecdsa), RHN_OK);
   
   ck_assert_int_eq(r_jwt_verify_signature(jwt, NULL, 0), RHN_ERROR_INVALID);
@@ -221,6 +224,7 @@ START_TEST(test_rhonabwy_verify_signature_ok)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey_ecdsa, jwk_pubkey_sign_str), RHN_OK);
   
   ck_assert_int_eq(r_jwt_parse(jwt, TOKEN, 0), RHN_OK);
+  ck_assert_int_eq(r_jwt_get_type(jwt), R_JWT_TYPE_SIGN);
   
   ck_assert_int_eq(r_jwt_verify_signature(jwt, jwk_pubkey_ecdsa, 0), RHN_OK);
   
@@ -239,6 +243,7 @@ START_TEST(test_rhonabwy_verify_signature_with_add_keys_ok)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey_ecdsa, jwk_pubkey_sign_str), RHN_OK);
   
   ck_assert_int_eq(r_jwt_parse(jwt, TOKEN, 0), RHN_OK);
+  ck_assert_int_eq(r_jwt_get_type(jwt), R_JWT_TYPE_SIGN);
   ck_assert_int_eq(r_jwt_add_sign_keys(jwt, NULL, jwk_pubkey_ecdsa), RHN_OK);
   
   ck_assert_int_eq(r_jwt_verify_signature(jwt, NULL, 0), RHN_OK);

@@ -66,9 +66,13 @@ extern "C"
 
 #define R_FLAG_IGNORE_SERVER_CERTIFICATE 0x00000001
 #define R_FLAG_FOLLOW_REDIRECT           0x00000010
+#define R_FLAG_IGNORE_REMOTE             0x00000100
 
-#define R_JWT_NESTED_SIGN_THEN_ENCRYPT 0
-#define R_JWT_NESTED_ENCRYPT_THEN_SIGN 1
+#define R_JWT_TYPE_NONE                     0
+#define R_JWT_TYPE_SIGN                     1
+#define R_JWT_TYPE_ENCRYPT                  2
+#define R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT 3
+#define R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN 4
 
 /**
  * @}
@@ -160,6 +164,7 @@ typedef struct {
 } jwe_t;
 
 typedef struct {
+  int      type;
   json_t * j_header;
   json_t * j_claims;
   jws_t  * jws;
@@ -283,6 +288,7 @@ void r_jwt_free(jwt_t * jwt);
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return an integer containing 
  * - R_KEY_TYPE_NONE if the jwk is invalid
  * * the type:
@@ -494,6 +500,9 @@ int r_jwk_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt);
  * @param jwk: the jwk_t * to import to
  * @param type: the type of the input, values available are R_X509_TYPE_PUBKEY, R_X509_TYPE_PRIVKEY or R_X509_TYPE_CERTIFICATE
  * @param x5u_flags: Flags to retrieve certificates
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
  * @param x5u: the url to retreive the certificate
  * If jwk is set, values will be overwritten
  * @return RHN_OK on success, an error value on error
@@ -519,6 +528,7 @@ int r_jwk_import_from_symmetric_key(jwk_t * jwk, const unsigned char * key, size
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return RHN_OK on success, an error value on error
  */
 int r_jwk_extract_pubkey(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int x5u_flags);
@@ -571,6 +581,7 @@ json_t * r_jwk_export_to_json_t(jwk_t * jwk);
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL
  * @return a gnutls_privkey_t on success, NULL on error
  */
 gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags);
@@ -583,6 +594,7 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags);
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL
  * @return a gnutls_pubkey_t on success, NULL on error
  */
 gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags);
@@ -598,6 +610,7 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags);
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return RHN_OK on success, an error value on error
  * @return RHN_ERROR_PARAM if output_len isn't large enough to hold the output, then output_len will be set to the required size
  */
@@ -757,6 +770,7 @@ json_t * r_jwks_export_to_json_t(jwks_t * jwks);
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL
  * @return a heap-allocated gnutls_privkey_t * on success, NULL on error
  * an index of the returned array may be NULL if the corresponding jwk isn't a private key
  */
@@ -771,6 +785,7 @@ gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len, 
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL
  * @return a heap-allocated gnutls_pubkey_t * on success, NULL on error
  */
 gnutls_pubkey_t * r_jwks_export_to_gnutls_pubkey(jwks_t * jwks, size_t * len, int x5u_flags);
@@ -786,6 +801,7 @@ gnutls_pubkey_t * r_jwks_export_to_gnutls_pubkey(jwks_t * jwks, size_t * len, in
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return RHN_OK on success, an error value on error
  * @return RHN_ERROR_PARAM if output_len isn't large enough to hold the output, then output_len will be set to the required size
  */
@@ -939,6 +955,7 @@ jwks_t * r_jws_get_jwks_pubkey(jws_t * jws);
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return RHN_OK on success, an error value on error
  */
 int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags);
@@ -1192,6 +1209,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe);
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags);
@@ -1205,6 +1223,7 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags);
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
@@ -1218,6 +1237,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags);
@@ -1397,6 +1417,15 @@ char * r_jwt_get_full_claims_str(jwt_t * jwt);
 int r_jwt_set_full_claims_json_t(jwt_t * jwt, json_t * j_claim);
 
 /**
+ * Set the full JWT claim in JSON format
+ * delete all existing value
+ * @param jwt: the jwt_t to get the value
+ * @param str_claims: the claim to set, must be JSON object in string format
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_set_full_claims_json_str(jwt_t * jwt, const char * str_claims);
+
+/**
  * Append the given JSON object in the JWT payload
  * Replace existing claim if already set
  * @param jwt: the jwt_t to get the value
@@ -1523,6 +1552,7 @@ jwa_enc r_jwt_get_enc(jwt_t * jwt);
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL
  * @return RHN_OK on success, an error value on error
  */
 char * r_jwt_serialize_signed(jwt_t * jwt, jwk_t * privkey, int x5u_flags);
@@ -1536,6 +1566,7 @@ char * r_jwt_serialize_signed(jwt_t * jwt, jwk_t * privkey, int x5u_flags);
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL
  * @return RHN_OK on success, an error value on error
  */
 char * r_jwt_serialize_encrypted(jwt_t * jwt, jwk_t * pubkey, int x5u_flags);
@@ -1546,20 +1577,22 @@ char * r_jwt_serialize_encrypted(jwt_t * jwt, jwk_t * pubkey, int x5u_flags);
  * @param jwt: the jwt_t to serialize
  * @param type: the nesting type
  * Values available are
- * - R_JWT_NESTED_SIGN_THEN_ENCRYPT: the JWT will be signed, then the token will be encrypted in a JWE
- * - R_JWT_NESTED_ENCRYPT_THEN_SIGN: The JWT will be encrypted, then the token will be signed in a JWS
+ * - R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT: the JWT will be signed, then the token will be encrypted in a JWE
+ * - R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN: The JWT will be encrypted, then the token will be signed in a JWS
  * @param sign_key: the key to sign the JWT, may be NULL
  * @param sign_key_x5u_flags: Flags to retrieve certificates in sign_key
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL
  * @param encrypt_key: the key to encrypt the JWT, may be NULL
  * @param encrypt_key_x5u_flags: Flags to retrieve certificates in encrypt_key
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL
  * @return RHN_OK on success, an error value on error
  */
 char * r_jwt_serialize_nested(jwt_t * jwt, unsigned int type, jwk_t * sign_key, int sign_key_x5u_flags, jwk_t * encrypt_key, int encrypt_key_x5u_flags);
@@ -1576,9 +1609,22 @@ char * r_jwt_serialize_nested(jwt_t * jwt, unsigned int type, jwk_t * sign_key, 
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_parse(jwt_t * jwt, const char * token, int x5u_flags);
+
+/**
+ * Get the type of JWT after a succesfull r_jwt_parse
+ * @param jwt: the jwt_t to check
+ * @return the type of JWT, values available are
+ * R_JWT_TYPE_NONE: not a JWT
+ * R_JWT_TYPE_SIGN: A signed JWT
+ * R_JWT_TYPE_ENCRYPT: An encrypted JWT
+ * R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT: A nested JWT first signed, then encrypted
+ * R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN: A nested JWT first encrypted, then signed
+ */
+int r_jwt_get_type(jwt_t * jwt);
 
 /**
  * Verifies the signature of the JWT
@@ -1592,6 +1638,7 @@ int r_jwt_parse(jwt_t * jwt, const char * token, int x5u_flags);
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_verify_signature(jwt_t * jwt, jwk_t * pubkey, int x5u_flags);
@@ -1606,6 +1653,7 @@ int r_jwt_verify_signature(jwt_t * jwt, jwk_t * pubkey, int x5u_flags);
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_decrypt(jwt_t * jwt, jwk_t * privkey, int x5u_flags);
@@ -1620,6 +1668,7 @@ int r_jwt_decrypt(jwt_t * jwt, jwk_t * privkey, int x5u_flags);
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @param decrypt_key: the private key to decrypt cypher key,
  * can be NULL if jwt already contains a private key
  * @param decrypt_key_x5u_flags: Flags to retrieve certificates in decrypt_key
@@ -1627,6 +1676,7 @@ int r_jwt_decrypt(jwt_t * jwt, jwk_t * privkey, int x5u_flags);
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_decrypt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_key_x5u_flags, jwk_t * decrypt_key, int decrypt_key_x5u_flags);

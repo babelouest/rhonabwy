@@ -290,6 +290,7 @@ if (BUILD_RHONABWY_TESTING)
 	    jws_rsapss
 	    jwe_core
 	    jwe_rsa
+	    jwe_aesgcm
 	    jwe_dir
 	    jwt_core
 	    jwt_encrypt

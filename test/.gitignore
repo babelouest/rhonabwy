@@ -9,6 +9,7 @@ jws_rsa
 jws_rsapss
 jwe_core
 jwe_rsa
+jwe_aesgcm
 jwe_dir
 jwt_core
 jwt_sign

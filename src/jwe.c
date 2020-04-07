@@ -92,6 +92,187 @@ static gnutls_mac_algorithm_t r_jwe_get_digest_from_enc(jwa_enc enc) {
   return digest;
 }
 
+static gnutls_cipher_algorithm_t r_jwe_get_alg_from_alg(jwa_alg alg) {
+  gnutls_cipher_algorithm_t ret_alg = GNUTLS_CIPHER_UNKNOWN;
+
+  switch (alg) {
+    case R_JWA_ALG_A128GCMKW:
+      ret_alg = GNUTLS_CIPHER_AES_128_GCM;
+      break;
+    case R_JWA_ALG_A192GCMKW:
+      ret_alg = GNUTLS_CIPHER_UNKNOWN; // Unsupported on GnuTLS 3.6
+      break;
+    case R_JWA_ALG_A256GCMKW:
+      ret_alg = GNUTLS_CIPHER_AES_256_GCM;
+      break;
+    default:
+      ret_alg = GNUTLS_CIPHER_UNKNOWN;
+      break;
+  }
+  return ret_alg;
+}
+
+int r_jwe_aesgcm_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
+  int ret, res;
+  unsigned char iv[96] = {0}, iv_b64url[192] = {0}, * key = NULL, cipherkey[64] = {0}, cipherkey_b64url[128] = {0}, tag[128] = {0}, tag_b64url[256] = {0};
+  size_t iv_b64url_len = 0, key_len = 0, cipherkey_b64url_len = 0, tag_b64url_len = 0, iv_size = gnutls_cipher_get_iv_size(r_jwe_get_alg_from_alg(jwe->alg)), tag_len = gnutls_cipher_get_tag_size(r_jwe_get_alg_from_alg(jwe->alg));
+  unsigned int bits = 0;
+  gnutls_datum_t key_g, iv_g;
+  gnutls_cipher_hd_t handle = NULL;
+  
+  if (r_jwk_key_type(jwk, &bits, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
+    ret = RHN_OK;
+    key_len = bits;
+    
+    do {
+      if ((key = o_malloc(key_len+4)) == NULL) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error allocating resources for key");
+        ret = RHN_ERROR_MEMORY;
+        break;
+      }
+      if (r_jwk_export_to_symmetric_key(jwk, key, &key_len) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error r_jwk_export_to_symmetric_key");
+        ret = RHN_ERROR;
+        break;
+      }
+      if (gnutls_rnd(GNUTLS_RND_NONCE, iv, iv_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error gnutls_rnd");
+        ret = RHN_ERROR;
+        break;
+      }
+      if (!o_base64url_encode(iv, iv_size, iv_b64url, &iv_b64url_len)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error o_base64url_encode iv");
+        ret = RHN_ERROR;
+        break;
+      }
+      iv_b64url[iv_b64url_len] = '\0';
+      key_g.data = key;
+      key_g.size = key_len;
+      iv_g.data = iv;
+      iv_g.size = iv_size;
+      if ((res = gnutls_cipher_init(&handle, r_jwe_get_alg_from_alg(jwe->alg), &key_g, &iv_g))) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error gnutls_cipher_init: '%s'", gnutls_strerror(res));
+        ret = RHN_ERROR;
+        break;
+      }
+      if ((res = gnutls_cipher_encrypt2(handle, jwe->key, jwe->key_len, cipherkey, jwe->key_len))) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error gnutls_cipher_encrypt2: '%s'", gnutls_strerror(res));
+        ret = RHN_ERROR;
+        break;
+      }
+      if (!o_base64url_encode(cipherkey, jwe->key_len, cipherkey_b64url, &cipherkey_b64url_len)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error o_base64url_encode cipherkey");
+        ret = RHN_ERROR;
+        break;
+      }
+      if ((res = gnutls_cipher_tag(handle, tag, tag_len))) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error gnutls_cipher_tag: '%s'", gnutls_strerror(res));
+        ret = RHN_ERROR;
+        break;
+      }
+      if (!o_base64url_encode(tag, tag_len, tag_b64url, &tag_b64url_len)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error o_base64url_encode tag");
+        ret = RHN_ERROR;
+        break;
+      }
+      tag_b64url[tag_b64url_len] = '\0';
+      r_jwe_set_header_str_value(jwe, "iv", (const char *)iv_b64url);
+      r_jwe_set_header_str_value(jwe, "tag", (const char *)tag_b64url);
+      o_free(jwe->encrypted_key_b64url);
+      jwe->encrypted_key_b64url = (unsigned char *)o_strndup((const char *)cipherkey_b64url, cipherkey_b64url_len);
+      
+    } while (0);
+    o_free(key);
+    if (handle != NULL) {
+      gnutls_cipher_deinit(handle);
+    }
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error invalid key");
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+int r_jwe_aesgcm_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
+  int ret, res;
+  unsigned char iv[96] = {0}, * key = NULL, cipherkey[64] = {0}, tag[128] = {0}, tag_b64url[256] = {0};
+  size_t iv_len = 0, key_len = 0, cipherkey_len = 0, tag_b64url_len = 0, tag_len = gnutls_cipher_get_tag_size(r_jwe_get_alg_from_alg(jwe->alg));
+  unsigned int bits = 0;
+  gnutls_datum_t key_g, iv_g;
+  gnutls_cipher_hd_t handle = NULL;
+  
+  if (r_jwk_key_type(jwk, &bits, x5u_flags) & R_KEY_TYPE_SYMMETRIC && o_strlen(r_jwe_get_header_str_value(jwe, "iv")) && o_strlen(r_jwe_get_header_str_value(jwe, "tag"))) {
+    ret = RHN_OK;
+    key_len = bits;
+    
+    do {
+      if ((key = o_malloc(key_len+4)) == NULL) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error allocating resources for key");
+        ret = RHN_ERROR_MEMORY;
+        break;
+      }
+      if (r_jwk_export_to_symmetric_key(jwk, key, &key_len) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error r_jwk_export_to_symmetric_key");
+        ret = RHN_ERROR;
+        break;
+      }
+      if (!o_base64url_decode((const unsigned char *)r_jwe_get_header_str_value(jwe, "iv"), o_strlen(r_jwe_get_header_str_value(jwe, "iv")), iv, &iv_len)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error o_base64url_decode iv");
+        ret = RHN_ERROR;
+        break;
+      }
+      if (!o_base64url_decode((const unsigned char *)jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), cipherkey, &cipherkey_len)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error o_base64url_decode cipherkey");
+        ret = RHN_ERROR;
+        break;
+      }
+      key_g.data = key;
+      key_g.size = key_len;
+      iv_g.data = iv;
+      iv_g.size = iv_len;
+      if ((res = gnutls_cipher_init(&handle, r_jwe_get_alg_from_alg(jwe->alg), &key_g, &iv_g))) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error gnutls_cipher_init: '%s'", gnutls_strerror(res));
+        ret = RHN_ERROR;
+        break;
+      }
+      if ((res = gnutls_cipher_decrypt(handle, cipherkey, cipherkey_len))) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error gnutls_cipher_decrypt: '%s'", gnutls_strerror(res));
+        ret = RHN_ERROR;
+        break;
+      }
+      if ((res = gnutls_cipher_tag(handle, tag, tag_len))) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error gnutls_cipher_tag: '%s'", gnutls_strerror(res));
+        ret = RHN_ERROR;
+        break;
+      }
+      if (!o_base64url_encode(tag, tag_len, tag_b64url, &tag_b64url_len)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error o_base64url_encode tag");
+        ret = RHN_ERROR;
+        break;
+      }
+      tag_b64url[tag_b64url_len] = '\0';
+      if (0 != o_strcmp((const char *)tag_b64url, r_jwe_get_header_str_value(jwe, "tag"))) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Invalid tag %s %s", tag_b64url, r_jwe_get_header_str_value(jwe, "tag"));
+        ret = RHN_ERROR_INVALID;
+        break;
+      }
+      if (r_jwe_set_cypher_key(jwe, cipherkey, cipherkey_len) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error r_jwe_set_cypher_key");
+        ret = RHN_ERROR;
+      }
+      
+    } while (0);
+    o_free(key);
+    if (handle != NULL) {
+      gnutls_cipher_deinit(handle);
+    }
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error invalid key");
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
 static unsigned char * r_jwe_set_ptext_with_block(const unsigned char * data, size_t data_len, size_t * ptext_len, gnutls_cipher_algorithm_t alg) {
   size_t b_size = (size_t)gnutls_cipher_get_block_size(alg);
   unsigned char * ptext = NULL;
@@ -116,6 +297,9 @@ static size_t r_jwe_get_key_size(jwa_enc enc) {
   size_t size = 0;
   switch (enc) {
     case R_JWA_ENC_A128CBC:
+    case R_JWA_ENC_A128GCM:
+    case R_JWA_ENC_A192GCM:
+    case R_JWA_ENC_A256GCM:
       size = 32;
       break;
     case R_JWA_ENC_A192CBC:
@@ -123,11 +307,6 @@ static size_t r_jwe_get_key_size(jwa_enc enc) {
       break;
     case R_JWA_ENC_A256CBC:
       size = 64;
-      break;
-    case R_JWA_ENC_A128GCM:
-    case R_JWA_ENC_A192GCM:
-    case R_JWA_ENC_A256GCM:
-      size = 32;
       break;
     default:
       size = 0;
@@ -932,7 +1111,7 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
             tag_len = gnutls_cipher_get_tag_size(r_jwe_get_alg_from_enc(jwe->enc));
             memset(tag, 0, tag_len);
             if ((res = gnutls_cipher_tag(handle, tag, tag_len))) {
-              y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwe_encrypt_payload - Error gnutls_cipher_tag: '%s'", gnutls_strerror(res));
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error gnutls_cipher_tag: '%s'", gnutls_strerror(res));
               ret = RHN_ERROR;
             }
           }
@@ -1057,7 +1236,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
               }
             }
           } else if (res == GNUTLS_E_DECRYPTION_FAILED) {
-            y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwe_decrypt_payload - decryption failed: '%s'", gnutls_strerror(res));
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - decryption failed: '%s'", gnutls_strerror(res));
             ret = RHN_ERROR_INVALID;
           } else {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_decrypt: '%s'", gnutls_strerror(res));
@@ -1080,7 +1259,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
             tag_len = gnutls_cipher_get_tag_size(r_jwe_get_alg_from_enc(jwe->enc));
             memset(tag, 0, tag_len);
             if ((res = gnutls_cipher_tag(handle, tag, tag_len))) {
-              y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwe_decrypt_payload - Error gnutls_cipher_tag: '%s'", gnutls_strerror(res));
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_tag: '%s'", gnutls_strerror(res));
               ret = RHN_ERROR;
             }
           }
@@ -1088,7 +1267,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
             if ((tag_b64url = o_malloc(tag_len*2)) != NULL) {
               if (o_base64url_encode(tag, tag_len, tag_b64url, &tag_b64url_len)) {
                 if (tag_b64url_len != o_strlen((const char *)jwe->auth_tag_b64url) || 0 != memcmp(tag_b64url, jwe->auth_tag_b64url, tag_b64url_len)) {
-                  y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwe_decrypt_payload - Invalid tag");
+                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Invalid tag");
                   ret = RHN_ERROR_INVALID;
                 }
               } else {
@@ -1118,7 +1297,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
   return ret;
 }
 
-int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags) {
+int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
   int ret, res;
   jwk_t * jwk = NULL;
   gnutls_datum_t plainkey, cypherkey = {NULL, 0};
@@ -1129,8 +1308,8 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags) {
   jwa_alg alg;
   
   if (jwe != NULL) {
-    if (jwk_pubkey != NULL) {
-      jwk = r_jwk_copy(jwk_pubkey);
+    if (jwk_s != NULL) {
+      jwk = r_jwk_copy(jwk_s);
       if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(jwk, "alg"))) != R_JWA_ALG_NONE) {
         r_jwe_set_alg(jwe, alg);
       }
@@ -1211,6 +1390,16 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags) {
             ret = RHN_ERROR_PARAM;
           }
           break;
+        case R_JWA_ALG_A128GCMKW:
+        //case R_JWA_ALG_A192GCMKW: // Unsupported
+        case R_JWA_ALG_A256GCMKW:
+          if ((res = r_jwe_aesgcm_key_wrap(jwe, jwk, x5u_flags)) == RHN_OK) {
+            ret = RHN_OK;
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Error r_jwe_aesgcm_key_wrap");
+            ret = res;
+          }
+          break;
         default:
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Unsupported alg");
           ret = RHN_ERROR_PARAM;
@@ -1226,7 +1415,7 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags) {
   return ret;
 }
 
-int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
+int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
   int ret, res;
   jwk_t * jwk = NULL;
   gnutls_datum_t plainkey = {NULL, 0}, cypherkey;
@@ -1236,8 +1425,8 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
   size_t cypherkey_dec_len = 0, key_len = 0;
   
   if (jwe != NULL) {
-    if (jwk_privkey != NULL) {
-      jwk = r_jwk_copy(jwk_privkey);
+    if (jwk_s != NULL) {
+      jwk = r_jwk_copy(jwk_s);
     } else {
       if (r_jwe_get_header_str_value(jwe, "kid") != NULL) {
         jwk = r_jwks_get_by_kid(jwe->jwks_privkey, r_jwe_get_header_str_value(jwe, "kid"));
@@ -1319,6 +1508,16 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
           } else {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error no key available for alg 'dir'");
             ret = RHN_ERROR_PARAM;
+          }
+          break;
+        case R_JWA_ALG_A128GCMKW:
+        //case R_JWA_ALG_A192GCMKW: // Unsupported
+        case R_JWA_ALG_A256GCMKW:
+          if ((res = r_jwe_aesgcm_key_unwrap(jwe, jwk, x5u_flags)) == RHN_OK) {
+            ret = RHN_OK;
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Error r_jwe_aesgcm_key_unwrap");
+            ret = res;
           }
           break;
         default:

@@ -169,7 +169,6 @@ START_TEST(test_rhonabwy_encrypt_decrypt_ok)
   ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_RSA1_5), RHN_OK);
   ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
   ck_assert_ptr_ne((token = r_jwe_serialize(jwe, NULL, 0)), NULL);
-  y_log_message(Y_LOG_LEVEL_DEBUG, "token %s", token);
   
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, token, 0), RHN_OK);
   ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_OK);

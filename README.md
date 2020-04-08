@@ -30,7 +30,16 @@ JWT Relies on JWS and JWE functions, so it supports the same functionnalities as
 | EdDSA | Digital Signature with Ed25519 Elliptic Curve |YES|
 
 JWE support is experimental and limited, please use with great caution!
-- Supported Encryption Algorithm (`enc`) for JWE payload encryption: `A128CBC-HS256`, `A192CBC-HS384`, `A256CBC-HS512`, `A128GCM`, `A256GCM`
+- Supported Encryption Algorithm (`enc`) for JWE payload encryption:
+
+| "enc" Param Value | Content Encryption Algorithm | Supported |
+|---|---|---|
+| A128CBC-HS256 | AES_128_CBC_HMAC_SHA_256 authenticated encryption algorithm, as defined in Section 5.2.3 |YES|
+| A192CBC-HS384 | AES_192_CBC_HMAC_SHA_384 authenticated encryption algorithm, as defined in Section 5.2.4 |YES|
+| A256CBC-HS512 | AES_256_CBC_HMAC_SHA_512 authenticated encryption algorithm, as defined in Section 5.2.5 |YES|
+| A128GCM | AES GCM using 128-bit key |YES|
+| A192GCM | AES GCM using 192-bit key |NO|
+| A256GCM | AES GCM using 256-bit key |YES|
 
 - Supported Cryptographic Algorithms for Key Management:
 

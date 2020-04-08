@@ -29,7 +29,8 @@ JWT Relies on JWS and JWE functions, so it supports the same functionnalities as
 | none | No digital signature or MAC performed |YES|
 | EdDSA | Digital Signature with Ed25519 Elliptic Curve |YES|
 
-JWE support is experimental and limited, please use with great caution!
+**JWE support is experimental and limited, please use with great caution!**
+
 - Supported Encryption Algorithm (`enc`) for JWE payload encryption:
 
 | "enc" Param Value | Content Encryption Algorithm | Supported |

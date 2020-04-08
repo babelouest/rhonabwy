@@ -11,100 +11,48 @@
 JWT Relies on JWS and JWE functions, so it supports the same functionnalities as the other 2. JWT functionnalities also support nesting serilization (JWE nested in a JWS or the opposite).
 
 - Supported Cryptographic Algorithms for Digital Signatures and MACs:
-+--------------+-------------------------------+------------+
-| "alg" Param  | Digital Signature or MAC      | Supported  |
-| Value        | Algorithm                     |            |
-+--------------+-------------------------------+------------+
-| HS256        | HMAC using SHA-256            |    YES     |
-| HS384        | HMAC using SHA-384            |    YES     |
-| HS512        | HMAC using SHA-512            |    YES     |
-| RS256        | RSASSA-PKCS1-v1_5 using       |    YES     |
-|              | SHA-256                       |            |
-| RS384        | RSASSA-PKCS1-v1_5 using       |    YES     |
-|              | SHA-384                       |            |
-| RS512        | RSASSA-PKCS1-v1_5 using       |    YES     |
-|              | SHA-512                       |            |
-| ES256        | ECDSA using P-256 and SHA-256 |    YES     |
-| ES384        | ECDSA using P-384 and SHA-384 |    YES     |
-| ES512        | ECDSA using P-521 and SHA-512 |    YES     |
-| PS256        | RSASSA-PSS using SHA-256 and  |    YES     |
-|              | MGF1 with SHA-256             |            |
-| PS384        | RSASSA-PSS using SHA-384 and  |    YES     |
-|              | MGF1 with SHA-384             |            |
-| PS512        | RSASSA-PSS using SHA-512 and  |    YES     |
-|              | MGF1 with SHA-512             |            |
-| none         | No digital signature or MAC   |    YES     |
-|              | performed                     |            |
-| EdDSA        | Digital Signature with        |    YES     |
-|              | Ed25519 Elliptic Curve        |            |
-+--------------+-------------------------------+------------+
+
+| "alg" Param Value | Digital Signature or MAC Algorithm | Supported |
+|---|---|---|
+| HS256 | HMAC using SHA-256 |YES|
+| HS384 | HMAC using SHA-384 |YES|
+| HS512 | HMAC using SHA-512 |YES|
+| RS256 | RSASSA-PKCS1-v1_5 using SHA-256 |YES|
+| RS384 | RSASSA-PKCS1-v1_5 using SHA-384 |YES|
+| RS512 | RSASSA-PKCS1-v1_5 using SHA-512 |YES|
+| ES256 | ECDSA using P-256 and SHA-256 |YES|
+| ES384 | ECDSA using P-384 and SHA-384 |YES|
+| ES512 | ECDSA using P-521 and SHA-512 |YES|
+| PS256 | RSASSA-PSS using SHA-256 and MGF1 with SHA-256 |YES|
+| PS384 | RSASSA-PSS using SHA-384 and MGF1 with SHA-384 |YES|
+| PS512 | RSASSA-PSS using SHA-512 and MGF1 with SHA-512 |YES|
+| none | No digital signature or MAC performed |YES|
+| EdDSA | Digital Signature with Ed25519 Elliptic Curve |YES|
 
 JWE support is experimental and limited, please use with great caution!
 - Supported Encryption Algorithm (`enc`) for JWE payload encryption: `A128CBC-HS256`, `A192CBC-HS384`, `A256CBC-HS512`, `A128GCM`, `A256GCM`
 
 - Supported Cryptographic Algorithms for Key Management:
-+--------------------+--------------------+-----------+
-| "alg" Param Value  | Key Management     |           |
-|                    | Algorithm          | Supported |
-|                    |                    |           |
-+--------------------+--------------------+-----------+
-| RSA1_5             | RSAES-PKCS1-v1_5   |    YES    |
-| RSA-OAEP           | RSAES OAEP using   |           |
-|                    | default parameters |           |
-| RSA-OAEP-256       | RSAES OAEP using   |    NO     |
-|                    | SHA-256 and MGF1   |           |
-|                    | with SHA-256       |           |
-| A128KW             | AES Key Wrap with  |    NO     |
-|                    | default initial    |           |
-|                    | value using        |           |
-|                    | 128-bit key        |           |
-| A192KW             | AES Key Wrap with  |    NO     |
-|                    | default initial    |           |
-|                    | value using        |           |
-|                    | 192-bit key        |           |
-| A256KW             | AES Key Wrap with  |    NO     |
-|                    | default initial    |           |
-|                    | value using        |           |
-|                    | 256-bit key        |           |
-| dir                | Direct use of a    |    YES    |
-|                    | shared symmetric   |           |
-|                    | key as the CEK     |           |
-| ECDH-ES            | Elliptic Curve     |    NO     |
-|                    | Diffie-Hellman     |           |
-|                    | Ephemeral Static   |           |
-|                    | key agreement      |           |
-|                    | using Concat KDF   |           |
-| ECDH-ES+A128KW     | ECDH-ES using      |    NO     |
-|                    | Concat KDF and CEK |           |
-|                    | wrapped with       |           |
-|                    | "A128KW"           |           |
-| ECDH-ES+A192KW     | ECDH-ES using      |    NO     |
-|                    | Concat KDF and CEK |           |
-|                    | wrapped with       |           |
-|                    | "A192KW"           |           |
-| ECDH-ES+A256KW     | ECDH-ES using      |    NO     |
-|                    | Concat KDF and CEK |           |
-|                    | wrapped with       |           |
-|                    | "A256KW"           |           |
-| A128GCMKW          | Key wrapping with  |    YES    |
-|                    | AES GCM using      |           |
-|                    | 128-bit key        |           |
-| A192GCMKW          | Key wrapping with  |    NO     |
-|                    | AES GCM using      |           |
-|                    | 192-bit key        |           |
-| A256GCMKW          | Key wrapping with  |    YES    |
-|                    | AES GCM using      |           |
-|                    | 256-bit key        |           |
-| PBES2-HS256+A128KW | PBES2 with HMAC    |    NO     |
-|                    | SHA-256 and        |           |
-|                    | "A128KW" wrapping  |           |
-| PBES2-HS384+A192KW | PBES2 with HMAC    |    NO     |
-|                    | SHA-384 and        |           |
-|                    | "A192KW" wrapping  |           |
-| PBES2-HS512+A256KW | PBES2 with HMAC    |    NO     |
-|                    | SHA-512 and        |           |
-|                    | "A256KW" wrapping  |           |
-+--------------------+--------------------+-----------+
+
+| "alg" Param Value | Key Management Algorithm | Supported |
+|---|---|---|
+| RSA1_5 | RSAES-PKCS1-v1_5 | YES |
+| RSA-OAEP | RSAES OAEP using default parameters | NO |
+| RSA-OAEP-256 | RSAES OAEP using SHA-256 and MGF1 with SHA-256 | NO |
+| A128KW | AES Key Wrap with default initial value using 128-bit key | NO |
+| A192KW | AES Key Wrap with default initial value using 192-bit key | NO |
+| A256KW | AES Key Wrap with default initial value using 256-bit key | NO |
+| dir | Direct use of a shared symmetric key as the CEK | YES |
+| ECDH-ES | Elliptic Curve Diffie-Hellman Ephemeral Static key agreement using Concat KDF | NO |
+| ECDH-ES+A128KW | ECDH-ES using Concat KDF and CEK wrapped with "A128KW" | NO |
+| ECDH-ES+A192KW | ECDH-ES using Concat KDF and CEK wrapped with "A192KW" | NO |
+| ECDH-ES+A256KW | ECDH-ES using Concat KDF and CEK wrapped with "A256KW" | NO |
+| A128GCMKW | Key wrapping with AES GCM using 128-bit key | YES |
+| A192GCMKW | Key wrapping with AES GCM using 192-bit key | NO |
+| A256GCMKW | Key wrapping with AES GCM using 256-bit key | YES |
+| PBES2-HS256+A128KW | PBES2 with HMAC SHA-256 and "A128KW" wrapping | NO |
+| PBES2-HS384+A192KW | PBES2 with HMAC SHA-384 and "A192KW" wrapping | NO |
+| PBES2-HS512+A256KW | PBES2 with HMAC SHA-512 and "A256KW" wrapping | NO |
 
 # API Documentation
 

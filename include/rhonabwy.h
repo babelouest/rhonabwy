@@ -287,11 +287,27 @@ void r_jwt_free(jwt_t * jwt);
 jwa_alg str_to_jwa_alg(const char * alg);
 
 /**
+ * Get the algorithm string
+ * corresponding to the jwa_alg
+ * @param alg: the algorithm to convert
+ * @return its string name
+ */
+const char * jwa_alg_to_str(jwa_alg alg);
+
+/**
  * Get the jwa_enc corresponding to the string algorithm specified
  * @param enc: the algorithm to convert
  * @return the converted jwa_enc, R_JWA_ENC_NONE if enc is unknown
  */
 jwa_enc str_to_jwa_enc(const char * enc);
+
+/**
+ * Get the encryption string
+ * corresponding to the jwa_enc
+ * @param enc: the encryption to convert
+ * @return its string name
+ */
+const char * jwa_enc_to_str(jwa_enc enc);
 
 /**
  * @}

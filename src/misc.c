@@ -181,6 +181,107 @@ jwa_alg str_to_jwa_alg(const char * alg) {
   }
 }
 
+const char * jwa_alg_to_str(jwa_alg alg) {
+  switch (alg) {
+    case R_JWA_ALG_NONE:
+      return "none";
+      break;
+    case R_JWA_ALG_HS256:
+      return "HS256";
+      break;
+    case R_JWA_ALG_HS384:
+      return "HS384";
+      break;
+    case R_JWA_ALG_HS512:
+      return "HS512";
+      break;
+    case R_JWA_ALG_RS256:
+      return "RS256";
+      break;
+    case R_JWA_ALG_RS384:
+      return "RS384";
+      break;
+    case R_JWA_ALG_RS512:
+      return "RS512";
+      break;
+    case R_JWA_ALG_ES256:
+      return "ES256";
+      break;
+    case R_JWA_ALG_ES384:
+      return "ES384";
+      break;
+    case R_JWA_ALG_ES512:
+      return "ES512";
+      break;
+    case R_JWA_ALG_EDDSA:
+      return "EdDSA";
+      break;
+    case R_JWA_ALG_PS256:
+      return "PS256";
+      break;
+    case R_JWA_ALG_PS384:
+      return "PS384";
+      break;
+    case R_JWA_ALG_PS512:
+      return "PS512";
+      break;
+     case R_JWA_ALG_RSA1_5:
+      return "RSA1_5";
+      break;
+     case R_JWA_ALG_RSA_OAEP:
+      return "RSA-OAEP";
+      break;
+     case R_JWA_ALG_RSA_OAEP_256:
+      return "RSA-OAEP-256";
+      break;
+     case R_JWA_ALG_A128KW:
+      return "A128KW";
+      break;
+     case R_JWA_ALG_A192KW:
+      return "A192KW";
+      break;
+     case R_JWA_ALG_A256KW:
+      return "A256KW";
+      break;
+     case R_JWA_ALG_DIR:
+      return "dir";
+      break;
+     case R_JWA_ALG_ECDH_ES:
+      return "ECDH-ES";
+      break;
+     case R_JWA_ALG_ECDH_ES_A128KW:
+      return "ECDH-ES+A128KW";
+      break;
+     case R_JWA_ALG_ECDH_ES_A192KW:
+      return "ECDH-ES+A192KW";
+      break;
+     case R_JWA_ALG_ECDH_ES_A256KW:
+      return "ECDH-ES+A256KW";
+      break;
+     case R_JWA_ALG_A128GCMKW:
+      return "A128GCMKW";
+      break;
+     case R_JWA_ALG_A192GCMKW:
+      return "A192GCMKW";
+      break;
+     case R_JWA_ALG_A256GCMKW:
+      return "A256GCMKW";
+      break;
+     case R_JWA_ALG_PBES2_H256:
+      return "PBES2-HS256+A128KW";
+      break;
+     case R_JWA_ALG_PBES2_H384:
+      return "PBES2-HS384+A192KW";
+      break;
+     case R_JWA_ALG_PBES2_H512:
+      return "PBES2-HS512+A256KW";
+      break;
+    default:
+      return NULL;
+      break;
+  }
+}
+
 jwa_enc str_to_jwa_enc(const char * enc) {
   if (0 == o_strcmp("A128CBC-HS256", enc)) {
     return R_JWA_ENC_A128CBC;
@@ -196,6 +297,32 @@ jwa_enc str_to_jwa_enc(const char * enc) {
     return R_JWA_ENC_A256GCM;
   } else {
     return R_JWA_ENC_UNKNOWN;
+  }
+}
+
+const char * jwa_enc_to_str(jwa_enc enc) {
+  switch (enc) {
+    case R_JWA_ENC_A128CBC:
+      return "A128CBC-HS256";
+      break;
+    case R_JWA_ENC_A192CBC:
+      return "A192CBC-HS384";
+      break;
+    case R_JWA_ENC_A256CBC:
+      return "A256CBC-HS512";
+      break;
+    case R_JWA_ENC_A128GCM:
+      return "A128GCM";
+      break;
+    case R_JWA_ENC_A192GCM:
+      return "A192GCM";
+      break;
+    case R_JWA_ENC_A256GCM:
+      return "A256GCM";
+      break;
+    default:
+      return NULL;
+      break;
   }
 }
 

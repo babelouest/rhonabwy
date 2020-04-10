@@ -928,29 +928,30 @@ jwks_t * r_jws_get_jwks_pubkey(jws_t * jws) {
   }
 }
 
-int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags) {
+int r_jws_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_flags) {
   int ret;
   char ** str_array = NULL;
-  char * str_header = NULL;
+  char * str_header = NULL, * token = NULL;
   size_t header_len = 0, payload_len = 0, split_size = 0;
   json_t * j_header = NULL;
   
   
-  if (jws != NULL && o_strlen(jws_str)) {
-    if ((split_size = split_string(jws_str, ".", &str_array)) == 2 || split_size == 3) {
+  if (jws != NULL && jws_str != NULL && jws_str_len) {
+    token = o_strndup(jws_str, jws_str_len);
+    if ((split_size = split_string(token, ".", &str_array)) == 2 || split_size == 3) {
       // Check if all first 2 elements are base64url
       if (o_base64url_decode((unsigned char *)str_array[0], o_strlen(str_array[0]), NULL, &header_len) && o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), NULL, &payload_len)) {
         ret = RHN_OK;
         do {
           // Decode header
           if ((str_header = o_malloc(header_len+4)) == NULL) {
-            y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_parse - error allocating resources for str_header");
+            y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_parsen - error allocating resources for str_header");
             ret = RHN_ERROR_MEMORY;
             break;
           }
           
           if (!o_base64url_decode((unsigned char *)str_array[0], o_strlen(str_array[0]), (unsigned char *)str_header, &header_len)) {
-            y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_parse - error decoding str_header");
+            y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_parsen - error decoding str_header");
             ret = RHN_ERROR_PARAM;
             break;
           }
@@ -968,13 +969,13 @@ int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags) {
           // Decode payload
           o_free(jws->payload);
           if ((jws->payload = o_malloc(payload_len+4)) == NULL) {
-            y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_parse - error allocating resources for payload");
+            y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_parsen - error allocating resources for payload");
             ret = RHN_ERROR_MEMORY;
             break;
           }
           
           if (!o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), jws->payload, &jws->payload_len)) {
-            y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_parse - error decoding jws->payload");
+            y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_parsen - error decoding jws->payload");
             ret = RHN_ERROR_PARAM;
             break;
           }
@@ -991,18 +992,23 @@ int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags) {
         json_decref(j_header);
         o_free(str_header);
       } else {
-        y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_parse - error decoding jws from base64url format");
+        y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_parsen - error decoding jws from base64url format");
         ret = RHN_ERROR_PARAM;
       }
     } else {
-      y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_parse - jws_str invalid format");
+      y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_parsen - jws_str invalid format");
       ret = RHN_ERROR_PARAM;
     }
     free_string_array(str_array);
+    o_free(token);
   } else {
     ret = RHN_ERROR_PARAM;
   }
   return ret;
+}
+
+int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags) {
+  return r_jws_parsen(jws, jws_str, o_strlen(jws_str), x5u_flags);
 }
 
 int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags) {

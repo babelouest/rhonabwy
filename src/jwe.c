@@ -1534,16 +1534,17 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
   return ret;
 }
 
-int r_jwe_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags) {
+int r_jwe_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_str_len, int x5u_flags) {
   int ret;
   char ** str_array = NULL;
-  char * str_header = NULL;
+  char * str_header = NULL, * token = NULL;
   unsigned char * iv = NULL;
   size_t header_len = 0, iv_len = 0, cypher_len = 0, tag_len = 0;
   json_t * j_header = NULL;
   
-  if (jwe != NULL && o_strlen(jwe_str)) {
-    if (split_string(jwe_str, ".", &str_array) == 5) {
+  if (jwe != NULL && jwe_str != NULL && jwe_str_len) {
+    token = o_strndup(jwe_str, jwe_str_len);
+    if (split_string(token, ".", &str_array) == 5) {
       // Check if all elements 0, 2 and 3 are base64url encoded
       if (o_base64url_decode((unsigned char *)str_array[0], o_strlen(str_array[0]), NULL, &header_len) && 
           o_base64url_decode((unsigned char *)str_array[2], o_strlen(str_array[2]), NULL, &iv_len) &&
@@ -1553,20 +1554,20 @@ int r_jwe_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags) {
         do {
           // Decode header
           if ((str_header = o_malloc(header_len+4)) == NULL) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse - Error allocating resources for str_header");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parsen - Error allocating resources for str_header");
             ret = RHN_ERROR_MEMORY;
             break;
           }
           
           if (!o_base64url_decode((unsigned char *)str_array[0], o_strlen(str_array[0]), (unsigned char *)str_header, &header_len)) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse - Error o_base64url_decode str_header");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parsen - Error o_base64url_decode str_header");
             ret = RHN_ERROR_PARAM;
             break;
           }
           str_header[header_len] = '\0';
           
           if ((j_header = json_loads(str_header, JSON_DECODE_ANY, NULL)) == NULL) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse - Error json_loads str_header");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parsen - Error json_loads str_header");
             ret = RHN_ERROR_PARAM;
             break;
           }
@@ -1581,19 +1582,19 @@ int r_jwe_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags) {
           
           // Decode iv
           if ((iv = o_malloc(iv_len+4)) == NULL) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse - Error allocating resources for iv");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parsen - Error allocating resources for iv");
             ret = RHN_ERROR_MEMORY;
             break;
           }
           
           if (!o_base64url_decode((unsigned char *)str_array[2], o_strlen(str_array[2]), iv, &iv_len)) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse - Error o_base64url_decode iv");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parsen - Error o_base64url_decode iv");
             ret = RHN_ERROR_PARAM;
             break;
           }
           
           if (r_jwe_set_iv(jwe, iv, iv_len) != RHN_OK) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse - Error r_jwe_set_iv");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parsen - Error r_jwe_set_iv");
             ret = RHN_ERROR;
             break;
           }
@@ -1619,10 +1620,15 @@ int r_jwe_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags) {
       ret = RHN_ERROR_PARAM;
     }
     free_string_array(str_array);
+    o_free(token);
   } else {
     ret = RHN_ERROR_PARAM;
   }
   return ret;
+}
+
+int r_jwe_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags) {
+  return r_jwe_parsen(jwe, jwe_str, o_strlen(jwe_str), x5u_flags);
 }
 
 int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {

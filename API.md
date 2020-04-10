@@ -483,7 +483,7 @@ A JWT can be nested, which means signed and encrypted, in which case the payload
 
 ### Verify a list of claims in the JWT
 
-The function int `r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_key_x5u_flags)` will help you verify the validity of some claims in the JWT.
+The function int `int r_jwt_validate_claims(jwt_t * jwt, ...)` will help you verify the validity of some claims in the JWT.
 
 Claim types available
 - `R_JWT_CLAIM_ISS`: claim `"iss"`, values expected a string or `NULL` to validate the presence of the claim

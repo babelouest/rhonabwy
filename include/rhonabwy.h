@@ -74,6 +74,18 @@ extern "C"
 #define R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT 3
 #define R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN 4
 
+#define R_JWT_CLAIM_NOP 0
+#define R_JWT_CLAIM_ISS 1
+#define R_JWT_CLAIM_SUB 2
+#define R_JWT_CLAIM_AUD 3
+#define R_JWT_CLAIM_EXP 4
+#define R_JWT_CLAIM_NBF 5
+#define R_JWT_CLAIM_IAT 6
+#define R_JWT_CLAIM_JTI 7
+
+#define R_JWT_CLAIM_NOW -1
+#define R_JWT_CLAIM_PRESENT -2
+
 /**
  * @}
  */
@@ -1793,6 +1805,20 @@ int r_jwt_decrypt_nested(jwt_t * jwt, jwk_t * decrypt_key, int decrypt_key_x5u_f
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_key_x5u_flags);
+
+/**
+ * Validates the jwt claims with the list of expected claims given in parameters
+ * The list must end with the claim type R_JWT_CLAIM_NOP
+ * Claim types available
+ * - R_JWT_CLAIM_ISS: claim "iss", values expected a string or NULL to validate the presence of the claim
+ * - R_JWT_CLAIM_SUB: claim "sub", values expected a string or NULL to validate the presence of the claim
+ * - R_JWT_CLAIM_AUD: claim "aud", values expected a string or NULL to validate the presence of the claim
+ * - R_JWT_CLAIM_EXP: claim "exp", value expected R_JWT_CLAIM_NOW or an positive integer value or R_JWT_CLAIM_PRESENT to validate the presence of the claim
+ * - R_JWT_CLAIM_NBF: claim "nbf", value expected R_JWT_CLAIM_NOW or an positive integer value or R_JWT_CLAIM_PRESENT to validate the presence of the claim
+ * - R_JWT_CLAIM_IAT: claim "iat", value expected R_JWT_CLAIM_NOW or an positive integer value or R_JWT_CLAIM_PRESENT to validate the presence of the claim
+ * - R_JWT_CLAIM_JTI: claim "jti", values expected a string or NULL to validate the presence of the claim
+ */
+int r_jwt_validate_claims(jwt_t * jwt, ...);
 
 /**
  * @}

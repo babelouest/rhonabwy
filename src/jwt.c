@@ -1145,3 +1145,129 @@ int r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_ke
   }
   return ret;
 }
+
+int r_jwt_validate_claims(jwt_t * jwt, ...) {
+  uint option, ret = RHN_OK;
+  int i_value;
+  const char * str_value;
+  va_list vl;
+  time_t now, t_value;
+  
+  if (jwt != NULL) {
+    time(&now);
+    va_start(vl, jwt);
+    for (option = va_arg(vl, uint); option != R_JWT_CLAIM_NOP && ret == RHN_OK; option = va_arg(vl, uint)) {
+      switch (option) {
+        case R_JWT_CLAIM_ISS:
+          str_value = va_arg(vl, const char *);
+          if (o_strlen(str_value)) {
+            if (0 != o_strcmp(str_value, r_jwt_get_claim_str_value(jwt, "iss"))) {
+              ret = RHN_ERROR_PARAM;
+            }
+          } else {
+            if (!o_strlen(r_jwt_get_claim_str_value(jwt, "iss"))) {
+              ret = RHN_ERROR_PARAM;
+            }
+          }
+          break;
+        case R_JWT_CLAIM_SUB:
+          str_value = va_arg(vl, const char *);
+          if (o_strlen(str_value)) {
+            if (0 != o_strcmp(str_value, r_jwt_get_claim_str_value(jwt, "sub"))) {
+              ret = RHN_ERROR_PARAM;
+            }
+          } else {
+            if (!o_strlen(r_jwt_get_claim_str_value(jwt, "sub"))) {
+              ret = RHN_ERROR_PARAM;
+            }
+          }
+          break;
+        case R_JWT_CLAIM_AUD:
+          str_value = va_arg(vl, const char *);
+          if (o_strlen(str_value)) {
+            if (0 != o_strcmp(str_value, r_jwt_get_claim_str_value(jwt, "aud"))) {
+              ret = RHN_ERROR_PARAM;
+            }
+          } else {
+            if (!o_strlen(r_jwt_get_claim_str_value(jwt, "aud"))) {
+              ret = RHN_ERROR_PARAM;
+            }
+          }
+          break;
+        case R_JWT_CLAIM_JTI:
+          str_value = va_arg(vl, const char *);
+          if (o_strlen(str_value)) {
+            if (0 != o_strcmp(str_value, r_jwt_get_claim_str_value(jwt, "jti"))) {
+              ret = RHN_ERROR_PARAM;
+            }
+          } else {
+            if (!o_strlen(r_jwt_get_claim_str_value(jwt, "jti"))) {
+              ret = RHN_ERROR_PARAM;
+            }
+          }
+          break;
+        case R_JWT_CLAIM_EXP:
+          i_value = va_arg(vl, int);
+          if (i_value == R_JWT_CLAIM_PRESENT && !json_is_integer(json_object_get(jwt->j_claims, "exp"))) {
+            ret = RHN_ERROR_PARAM;
+          } else if (json_is_integer(json_object_get(jwt->j_claims, "exp"))) {
+            t_value = (time_t)r_jwt_get_claim_int_value(jwt, "exp");
+            if (i_value == R_JWT_CLAIM_NOW) {
+              if (t_value < now) {
+                ret = RHN_ERROR_PARAM;
+              }
+            } else if (i_value > 0) {
+              if (t_value < (time_t)i_value) {
+                ret = RHN_ERROR_PARAM;
+              }
+            }
+          } else {
+            ret = RHN_ERROR_PARAM;
+          }
+          break;
+        case R_JWT_CLAIM_NBF:
+          i_value = va_arg(vl, int);
+          if (i_value == R_JWT_CLAIM_PRESENT && !json_is_integer(json_object_get(jwt->j_claims, "nbf"))) {
+            ret = RHN_ERROR_PARAM;
+          } else if (json_is_integer(json_object_get(jwt->j_claims, "nbf"))) {
+            t_value = (time_t)r_jwt_get_claim_int_value(jwt, "nbf");
+            if (i_value == R_JWT_CLAIM_NOW) {
+              if (t_value > now) {
+                ret = RHN_ERROR_PARAM;
+              }
+            } else if (i_value > 0) {
+              if (t_value > (time_t)i_value) {
+                ret = RHN_ERROR_PARAM;
+              }
+            }
+          } else {
+            ret = RHN_ERROR_PARAM;
+          }
+          break;
+        case R_JWT_CLAIM_IAT:
+          i_value = va_arg(vl, int);
+          if (i_value == R_JWT_CLAIM_PRESENT && !json_is_integer(json_object_get(jwt->j_claims, "iat"))) {
+            ret = RHN_ERROR_PARAM;
+          } else if (json_is_integer(json_object_get(jwt->j_claims, "iat"))) {
+            t_value = (time_t)r_jwt_get_claim_int_value(jwt, "iat");
+            if (i_value == R_JWT_CLAIM_NOW) {
+              if (t_value > now) {
+                ret = RHN_ERROR_PARAM;
+              }
+            } else if (i_value > 0) {
+              if (t_value > (time_t)i_value) {
+                ret = RHN_ERROR_PARAM;
+              }
+            }
+          } else {
+            ret = RHN_ERROR_PARAM;
+          }
+          break;
+      }
+    }
+    va_end(vl);
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}

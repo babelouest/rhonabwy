@@ -481,6 +481,30 @@ Finally, a JWT (JSON Web Token) is a JSON content signed and/or encrypted and se
 
 A JWT can be nested, which means signed and encrypted, in which case the payload is signed as a JWS first, then the seralized signed token is used as the payload in a JWE, or the opposite.
 
+### Verify a list of claims in the JWT
+
+The function int `r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_key_x5u_flags)` will help you verify the validity of some claims in the JWT.
+
+Claim types available
+- `R_JWT_CLAIM_ISS`: claim `"iss"`, values expected a string or `NULL` to validate the presence of the claim
+- `R_JWT_CLAIM_SUB`: claim `"sub"`, values expected a string or `NULL` to validate the presence of the claim
+- `R_JWT_CLAIM_AUD`: claim `"aud"`, values expected a string or `NULL` to validate the presence of the claim
+- `R_JWT_CLAIM_EXP`: claim `"exp"`, value expected `R_JWT_CLAIM_NOW` or an positive integer value or `R_JWT_CLAIM_PRESENT` to validate the presence of the claim
+- `R_JWT_CLAIM_NBF`: claim `"nbf"`, value expected `R_JWT_CLAIM_NOW` or an positive integer value or `R_JWT_CLAIM_PRESENT` to validate the presence of the claim
+- `R_JWT_CLAIM_IAT`: claim `"iat"`, value expected `R_JWT_CLAIM_NOW` or an positive integer value or `R_JWT_CLAIM_PRESENT` to validate the presence of the claim
+- `R_JWT_CLAIM_JTI`: claim `"jti"`, values expected a string or `NULL` to validate the presence of the claim
+
+For example, the following code will check the jwt against the `iss` value `"https://example.com"`, the `sub` value `"client_1"`, the presence of the claim `aud` and that the claim `exp` is after now and the claim `nbf` is before now:
+
+```C
+if (r_jwt_validate_claims(jwt, R_JWT_CLAIM_ISS, "https://example.com", 
+                               R_JWT_CLAIM_SUB, "client_1", 
+                               R_JWT_CLAIM_AUD, NULL, 
+                               R_JWT_CLAIM_EXP, R_JWT_CLAIM_NOW, 
+                               R_JWT_CLAIM_NBF, R_JWT_CLAIM_NOW, 
+                               R_JWT_CLAIM_NOP) == RHN_OK)
+```
+
 ### Serialize a JWT using Rhonabwy
 
 Let's use the following JSON object in a JWT:

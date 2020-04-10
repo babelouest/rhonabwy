@@ -974,7 +974,7 @@ jwks_t * r_jws_get_jwks_pubkey(jws_t * jws);
 /**
  * Parses the JWS, verify the signature if the JWS header contains the public key
  * @param jws: the jws_t to update
- * @param jws_str: the jws serialized to parse
+ * @param jws_str: the jws serialized to parse, must end with a NULL string terminator
  * @param x5u_flags: Flags to retrieve certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
@@ -984,6 +984,21 @@ jwks_t * r_jws_get_jwks_pubkey(jws_t * jws);
  * @return RHN_OK on success, an error value on error
  */
 int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags);
+
+/**
+ * Parses the JWS, verify the signature if the JWS header contains the public key
+ * @param jws: the jws_t to update
+ * @param jws_str: the jws serialized to parse
+ * @param jws_str_len: the length of jws_str to parse
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_flags);
 
 /**
  * Verifies the signature of the JWS
@@ -1256,7 +1271,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
 /**
  * Parses the JWE
  * @param jwe: the jwe_t to update
- * @param jwe_str: the jwe serialized to parse
+ * @param jwe_str: the jwe serialized to parse, must end with a NULL string terminator
  * @param x5u_flags: Flags to retrieve certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
@@ -1266,6 +1281,21 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags);
+
+/**
+ * Parses the JWE
+ * @param jwe: the jwe_t to update
+ * @param jwe_str: the jwe serialized to parse
+ * @param jwe_str_len: the length of jwe_str
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_str_len, int x5u_flags);
 
 /**
  * Decrypts the payload of the JWE
@@ -1624,11 +1654,11 @@ char * r_jwt_serialize_nested(jwt_t * jwt, unsigned int type, jwk_t * sign_key, 
 
 /**
  * Parse a serialized JWT
- * If the JWT is signed only, the payload will be available
- * If the JWT is encrypted, the payload will not be accessible until
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
  * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
  * @param jwt: the jwt that will contain the parsed token
- * @param token: the token to parse into a JWT
+ * @param token: the token to parse into a JWT, must end with a NULL string terminator
  * @param x5u_flags: Flags to retrieve certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
@@ -1638,6 +1668,24 @@ char * r_jwt_serialize_nested(jwt_t * jwt, unsigned int type, jwk_t * sign_key, 
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_parse(jwt_t * jwt, const char * token, int x5u_flags);
+
+/**
+ * Parse a serialized JWT
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
+ * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
+ * @param jwt: the jwt that will contain the parsed token
+ * @param token: the token to parse into a JWT
+ * @param token_len: token length
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_parsen(jwt_t * jwt, const char * token, size_t token_len, int x5u_flags);
 
 /**
  * Get the type of JWT after a succesfull r_jwt_parse
@@ -1684,7 +1732,8 @@ int r_jwt_verify_signature(jwt_t * jwt, jwk_t * pubkey, int x5u_flags);
 int r_jwt_decrypt(jwt_t * jwt, jwk_t * privkey, int x5u_flags);
 
 /**
- * Decrypts and verify the signature of a nested JWT
+ * Decrypts and verifies the signature of a nested JWT
+ * Fills the claims if the decryption and signature verifiation are succesfull
  * @param jwt: the jwt_t to decrypt and verify signature
  * @param verify_key: the public key to check the signature,
  * can be NULL if jws already contains a public key
@@ -1705,6 +1754,45 @@ int r_jwt_decrypt(jwt_t * jwt, jwk_t * privkey, int x5u_flags);
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_decrypt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_key_x5u_flags, jwk_t * decrypt_key, int decrypt_key_x5u_flags);
+
+/**
+ * Decrypts a nested JWT, do not verify the signature
+ * Fills the claims if the decryption is succesfull
+ * @param jwt: the jwt_t to decrypt and verify signature
+ * @param decrypt_key: the private key to decrypt cypher key,
+ * can be NULL if jwt already contains a private key
+ * @param decrypt_key_x5u_flags: Flags to retrieve certificates in decrypt_key
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_decrypt_nested(jwt_t * jwt, jwk_t * decrypt_key, int decrypt_key_x5u_flags);
+
+/**
+ * Verifies the signature of a nested JWT
+ * @param jwt: the jwt_t to decrypt and verify signature
+ * @param verify_key: the public key to check the signature,
+ * can be NULL if jws already contains a public key
+ * @param verify_key_x5u_flags: Flags to retrieve certificates in verify_key
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @param decrypt_key: the private key to decrypt cypher key,
+ * can be NULL if jwt already contains a private key
+ * @param decrypt_key_x5u_flags: Flags to retrieve certificates in decrypt_key
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_key_x5u_flags);
 
 /**
  * @}

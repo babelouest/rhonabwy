@@ -493,8 +493,11 @@ Claim types available
 - `R_JWT_CLAIM_NBF`: claim `"nbf"`, value expected `R_JWT_CLAIM_NOW` or an positive integer value or `R_JWT_CLAIM_PRESENT` to validate the presence of the claim
 - `R_JWT_CLAIM_IAT`: claim `"iat"`, value expected `R_JWT_CLAIM_NOW` or an positive integer value or `R_JWT_CLAIM_PRESENT` to validate the presence of the claim
 - `R_JWT_CLAIM_JTI`: claim `"jti"`, values expected a string or `NULL` to validate the presence of the claim
+- `R_JWT_CLAIM_STR`: the claim name specified must have the string value expected or `NULL` to validate the presence of the claim
+- `R_JWT_CLAIM_INT`: the claim name specified must have the integer value expected
+- `R_JWT_CLAIM_JSN`: the claim name specified must have the json_t * value expected or `NULL` to validate the presence of the claim
 
-For example, the following code will check the jwt against the `iss` value `"https://example.com"`, the `sub` value `"client_1"`, the presence of the claim `aud` and that the claim `exp` is after now and the claim `nbf` is before now:
+For example, the following code will check the jwt against the claim `iss` has the value `"https://example.com"`, the claim `sub` has the value `"client_1"`, the presence of the claim `aud`, the claim `exp` is after now, the claim `nbf` is before now, the claim `scope` has the value `"scope1"`, the claim `age` has the value `42` and the claim `verified` has the JSON value `true`:
 
 ```C
 if (r_jwt_validate_claims(jwt, R_JWT_CLAIM_ISS, "https://example.com", 
@@ -502,6 +505,9 @@ if (r_jwt_validate_claims(jwt, R_JWT_CLAIM_ISS, "https://example.com",
                                R_JWT_CLAIM_AUD, NULL, 
                                R_JWT_CLAIM_EXP, R_JWT_CLAIM_NOW, 
                                R_JWT_CLAIM_NBF, R_JWT_CLAIM_NOW, 
+                               R_JWT_CLAIM_STR, "scope", "scope1",
+                               R_JWT_CLAIM_INT, "age", 42,
+                               R_JWT_CLAIM_JSN, "verified", json_true(),
                                R_JWT_CLAIM_NOP) == RHN_OK)
 ```
 

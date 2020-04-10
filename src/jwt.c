@@ -1149,7 +1149,8 @@ int r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_ke
 int r_jwt_validate_claims(jwt_t * jwt, ...) {
   uint option, ret = RHN_OK;
   int i_value;
-  const char * str_value;
+  const char * str_key, * str_value;
+  json_t * j_value, * j_expected_value;
   va_list vl;
   time_t now, t_value;
   
@@ -1262,6 +1263,33 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
           } else {
             ret = RHN_ERROR_PARAM;
           }
+          break;
+        case R_JWT_CLAIM_STR:
+          str_key = va_arg(vl, const char *);
+          str_value = va_arg(vl, const char *);
+          if (str_value == NULL && r_jwt_get_claim_str_value(jwt, str_key) == NULL) {
+            ret = RHN_ERROR_PARAM;
+          } else if (str_value != NULL && 0 != o_strcmp(str_value, r_jwt_get_claim_str_value(jwt, str_key))) {
+            ret = RHN_ERROR_PARAM;
+          }
+          break;
+        case R_JWT_CLAIM_INT:
+          str_key = va_arg(vl, const char *);
+          i_value = va_arg(vl, int);
+          if (r_jwt_get_claim_int_value(jwt, str_key) != i_value) {
+            ret = RHN_ERROR_PARAM;
+          }
+          break;
+        case R_JWT_CLAIM_JSN:
+          str_key = va_arg(vl, const char *);
+          j_expected_value = va_arg(vl, json_t *);
+          j_value = r_jwt_get_claim_json_t_value(jwt, str_key);
+          if (j_value == NULL && j_expected_value == NULL) {
+            ret = RHN_ERROR_PARAM;
+          } else if (j_expected_value != NULL && !json_equal(j_expected_value, j_value)) {
+            ret = RHN_ERROR_PARAM;
+          }
+          json_decref(j_expected_value);
           break;
       }
     }

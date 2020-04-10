@@ -82,6 +82,9 @@ extern "C"
 #define R_JWT_CLAIM_NBF 5
 #define R_JWT_CLAIM_IAT 6
 #define R_JWT_CLAIM_JTI 7
+#define R_JWT_CLAIM_STR 8
+#define R_JWT_CLAIM_INT 9
+#define R_JWT_CLAIM_JSN 10
 
 #define R_JWT_CLAIM_NOW -1
 #define R_JWT_CLAIM_PRESENT -2
@@ -1817,6 +1820,9 @@ int r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_ke
  * - R_JWT_CLAIM_NBF: claim "nbf", value expected R_JWT_CLAIM_NOW or an positive integer value or R_JWT_CLAIM_PRESENT to validate the presence of the claim
  * - R_JWT_CLAIM_IAT: claim "iat", value expected R_JWT_CLAIM_NOW or an positive integer value or R_JWT_CLAIM_PRESENT to validate the presence of the claim
  * - R_JWT_CLAIM_JTI: claim "jti", values expected a string or NULL to validate the presence of the claim
+ * - R_JWT_CLAIM_STR: the claim name specified must have the string value expected or NULL to validate the presence of the claim
+ * - R_JWT_CLAIM_INT: the claim name specified must have the integer value expected
+ * - R_JWT_CLAIM_JSN: the claim name specified must have the json_t * value expected or NULL to validate the presence of the claim
  * Example
  * The following code will check the jwt agains the iss value "https://example.com", the sub value "client_1", the presence of the claim aud and that the claim exp is after now and the claim `nbf` is before now:
  * if (r_jwt_validate_claims(jwt, R_JWT_CLAIM_ISS, "https://example.com", 
@@ -1824,6 +1830,9 @@ int r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_ke
  *                                R_JWT_CLAIM_AUD, NULL, 
  *                                R_JWT_CLAIM_EXP, R_JWT_CLAIM_NOW, 
  *                                R_JWT_CLAIM_NBF, R_JWT_CLAIM_NOW,
+ *                                R_JWT_CLAIM_STR, "scope", "scope1",
+ *                                R_JWT_CLAIM_INT, "age", 42,
+ *                                R_JWT_CLAIM_JSN, "verified", json_true(),
  *                                R_JWT_CLAIM_NOP) == RHN_OK)
  */
 int r_jwt_validate_claims(jwt_t * jwt, ...);

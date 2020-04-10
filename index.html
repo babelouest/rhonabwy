@@ -154,7 +154,7 @@ $(function() {
 <p>Finally, a JWT (JSON Web Token) is a JSON content signed and/or encrypted and serialized in a compact format that can be easily transferred in HTTP requests. Technically, a JWT is a JWS or a JWE which payload is a stringified JSON and has the property <code>"type":"JWT"</code> in the header.</p>
 <p>A JWT can be nested, which means signed and encrypted, in which case the payload is signed as a JWS first, then the seralized signed token is used as the payload in a JWE, or the opposite.</p>
 <h3>Verify a list of claims in the JWT</h3>
-<p>The function int <code><a class="el" href="group__jwt.html#ga93a6452c0f103e81296ef50844e92996">r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_key_x5u_flags)</a></code> will help you verify the validity of some claims in the JWT.</p>
+<p>The function int <code>int r_jwt_validate_claims(<a class="el" href="structjwt__t.html">jwt_t</a> * jwt, ...)</code> will help you verify the validity of some claims in the JWT.</p>
 <p>Claim types available</p><ul>
 <li><code>R_JWT_CLAIM_ISS</code>: claim <code>"iss"</code>, values expected a string or <code>NULL</code> to validate the presence of the claim</li>
 <li><code>R_JWT_CLAIM_SUB</code>: claim <code>"sub"</code>, values expected a string or <code>NULL</code> to validate the presence of the claim</li>

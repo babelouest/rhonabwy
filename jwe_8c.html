@@ -67,6 +67,10 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a38e4ae71f3e81c3a902fe19030094ab6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwe_8c.html#a38e4ae71f3e81c3a902fe19030094ab6">r_jwe_aesgcm_key_wrap</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, int x5u_flags)</td></tr>
+<tr class="separator:a38e4ae71f3e81c3a902fe19030094ab6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89619e77bb9878da31d833615a6f4c1a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwe_8c.html#a89619e77bb9878da31d833615a6f4c1a">r_jwe_aesgcm_key_unwrap</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, int x5u_flags)</td></tr>
+<tr class="separator:a89619e77bb9878da31d833615a6f4c1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9fe136eb9a9a8c256f4cdb091c14da52"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga9fe136eb9a9a8c256f4cdb091c14da52">r_jwe_init</a> (<a class="el" href="structjwe__t.html">jwe_t</a> **jwe)</td></tr>
 <tr class="separator:ga9fe136eb9a9a8c256f4cdb091c14da52"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga14172c6cf13d0e96abf27d660d87037b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga14172c6cf13d0e96abf27d660d87037b">r_jwe_free</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe)</td></tr>
@@ -123,10 +127,12 @@ Functions</h2></td></tr>
 <tr class="separator:ga0e8208ec82b0cb0f7897a64838c4f44b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga366214d2c52824ee9abbce62d120737a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga366214d2c52824ee9abbce62d120737a">r_jwe_decrypt_payload</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe)</td></tr>
 <tr class="separator:ga366214d2c52824ee9abbce62d120737a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gae2ed0a53fc4087b8845869c586b4c195"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gae2ed0a53fc4087b8845869c586b4c195">r_jwe_encrypt_key</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_pubkey, int x5u_flags)</td></tr>
+<tr class="memitem:gae2ed0a53fc4087b8845869c586b4c195"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gae2ed0a53fc4087b8845869c586b4c195">r_jwe_encrypt_key</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_s, int x5u_flags)</td></tr>
 <tr class="separator:gae2ed0a53fc4087b8845869c586b4c195"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gab9ddeb2330847173375eaf0ea28a883d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gab9ddeb2330847173375eaf0ea28a883d">r_jwe_decrypt_key</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_privkey, int x5u_flags)</td></tr>
+<tr class="memitem:gab9ddeb2330847173375eaf0ea28a883d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gab9ddeb2330847173375eaf0ea28a883d">r_jwe_decrypt_key</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_s, int x5u_flags)</td></tr>
 <tr class="separator:gab9ddeb2330847173375eaf0ea28a883d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab4bc6ccf7d7fcac14850d960d76d6926"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gab4bc6ccf7d7fcac14850d960d76d6926">r_jwe_parsen</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, const char *jwe_str, size_t jwe_str_len, int x5u_flags)</td></tr>
+<tr class="separator:gab4bc6ccf7d7fcac14850d960d76d6926"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga48fc5ee3b222f9c17032058a2f94f780"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga48fc5ee3b222f9c17032058a2f94f780">r_jwe_parse</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, const char *jwe_str, int x5u_flags)</td></tr>
 <tr class="separator:ga48fc5ee3b222f9c17032058a2f94f780"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gab8e95565dde6e0b1f751b7e89c4eeb4a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gab8e95565dde6e0b1f751b7e89c4eeb4a">r_jwe_decrypt</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_privkey, int x5u_flags)</td></tr>
@@ -152,6 +158,75 @@ Functions</h2></td></tr>
 <p>This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; version 2.1 of the License.</p>
 <p>This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU GENERAL PUBLIC LICENSE for more details.</p>
 <p>You should have received a copy of the GNU General Public License along with this library. If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a38e4ae71f3e81c3a902fe19030094ab6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38e4ae71f3e81c3a902fe19030094ab6">&#9670;&nbsp;</a></span>r_jwe_aesgcm_key_wrap()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwe_aesgcm_key_wrap </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwe__t.html">jwe_t</a> *&#160;</td>
+          <td class="paramname"><em>jwe</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
+          <td class="paramname"><em>jwk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x5u_flags</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a89619e77bb9878da31d833615a6f4c1a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89619e77bb9878da31d833615a6f4c1a">&#9670;&nbsp;</a></span>r_jwe_aesgcm_key_unwrap()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwe_aesgcm_key_unwrap </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwe__t.html">jwe_t</a> *&#160;</td>
+          <td class="paramname"><em>jwe</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
+          <td class="paramname"><em>jwk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x5u_flags</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>

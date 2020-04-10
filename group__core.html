@@ -75,8 +75,12 @@ Functions</h2></td></tr>
 <tr class="separator:ga676cff4810db612ac0047c57ff5eff87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga33dbd6cac95fc5ef054ce4be7f13f621"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gaaf028013558b5ff9aa99ff4afc3ae2ea">jwa_alg</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga33dbd6cac95fc5ef054ce4be7f13f621">str_to_jwa_alg</a> (const char *alg)</td></tr>
 <tr class="separator:ga33dbd6cac95fc5ef054ce4be7f13f621"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaec4a359e513113d86b4d53a8c17a6a7c"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaec4a359e513113d86b4d53a8c17a6a7c">jwa_alg_to_str</a> (<a class="el" href="group__type.html#gaaf028013558b5ff9aa99ff4afc3ae2ea">jwa_alg</a> alg)</td></tr>
+<tr class="separator:gaec4a359e513113d86b4d53a8c17a6a7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf7853a8fcd43ae6f9c2bd3436885ecba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#ga34a92d88d5befd0170a6b82ec53ef020">jwa_enc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaf7853a8fcd43ae6f9c2bd3436885ecba">str_to_jwa_enc</a> (const char *enc)</td></tr>
 <tr class="separator:gaf7853a8fcd43ae6f9c2bd3436885ecba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga45fa7b392a66a851aa554cf2b66a65db"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga45fa7b392a66a851aa554cf2b66a65db">jwa_enc_to_str</a> (<a class="el" href="group__type.html#ga34a92d88d5befd0170a6b82ec53ef020">jwa_enc</a> enc)</td></tr>
+<tr class="separator:ga45fa7b392a66a851aa554cf2b66a65db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Core functions used to initialize or free jwk_t and check if a jwk is valid and its type </p>
@@ -439,6 +443,31 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="gaec4a359e513113d86b4d53a8c17a6a7c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaec4a359e513113d86b4d53a8c17a6a7c">&#9670;&nbsp;</a></span>jwa_alg_to_str()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* jwa_alg_to_str </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gaaf028013558b5ff9aa99ff4afc3ae2ea">jwa_alg</a>&#160;</td>
+          <td class="paramname"><em>alg</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get the algorithm string corresponding to the jwa_alg </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">alg</td><td>the algorithm to convert </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>its string name </dd></dl>
+
+</div>
+</div>
 <a id="gaf7853a8fcd43ae6f9c2bd3436885ecba"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaf7853a8fcd43ae6f9c2bd3436885ecba">&#9670;&nbsp;</a></span>str_to_jwa_enc()</h2>
 
@@ -461,6 +490,31 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the converted jwa_enc, R_JWA_ENC_NONE if enc is unknown </dd></dl>
+
+</div>
+</div>
+<a id="ga45fa7b392a66a851aa554cf2b66a65db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga45fa7b392a66a851aa554cf2b66a65db">&#9670;&nbsp;</a></span>jwa_enc_to_str()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* jwa_enc_to_str </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#ga34a92d88d5befd0170a6b82ec53ef020">jwa_enc</a>&#160;</td>
+          <td class="paramname"><em>enc</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get the encryption string corresponding to the jwa_enc </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">enc</td><td>the encryption to convert </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>its string name </dd></dl>
 
 </div>
 </div>

@@ -1,0 +1,13 @@
+prefix=/usr/local
+exec_prefix=/usr/local
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: rhonabwy
+Description: OAuth2 client library
+URL: https://github.com/babelouest/rhonabwy/issues
+Version: 0.9.9
+Requires: 
+Requires.private: 
+Libs: -L${libdir} -lrhonabwy
+Cflags: -I${includedir}

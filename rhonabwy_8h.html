@@ -55,7 +55,7 @@ $(function() {
 
 <p>Rhonabwy JSON Web Key (JWK) library.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;rhonabwy-cfg.h&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="rhonabwy-cfg_8h_source.html">rhonabwy-cfg.h</a>&quot;</code><br />
 <code>#include &lt;jansson.h&gt;</code><br />
 <code>#include &lt;gnutls/gnutls.h&gt;</code><br />
 </div>
@@ -126,6 +126,26 @@ Macros</h2></td></tr>
 <tr class="separator:ga0ea30b964bf8c7f02c45b7f889c1b541"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gadb6dcba9e6610dbe8017c9f1b2b8d95c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gadb6dcba9e6610dbe8017c9f1b2b8d95c">R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN</a>&#160;&#160;&#160;4</td></tr>
 <tr class="separator:gadb6dcba9e6610dbe8017c9f1b2b8d95c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac31587e872d3078f5db5f6aa7a26e809"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gac31587e872d3078f5db5f6aa7a26e809">R_JWT_CLAIM_NOP</a>&#160;&#160;&#160;0</td></tr>
+<tr class="separator:gac31587e872d3078f5db5f6aa7a26e809"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3eb84e84f7dd848a3c4cf9cac33edf34"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga3eb84e84f7dd848a3c4cf9cac33edf34">R_JWT_CLAIM_ISS</a>&#160;&#160;&#160;1</td></tr>
+<tr class="separator:ga3eb84e84f7dd848a3c4cf9cac33edf34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa252fe6bce78c19597fe48258e745536"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gaa252fe6bce78c19597fe48258e745536">R_JWT_CLAIM_SUB</a>&#160;&#160;&#160;2</td></tr>
+<tr class="separator:gaa252fe6bce78c19597fe48258e745536"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae007404ff7084876e86b17974ff3641c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gae007404ff7084876e86b17974ff3641c">R_JWT_CLAIM_AUD</a>&#160;&#160;&#160;3</td></tr>
+<tr class="separator:gae007404ff7084876e86b17974ff3641c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6a590644820acfbec8d36d2d4e5eb324"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga6a590644820acfbec8d36d2d4e5eb324">R_JWT_CLAIM_EXP</a>&#160;&#160;&#160;4</td></tr>
+<tr class="separator:ga6a590644820acfbec8d36d2d4e5eb324"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1fc01f72c6b46237293079e687556df2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga1fc01f72c6b46237293079e687556df2">R_JWT_CLAIM_NBF</a>&#160;&#160;&#160;5</td></tr>
+<tr class="separator:ga1fc01f72c6b46237293079e687556df2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabeffcdce4944e7ef781dc49b35e8dbcd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gabeffcdce4944e7ef781dc49b35e8dbcd">R_JWT_CLAIM_IAT</a>&#160;&#160;&#160;6</td></tr>
+<tr class="separator:gabeffcdce4944e7ef781dc49b35e8dbcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7d845cbaf6ef1a87a0525f6b93cc2794"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga7d845cbaf6ef1a87a0525f6b93cc2794">R_JWT_CLAIM_JTI</a>&#160;&#160;&#160;7</td></tr>
+<tr class="separator:ga7d845cbaf6ef1a87a0525f6b93cc2794"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf01bb3c8cd1b6f545fa0ff7c9ffda9e5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gaf01bb3c8cd1b6f545fa0ff7c9ffda9e5">R_JWT_CLAIM_NOW</a>&#160;&#160;&#160;-1</td></tr>
+<tr class="separator:gaf01bb3c8cd1b6f545fa0ff7c9ffda9e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7b68d4ba5767346bf4385db625cba1b7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga7b68d4ba5767346bf4385db625cba1b7">R_JWT_CLAIM_PRESENT</a>&#160;&#160;&#160;-2</td></tr>
+<tr class="separator:ga7b68d4ba5767346bf4385db625cba1b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -222,8 +242,12 @@ Functions</h2></td></tr>
 <tr class="separator:ga676cff4810db612ac0047c57ff5eff87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga33dbd6cac95fc5ef054ce4be7f13f621"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gaaf028013558b5ff9aa99ff4afc3ae2ea">jwa_alg</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga33dbd6cac95fc5ef054ce4be7f13f621">str_to_jwa_alg</a> (const char *alg)</td></tr>
 <tr class="separator:ga33dbd6cac95fc5ef054ce4be7f13f621"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaec4a359e513113d86b4d53a8c17a6a7c"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaec4a359e513113d86b4d53a8c17a6a7c">jwa_alg_to_str</a> (<a class="el" href="group__type.html#gaaf028013558b5ff9aa99ff4afc3ae2ea">jwa_alg</a> alg)</td></tr>
+<tr class="separator:gaec4a359e513113d86b4d53a8c17a6a7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf7853a8fcd43ae6f9c2bd3436885ecba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#ga34a92d88d5befd0170a6b82ec53ef020">jwa_enc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaf7853a8fcd43ae6f9c2bd3436885ecba">str_to_jwa_enc</a> (const char *enc)</td></tr>
 <tr class="separator:gaf7853a8fcd43ae6f9c2bd3436885ecba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga45fa7b392a66a851aa554cf2b66a65db"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga45fa7b392a66a851aa554cf2b66a65db">jwa_enc_to_str</a> (<a class="el" href="group__type.html#ga34a92d88d5befd0170a6b82ec53ef020">jwa_enc</a> enc)</td></tr>
+<tr class="separator:ga45fa7b392a66a851aa554cf2b66a65db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5fa9e08adde86a02bf7716fee2356446"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwk__validate.html#ga5fa9e08adde86a02bf7716fee2356446">r_jwk_key_type</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, unsigned int *bits, int x5u_flags)</td></tr>
 <tr class="separator:ga5fa9e08adde86a02bf7716fee2356446"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9a0282a7adbde59806ba012dc1ef61e5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwk__validate.html#ga9a0282a7adbde59806ba012dc1ef61e5">r_jwk_is_valid</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk)</td></tr>
@@ -348,6 +372,8 @@ Functions</h2></td></tr>
 <tr class="separator:gaf4743da23c5e752897c46e263431f563"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae1b043a46071322f988c8d714883a208"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jws.html#gae1b043a46071322f988c8d714883a208">r_jws_parse</a> (<a class="el" href="structjws__t.html">jws_t</a> *jws, const char *jws_str, int x5u_flags)</td></tr>
 <tr class="separator:gae1b043a46071322f988c8d714883a208"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9bfab9e913d1fb5b531c585ebcd054c0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jws.html#ga9bfab9e913d1fb5b531c585ebcd054c0">r_jws_parsen</a> (<a class="el" href="structjws__t.html">jws_t</a> *jws, const char *jws_str, size_t jws_str_len, int x5u_flags)</td></tr>
+<tr class="separator:ga9bfab9e913d1fb5b531c585ebcd054c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2f4b76d9600759ef920c0d389ae19fda"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jws.html#ga2f4b76d9600759ef920c0d389ae19fda">r_jws_verify_signature</a> (<a class="el" href="structjws__t.html">jws_t</a> *jws, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_pubkey, int x5u_flags)</td></tr>
 <tr class="separator:ga2f4b76d9600759ef920c0d389ae19fda"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaaca013bc2c9c3fe1e85386187504b235"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jws.html#gaaca013bc2c9c3fe1e85386187504b235">r_jws_serialize</a> (<a class="el" href="structjws__t.html">jws_t</a> *jws, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_privkey, int x5u_flags)</td></tr>
@@ -410,6 +436,8 @@ Functions</h2></td></tr>
 <tr class="separator:gab9ddeb2330847173375eaf0ea28a883d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga48fc5ee3b222f9c17032058a2f94f780"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga48fc5ee3b222f9c17032058a2f94f780">r_jwe_parse</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, const char *jwe_str, int x5u_flags)</td></tr>
 <tr class="separator:ga48fc5ee3b222f9c17032058a2f94f780"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab4bc6ccf7d7fcac14850d960d76d6926"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gab4bc6ccf7d7fcac14850d960d76d6926">r_jwe_parsen</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, const char *jwe_str, size_t jwe_str_len, int x5u_flags)</td></tr>
+<tr class="separator:gab4bc6ccf7d7fcac14850d960d76d6926"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gab8e95565dde6e0b1f751b7e89c4eeb4a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gab8e95565dde6e0b1f751b7e89c4eeb4a">r_jwe_decrypt</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_privkey, int x5u_flags)</td></tr>
 <tr class="separator:gab8e95565dde6e0b1f751b7e89c4eeb4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae9d1ad8e969eb23794dcce3f78a1aa1f"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gae9d1ad8e969eb23794dcce3f78a1aa1f">r_jwe_serialize</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_pubkey, int x5u_flags)</td></tr>
@@ -490,6 +518,8 @@ Functions</h2></td></tr>
 <tr class="separator:gade78a3a744664e08ff91b078c92236f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaab6cd5a5b23b79b7213a4918560cfdca"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gaab6cd5a5b23b79b7213a4918560cfdca">r_jwt_parse</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, const char *token, int x5u_flags)</td></tr>
 <tr class="separator:gaab6cd5a5b23b79b7213a4918560cfdca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7abf7f17814cd45db85ca073287dd188"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga7abf7f17814cd45db85ca073287dd188">r_jwt_parsen</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, const char *token, size_t token_len, int x5u_flags)</td></tr>
+<tr class="separator:ga7abf7f17814cd45db85ca073287dd188"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf46e1784ac6bf7ef66fadadf78496b7b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gaf46e1784ac6bf7ef66fadadf78496b7b">r_jwt_get_type</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt)</td></tr>
 <tr class="separator:gaf46e1784ac6bf7ef66fadadf78496b7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2ab2ec575660117efec3e576f189fa67"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga2ab2ec575660117efec3e576f189fa67">r_jwt_verify_signature</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *pubkey, int x5u_flags)</td></tr>
@@ -498,6 +528,12 @@ Functions</h2></td></tr>
 <tr class="separator:ga6a566b8f9127f997bc02eddf663b585d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga88cc40013aa6efa5c646ec1880850fcb"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga88cc40013aa6efa5c646ec1880850fcb">r_jwt_decrypt_verify_signature_nested</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *verify_key, int verify_key_x5u_flags, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *decrypt_key, int decrypt_key_x5u_flags)</td></tr>
 <tr class="separator:ga88cc40013aa6efa5c646ec1880850fcb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga231eac2d0642266ef84d5a7b6b669f56"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga231eac2d0642266ef84d5a7b6b669f56">r_jwt_decrypt_nested</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *decrypt_key, int decrypt_key_x5u_flags)</td></tr>
+<tr class="separator:ga231eac2d0642266ef84d5a7b6b669f56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga93a6452c0f103e81296ef50844e92996"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga93a6452c0f103e81296ef50844e92996">r_jwt_verify_signature_nested</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *verify_key, int verify_key_x5u_flags)</td></tr>
+<tr class="separator:ga93a6452c0f103e81296ef50844e92996"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa0445e80af0bc65f787ed2205780feb8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gaa0445e80af0bc65f787ed2205780feb8">r_jwt_validate_claims</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt,...)</td></tr>
+<tr class="separator:gaa0445e80af0bc65f787ed2205780feb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Rhonabwy JSON Web Key (JWK) library. </p>

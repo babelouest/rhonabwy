@@ -105,6 +105,8 @@ Functions</h2></td></tr>
 <tr class="separator:gab9ddeb2330847173375eaf0ea28a883d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga48fc5ee3b222f9c17032058a2f94f780"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga48fc5ee3b222f9c17032058a2f94f780">r_jwe_parse</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, const char *jwe_str, int x5u_flags)</td></tr>
 <tr class="separator:ga48fc5ee3b222f9c17032058a2f94f780"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab4bc6ccf7d7fcac14850d960d76d6926"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gab4bc6ccf7d7fcac14850d960d76d6926">r_jwe_parsen</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, const char *jwe_str, size_t jwe_str_len, int x5u_flags)</td></tr>
+<tr class="separator:gab4bc6ccf7d7fcac14850d960d76d6926"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gab8e95565dde6e0b1f751b7e89c4eeb4a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gab8e95565dde6e0b1f751b7e89c4eeb4a">r_jwe_decrypt</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_privkey, int x5u_flags)</td></tr>
 <tr class="separator:gab8e95565dde6e0b1f751b7e89c4eeb4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae9d1ad8e969eb23794dcce3f78a1aa1f"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gae9d1ad8e969eb23794dcce3f78a1aa1f">r_jwe_serialize</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_pubkey, int x5u_flags)</td></tr>
@@ -1129,7 +1131,62 @@ Functions</h2></td></tr>
 <p>Parses the JWE </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
+    <tr><td class="paramname">jwe_str</td><td>the jwe serialized to parse, must end with a NULL string terminator </td></tr>
+    <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
+<li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>
+<li>R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error </li>
+</ul>
+</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="gab4bc6ccf7d7fcac14850d960d76d6926"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab4bc6ccf7d7fcac14850d960d76d6926">&#9670;&nbsp;</a></span>r_jwe_parsen()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwe_parsen </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwe__t.html">jwe_t</a> *&#160;</td>
+          <td class="paramname"><em>jwe</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>jwe_str</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>jwe_str_len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x5u_flags</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Parses the JWE </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
     <tr><td class="paramname">jwe_str</td><td>the jwe serialized to parse </td></tr>
+    <tr><td class="paramname">jwe_str_len</td><td>the length of jwe_str </td></tr>
     <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
 <li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
 <li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>

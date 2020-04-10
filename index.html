@@ -138,7 +138,7 @@ $(function() {
 <p>BASE64URL(UTF8(JWE Protected Header)) || '.' || BASE64URL(JWE Encrypted Key) || '.' || BASE64URL(JWE Initialization Vector) || '.' || BASE64URL(JWE Ciphertext) || '.' || BASE64URL(JWE Authentication Tag)</p>
 <p>In Rhonabwy library, the supported algorithms are the following:</p><ul>
 <li>Supported Encryption Algorithm (<code>enc</code>) for JWE payload encryption: <code>A128CBC-HS256</code>, <code>A192CBC-HS384</code>, <code>A256CBC-HS512</code>, <code>A128GCM</code>, <code>A256GCM</code></li>
-<li>Supported Cryptographic Algorithms for Key Management: <code>RSA1_5</code> (RSAES-PKCS1-v1_5), <code>dir</code> (Direct use of a shared symmetric key)</li>
+<li>Supported Cryptographic Algorithms for Key Management: <code>RSA1_5</code> (RSAES-PKCS1-v1_5), <code>dir</code> (Direct use of a shared symmetric key), <code>A128GCMKW</code> and <code>A256GCMKW</code></li>
 </ul>
 <p>If you don't specify a Content Encryption Key or an Initialization Vector before the serialization, Rhonabwy will automatically generate one or the other or both depending on the algorithm specified.</p>
 <h3>JWE example</h3>

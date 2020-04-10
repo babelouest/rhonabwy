@@ -1905,7 +1905,7 @@ Functions</h2></td></tr>
 <li>R_JWT_CLAIM_EXP: claim "exp", value expected R_JWT_CLAIM_NOW or an positive integer value or R_JWT_CLAIM_PRESENT to validate the presence of the claim</li>
 <li>R_JWT_CLAIM_NBF: claim "nbf", value expected R_JWT_CLAIM_NOW or an positive integer value or R_JWT_CLAIM_PRESENT to validate the presence of the claim</li>
 <li>R_JWT_CLAIM_IAT: claim "iat", value expected R_JWT_CLAIM_NOW or an positive integer value or R_JWT_CLAIM_PRESENT to validate the presence of the claim</li>
-<li>R_JWT_CLAIM_JTI: claim "jti", values expected a string or NULL to validate the presence of the claim </li>
+<li>R_JWT_CLAIM_JTI: claim "jti", values expected a string or NULL to validate the presence of the claim Example The following code will check the jwt agains the iss value "https://example.com", the sub value "client_1", the presence of the claim aud and that the claim exp is after now and the claim <code>nbf</code> is before now: if (r_jwt_validate_claims(jwt, R_JWT_CLAIM_ISS, "https://example.com", R_JWT_CLAIM_SUB, "client_1", R_JWT_CLAIM_AUD, NULL, R_JWT_CLAIM_EXP, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NBF, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NOP) == RHN_OK) </li>
 </ul>
 
 </div>

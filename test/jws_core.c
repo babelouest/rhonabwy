@@ -1,6 +1,8 @@
 /* Public domain, no copyright. Use at your own risk. */
 
 #include <stdio.h>
+#include <gnutls/abstract.h>
+#include <gnutls/x509.h>
 
 #include <check.h>
 #include <yder.h>
@@ -86,6 +88,44 @@ const char jwk_key_symmetric_str[] = "{\"kty\":\"oct\",\"alg\":\"HS256\",\"k\":\
 "emYayEmcZR5nGyQ0yayZIwSa8zDC4zCWdzvh9seR3hXYBcmV9lL6PmWp-H58FMnuEahH2HgMAyHo0xPjB0xr1QzFzsbNmEsC-_LotaviM3VIuWahejkx_Rob"\
 "-0q3vhCqCYyraMiTcFkzN-bXgauBO0Md9eAGFBR5P0pLnui8_6hpo6wRNA74lGKAs0kOi4A9jUs7Na-A4OaeyYs8Q3q425S7fu6Pzadk4rkZclfEvPIjMqFF"\
 "CCO-_llXvHTap4S09_W6tFpR_cw9JXL7g5dUcca5iWoDZxXztsKRz3p1cA1M2gkZsmMWCYD6Kv4BIsHtiitwhL2SNC8QZiYc1Wxj3A"
+
+const unsigned char rsa_2048_pub[] = "-----BEGIN PUBLIC KEY-----\n"
+"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwtpMAM4l1H995oqlqdMh\n"
+"uqNuffp4+4aUCwuFE9B5s9MJr63gyf8jW0oDr7Mb1Xb8y9iGkWfhouZqNJbMFry+\n"
+"iBs+z2TtJF06vbHQZzajDsdux3XVfXv9v6dDIImyU24MsGNkpNt0GISaaiqv51NM\n"
+"ZQX0miOXXWdkQvWTZFXhmsFCmJLE67oQFSar4hzfAaCulaMD+b3Mcsjlh0yvSq7g\n"
+"6swiIasEU3qNLKaJAZEzfywroVYr3BwM1IiVbQeKgIkyPS/85M4Y6Ss/T+OWi1Oe\n"
+"K49NdYBvFP+hNVEoeZzJz5K/nd6C35IX0t2bN5CVXchUFmaUMYk2iPdhXdsC720t\n"
+"BwIDAQAB\n"
+"-----END PUBLIC KEY-----\n";
+const unsigned char rsa_2048_priv[] = "-----BEGIN PRIVATE KEY-----\n"
+"MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDC2kwAziXUf33m\n"
+"iqWp0yG6o259+nj7hpQLC4UT0Hmz0wmvreDJ/yNbSgOvsxvVdvzL2IaRZ+Gi5mo0\n"
+"lswWvL6IGz7PZO0kXTq9sdBnNqMOx27HddV9e/2/p0MgibJTbgywY2Sk23QYhJpq\n"
+"Kq/nU0xlBfSaI5ddZ2RC9ZNkVeGawUKYksTruhAVJqviHN8BoK6VowP5vcxyyOWH\n"
+"TK9KruDqzCIhqwRTeo0spokBkTN/LCuhVivcHAzUiJVtB4qAiTI9L/zkzhjpKz9P\n"
+"45aLU54rj011gG8U/6E1USh5nMnPkr+d3oLfkhfS3Zs3kJVdyFQWZpQxiTaI92Fd\n"
+"2wLvbS0HAgMBAAECggEAD8dTnkETSSjlzhRuI9loAtAXM3Zj86JLPLW7GgaoxEoT\n"
+"n7lJ2bGicFMHB2ROnbOb9vnas82gtOtJsGaBslmoaCckp/C5T1eJWTEb+i+vdpPp\n"
+"wZcmKZovyyRFSE4+NYlU17fEv6DRvuaGBpDcW7QgHJIl45F8QWEM+msee2KE+V4G\n"
+"z/9vAQ+sOlvsb4mJP1tJIBx9Lb5loVREwCRy2Ha9tnWdDNar8EYkOn8si4snPT+E\n"
+"3ZCy8mlcZyUkZeiS/HdtydxZfoiwrSRYamd1diQpPhWCeRteQ802a7ds0Y2YzgfF\n"
+"UaYjNuRQm7zA//hwbXS7ELPyNMU15N00bajlG0tUOQKBgQDnLy01l20OneW6A2cI\n"
+"DIDyYhy5O7uulsaEtJReUlcjEDMkin8b767q2VZHb//3ZH+ipnRYByUUyYUhdOs2\n"
+"DYRGGeAebnH8wpTT4FCYxUsIUpDfB7RwfdBONgaKewTJz/FPswy1Ye0b5H2c6vVi\n"
+"m2FZ33HQcoZ3wvFFqyGVnMzpOwKBgQDXxL95yoxUGKa8vMzcE3Cn01szh0dFq0sq\n"
+"cFpM+HWLVr84CItuG9H6L0KaStEEIOiJsxOVpcXfFFhsJvOGhMA4DQTwH4WuXmXp\n"
+"1PoVMDlV65PYqvhzwL4+QhvZO2bsrEunITXOmU7CI6kilnAN3LuP4HbqZgoX9lqP\n"
+"I31VYzLupQKBgGEYck9w0s/xxxtR9ILv5XRnepLdoJzaHHR991aKFKjYU/KD7JDK\n"
+"INfoAhGs23+HCQhCCtkx3wQVA0Ii/erM0II0ueluD5fODX3TV2ZibnoHW2sgrEsW\n"
+"vFcs36BnvIIaQMptc+f2QgSV+Z/fGsKYadG6Q+39O7au/HB7SHayzWkjAoGBAMgt\n"
+"Fzslp9TpXd9iBWjzfCOnGUiP65Z+GWkQ/SXFqD+SRir0+m43zzGdoNvGJ23+Hd6K\n"
+"TdQbDJ0uoe4MoQeepzoZEgi4JeykVUZ/uVfo+nh06yArVf8FxTm7WVzLGGzgV/uA\n"
+"+wtl/cRtEyAsk1649yW/KHPEIP8kJdYAJeoO8xSlAoGAERMrkFR7KGYZG1eFNRdV\n"
+"mJMq+Ibxyw8ks/CbiI+n3yUyk1U8962ol2Q0T4qjBmb26L5rrhNQhneM4e8mo9FX\n"
+"LlQapYkPvkdrqW0Bp72A/UNAvcGTmN7z5OCJGMUutx2hmEAlrYmpLKS8pM/p9zpK\n"
+"tEOtzsP5GMDYVlEp1jYSjzQ=\n"
+"-----END PRIVATE KEY-----\n";
 
 START_TEST(test_rhonabwy_init)
 {
@@ -293,6 +333,83 @@ START_TEST(test_rhonabwy_set_jwks)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_add_keys_by_content)
+{
+  jws_t * jws;
+  jwk_t * jwk_priv, * jwk_pub;
+  jwks_t * jwks;
+  gnutls_privkey_t g_privkey;
+  gnutls_pubkey_t g_pubkey;
+  json_t * j_privkey, * j_pubkey;
+  
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_priv), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_pub), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_priv, jwk_privkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pub, jwk_pubkey_rsa_str), RHN_OK);
+  g_privkey = r_jwk_export_to_gnutls_privkey(jwk_priv, 0);
+  g_pubkey = r_jwk_export_to_gnutls_pubkey(jwk_pub, 0);
+  j_privkey = r_jwk_export_to_json_t(jwk_priv);
+  j_pubkey = r_jwk_export_to_json_t(jwk_pub);
+  
+  jwks = r_jws_get_jwks_privkey(jws);
+  ck_assert_int_eq(0, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  jwks = r_jws_get_jwks_pubkey(jws);
+  ck_assert_int_eq(0, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  ck_assert_int_eq(r_jws_add_keys_json_str(jws, jwk_privkey_rsa_str, jwk_pubkey_rsa_str), RHN_OK);
+  
+  jwks = r_jws_get_jwks_privkey(jws);
+  ck_assert_int_eq(1, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  jwks = r_jws_get_jwks_pubkey(jws);
+  ck_assert_int_eq(1, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  ck_assert_int_eq(r_jws_add_keys_json_t(jws, j_privkey, j_pubkey), RHN_OK);
+  
+  jwks = r_jws_get_jwks_privkey(jws);
+  ck_assert_int_eq(2, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  jwks = r_jws_get_jwks_pubkey(jws);
+  ck_assert_int_eq(2, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  ck_assert_int_eq(r_jws_add_keys_gnutls(jws, g_privkey, g_pubkey), RHN_OK);
+  
+  jwks = r_jws_get_jwks_privkey(jws);
+  ck_assert_int_eq(3, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  jwks = r_jws_get_jwks_pubkey(jws);
+  ck_assert_int_eq(3, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  ck_assert_int_eq(r_jws_add_keys_pem_der(jws, R_FORMAT_PEM, rsa_2048_priv, sizeof(rsa_2048_priv), rsa_2048_pub, sizeof(rsa_2048_pub)), RHN_OK);
+  
+  jwks = r_jws_get_jwks_privkey(jws);
+  ck_assert_int_eq(4, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  jwks = r_jws_get_jwks_pubkey(jws);
+  ck_assert_int_eq(4, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  r_jws_free(jws);
+  gnutls_privkey_deinit(g_privkey);
+  gnutls_pubkey_deinit(g_pubkey);
+  json_decref(j_privkey);
+  json_decref(j_pubkey);
+  r_jwk_free(jwk_priv);
+  r_jwk_free(jwk_pub);
+}
+END_TEST
+
 START_TEST(test_rhonabwy_parse)
 {
   jws_t * jws;
@@ -410,6 +527,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_get_full_header);
   tcase_add_test(tc_core, test_rhonabwy_set_keys);
   tcase_add_test(tc_core, test_rhonabwy_set_jwks);
+  tcase_add_test(tc_core, test_rhonabwy_add_keys_by_content);
   tcase_add_test(tc_core, test_rhonabwy_parse);
   tcase_add_test(tc_core, test_rhonabwy_parse_android_safetynet_jwt);
   tcase_add_test(tc_core, test_rhonabwy_token_unsecure);

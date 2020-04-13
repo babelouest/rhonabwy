@@ -9,6 +9,8 @@
 - Add support for key management algorithms `A128GCMKW` and `A256GCMKW`
 - Add functions `r_jwt_decrypt_nested`, `r_jwt_verify_signature_nested`, `r_jwt_parsen`, `r_jwe_parsen` and `r_jws_parsen`
 - Add function `r_jwt_validate_claims` to validate claims
+- Add functions `r_jw[se]_add_keys_json_str`, `r_jw[se]_add_keys_json_t`, `r_jw[se]_add_keys_pem_der`, `r_jw[se]_add_keys_gnutls`
+- Add functions `r_jwt_add_[sign|enc]_keys_json_str`, `r_jwt_add_[sign|enc]_keys_json_t`, `r_jwt_add_[sign|enc]_keys_pem_der`, `r_jwt_add_[sign|enc]_keys_gnutls`
 
 ## 0.9.8
 

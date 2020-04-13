@@ -754,7 +754,9 @@ Functions</h2></td></tr>
     <tr><td class="paramname">jws</td><td>the <a class="el" href="structjws__t.html">jws_t</a> to update </td></tr>
     <tr><td class="paramname">format</td><td>the format of the input, values available are R_FORMAT_PEM or R_FORMAT_DER </td></tr>
     <tr><td class="paramname">privkey</td><td>the private key to sign the </td></tr>
+    <tr><td class="paramname">privkey_len</td><td>length of privkey </td></tr>
     <tr><td class="paramname">pubkey</td><td>the public key to verify the signature </td></tr>
+    <tr><td class="paramname">pubkey_len</td><td>length of pubkey </td></tr>
   </table>
   </dd>
 </dl>
@@ -1036,6 +1038,12 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">jws</td><td>the <a class="el" href="structjws__t.html">jws_t</a> to update </td></tr>
     <tr><td class="paramname">jwk_pubkey</td><td>the public key to check the signature, can be NULL if jws already contains a public key </td></tr>
+    <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
+<li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>
+<li>R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error </li>
+</ul>
+</td></tr>
   </table>
   </dd>
 </dl>
@@ -1078,6 +1086,12 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">jws</td><td>the JWS to serialize </td></tr>
     <tr><td class="paramname">jwk_privkey</td><td>the private key to use to sign the JWS can be NULL if jws already contains a private key </td></tr>
+    <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
+<li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>
+<li>R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error </li>
+</ul>
+</td></tr>
   </table>
   </dd>
 </dl>

@@ -1095,8 +1095,10 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">jwt</td><td>the <a class="el" href="structjwt__t.html">jwt_t</a> to update </td></tr>
     <tr><td class="paramname">format</td><td>the format of the input, values available are R_FORMAT_PEM or R_FORMAT_DER </td></tr>
-    <tr><td class="paramname">privkey</td><td>the private key to sign the JWT </td></tr>
-    <tr><td class="paramname">pubkey</td><td>the public key to verify the JWT signature </td></tr>
+    <tr><td class="paramname">privkey</td><td>the private key to sign the </td></tr>
+    <tr><td class="paramname">privkey_len</td><td>length of privkey </td></tr>
+    <tr><td class="paramname">pubkey</td><td>the public key to verify the signature </td></tr>
+    <tr><td class="paramname">pubkey_len</td><td>length of pubkey </td></tr>
   </table>
   </dd>
 </dl>
@@ -1465,8 +1467,10 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">jwt</td><td>the <a class="el" href="structjwt__t.html">jwt_t</a> to update </td></tr>
     <tr><td class="paramname">format</td><td>the format of the input, values available are R_FORMAT_PEM or R_FORMAT_DER </td></tr>
-    <tr><td class="paramname">privkey</td><td>the private key to enc the JWT </td></tr>
-    <tr><td class="paramname">pubkey</td><td>the public key to verify the JWT encature </td></tr>
+    <tr><td class="paramname">privkey</td><td>the private key to sign the </td></tr>
+    <tr><td class="paramname">privkey_len</td><td>length of privkey </td></tr>
+    <tr><td class="paramname">pubkey</td><td>the public key to verify the signature </td></tr>
+    <tr><td class="paramname">pubkey_len</td><td>length of pubkey </td></tr>
   </table>
   </dd>
 </dl>
@@ -2342,13 +2346,6 @@ Functions</h2></td></tr>
     <tr><td class="paramname">jwt</td><td>the <a class="el" href="structjwt__t.html">jwt_t</a> to decrypt and verify signature </td></tr>
     <tr><td class="paramname">verify_key</td><td>the public key to check the signature, can be NULL if jws already contains a public key </td></tr>
     <tr><td class="paramname">verify_key_x5u_flags</td><td>Flags to retrieve certificates in verify_key pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
-<li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
-<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>
-<li>R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error </li>
-</ul>
-</td></tr>
-    <tr><td class="paramname">decrypt_key</td><td>the private key to decrypt cypher key, can be NULL if jwt already contains a private key </td></tr>
-    <tr><td class="paramname">decrypt_key_x5u_flags</td><td>Flags to retrieve certificates in decrypt_key pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
 <li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
 <li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>
 <li>R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error </li>

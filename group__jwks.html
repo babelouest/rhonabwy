@@ -175,7 +175,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Import a JWKS in json_t format into a jwk_t </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">jwk</td><td>the jwk_t * to import to </td></tr>
+    <tr><td class="paramname">jwks</td><td>the jwk_t * to import to </td></tr>
     <tr><td class="paramname">j_input</td><td>a JWK in json_t * format If jwks is set, JWK will be appended </td></tr>
   </table>
   </dd>
@@ -217,7 +217,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Import a JWKS from an uri </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">jwk</td><td>the jwk_t * to import to </td></tr>
+    <tr><td class="paramname">jwks</td><td>the jwk_t * to import to </td></tr>
     <tr><td class="paramname">uri</td><td>an uri pointing to a JWKS If jwks is set, JWK will be appended </td></tr>
     <tr><td class="paramname">flags</td><td>Flags to retrieve certificates Flags available are<ul>
 <li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
@@ -273,7 +273,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Get the number of jwk_t in a jwks_t </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">jwk</td><td>the jwks_t * to evaluate </td></tr>
+    <tr><td class="paramname">jwks</td><td>the jwks_t * to evaluate </td></tr>
   </table>
   </dd>
 </dl>
@@ -556,7 +556,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Export a jwks_t into a stringified JSON format </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">jwk</td><td>the jwks_t * to export </td></tr>
+    <tr><td class="paramname">jwks</td><td>the jwks_t * to export </td></tr>
     <tr><td class="paramname">pretty</td><td>indent or compact JSON output </td></tr>
   </table>
   </dd>
@@ -582,7 +582,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Export a jwk_t into a json_t format </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">jwk</td><td>the jwk_t * to export </td></tr>
+    <tr><td class="paramname">jwks</td><td>the jwk_t * to export </td></tr>
   </table>
   </dd>
 </dl>
@@ -623,7 +623,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Export a jwks_t into a gnutls_privkey_t format </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">jwk</td><td>the jwks_t * to export </td></tr>
+    <tr><td class="paramname">jwks</td><td>the jwks_t * to export </td></tr>
     <tr><td class="paramname">len</td><td>set the length of the output array </td></tr>
     <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
 <li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
@@ -671,7 +671,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Export a jwks_t into a gnutls_pubkey_t format </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">jwk</td><td>the jwks_t * to export </td></tr>
+    <tr><td class="paramname">jwks</td><td>the jwks_t * to export </td></tr>
     <tr><td class="paramname">len</td><td>set the length of the output array </td></tr>
     <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
 <li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
@@ -731,7 +731,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Export a jwks_t into a DER or PEM format </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">jwk</td><td>the jwks_t * to export </td></tr>
+    <tr><td class="paramname">jwks</td><td>the jwks_t * to export </td></tr>
     <tr><td class="paramname">format</td><td>the format of the output, values available are R_FORMAT_PEM or R_FORMAT_DER </td></tr>
     <tr><td class="paramname">output</td><td>an unsigned char * that will contain the output </td></tr>
     <tr><td class="paramname">output_len</td><td>the size of output and will be set to the data size that has been written to output </td></tr>

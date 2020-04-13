@@ -79,6 +79,16 @@ Functions</h2></td></tr>
 <tr class="separator:ga7f718031ee9be3799d85a35805a48c0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gafbc401e6ade2993d571ff1a15044119e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gafbc401e6ade2993d571ff1a15044119e">r_jwe_add_jwks</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks_privkey, <a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks_pubkey)</td></tr>
 <tr class="separator:gafbc401e6ade2993d571ff1a15044119e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8ff62433c1bcf35853fba2cc8edff502"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga8ff62433c1bcf35853fba2cc8edff502">r_jwe_add_keys_json_str</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, const char *privkey, const char *pubkey)</td></tr>
+<tr class="separator:ga8ff62433c1bcf35853fba2cc8edff502"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9c128239ad8ba8827566c606bccf87f3"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga9c128239ad8ba8827566c606bccf87f3">r_jwe_add_keys_json_t</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, json_t *privkey, json_t *pubkey)</td></tr>
+<tr class="separator:ga9c128239ad8ba8827566c606bccf87f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga28515f0cc62c837cce8fb7d60af05062"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga28515f0cc62c837cce8fb7d60af05062">r_jwe_add_keys_pem_der</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, int format, const unsigned char *privkey, size_t privkey_len, const unsigned char *pubkey, size_t pubkey_len)</td></tr>
+<tr class="separator:ga28515f0cc62c837cce8fb7d60af05062"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga68e8a74baa80ec07346b67d1ca7401f0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga68e8a74baa80ec07346b67d1ca7401f0">r_jwe_add_keys_gnutls</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, gnutls_privkey_t privkey, gnutls_pubkey_t pubkey)</td></tr>
+<tr class="separator:ga68e8a74baa80ec07346b67d1ca7401f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab822523fcc0c758a593d0013dca9457f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gab822523fcc0c758a593d0013dca9457f">r_jwe_add_key_symmetric</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, const unsigned char *key, size_t key_len)</td></tr>
+<tr class="separator:gab822523fcc0c758a593d0013dca9457f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9f064cdee9cd51ade9b65a11ed314c51"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga9f064cdee9cd51ade9b65a11ed314c51">r_jwe_get_jwks_privkey</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe)</td></tr>
 <tr class="separator:ga9f064cdee9cd51ade9b65a11ed314c51"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga80db7ecf3cf21ad0ce4b4f882833c714"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga80db7ecf3cf21ad0ce4b4f882833c714">r_jwe_get_jwks_pubkey</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe)</td></tr>
@@ -682,6 +692,240 @@ Functions</h2></td></tr>
     <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
     <tr><td class="paramname">jwks_privkey</td><td>the private key set in jwks_t * format, can be NULL </td></tr>
     <tr><td class="paramname">jwks_pubkey</td><td>the public key set in jwks_t * format, can be NULL </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="ga8ff62433c1bcf35853fba2cc8edff502"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga8ff62433c1bcf35853fba2cc8edff502">&#9670;&nbsp;</a></span>r_jwe_add_keys_json_str()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwe_add_keys_json_str </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwe__t.html">jwe_t</a> *&#160;</td>
+          <td class="paramname"><em>jwe</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>privkey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>pubkey</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Add keys to perform encryption ot decryption keys must be a JWK stringified </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
+    <tr><td class="paramname">privkey</td><td>the private key to enc the </td></tr>
+    <tr><td class="paramname">pubkey</td><td>the public key to verify the encature </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="ga9c128239ad8ba8827566c606bccf87f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9c128239ad8ba8827566c606bccf87f3">&#9670;&nbsp;</a></span>r_jwe_add_keys_json_t()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwe_add_keys_json_t </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwe__t.html">jwe_t</a> *&#160;</td>
+          <td class="paramname"><em>jwe</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">json_t *&#160;</td>
+          <td class="paramname"><em>privkey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">json_t *&#160;</td>
+          <td class="paramname"><em>pubkey</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Add keys to perform encryption ot decryption keys must be a JWK in json_t * format </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
+    <tr><td class="paramname">privkey</td><td>the private key to enc the </td></tr>
+    <tr><td class="paramname">pubkey</td><td>the public key to verify the encature </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="ga28515f0cc62c837cce8fb7d60af05062"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga28515f0cc62c837cce8fb7d60af05062">&#9670;&nbsp;</a></span>r_jwe_add_keys_pem_der()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwe_add_keys_pem_der </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwe__t.html">jwe_t</a> *&#160;</td>
+          <td class="paramname"><em>jwe</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>format</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const unsigned char *&#160;</td>
+          <td class="paramname"><em>privkey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>privkey_len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const unsigned char *&#160;</td>
+          <td class="paramname"><em>pubkey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>pubkey_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Add keys to perform encryption ot decryption keys must be in PEM or DER format </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
+    <tr><td class="paramname">format</td><td>the format of the input, values available are R_FORMAT_PEM or R_FORMAT_DER </td></tr>
+    <tr><td class="paramname">privkey</td><td>the private key to enc the </td></tr>
+    <tr><td class="paramname">pubkey</td><td>the public key to verify the encature </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="ga68e8a74baa80ec07346b67d1ca7401f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga68e8a74baa80ec07346b67d1ca7401f0">&#9670;&nbsp;</a></span>r_jwe_add_keys_gnutls()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwe_add_keys_gnutls </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwe__t.html">jwe_t</a> *&#160;</td>
+          <td class="paramname"><em>jwe</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">gnutls_privkey_t&#160;</td>
+          <td class="paramname"><em>privkey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">gnutls_pubkey_t&#160;</td>
+          <td class="paramname"><em>pubkey</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Add keys to perform encryption ot decryption keys must be gnutls key structures </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
+    <tr><td class="paramname">privkey</td><td>the private key to enc the </td></tr>
+    <tr><td class="paramname">pubkey</td><td>the public key to verify the encature </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="gab822523fcc0c758a593d0013dca9457f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab822523fcc0c758a593d0013dca9457f">&#9670;&nbsp;</a></span>r_jwe_add_key_symmetric()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwe_add_key_symmetric </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwe__t.html">jwe_t</a> *&#160;</td>
+          <td class="paramname"><em>jwe</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const unsigned char *&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>key_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Add symmetric key by value to perform encryption ot decryption </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
+    <tr><td class="paramname">key</td><td>the raw key value </td></tr>
+    <tr><td class="paramname">key_len</td><td>the length of the key </td></tr>
   </table>
   </dd>
 </dl>

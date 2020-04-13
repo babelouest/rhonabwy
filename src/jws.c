@@ -45,7 +45,7 @@ static int r_jws_extract_header(jws_t * jws, json_t * j_header, int x5u_flags) {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_extract_header - Invalid alg");
       ret = RHN_ERROR_PARAM;
     } else {
-      jws->alg = str_to_jwa_alg(json_string_value(json_object_get(j_header, "alg")));
+      jws->alg = r_str_to_jwa_alg(json_string_value(json_object_get(j_header, "alg")));
     }
     
     if (json_string_length(json_object_get(j_header, "jku"))) {
@@ -863,7 +863,7 @@ int r_jws_add_keys(jws_t * jws, jwk_t * jwk_privkey, jwk_t * jwk_pubkey) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_add_keys - Error setting jwk_privkey");
         ret = RHN_ERROR;
       }
-      if (jws->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(jwk_privkey, "alg"))) != R_JWA_ALG_NONE) {
+      if (jws->alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(jwk_privkey, "alg"))) != R_JWA_ALG_NONE) {
         r_jws_set_alg(jws, alg);
       }
     }
@@ -924,7 +924,7 @@ int r_jws_add_keys_json_str(jws_t * jws, const char * privkey, const char * pubk
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_add_keys_json_str - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jws->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jws->alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jws_set_alg(jws, alg);
         }
       } else {
@@ -963,7 +963,7 @@ int r_jws_add_keys_json_t(jws_t * jws, json_t * privkey, json_t * pubkey) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_add_keys_json_t - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jws->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jws->alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jws_set_alg(jws, alg);
         }
       } else {
@@ -1002,7 +1002,7 @@ int r_jws_add_keys_pem_der(jws_t * jws, int format, const unsigned char * privke
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_add_keys_pem_der - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jws->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jws->alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jws_set_alg(jws, alg);
         }
       } else {
@@ -1041,7 +1041,7 @@ int r_jws_add_keys_gnutls(jws_t * jws, gnutls_privkey_t privkey, gnutls_pubkey_t
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_add_keys_gnutls - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jws->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jws->alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jws_set_alg(jws, alg);
         }
       } else {
@@ -1079,7 +1079,7 @@ int r_jws_add_key_symmetric(jws_t * jws, const unsigned char * key, size_t key_l
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_add_sign_key_symmetric - Error setting key");
         ret = RHN_ERROR;
       }
-      if (jws->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_key, "alg"))) != R_JWA_ALG_NONE) {
+      if (jws->alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_key, "alg"))) != R_JWA_ALG_NONE) {
         r_jws_set_alg(jws, alg);
       }
     } else {
@@ -1273,7 +1273,7 @@ char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags) {
   if (jws != NULL) {
     if (jwk_privkey != NULL) {
       jwk = r_jwk_copy(jwk_privkey);
-      if (jws->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(jwk, "alg"))) != R_JWA_ALG_NONE) {
+      if (jws->alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(jwk, "alg"))) != R_JWA_ALG_NONE) {
         r_jws_set_alg(jws, alg);
       }
     } else {

@@ -113,7 +113,7 @@ json_t * _r_json_get_full_json_t(json_t * j_json) {
   return NULL;
 }
 
-jwa_alg str_to_jwa_alg(const char * alg) {
+jwa_alg r_str_to_jwa_alg(const char * alg) {
   if (0 == o_strcmp("none", alg)) {
     return R_JWA_ALG_NONE;
   } else if (0 == o_strcmp("HS256", alg)) {
@@ -181,7 +181,7 @@ jwa_alg str_to_jwa_alg(const char * alg) {
   }
 }
 
-const char * jwa_alg_to_str(jwa_alg alg) {
+const char * r_jwa_alg_to_str(jwa_alg alg) {
   switch (alg) {
     case R_JWA_ALG_NONE:
       return "none";
@@ -282,7 +282,7 @@ const char * jwa_alg_to_str(jwa_alg alg) {
   }
 }
 
-jwa_enc str_to_jwa_enc(const char * enc) {
+jwa_enc r_str_to_jwa_enc(const char * enc) {
   if (0 == o_strcmp("A128CBC-HS256", enc)) {
     return R_JWA_ENC_A128CBC;
   } else if (0 == o_strcmp("A192CBC-HS384", enc)) {
@@ -300,7 +300,7 @@ jwa_enc str_to_jwa_enc(const char * enc) {
   }
 }
 
-const char * jwa_enc_to_str(jwa_enc enc) {
+const char * r_jwa_enc_to_str(jwa_enc enc) {
   switch (enc) {
     case R_JWA_ENC_A128CBC:
       return "A128CBC-HS256";

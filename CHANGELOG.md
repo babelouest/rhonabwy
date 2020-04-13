@@ -4,7 +4,7 @@
 
 - Fix JWE payload encryption with AES-GCM
 - Add `x5u_flag` value `R_FLAG_IGNORE_REMOTE` to avoid downloading remote keys if not required
-- Add functions `r_jwt_set_full_claims_json_str`, `r_jwt_get_type`, `jwa_alg_to_str`, `jwa_enc_to_str`
+- Add functions `r_jwt_set_full_claims_json_str`, `r_jwt_get_type`, `r_jwa_alg_to_str`, `r_jwa_enc_to_str`
 - Add API documentation
 - Add support for key management algorithms `A128GCMKW` and `A256GCMKW`
 - Add functions `r_jwt_decrypt_nested`, `r_jwt_verify_signature_nested`, `r_jwt_parsen`, `r_jwe_parsen` and `r_jws_parsen`

@@ -299,7 +299,7 @@ int r_jwt_add_sign_keys(jwt_t * jwt, jwk_t * privkey, jwk_t * pubkey) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys - Error setting privkey");
         ret = RHN_ERROR;
       }
-      if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(privkey, "alg"))) != R_JWA_ALG_NONE) {
+      if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(privkey, "alg"))) != R_JWA_ALG_NONE) {
         r_jwt_set_sign_alg(jwt, alg);
       }
     }
@@ -360,7 +360,7 @@ int r_jwt_add_sign_keys_json_str(jwt_t * jwt, const char * privkey, const char *
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_json_str - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jwt_set_sign_alg(jwt, alg);
         }
       } else {
@@ -399,7 +399,7 @@ int r_jwt_add_sign_keys_json_t(jwt_t * jwt, json_t * privkey, json_t * pubkey) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_json_t - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jwt_set_sign_alg(jwt, alg);
         }
       } else {
@@ -438,7 +438,7 @@ int r_jwt_add_sign_keys_pem_der(jwt_t * jwt, int format, const unsigned char * p
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_pem_der - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jwt_set_sign_alg(jwt, alg);
         }
       } else {
@@ -477,7 +477,7 @@ int r_jwt_add_sign_keys_gnutls(jwt_t * jwt, gnutls_privkey_t privkey, gnutls_pub
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_gnutls - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jwt_set_sign_alg(jwt, alg);
         }
       } else {
@@ -515,7 +515,7 @@ int r_jwt_add_sign_key_symmetric(jwt_t * jwt, const unsigned char * key, size_t 
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_key_symmetric - Error setting key");
         ret = RHN_ERROR;
       }
-      if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_key, "alg"))) != R_JWA_ALG_NONE) {
+      if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_key, "alg"))) != R_JWA_ALG_NONE) {
         r_jwt_set_sign_alg(jwt, alg);
       }
     } else {
@@ -561,7 +561,7 @@ int r_jwt_add_enc_keys(jwt_t * jwt, jwk_t * privkey, jwk_t * pubkey) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys - Error setting pubkey");
         ret = RHN_ERROR;
       }
-      if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(pubkey, "alg"))) != R_JWA_ALG_NONE) {
+      if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(pubkey, "alg"))) != R_JWA_ALG_NONE) {
         r_jwt_set_enc_alg(jwt, alg);
       }
     }
@@ -616,7 +616,7 @@ int r_jwt_add_enc_keys_json_str(jwt_t * jwt, const char * privkey, const char * 
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_json_str - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jwt->enc_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jwt->enc_alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jwt_set_enc_alg(jwt, alg);
         }
       } else {
@@ -655,7 +655,7 @@ int r_jwt_add_enc_keys_json_t(jwt_t * jwt, json_t * privkey, json_t * pubkey) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_json_t - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jwt->enc_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jwt->enc_alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jwt_set_enc_alg(jwt, alg);
         }
       } else {
@@ -694,7 +694,7 @@ int r_jwt_add_enc_keys_pem_der(jwt_t * jwt, int format, const unsigned char * pr
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_pem_der - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jwt->enc_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jwt->enc_alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jwt_set_enc_alg(jwt, alg);
         }
       } else {
@@ -733,7 +733,7 @@ int r_jwt_add_enc_keys_gnutls(jwt_t * jwt, gnutls_privkey_t privkey, gnutls_pubk
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_gnutls - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jwt->enc_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jwt->enc_alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jwt_set_enc_alg(jwt, alg);
         }
       } else {
@@ -771,7 +771,7 @@ int r_jwt_add_enc_key_symmetric(jwt_t * jwt, const unsigned char * key, size_t k
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_key_symmetric - Error setting key");
         ret = RHN_ERROR;
       }
-      if (jwt->enc_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_key, "alg"))) != R_JWA_ALG_NONE) {
+      if (jwt->enc_alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_key, "alg"))) != R_JWA_ALG_NONE) {
         r_jwt_set_enc_alg(jwt, alg);
       }
     } else {

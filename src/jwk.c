@@ -104,7 +104,7 @@ int r_jwk_is_valid(jwk_t * jwk) {
         }
       }
       if (json_object_get(jwk, "alg") != NULL) {
-        if (str_to_jwa_alg(json_string_value(json_object_get(jwk, "alg"))) == R_JWA_ALG_UNKNOWN) {
+        if (r_str_to_jwa_alg(json_string_value(json_object_get(jwk, "alg"))) == R_JWA_ALG_UNKNOWN) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid alg");
           ret = RHN_ERROR_PARAM;
         }

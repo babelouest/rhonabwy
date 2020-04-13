@@ -342,7 +342,7 @@ static int r_jwe_extract_header(jwe_t * jwe, json_t * j_header, int x5u_flags) {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Invalid alg");
       ret = RHN_ERROR_PARAM;
     } else {
-      jwe->alg = str_to_jwa_alg(json_string_value(json_object_get(j_header, "alg")));
+      jwe->alg = r_str_to_jwa_alg(json_string_value(json_object_get(j_header, "alg")));
     }
     
     if (0 != o_strcmp("A128CBC-HS256", json_string_value(json_object_get(j_header, "enc"))) && 
@@ -354,7 +354,7 @@ static int r_jwe_extract_header(jwe_t * jwe, json_t * j_header, int x5u_flags) {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Invalid enc");
       ret = RHN_ERROR_PARAM;
     } else {
-      jwe->enc = str_to_jwa_enc(json_string_value(json_object_get(j_header, "enc")));
+      jwe->enc = r_str_to_jwa_enc(json_string_value(json_object_get(j_header, "enc")));
     }
     
     if (json_string_length(json_object_get(j_header, "jku"))) {
@@ -931,7 +931,7 @@ int r_jwe_add_keys(jwe_t * jwe, jwk_t * jwk_privkey, jwk_t * jwk_pubkey) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_add_keys - Error setting jwk_privkey");
         ret = RHN_ERROR;
       }
-      if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(jwk_privkey, "alg"))) != R_JWA_ALG_NONE) {
+      if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(jwk_privkey, "alg"))) != R_JWA_ALG_NONE) {
         r_jwe_set_alg(jwe, alg);
       }
     }
@@ -992,7 +992,7 @@ int r_jwe_add_keys_json_str(jwe_t * jwe, const char * privkey, const char * pubk
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_add_keys_json_str - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jwe_set_alg(jwe, alg);
         }
       } else {
@@ -1031,7 +1031,7 @@ int r_jwe_add_keys_json_t(jwe_t * jwe, json_t * privkey, json_t * pubkey) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_add_keys_json_t - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jwe_set_alg(jwe, alg);
         }
       } else {
@@ -1070,7 +1070,7 @@ int r_jwe_add_keys_pem_der(jwe_t * jwe, int format, const unsigned char * privke
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_add_keys_pem_der - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jwe_set_alg(jwe, alg);
         }
       } else {
@@ -1109,7 +1109,7 @@ int r_jwe_add_keys_gnutls(jwe_t * jwe, gnutls_privkey_t privkey, gnutls_pubkey_t
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_add_keys_gnutls - Error setting privkey");
           ret = RHN_ERROR;
         }
-        if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+        if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
           r_jwe_set_alg(jwe, alg);
         }
       } else {
@@ -1147,7 +1147,7 @@ int r_jwe_add_key_symmetric(jwe_t * jwe, const unsigned char * key, size_t key_l
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_add_enc_key_symmetric - Error setting key");
         ret = RHN_ERROR;
       }
-      if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_key, "alg"))) != R_JWA_ALG_NONE) {
+      if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(j_key, "alg"))) != R_JWA_ALG_NONE) {
         r_jwe_set_alg(jwe, alg);
       }
     } else {
@@ -1491,7 +1491,7 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
   if (jwe != NULL) {
     if (jwk_s != NULL) {
       jwk = r_jwk_copy(jwk_s);
-      if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(jwk, "alg"))) != R_JWA_ALG_NONE) {
+      if (jwe->alg == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(jwk, "alg"))) != R_JWA_ALG_NONE) {
         r_jwe_set_alg(jwe, alg);
       }
     } else {

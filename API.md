@@ -31,7 +31,7 @@ Lots of functions in Rhonabwy library return an int value. The returned value ca
 
 If a function is succesfull, it will return `RHN_OK` (0), otherwise an error code is returned.
 
-### Log messages
+## Log messages
 
 Usually, a log message is displayed to explain more specifically what happened on error. The log manager used is [Yder](https://github.com/babelouest/yder). You can enable yder log messages on the console with the following command at the beginning of your program:
 

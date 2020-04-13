@@ -1014,6 +1014,15 @@ int r_jws_add_keys_pem_der(jws_t * jws, int format, const unsigned char * privke
 int r_jws_add_keys_gnutls(jws_t * jws, gnutls_privkey_t privkey, gnutls_pubkey_t pubkey);
 
 /**
+ * Add symmetric key by value to perform signature or signature verification
+ * @param jws: the jws_t to update
+ * @param key: the raw key value
+ * @param key_len: the length of the key
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_add_key_symmetric(jws_t * jws, const unsigned char * key, size_t key_len);
+
+/**
  * Get private keys set for the signature
  * @param jws: the jws_t to get the value
  * @return the private key set in jwks_t * format
@@ -1256,6 +1265,15 @@ int r_jwe_add_keys_pem_der(jwe_t * jwe, int format, const unsigned char * privke
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_add_keys_gnutls(jwe_t * jwe, gnutls_privkey_t privkey, gnutls_pubkey_t pubkey);
+
+/**
+ * Add symmetric key by value to perform encryption ot decryption
+ * @param jwe: the jwe_t to update
+ * @param key: the raw key value
+ * @param key_len: the length of the key
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_add_key_symmetric(jwe_t * jwe, const unsigned char * key, size_t key_len);
 
 /**
  * Get private keys set for the cypher key decryption
@@ -1646,6 +1664,15 @@ int r_jwt_add_sign_keys_pem_der(jwt_t * jwt, int format, const unsigned char * p
 int r_jwt_add_sign_keys_gnutls(jwt_t * jwt, gnutls_privkey_t privkey, gnutls_pubkey_t pubkey);
 
 /**
+ * Add symmetric key by value to perform signature or signature verification to the JWT
+ * @param jwt: the jwt_t to update
+ * @param key: the raw key value
+ * @param key_len: the length of the key
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_add_sign_key_symmetric(jwt_t * jwt, const unsigned char * key, size_t key_len);
+
+/**
  * Get private keys set for the signature
  * @param jwt: the jwt_t to get the value
  * @return the private key set in jwks_t * format
@@ -1717,6 +1744,15 @@ int r_jwt_add_enc_keys_pem_der(jwt_t * jwt, int format, const unsigned char * pr
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_add_enc_keys_gnutls(jwt_t * jwt, gnutls_privkey_t privkey, gnutls_pubkey_t pubkey);
+
+/**
+ * Add symmetric key by value to perform encryption ot decryption to the JWT
+ * @param jwt: the jwt_t to update
+ * @param key: the raw key value
+ * @param key_len: the length of the key
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_add_enc_key_symmetric(jwt_t * jwt, const unsigned char * key, size_t key_len);
 
 /**
  * Get private keys set for the cypher key decryption

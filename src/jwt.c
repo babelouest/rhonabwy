@@ -504,6 +504,31 @@ int r_jwt_add_sign_keys_gnutls(jwt_t * jwt, gnutls_privkey_t privkey, gnutls_pub
   return ret;
 }
 
+int r_jwt_add_sign_key_symmetric(jwt_t * jwt, const unsigned char * key, size_t key_len) {
+  int ret = RHN_OK;
+  jwa_alg alg;
+  jwk_t * j_key = NULL;
+  
+  if (jwt != NULL && key != NULL && key_len) {
+    if (r_jwk_init(&j_key) == RHN_OK && r_jwk_import_from_symmetric_key(j_key, key, key_len) == RHN_OK) {
+      if (r_jwks_append_jwk(jwt->jwks_privkey_sign, j_key) != RHN_OK || r_jwks_append_jwk(jwt->jwks_pubkey_sign, j_key) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_key_symmetric - Error setting key");
+        ret = RHN_ERROR;
+      }
+      if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_key, "alg"))) != R_JWA_ALG_NONE) {
+        r_jwt_set_sign_alg(jwt, alg);
+      }
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_key_symmetric - Error parsing key");
+      ret = RHN_ERROR;
+    }
+    r_jwk_free(j_key);
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
 jwks_t * r_jwt_get_sign_jwks_privkey(jwt_t * jwt) {
   if (jwt != NULL) {
     return r_jwks_copy(jwt->jwks_privkey_sign);
@@ -729,6 +754,31 @@ int r_jwt_add_enc_keys_gnutls(jwt_t * jwt, gnutls_privkey_t privkey, gnutls_pubk
       }
       r_jwk_free(j_pubkey);
     }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+int r_jwt_add_enc_key_symmetric(jwt_t * jwt, const unsigned char * key, size_t key_len) {
+  int ret = RHN_OK;
+  jwa_alg alg;
+  jwk_t * j_key = NULL;
+  
+  if (jwt != NULL && key != NULL && key_len) {
+    if (r_jwk_init(&j_key) == RHN_OK && r_jwk_import_from_symmetric_key(j_key, key, key_len) == RHN_OK) {
+      if (r_jwks_append_jwk(jwt->jwks_privkey_enc, j_key) != RHN_OK || r_jwks_append_jwk(jwt->jwks_pubkey_enc, j_key) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_key_symmetric - Error setting key");
+        ret = RHN_ERROR;
+      }
+      if (jwt->enc_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_key, "alg"))) != R_JWA_ALG_NONE) {
+        r_jwt_set_enc_alg(jwt, alg);
+      }
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_key_symmetric - Error parsing key");
+      ret = RHN_ERROR;
+    }
+    r_jwk_free(j_key);
   } else {
     ret = RHN_ERROR_PARAM;
   }

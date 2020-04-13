@@ -348,6 +348,162 @@ int r_jwt_add_sign_jwks(jwt_t * jwt, jwks_t * jwks_privkey, jwks_t * jwks_pubkey
   return ret;
 }
 
+int r_jwt_add_sign_keys_json_str(jwt_t * jwt, const char * privkey, const char * pubkey) {
+  int ret = RHN_OK;
+  jwa_alg alg;
+  jwk_t * j_privkey = NULL, * j_pubkey = NULL;
+  
+  if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
+    if (privkey != NULL) {
+      if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_json_str(j_privkey, privkey) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_privkey_sign, j_privkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_json_str - Error setting privkey");
+          ret = RHN_ERROR;
+        }
+        if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+          r_jwt_set_sign_alg(jwt, alg);
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_json_str - Error parsing privkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_privkey);
+    }
+    if (pubkey != NULL) {
+      if (r_jwk_init(&j_pubkey) == RHN_OK && r_jwk_import_from_json_str(j_pubkey, pubkey) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_pubkey_sign, j_pubkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_json_str - Error setting pubkey");
+          ret = RHN_ERROR;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_json_str - Error parsing pubkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_pubkey);
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+int r_jwt_add_sign_keys_json_t(jwt_t * jwt, json_t * privkey, json_t * pubkey) {
+  int ret = RHN_OK;
+  jwa_alg alg;
+  jwk_t * j_privkey = NULL, * j_pubkey = NULL;
+  
+  if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
+    if (privkey != NULL) {
+      if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_json_t(j_privkey, privkey) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_privkey_sign, j_privkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_json_t - Error setting privkey");
+          ret = RHN_ERROR;
+        }
+        if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+          r_jwt_set_sign_alg(jwt, alg);
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_json_t - Error parsing privkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_privkey);
+    }
+    if (pubkey != NULL) {
+      if (r_jwk_init(&j_pubkey) == RHN_OK && r_jwk_import_from_json_t(j_pubkey, pubkey) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_pubkey_sign, j_pubkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_json_t - Error setting pubkey");
+          ret = RHN_ERROR;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_json_t - Error parsing pubkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_pubkey);
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+int r_jwt_add_sign_keys_pem_der(jwt_t * jwt, int format, const unsigned char * privkey, size_t privkey_len, const unsigned char * pubkey, size_t pubkey_len) {
+  int ret = RHN_OK;
+  jwa_alg alg;
+  jwk_t * j_privkey = NULL, * j_pubkey = NULL;
+  
+  if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
+    if (privkey != NULL) {
+      if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_pem_der(j_privkey, R_X509_TYPE_PRIVKEY, format, privkey, privkey_len) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_privkey_sign, j_privkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_pem_der - Error setting privkey");
+          ret = RHN_ERROR;
+        }
+        if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+          r_jwt_set_sign_alg(jwt, alg);
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_pem_der - Error parsing privkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_privkey);
+    }
+    if (pubkey != NULL) {
+      if (r_jwk_init(&j_pubkey) == RHN_OK && r_jwk_import_from_pem_der(j_pubkey, R_X509_TYPE_PUBKEY, format, pubkey, pubkey_len) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_pubkey_sign, j_pubkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_pem_der - Error setting pubkey");
+          ret = RHN_ERROR;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_pem_der - Error parsing pubkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_pubkey);
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+int r_jwt_add_sign_keys_gnutls(jwt_t * jwt, gnutls_privkey_t privkey, gnutls_pubkey_t pubkey) {
+  int ret = RHN_OK;
+  jwa_alg alg;
+  jwk_t * j_privkey = NULL, * j_pubkey = NULL;
+  
+  if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
+    if (privkey != NULL) {
+      if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_gnutls_privkey(j_privkey, privkey) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_privkey_sign, j_privkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_gnutls - Error setting privkey");
+          ret = RHN_ERROR;
+        }
+        if (jwt->sign_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+          r_jwt_set_sign_alg(jwt, alg);
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_gnutls - Error parsing privkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_privkey);
+    }
+    if (pubkey != NULL) {
+      if (r_jwk_init(&j_pubkey) == RHN_OK && r_jwk_import_from_gnutls_pubkey(j_pubkey, pubkey) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_pubkey_sign, j_pubkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_gnutls - Error setting pubkey");
+          ret = RHN_ERROR;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_sign_keys_gnutls - Error parsing pubkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_pubkey);
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
 jwks_t * r_jwt_get_sign_jwks_privkey(jwt_t * jwt) {
   if (jwt != NULL) {
     return r_jwks_copy(jwt->jwks_privkey_sign);
@@ -416,6 +572,162 @@ int r_jwt_add_enc_jwks(jwt_t * jwt, jwks_t * jwks_privkey, jwks_t * jwks_pubkey)
         }
         r_jwk_free(jwk);
       }
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+int r_jwt_add_enc_keys_json_str(jwt_t * jwt, const char * privkey, const char * pubkey) {
+  int ret = RHN_OK;
+  jwa_alg alg;
+  jwk_t * j_privkey = NULL, * j_pubkey = NULL;
+  
+  if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
+    if (privkey != NULL) {
+      if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_json_str(j_privkey, privkey) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_privkey_enc, j_privkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_json_str - Error setting privkey");
+          ret = RHN_ERROR;
+        }
+        if (jwt->enc_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+          r_jwt_set_enc_alg(jwt, alg);
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_json_str - Error parsing privkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_privkey);
+    }
+    if (pubkey != NULL) {
+      if (r_jwk_init(&j_pubkey) == RHN_OK && r_jwk_import_from_json_str(j_pubkey, pubkey) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_pubkey_enc, j_pubkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_json_str - Error setting pubkey");
+          ret = RHN_ERROR;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_json_str - Error parsing pubkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_pubkey);
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+int r_jwt_add_enc_keys_json_t(jwt_t * jwt, json_t * privkey, json_t * pubkey) {
+  int ret = RHN_OK;
+  jwa_alg alg;
+  jwk_t * j_privkey = NULL, * j_pubkey = NULL;
+  
+  if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
+    if (privkey != NULL) {
+      if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_json_t(j_privkey, privkey) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_privkey_enc, j_privkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_json_t - Error setting privkey");
+          ret = RHN_ERROR;
+        }
+        if (jwt->enc_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+          r_jwt_set_enc_alg(jwt, alg);
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_json_t - Error parsing privkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_privkey);
+    }
+    if (pubkey != NULL) {
+      if (r_jwk_init(&j_pubkey) == RHN_OK && r_jwk_import_from_json_t(j_pubkey, pubkey) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_pubkey_enc, j_pubkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_json_t - Error setting pubkey");
+          ret = RHN_ERROR;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_json_t - Error parsing pubkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_pubkey);
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+int r_jwt_add_enc_keys_pem_der(jwt_t * jwt, int format, const unsigned char * privkey, size_t privkey_len, const unsigned char * pubkey, size_t pubkey_len) {
+  int ret = RHN_OK;
+  jwa_alg alg;
+  jwk_t * j_privkey = NULL, * j_pubkey = NULL;
+  
+  if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
+    if (privkey != NULL) {
+      if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_pem_der(j_privkey, R_X509_TYPE_PRIVKEY, format, privkey, privkey_len) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_privkey_enc, j_privkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_pem_der - Error setting privkey");
+          ret = RHN_ERROR;
+        }
+        if (jwt->enc_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+          r_jwt_set_enc_alg(jwt, alg);
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_pem_der - Error parsing privkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_privkey);
+    }
+    if (pubkey != NULL) {
+      if (r_jwk_init(&j_pubkey) == RHN_OK && r_jwk_import_from_pem_der(j_pubkey, R_X509_TYPE_PUBKEY, format, pubkey, pubkey_len) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_pubkey_enc, j_pubkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_pem_der - Error setting pubkey");
+          ret = RHN_ERROR;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_pem_der - Error parsing pubkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_pubkey);
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+int r_jwt_add_enc_keys_gnutls(jwt_t * jwt, gnutls_privkey_t privkey, gnutls_pubkey_t pubkey) {
+  int ret = RHN_OK;
+  jwa_alg alg;
+  jwk_t * j_privkey = NULL, * j_pubkey = NULL;
+  
+  if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
+    if (privkey != NULL) {
+      if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_gnutls_privkey(j_privkey, privkey) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_privkey_enc, j_privkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_gnutls - Error setting privkey");
+          ret = RHN_ERROR;
+        }
+        if (jwt->enc_alg == R_JWA_ALG_UNKNOWN && (alg = str_to_jwa_alg(r_jwk_get_property_str(j_privkey, "alg"))) != R_JWA_ALG_NONE) {
+          r_jwt_set_enc_alg(jwt, alg);
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_gnutls - Error parsing privkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_privkey);
+    }
+    if (pubkey != NULL) {
+      if (r_jwk_init(&j_pubkey) == RHN_OK && r_jwk_import_from_gnutls_pubkey(j_pubkey, pubkey) == RHN_OK) {
+        if (r_jwks_append_jwk(jwt->jwks_pubkey_enc, j_pubkey) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_gnutls - Error setting pubkey");
+          ret = RHN_ERROR;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_add_enc_keys_gnutls - Error parsing pubkey");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(j_pubkey);
     }
   } else {
     ret = RHN_ERROR_PARAM;
@@ -543,7 +855,7 @@ char * r_jwt_serialize_signed(jwt_t * jwt, jwk_t * privkey, int x5u_flags) {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_serialize_signed - Error r_jws_init");
     }
   } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_serialize_signed - Error invaid input parameters");
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_serialize_signed - Error invalid input parameters");
   }
   return token;
 }
@@ -593,7 +905,7 @@ char * r_jwt_serialize_encrypted(jwt_t * jwt, jwk_t * pubkey, int x5u_flags) {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_serialize_encrypted - Error r_jwe_init");
     }
   } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_serialize_encrypted - Error invaid input parameters");
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_serialize_encrypted - Error invalid input parameters");
   }
   return token;
 }

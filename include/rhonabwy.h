@@ -633,7 +633,7 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags);
 /**
  * Export a jwk_t into a DER or PEM format
  * @param jwk: the jwk_t * to export
- * @param format: the format of the outpu, values available are R_FORMAT_PEM or R_FORMAT_DER
+ * @param format: the format of the output, values available are R_FORMAT_PEM or R_FORMAT_DER
  * @param output: an unsigned char * that will contain the output
  * @param output_len: the size of output and will be set to the data size that has been written to output
  * @param x5u_flags: Flags to retrieve certificates
@@ -833,7 +833,7 @@ gnutls_pubkey_t * r_jwks_export_to_gnutls_pubkey(jwks_t * jwks, size_t * len, in
 /**
  * Export a jwks_t into a DER or PEM format
  * @param jwk: the jwks_t * to export
- * @param format: the format of the outpu, values available are R_FORMAT_PEM or R_FORMAT_DER
+ * @param format: the format of the output, values available are R_FORMAT_PEM or R_FORMAT_DER
  * @param output: an unsigned char * that will contain the output
  * @param output_len: the size of output and will be set to the data size that has been written to output
  * @param x5u_flags: Flags to retrieve certificates
@@ -971,6 +971,47 @@ int r_jws_add_keys(jws_t * jws, jwk_t * jwk_privkey, jwk_t * jwk_pubkey);
  * @return RHN_OK on success, an error value on error
  */
 int r_jws_add_jwks(jws_t * jws, jwks_t * jwks_privkey, jwks_t * jwks_pubkey);
+
+/**
+ * Add keys to perform signature or signature verification
+ * keys must be a JWK stringified
+ * @param jws: the jws_t to update
+ * @param privkey: the private key to sign
+ * @param pubkey: the public key to verify the signature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_add_keys_json_str(jws_t * jws, const char * privkey, const char * pubkey);
+
+/**
+ * Add keys to perform signature or signature verification
+ * keys must be a JWK in json_t * format
+ * @param jws: the jws_t to update
+ * @param privkey: the private key to sign the
+ * @param pubkey: the public key to verify the signature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_add_keys_json_t(jws_t * jws, json_t * privkey, json_t * pubkey);
+
+/**
+ * Add keys to perform signature or signature verification
+ * keys must be in PEM or DER format
+ * @param jws: the jws_t to update
+ * @param format: the format of the input, values available are R_FORMAT_PEM or R_FORMAT_DER
+ * @param privkey: the private key to sign the
+ * @param pubkey: the public key to verify the signature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_add_keys_pem_der(jws_t * jws, int format, const unsigned char * privkey, size_t privkey_len, const unsigned char * pubkey, size_t pubkey_len);
+
+/**
+ * Add keys to perform signature or signature verification
+ * keys must be gnutls key structures
+ * @param jws: the jws_t to update
+ * @param privkey: the private key to sign the
+ * @param pubkey: the public key to verify the signature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_add_keys_gnutls(jws_t * jws, gnutls_privkey_t privkey, gnutls_pubkey_t pubkey);
 
 /**
  * Get private keys set for the signature
@@ -1174,6 +1215,47 @@ int r_jwe_add_keys(jwe_t * jwe, jwk_t * jwk_privkey, jwk_t * jwk_pubkey);
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_add_jwks(jwe_t * jwe, jwks_t * jwks_privkey, jwks_t * jwks_pubkey);
+
+/**
+ * Add keys to perform encryption ot decryption
+ * keys must be a JWK stringified
+ * @param jwe: the jwe_t to update
+ * @param privkey: the private key to enc the
+ * @param pubkey: the public key to verify the encature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_add_keys_json_str(jwe_t * jwe, const char * privkey, const char * pubkey);
+
+/**
+ * Add keys to perform encryption ot decryption
+ * keys must be a JWK in json_t * format
+ * @param jwe: the jwe_t to update
+ * @param privkey: the private key to enc the
+ * @param pubkey: the public key to verify the encature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_add_keys_json_t(jwe_t * jwe, json_t * privkey, json_t * pubkey);
+
+/**
+ * Add keys to perform encryption ot decryption
+ * keys must be in PEM or DER format
+ * @param jwe: the jwe_t to update
+ * @param format: the format of the input, values available are R_FORMAT_PEM or R_FORMAT_DER
+ * @param privkey: the private key to enc the
+ * @param pubkey: the public key to verify the encature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_add_keys_pem_der(jwe_t * jwe, int format, const unsigned char * privkey, size_t privkey_len, const unsigned char * pubkey, size_t pubkey_len);
+
+/**
+ * Add keys to perform encryption ot decryption
+ * keys must be gnutls key structures
+ * @param jwe: the jwe_t to update
+ * @param privkey: the private key to enc the
+ * @param pubkey: the public key to verify the encature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_add_keys_gnutls(jwe_t * jwe, gnutls_privkey_t privkey, gnutls_pubkey_t pubkey);
 
 /**
  * Get private keys set for the cypher key decryption
@@ -1523,6 +1605,47 @@ int r_jwt_add_sign_keys(jwt_t * jwt, jwk_t * privkey, jwk_t * pubkey);
 int r_jwt_add_sign_jwks(jwt_t * jwt, jwks_t * jwks_privkey, jwks_t * jwks_pubkey);
 
 /**
+ * Add keys to perform signature or signature verification to the JWT
+ * keys must be a JWK stringified
+ * @param jwt: the jwt_t to update
+ * @param privkey: the private key to sign the JWT
+ * @param pubkey: the public key to verify the JWT signature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_add_sign_keys_json_str(jwt_t * jwt, const char * privkey, const char * pubkey);
+
+/**
+ * Add keys to perform signature or signature verification to the JWT
+ * keys must be a JWK in json_t * format
+ * @param jwt: the jwt_t to update
+ * @param privkey: the private key to sign the JWT
+ * @param pubkey: the public key to verify the JWT signature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_add_sign_keys_json_t(jwt_t * jwt, json_t * privkey, json_t * pubkey);
+
+/**
+ * Add keys to perform signature or signature verification to the JWT
+ * keys must be in PEM or DER format
+ * @param jwt: the jwt_t to update
+ * @param format: the format of the input, values available are R_FORMAT_PEM or R_FORMAT_DER
+ * @param privkey: the private key to sign the JWT
+ * @param pubkey: the public key to verify the JWT signature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_add_sign_keys_pem_der(jwt_t * jwt, int format, const unsigned char * privkey, size_t privkey_len, const unsigned char * pubkey, size_t pubkey_len);
+
+/**
+ * Add keys to perform signature or signature verification to the JWT
+ * keys must be gnutls key structures
+ * @param jwt: the jwt_t to update
+ * @param privkey: the private key to sign the JWT
+ * @param pubkey: the public key to verify the JWT signature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_add_sign_keys_gnutls(jwt_t * jwt, gnutls_privkey_t privkey, gnutls_pubkey_t pubkey);
+
+/**
  * Get private keys set for the signature
  * @param jwt: the jwt_t to get the value
  * @return the private key set in jwks_t * format
@@ -1553,6 +1676,47 @@ int r_jwt_add_enc_keys(jwt_t * jwt, jwk_t * privkey, jwk_t * pubkey);
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_add_enc_jwks(jwt_t * jwt, jwks_t * jwks_privkey, jwks_t * jwks_pubkey);
+
+/**
+ * Add keys to perform encryption ot decryption to the JWT
+ * keys must be a JWK stringified
+ * @param jwt: the jwt_t to update
+ * @param privkey: the private key to enc the JWT
+ * @param pubkey: the public key to verify the JWT encature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_add_enc_keys_json_str(jwt_t * jwt, const char * privkey, const char * pubkey);
+
+/**
+ * Add keys to perform encryption ot decryption to the JWT
+ * keys must be a JWK in json_t * format
+ * @param jwt: the jwt_t to update
+ * @param privkey: the private key to enc the JWT
+ * @param pubkey: the public key to verify the JWT encature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_add_enc_keys_json_t(jwt_t * jwt, json_t * privkey, json_t * pubkey);
+
+/**
+ * Add keys to perform encryption ot decryption to the JWT
+ * keys must be in PEM or DER format
+ * @param jwt: the jwt_t to update
+ * @param format: the format of the input, values available are R_FORMAT_PEM or R_FORMAT_DER
+ * @param privkey: the private key to enc the JWT
+ * @param pubkey: the public key to verify the JWT encature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_add_enc_keys_pem_der(jwt_t * jwt, int format, const unsigned char * privkey, size_t privkey_len, const unsigned char * pubkey, size_t pubkey_len);
+
+/**
+ * Add keys to perform encryption ot decryption to the JWT
+ * keys must be gnutls key structures
+ * @param jwt: the jwt_t to update
+ * @param privkey: the private key to enc the JWT
+ * @param pubkey: the public key to verify the JWT encature
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_add_enc_keys_gnutls(jwt_t * jwt, gnutls_privkey_t privkey, gnutls_pubkey_t pubkey);
 
 /**
  * Get private keys set for the cypher key decryption

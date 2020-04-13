@@ -845,6 +845,45 @@ START_TEST(test_rhonabwy_validate_claims)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_copy)
+{
+  jwt_t * jwt, * jwt_copy;
+  char * token = NULL, * token_copy;
+  time_t now;
+  
+  time(&now);
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "iss", JWT_CLAIM_ISS), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "sub", JWT_CLAIM_SUB), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "aud", JWT_CLAIM_AUD), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "jti", JWT_CLAIM_JTI), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "exp", (now+JWT_CLAIM_EXP)), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "nbf", (now-JWT_CLAIM_EXP)), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "iat", (now-JWT_CLAIM_EXP)), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "scope", JWT_CLAIM_SCOPE), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "age", JWT_CLAIM_AGE), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_json_t_value(jwt, "verified", JWT_CLAIM_VERIFIED), RHN_OK);
+  ck_assert_int_eq(r_jwt_add_enc_keys_json_str(jwt, jwk_privkey_rsa_str, jwk_pubkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwt_add_sign_key_symmetric(jwt, (const unsigned char *)symmetric_key, sizeof(symmetric_key)), RHN_OK);
+  
+  ck_assert_int_eq(r_jwt_set_enc_alg(jwt, R_JWA_ALG_RSA1_5), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_enc(jwt, R_JWA_ENC_A128CBC), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_sign_alg(jwt, R_JWA_ALG_HS256), RHN_OK);
+  ck_assert_ptr_ne((token = r_jwt_serialize_nested(jwt, R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT, NULL, 0, NULL, 0)), NULL);
+  
+  ck_assert_ptr_ne((jwt_copy = r_jwt_copy(jwt)), NULL);
+  ck_assert_ptr_ne((token_copy = r_jwt_serialize_nested(jwt_copy, R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT, NULL, 0, NULL, 0)), NULL);
+  
+  ck_assert_int_eq(r_jwt_parse(jwt_copy, token, 0), RHN_OK);
+  ck_assert_int_eq(r_jwt_decrypt_verify_signature_nested(jwt_copy, NULL, 0, NULL, 0), RHN_OK);
+  
+  o_free(token);
+  o_free(token_copy);
+  r_jwt_free(jwt);
+  r_jwt_free(jwt_copy);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -871,6 +910,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_set_enc_jwks);
   tcase_add_test(tc_core, test_rhonabwy_add_enc_keys_by_content);
   tcase_add_test(tc_core, test_rhonabwy_validate_claims);
+  tcase_add_test(tc_core, test_rhonabwy_copy);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

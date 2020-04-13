@@ -103,21 +103,17 @@ jwt_t * r_jwt_copy(jwt_t * jwt) {
       jwt_copy->sign_alg = jwt->sign_alg;
       jwt_copy->enc_alg = jwt->enc_alg;
       jwt_copy->enc = jwt->enc;
-      if (r_jwt_set_full_claims_json_t(jwt_copy, jwt->j_claims)) {
-        r_jwks_free(jwt_copy->jwks_privkey_sign);
-        jwt_copy->jwks_privkey_sign = r_jwks_copy(jwt->jwks_privkey_sign);
-        r_jwks_free(jwt_copy->jwks_pubkey_sign);
-        jwt_copy->jwks_pubkey_sign = r_jwks_copy(jwt->jwks_pubkey_sign);
-        r_jwks_free(jwt_copy->jwks_privkey_enc);
-        jwt_copy->jwks_privkey_enc = r_jwks_copy(jwt->jwks_privkey_enc);
-        r_jwks_free(jwt_copy->jwks_pubkey_enc);
-        jwt_copy->jwks_pubkey_enc = r_jwks_copy(jwt->jwks_pubkey_enc);
-        json_decref(jwt_copy->j_header);
-        jwt_copy->j_header = json_deep_copy(jwt->j_header);
-      } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_copy - Error setting claims");
+      json_decref(jwt_copy->j_header);
+      if (r_jwt_set_full_claims_json_t(jwt_copy, jwt->j_claims) != RHN_OK ||
+        r_jwt_add_enc_jwks(jwt_copy, jwt->jwks_privkey_enc, jwt->jwks_pubkey_enc) != RHN_OK ||
+        r_jwt_add_sign_jwks(jwt_copy, jwt->jwks_privkey_sign, jwt->jwks_pubkey_sign) != RHN_OK ||
+        (jwt_copy->j_header = json_deep_copy(jwt->j_header)) == NULL) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_copy - Error setting claims or keys or header");
         r_jwt_free(jwt_copy);
         jwt_copy = NULL;
+      } else {
+        jwt_copy->jwe = r_jwe_copy(jwt->jwe);
+        jwt_copy->jws = r_jws_copy(jwt->jws);
       }
     }
   }

@@ -33,6 +33,7 @@ const char jwk_privkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"
                                       "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"d\":\"870MB6gfuTJ4HtUnUvYMyJpr5eUZNP4Bk43bVdj3eAE\","\
                                       "\"use\":\"enc\",\"kid\":\"1\"}";
 
+const unsigned char symmetric_key[] = "my-very-secret";
 const unsigned char rsa_2048_pub[] = "-----BEGIN PUBLIC KEY-----\n"
 "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwtpMAM4l1H995oqlqdMh\n"
 "uqNuffp4+4aUCwuFE9B5s9MJr63gyf8jW0oDr7Mb1Xb8y9iGkWfhouZqNJbMFry+\n"
@@ -447,8 +448,10 @@ START_TEST(test_rhonabwy_add_sign_keys_by_content)
   jwt_t * jwt;
   jwk_t * jwk_priv, * jwk_pub;
   jwks_t * jwks;
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   gnutls_privkey_t g_privkey;
   gnutls_pubkey_t g_pubkey;
+#endif
   json_t * j_privkey, * j_pubkey;
   
   ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
@@ -456,10 +459,12 @@ START_TEST(test_rhonabwy_add_sign_keys_by_content)
   ck_assert_int_eq(r_jwk_init(&jwk_pub), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_priv, jwk_privkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pub, jwk_pubkey_rsa_str), RHN_OK);
-  g_privkey = r_jwk_export_to_gnutls_privkey(jwk_priv, 0);
-  g_pubkey = r_jwk_export_to_gnutls_pubkey(jwk_pub, 0);
-  j_privkey = r_jwk_export_to_json_t(jwk_priv);
-  j_pubkey = r_jwk_export_to_json_t(jwk_pub);
+#if GNUTLS_VERSION_NUMBER >= 0x030600
+  ck_assert_ptr_ne(g_privkey = r_jwk_export_to_gnutls_privkey(jwk_priv, 0), NULL);
+  ck_assert_ptr_ne(g_pubkey = r_jwk_export_to_gnutls_pubkey(jwk_pub, 0), NULL);
+#endif
+  ck_assert_ptr_ne(j_privkey = r_jwk_export_to_json_t(jwk_priv), NULL);
+  ck_assert_ptr_ne(j_pubkey = r_jwk_export_to_json_t(jwk_pub), NULL);
   
   jwks = r_jwt_get_sign_jwks_privkey(jwt);
   ck_assert_int_eq(0, r_jwks_size(jwks));
@@ -489,19 +494,19 @@ START_TEST(test_rhonabwy_add_sign_keys_by_content)
   ck_assert_int_eq(2, r_jwks_size(jwks));
   r_jwks_free(jwks);
   
-  ck_assert_int_eq(r_jwt_add_sign_keys_gnutls(jwt, g_privkey, g_pubkey), RHN_OK);
-  
-  jwks = r_jwt_get_sign_jwks_privkey(jwt);
-  ck_assert_int_eq(3, r_jwks_size(jwks));
-  r_jwks_free(jwks);
-  
-  jwks = r_jwt_get_sign_jwks_pubkey(jwt);
-  ck_assert_int_eq(3, r_jwks_size(jwks));
-  r_jwks_free(jwks);
-  
   ck_assert_int_eq(r_jwt_add_sign_keys_pem_der(jwt, R_FORMAT_PEM, rsa_2048_priv, sizeof(rsa_2048_priv), rsa_2048_pub, sizeof(rsa_2048_pub)), RHN_OK);
   
   jwks = r_jwt_get_sign_jwks_privkey(jwt);
+  ck_assert_int_eq(3, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  jwks = r_jwt_get_sign_jwks_pubkey(jwt);
+  ck_assert_int_eq(3, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  ck_assert_int_eq(r_jwt_add_sign_key_symmetric(jwt, symmetric_key, sizeof(symmetric_key)), RHN_OK);
+  
+  jwks = r_jwt_get_sign_jwks_privkey(jwt);
   ck_assert_int_eq(4, r_jwks_size(jwks));
   r_jwks_free(jwks);
   
@@ -509,9 +514,23 @@ START_TEST(test_rhonabwy_add_sign_keys_by_content)
   ck_assert_int_eq(4, r_jwks_size(jwks));
   r_jwks_free(jwks);
   
+#if GNUTLS_VERSION_NUMBER >= 0x030600
+  ck_assert_int_eq(r_jwt_add_sign_keys_gnutls(jwt, g_privkey, g_pubkey), RHN_OK);
+  
+  jwks = r_jwt_get_sign_jwks_privkey(jwt);
+  ck_assert_int_eq(5, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  jwks = r_jwt_get_sign_jwks_pubkey(jwt);
+  ck_assert_int_eq(5, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+#endif
+  
   r_jwt_free(jwt);
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   gnutls_privkey_deinit(g_privkey);
   gnutls_pubkey_deinit(g_pubkey);
+#endif
   json_decref(j_privkey);
   json_decref(j_pubkey);
   r_jwk_free(jwk_priv);
@@ -611,8 +630,10 @@ START_TEST(test_rhonabwy_add_enc_keys_by_content)
   jwt_t * jwt;
   jwk_t * jwk_priv, * jwk_pub;
   jwks_t * jwks;
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   gnutls_privkey_t g_privkey;
   gnutls_pubkey_t g_pubkey;
+#endif
   json_t * j_privkey, * j_pubkey;
   
   ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
@@ -620,10 +641,12 @@ START_TEST(test_rhonabwy_add_enc_keys_by_content)
   ck_assert_int_eq(r_jwk_init(&jwk_pub), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_priv, jwk_privkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pub, jwk_pubkey_rsa_str), RHN_OK);
-  g_privkey = r_jwk_export_to_gnutls_privkey(jwk_priv, 0);
-  g_pubkey = r_jwk_export_to_gnutls_pubkey(jwk_pub, 0);
-  j_privkey = r_jwk_export_to_json_t(jwk_priv);
-  j_pubkey = r_jwk_export_to_json_t(jwk_pub);
+#if GNUTLS_VERSION_NUMBER >= 0x030600
+  ck_assert_ptr_ne(g_privkey = r_jwk_export_to_gnutls_privkey(jwk_priv, 0), NULL);
+  ck_assert_ptr_ne(g_pubkey = r_jwk_export_to_gnutls_pubkey(jwk_pub, 0), NULL);
+#endif
+  ck_assert_ptr_ne(j_privkey = r_jwk_export_to_json_t(jwk_priv), NULL);
+  ck_assert_ptr_ne(j_pubkey = r_jwk_export_to_json_t(jwk_pub), NULL);
   
   jwks = r_jwt_get_enc_jwks_privkey(jwt);
   ck_assert_int_eq(0, r_jwks_size(jwks));
@@ -653,19 +676,19 @@ START_TEST(test_rhonabwy_add_enc_keys_by_content)
   ck_assert_int_eq(2, r_jwks_size(jwks));
   r_jwks_free(jwks);
   
-  ck_assert_int_eq(r_jwt_add_enc_keys_gnutls(jwt, g_privkey, g_pubkey), RHN_OK);
-  
-  jwks = r_jwt_get_enc_jwks_privkey(jwt);
-  ck_assert_int_eq(3, r_jwks_size(jwks));
-  r_jwks_free(jwks);
-  
-  jwks = r_jwt_get_enc_jwks_pubkey(jwt);
-  ck_assert_int_eq(3, r_jwks_size(jwks));
-  r_jwks_free(jwks);
-  
   ck_assert_int_eq(r_jwt_add_enc_keys_pem_der(jwt, R_FORMAT_PEM, rsa_2048_priv, sizeof(rsa_2048_priv), rsa_2048_pub, sizeof(rsa_2048_pub)), RHN_OK);
   
   jwks = r_jwt_get_enc_jwks_privkey(jwt);
+  ck_assert_int_eq(3, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  jwks = r_jwt_get_enc_jwks_pubkey(jwt);
+  ck_assert_int_eq(3, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  ck_assert_int_eq(r_jwt_add_enc_key_symmetric(jwt, symmetric_key, sizeof(symmetric_key)), RHN_OK);
+  
+  jwks = r_jwt_get_enc_jwks_privkey(jwt);
   ck_assert_int_eq(4, r_jwks_size(jwks));
   r_jwks_free(jwks);
   
@@ -673,9 +696,23 @@ START_TEST(test_rhonabwy_add_enc_keys_by_content)
   ck_assert_int_eq(4, r_jwks_size(jwks));
   r_jwks_free(jwks);
   
+#if GNUTLS_VERSION_NUMBER >= 0x030600
+  ck_assert_int_eq(r_jwt_add_enc_keys_gnutls(jwt, g_privkey, g_pubkey), RHN_OK);
+  
+  jwks = r_jwt_get_enc_jwks_privkey(jwt);
+  ck_assert_int_eq(5, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  jwks = r_jwt_get_enc_jwks_pubkey(jwt);
+  ck_assert_int_eq(5, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+#endif
+  
   r_jwt_free(jwt);
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   gnutls_privkey_deinit(g_privkey);
   gnutls_pubkey_deinit(g_pubkey);
+#endif
   json_decref(j_privkey);
   json_decref(j_pubkey);
   r_jwk_free(jwk_priv);

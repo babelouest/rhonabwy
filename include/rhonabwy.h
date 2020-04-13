@@ -689,7 +689,7 @@ int r_jwks_import_from_str(jwks_t * jwks, const char * input);
 
 /**
  * Import a JWKS in json_t format into a jwk_t
- * @param jwk: the jwk_t * to import to
+ * @param jwks: the jwk_t * to import to
  * @param j_input: a JWK in json_t * format
  * If jwks is set, JWK will be appended
  * @return RHN_OK on success, an error value on error
@@ -700,7 +700,7 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input);
 
 /**
  * Import a JWKS from an uri
- * @param jwk: the jwk_t * to import to
+ * @param jwks: the jwk_t * to import to
  * @param uri: an uri pointing to a JWKS
  * If jwks is set, JWK will be appended
  * @param flags: Flags to retrieve certificates
@@ -722,7 +722,7 @@ jwks_t * r_jwks_copy(jwks_t * jwks);
 
 /**
  * Get the number of jwk_t in a jwks_t
- * @param jwk: the jwks_t * to evaluate
+ * @param jwks: the jwks_t * to evaluate
  * @return the number of jwk_t in a jwks_t
  */
 size_t r_jwks_size(jwks_t * jwks);
@@ -788,7 +788,7 @@ int r_jwks_equal(jwks_t * jwks1, jwks_t * jwks2);
 
 /**
  * Export a jwks_t into a stringified JSON format
- * @param jwk: the jwks_t * to export
+ * @param jwks: the jwks_t * to export
  * @param pretty: indent or compact JSON output
  * @return a char * on success, NULL on error, must be r_free'd after use
  */
@@ -796,14 +796,14 @@ char * r_jwks_export_to_json_str(jwks_t * jwks, int pretty);
 
 /**
  * Export a jwk_t into a json_t format
- * @param jwk: the jwk_t * to export
+ * @param jwks: the jwk_t * to export
  * @return a json_t * on success, NULL on error
  */
 json_t * r_jwks_export_to_json_t(jwks_t * jwks);
 
 /**
  * Export a jwks_t into a gnutls_privkey_t format
- * @param jwk: the jwks_t * to export
+ * @param jwks: the jwks_t * to export
  * @param len: set the length of the output array
  * @param x5u_flags: Flags to retrieve certificates
  * pointed by x5u if necessary, could be 0 if not needed
@@ -818,7 +818,7 @@ gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len, 
 
 /**
  * Export a jwks_t into a gnutls_pubkey_t format
- * @param jwk: the jwks_t * to export
+ * @param jwks: the jwks_t * to export
  * @param len: set the length of the output array
  * @param x5u_flags: Flags to retrieve certificates
  * pointed by x5u if necessary, could be 0 if not needed
@@ -832,7 +832,7 @@ gnutls_pubkey_t * r_jwks_export_to_gnutls_pubkey(jwks_t * jwks, size_t * len, in
 
 /**
  * Export a jwks_t into a DER or PEM format
- * @param jwk: the jwks_t * to export
+ * @param jwks: the jwks_t * to export
  * @param format: the format of the output, values available are R_FORMAT_PEM or R_FORMAT_DER
  * @param output: an unsigned char * that will contain the output
  * @param output_len: the size of output and will be set to the data size that has been written to output
@@ -998,7 +998,9 @@ int r_jws_add_keys_json_t(jws_t * jws, json_t * privkey, json_t * pubkey);
  * @param jws: the jws_t to update
  * @param format: the format of the input, values available are R_FORMAT_PEM or R_FORMAT_DER
  * @param privkey: the private key to sign the
+ * @param privkey_len: length of privkey
  * @param pubkey: the public key to verify the signature
+ * @param pubkey_len: length of pubkey
  * @return RHN_OK on success, an error value on error
  */
 int r_jws_add_keys_pem_der(jws_t * jws, int format, const unsigned char * privkey, size_t privkey_len, const unsigned char * pubkey, size_t pubkey_len);
@@ -1072,6 +1074,12 @@ int r_jws_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_
  * @param jws: the jws_t to update
  * @param jwk_pubkey: the public key to check the signature,
  * can be NULL if jws already contains a public key
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return RHN_OK on success, an error value on error
  */
 int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags);
@@ -1081,6 +1089,12 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags);
  * @param jws: the JWS to serialize
  * @param jwk_privkey: the private key to use to sign the JWS
  * can be NULL if jws already contains a private key
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return the JWS in serialized format, returned value must be r_free'd after use
  */
 char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags);
@@ -1250,8 +1264,10 @@ int r_jwe_add_keys_json_t(jwe_t * jwe, json_t * privkey, json_t * pubkey);
  * keys must be in PEM or DER format
  * @param jwe: the jwe_t to update
  * @param format: the format of the input, values available are R_FORMAT_PEM or R_FORMAT_DER
- * @param privkey: the private key to enc the
- * @param pubkey: the public key to verify the encature
+ * @param privkey: the private key to sign the
+ * @param privkey_len: length of privkey
+ * @param pubkey: the public key to verify the signature
+ * @param pubkey_len: length of pubkey
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_add_keys_pem_der(jwe_t * jwe, int format, const unsigned char * privkey, size_t privkey_len, const unsigned char * pubkey, size_t pubkey_len);
@@ -1302,7 +1318,6 @@ int r_jwe_set_cypher_key(jwe_t * jwe, const unsigned char * key, size_t key_len)
  * Gets the cypher key to encrypt or decrypt the payload
  * @param jwe: the jwe_t to get the value
  * @param key_len: set the size of the key, may be NULL
- * @param enc: the enc type to use
  * @return the key to encrypt or decrypt the payload
  */
 const unsigned char * r_jwe_get_cypher_key(jwe_t * jwe, size_t * key_len);
@@ -1310,8 +1325,6 @@ const unsigned char * r_jwe_get_cypher_key(jwe_t * jwe, size_t * key_len);
 /**
  * Generates a random cypher key
  * @param jwe: the jwe_t to update
- * @param bits: the size of the key
- * @param enc: the enc type
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_generate_cypher_key(jwe_t * jwe);
@@ -1336,7 +1349,6 @@ const unsigned char * r_jwe_get_iv(jwe_t * jwe, size_t * iv_len);
 /**
  * Generates a random Initialization Vector (iv)
  * @param jwe: the jwe_t to update
- * @param length: the size of the iv
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_generate_iv(jwe_t * jwe);
@@ -1417,6 +1429,12 @@ int r_jwe_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_str_len, int x5u_
  * @param jwe: the jwe_t to update
  * @param jwk_privkey: the private key to decrypt cypher key,
  * can be NULL if jwe already contains a private key
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
@@ -1426,6 +1444,12 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
  * @param jwe: the JWE to serialize
  * @param jwk_pubkey: the public key to encrypt the cypher key,
  * can be NULL if jwe already contains a public key
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return the JWE in serialized format, returned value must be r_free'd after use
  */
 char * r_jwe_serialize(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags);
@@ -1647,8 +1671,10 @@ int r_jwt_add_sign_keys_json_t(jwt_t * jwt, json_t * privkey, json_t * pubkey);
  * keys must be in PEM or DER format
  * @param jwt: the jwt_t to update
  * @param format: the format of the input, values available are R_FORMAT_PEM or R_FORMAT_DER
- * @param privkey: the private key to sign the JWT
- * @param pubkey: the public key to verify the JWT signature
+ * @param privkey: the private key to sign the
+ * @param privkey_len: length of privkey
+ * @param pubkey: the public key to verify the signature
+ * @param pubkey_len: length of pubkey
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_add_sign_keys_pem_der(jwt_t * jwt, int format, const unsigned char * privkey, size_t privkey_len, const unsigned char * pubkey, size_t pubkey_len);
@@ -1729,8 +1755,10 @@ int r_jwt_add_enc_keys_json_t(jwt_t * jwt, json_t * privkey, json_t * pubkey);
  * keys must be in PEM or DER format
  * @param jwt: the jwt_t to update
  * @param format: the format of the input, values available are R_FORMAT_PEM or R_FORMAT_DER
- * @param privkey: the private key to enc the JWT
- * @param pubkey: the public key to verify the JWT encature
+ * @param privkey: the private key to sign the
+ * @param privkey_len: length of privkey
+ * @param pubkey: the public key to verify the signature
+ * @param pubkey_len: length of pubkey
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_add_enc_keys_pem_der(jwt_t * jwt, int format, const unsigned char * privkey, size_t privkey_len, const unsigned char * pubkey, size_t pubkey_len);
@@ -1992,14 +2020,6 @@ int r_jwt_decrypt_nested(jwt_t * jwt, jwk_t * decrypt_key, int decrypt_key_x5u_f
  * @param verify_key: the public key to check the signature,
  * can be NULL if jws already contains a public key
  * @param verify_key_x5u_flags: Flags to retrieve certificates in verify_key
- * pointed by x5u if necessary, could be 0 if not needed
- * Flags available are 
- * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
- * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
- * @param decrypt_key: the private key to decrypt cypher key,
- * can be NULL if jwt already contains a private key
- * @param decrypt_key_x5u_flags: Flags to retrieve certificates in decrypt_key
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid

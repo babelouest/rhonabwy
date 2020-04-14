@@ -3,6 +3,8 @@
 [![Build Status](https://travis-ci.com/babelouest/rhonabwy.svg?branch=master)](https://travis-ci.com/babelouest/rhonabwy)
 ![C/C++ CI](https://github.com/babelouest/rhonabwy/workflows/C/C++%20CI/badge.svg)
 
+[![View on JWT.IO](http://jwt.io/img/badge.svg)](https://jwt.io)
+
 - Create, modify, parse, import or export [JSON Web Keys](https://tools.ietf.org/html/rfc7517) (JWK) and JSON Web Keys Set (JWKS)
 - Create, modify, parse, validate or serialize [JSON Web Signatures](https://tools.ietf.org/html/rfc7515) (JWS)
 - Create, modify, parse, validate or serialize [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE) **limited and experimental!**
@@ -128,19 +130,23 @@ int main(void) {
 
 # Installation
 
+## Dependencies
+
+Rhonabwy is based on [GnuTLS](https://www.gnutls.org/), [jansson](http://www.digip.org/jansson/) and [zlib](https://www.zlib.net/), you must have those 3 libraries installed first before building librhonabwy.
+
+GnuTLS is required, 3.6 minimum for ECDSA, Ed25519 (EDDSA) and RSA-PSS signatures.
+
+## Prerequisites
+
+You need [liborcania](https://github.com/babelouest/orcania), [libyder](https://github.com/babelouest/yder), [libulfius](https://github.com/babelouest/ulfius).
+
+Those libraries are included in the package `rhonabwy-dev-full_{x.x.x}_{OS}_{ARCH}.tar.gz` in the [Latest release](https://github.com/babelouest/rhonabwy/releases/latest) page. If you're building with CMake, they will be automatically downloaded and installed if they are missing.
+
 ## Pre-compiled packages
 
 You can install Rhonabwy with a pre-compiled package available in the [release pages](https://github.com/babelouest/rhonabwy/releases/latest/).
 
 ## Manual install
-
-### Prerequisites
-
-You must install [liborcania](https://github.com/babelouest/orcania), [libyder](https://github.com/babelouest/yder), [libulfius](https://github.com/babelouest/ulfius), [jansson](http://www.digip.org/jansson/), [zlib](https://www.zlib.net/) and [GnuTLS](https://www.gnutls.org/) first before building librhonabwy.
-
-Orcania, Yder and Ulfius will be automatically installed if they are missing and you're using cmake.
-
-GnuTLS is required, 3.6 minimum for ECDSA, Ed25519 (EDDSA) and RSA-PSS signatures.
 
 ### CMake - Multi architecture
 

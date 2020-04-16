@@ -435,9 +435,9 @@ r_jwe_free(jwe);
 r_jwk_free(jwk_key_rsa);
 ```
 
-### Parse and decrypt a JWS using Rhonabwy
+### Parse and decrypt a JWE using Rhonabwy
 
-The JWS above can be parsed and verified using the following sample code:
+The JWE above can be parsed and verified using the following sample code:
 
 ```C
 #include <rhonabwy.h>

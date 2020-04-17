@@ -16,20 +16,20 @@ JWT Relies on JWS and JWE functions, so it supports the same functionnalities as
 
 | "alg" Param Value | Digital Signature or MAC Algorithm | Supported |
 |---|---|---|
-| HS256 | HMAC using SHA-256 |YES|
-| HS384 | HMAC using SHA-384 |YES|
-| HS512 | HMAC using SHA-512 |YES|
-| RS256 | RSASSA-PKCS1-v1_5 using SHA-256 |YES|
-| RS384 | RSASSA-PKCS1-v1_5 using SHA-384 |YES|
-| RS512 | RSASSA-PKCS1-v1_5 using SHA-512 |YES|
-| ES256 | ECDSA using P-256 and SHA-256 |YES|
-| ES384 | ECDSA using P-384 and SHA-384 |YES|
-| ES512 | ECDSA using P-521 and SHA-512 |YES|
-| PS256 | RSASSA-PSS using SHA-256 and MGF1 with SHA-256 |YES|
-| PS384 | RSASSA-PSS using SHA-384 and MGF1 with SHA-384 |YES|
-| PS512 | RSASSA-PSS using SHA-512 and MGF1 with SHA-512 |YES|
-| none | No digital signature or MAC performed |YES|
-| EdDSA | Digital Signature with Ed25519 Elliptic Curve |YES|
+| HS256 | HMAC using SHA-256 |**YES**|
+| HS384 | HMAC using SHA-384 |**YES**|
+| HS512 | HMAC using SHA-512 |**YES**|
+| RS256 | RSASSA-PKCS1-v1_5 using SHA-256 |**YES**|
+| RS384 | RSASSA-PKCS1-v1_5 using SHA-384 |**YES**|
+| RS512 | RSASSA-PKCS1-v1_5 using SHA-512 |**YES**|
+| ES256 | ECDSA using P-256 and SHA-256 |**YES**|
+| ES384 | ECDSA using P-384 and SHA-384 |**YES**|
+| ES512 | ECDSA using P-521 and SHA-512 |**YES**|
+| PS256 | RSASSA-PSS using SHA-256 and MGF1 with SHA-256 |**YES**|
+| PS384 | RSASSA-PSS using SHA-384 and MGF1 with SHA-384 |**YES**|
+| PS512 | RSASSA-PSS using SHA-512 and MGF1 with SHA-512 |**YES**|
+| none | No digital signature or MAC performed |**YES**|
+| EdDSA | Digital Signature with Ed25519 Elliptic Curve |**YES**|
 
 **JWE support is experimental and limited, please use with great caution!**
 
@@ -37,31 +37,31 @@ JWT Relies on JWS and JWE functions, so it supports the same functionnalities as
 
 | "enc" Param Value | Content Encryption Algorithm | Supported |
 |---|---|---|
-| A128CBC-HS256 | AES_128_CBC_HMAC_SHA_256 authenticated encryption algorithm, as defined in Section 5.2.3 |YES|
-| A192CBC-HS384 | AES_192_CBC_HMAC_SHA_384 authenticated encryption algorithm, as defined in Section 5.2.4 |YES|
-| A256CBC-HS512 | AES_256_CBC_HMAC_SHA_512 authenticated encryption algorithm, as defined in Section 5.2.5 |YES|
-| A128GCM | AES GCM using 128-bit key |YES|
+| A128CBC-HS256 | AES_128_CBC_HMAC_SHA_256 authenticated encryption algorithm, as defined in Section 5.2.3 |**YES**|
+| A192CBC-HS384 | AES_192_CBC_HMAC_SHA_384 authenticated encryption algorithm, as defined in Section 5.2.4 |**YES**|
+| A256CBC-HS512 | AES_256_CBC_HMAC_SHA_512 authenticated encryption algorithm, as defined in Section 5.2.5 |**YES**|
+| A128GCM | AES GCM using 128-bit key |**YES**|
 | A192GCM | AES GCM using 192-bit key |NO|
-| A256GCM | AES GCM using 256-bit key |YES|
+| A256GCM | AES GCM using 256-bit key |**YES**|
 
 - Supported Cryptographic Algorithms for Key Management:
 
 | "alg" Param Value | Key Management Algorithm | Supported |
 |---|---|---|
-| RSA1_5 | RSAES-PKCS1-v1_5 | YES |
+| RSA1_5 | RSAES-PKCS1-v1_5 | **YES** |
 | RSA-OAEP | RSAES OAEP using default parameters | NO |
 | RSA-OAEP-256 | RSAES OAEP using SHA-256 and MGF1 with SHA-256 | NO |
 | A128KW | AES Key Wrap with default initial value using 128-bit key | NO |
 | A192KW | AES Key Wrap with default initial value using 192-bit key | NO |
 | A256KW | AES Key Wrap with default initial value using 256-bit key | NO |
-| dir | Direct use of a shared symmetric key as the CEK | YES |
+| dir | Direct use of a shared symmetric key as the CEK | **YES** |
 | ECDH-ES | Elliptic Curve Diffie-Hellman Ephemeral Static key agreement using Concat KDF | NO |
 | ECDH-ES+A128KW | ECDH-ES using Concat KDF and CEK wrapped with "A128KW" | NO |
 | ECDH-ES+A192KW | ECDH-ES using Concat KDF and CEK wrapped with "A192KW" | NO |
 | ECDH-ES+A256KW | ECDH-ES using Concat KDF and CEK wrapped with "A256KW" | NO |
-| A128GCMKW | Key wrapping with AES GCM using 128-bit key | YES |
+| A128GCMKW | Key wrapping with AES GCM using 128-bit key | **YES** |
 | A192GCMKW | Key wrapping with AES GCM using 192-bit key | NO |
-| A256GCMKW | Key wrapping with AES GCM using 256-bit key | YES |
+| A256GCMKW | Key wrapping with AES GCM using 256-bit key | **YES** |
 | PBES2-HS256+A128KW | PBES2 with HMAC SHA-256 and "A128KW" wrapping | NO |
 | PBES2-HS384+A192KW | PBES2 with HMAC SHA-384 and "A192KW" wrapping | NO |
 | PBES2-HS512+A256KW | PBES2 with HMAC SHA-512 and "A256KW" wrapping | NO |
@@ -132,15 +132,15 @@ int main(void) {
 
 ## Dependencies
 
-Rhonabwy is based on [GnuTLS](https://www.gnutls.org/), [jansson](http://www.digip.org/jansson/) and [zlib](https://www.zlib.net/), you must have those 3 libraries installed first before building librhonabwy.
+Rhonabwy is based on [GnuTLS](https://www.gnutls.org/), [jansson](http://www.digip.org/jansson/), [zlib](https://www.zlib.net/), [libmicrohttpd](https://www.gnu.org/software/libmicrohttpd/), [libcurl](https://curl.haxx.se/libcurl/) and libsystemd (if possible), you must install those libraries first before building librhonabwy.
 
-GnuTLS is required, 3.6 minimum for ECDSA, Ed25519 (EDDSA) and RSA-PSS signatures.
+GnuTLS 3.6 minimum is required for ECDSA, Ed25519 (EDDSA) and RSA-PSS signatures.
 
 ## Prerequisites
 
 You need [liborcania](https://github.com/babelouest/orcania), [libyder](https://github.com/babelouest/yder), [libulfius](https://github.com/babelouest/ulfius).
 
-Those libraries are included in the package `rhonabwy-dev-full_{x.x.x}_{OS}_{ARCH}.tar.gz` in the [Latest release](https://github.com/babelouest/rhonabwy/releases/latest) page. If you're building with CMake, they will be automatically downloaded and installed if they are missing.
+Those libraries are included in the package `rhonabwy-dev-full_{x.x.x}_{OS}_{ARCH}.tar.gz` in the [Latest release](https://github.com/babelouest/rhonabwy/releases/latest) page. If you're building with CMake, they will be automatically downloaded and installed if missing.
 
 ## Pre-compiled packages
 

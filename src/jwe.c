@@ -1526,11 +1526,11 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
                   y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Error o_malloc cypherkey_b64");
                   ret = RHN_ERROR_MEMORY;
                 }
+                gnutls_free(cypherkey.data);
               } else {
                 y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Error gnutls_pubkey_encrypt_data: %s", gnutls_strerror(res));
                 ret = RHN_ERROR;
               }
-              gnutls_free(cypherkey.data);
             } else {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - invalid key type");
               ret = RHN_ERROR_PARAM;
@@ -1637,13 +1637,13 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
                       y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error r_jwe_set_cypher_key (RSA1_5)");
                       ret = RHN_ERROR;
                     }
+                    gnutls_free(plainkey.data);
                   } else if (res == GNUTLS_E_DECRYPTION_FAILED) {
                     ret = RHN_ERROR_INVALID;
                   } else {
                     y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error gnutls_privkey_decrypt_data: %s", gnutls_strerror(res));
                     ret = RHN_ERROR;
                   }
-                  gnutls_free(plainkey.data);
                 } else {
                   y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error o_base64url_decode cypherkey_dec");
                   ret = RHN_ERROR_PARAM;

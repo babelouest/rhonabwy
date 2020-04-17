@@ -435,6 +435,10 @@ r_jwe_free(jwe);
 r_jwk_free(jwk_key_rsa);
 ```
 
+#### Compressed payload
+
+The header value `"zip":"DEF"` is used to specify if the JWE payload is compressed using [ZIP/Deflate](https://tools.ietf.org/html/rfc7516#section-4.1.3) algorithm. Rhonabwy will automatically compress or decompress the decrypted payload during encryption or decryption process.
+
 ### Parse and decrypt a JWE using Rhonabwy
 
 The JWE above can be parsed and verified using the following sample code:

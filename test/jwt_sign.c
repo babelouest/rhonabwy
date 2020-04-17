@@ -38,6 +38,16 @@ const char jwk_privkey_sign_str[] = "{\"kty\":\"RSA\",\"n\":\"ANgV1GxZbGBMIqqX5Q
 const char jwk_pubkey_sign_str_2[] = "{\"kty\":\"RSA\",\"n\":\"ALZfFvsvNegnsnjhAydGJ17C9Ny5-M1UqRbcgaPUFRqvfn2P2Yz5rjGTnfFKe9E6xANSNzKRdb5ltNeeJT0inSi2meACAXE68Ud7d2JvlkxQPvz1tJyCKvQFktGwlqwW5F8r_spfT1qJsf_DpZWjsXFrkY7sdrHJdoeQZDIYx0fsGdzlA0uGoGimPlCCExYLcqsjjh3Dqv8V1xJ4jm5S8198v3FJXXm5BN_GWAmExuDOq6ul8MqcECXBQ4LavxFlB5kGgPsxvFjTK72_2YdNDQPkKmV56vShm50BaEqzXU0A2MYeTyabX7d4goI_B7IeX5tGqMjBrlX6hNS-VfqGMVM\",\"e\":\"AQAB\",\"kid\":\"4\"}";
 const char jwk_privkey_sign_str_2[] = "{\"kty\":\"RSA\",\"n\":\"ALZfFvsvNegnsnjhAydGJ17C9Ny5-M1UqRbcgaPUFRqvfn2P2Yz5rjGTnfFKe9E6xANSNzKRdb5ltNeeJT0inSi2meACAXE68Ud7d2JvlkxQPvz1tJyCKvQFktGwlqwW5F8r_spfT1qJsf_DpZWjsXFrkY7sdrHJdoeQZDIYx0fsGdzlA0uGoGimPlCCExYLcqsjjh3Dqv8V1xJ4jm5S8198v3FJXXm5BN_GWAmExuDOq6ul8MqcECXBQ4LavxFlB5kGgPsxvFjTK72_2YdNDQPkKmV56vShm50BaEqzXU0A2MYeTyabX7d4goI_B7IeX5tGqMjBrlX6hNS-VfqGMVM\",\"e\":\"AQAB\",\"d\":\"HyIUlkT0-vDr8t7W3vmG9xJpItVMuCDfzNtP9lvaTnfvLBhGl154clY0_GAuywUxOS_r5GIYq6xJNxX0XX9vPOgPVMKC5IWfcwiM1O0fx19boWuArcc69fWNnuZ6kl5GFkk4cevbbCVdkcAgoG8Vd7tZWgDcMnWmGnZ35GV-f7Rw3kQTxge4V7T5-I5preMxRAV2YZ1zafIDpYXaOXWL9bX0vAApb5Vie1btPiOj7lZ_J0ChkkdIW-ZTiQZ0sTRo6c6qLVNHQLKAJ_I6QLMfiHAT8xFir3fgiUxNwxxifYOts_akh3-wJEs4r4G92hohmIiIKp2TABDc3WrmFDafYQ\",\"p\":\"ANVUDxAxNuR8Ds5W_3xpGgOKzypYGfimDrU_kRzXsdXOz4EkSYXG2SR7V854vvcgJDzFIihmaI_65LN_pk_6ZE1ddd8Qrud9nMtd5n9neEkOGTCsTO-TM4gLjyZQ3FCo_oCsJ6MiQRlOTw5pf1yH69q3QUd5e_5c75MYr4G0fPwn\",\"q\":\"ANrZ0K-ZdBt9uP1Bt0G7YmW3j41wFt1JnmOkX86YX6Q3wrI4YqiRfolVexAtQ1a1iRVY7ZGXhy_q0rDLPIpfYAy9LSS1NZHb_vu7C-p8hCALxKa6bTGLeT4Z5LABHPBoMVCyKhlANMHhcUeNY76p4JwT1zwT7FIHamKgVKzv_CD1\",\"qi\":\"GUmL7fbgnNa2IQ13i3Xi3A5dXzgqBeVHb2HjAzCJhNCcg8jslpU4rmMoGAq_WagT-U3_NuUVnGWnHTPWHjFe9MkwxPpSIISbMRorOhsZMrlzg4vdyZ2Kt_zs3yNTb_KOYx6YxU3_93IdFU2XjlnUf4mDThVoTSRfNh-NMJgwLUw\",\"dp\":\"ALBi7IGK78RD_0oFDQIlNOkw4NI2PmMliou6n5WlktkiQtiY1GHUZL6Rbay-kcdrwAqvROr6ogJKhMcWCMGgW0bMvCVQeg3WAsr0PR2ixAZDrfhcvtBoefdG93nK6h-XW7ewoKV2MTVnVl6oRDKSACW72DHs9OUAmuaZRqSMQ7uJ\",\"dq\":\"AIgWpDddtB6YOl157Ov6CwD3eVPZXM50RgLuJwmAJREn_3D1sRvjhYz-08zGaLZVoo3cw7YiRNVeL2_yoY3mKwMg7B6EdHBkHhYJRSqmDT8kMj__c4E4mscsMNHlj0pLcEce0yDqlSPu_ZMh7-GTH3HOwKvCM9T6eYQk8SKtBNq1\",\"kid\":\"4\"}";
 
+const unsigned char rsa_2048_pub[] = "-----BEGIN PUBLIC KEY-----\n"
+"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwtpMAM4l1H995oqlqdMh\n"
+"uqNuffp4+4aUCwuFE9B5s9MJr63gyf8jW0oDr7Mb1Xb8y9iGkWfhouZqNJbMFry+\n"
+"iBs+z2TtJF06vbHQZzajDsdux3XVfXv9v6dDIImyU24MsGNkpNt0GISaaiqv51NM\n"
+"ZQX0miOXXWdkQvWTZFXhmsFCmJLE67oQFSar4hzfAaCulaMD+b3Mcsjlh0yvSq7g\n"
+"6swiIasEU3qNLKaJAZEzfywroVYr3BwM1IiVbQeKgIkyPS/85M4Y6Ss/T+OWi1Oe\n"
+"K49NdYBvFP+hNVEoeZzJz5K/nd6C35IX0t2bN5CVXchUFmaUMYk2iPdhXdsC720t\n"
+"BwIDAQAB\n"
+"-----END PUBLIC KEY-----\n";
+
 START_TEST(test_rhonabwy_sign_error)
 {
   jwt_t * jwt;
@@ -253,6 +263,41 @@ START_TEST(test_rhonabwy_verify_signature_with_add_keys_ok)
 }
 END_TEST
 
+/**
+ * 
+ * This test validates that the vulnerability described in
+ * https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/
+ * doesn't concern Rhonabwy
+ * Basically, the attacker signs a JWT with the public key and the signature verification
+ * doesn't check that the algorithm used is different from the expected one.
+ * 
+ */
+START_TEST(test_rhonabwy_verify_vulnerabilty_ok)
+{
+  jwt_t * jwt_sign, * jwt_verify;
+  json_t * j_claims = json_pack("{sssiso}", "str", "grut", "int", 42, "obj", json_true());
+  char * token;
+  
+  ck_assert_int_eq(r_jwt_init(&jwt_sign), RHN_OK);
+  ck_assert_int_eq(r_jwt_init(&jwt_verify), RHN_OK);
+  
+  ck_assert_int_eq(r_jwt_add_sign_key_symmetric(jwt_sign, rsa_2048_pub, sizeof(rsa_2048_pub)), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_full_claims_json_t(jwt_sign, j_claims), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_sign_alg(jwt_sign, R_JWA_ALG_HS256), RHN_OK);
+
+  ck_assert_ptr_ne(token = r_jwt_serialize_signed(jwt_sign, NULL, 0), NULL);
+  
+  ck_assert_int_eq(r_jwt_add_sign_keys_pem_der(jwt_verify, R_FORMAT_PEM, NULL, 0, rsa_2048_pub, sizeof(rsa_2048_pub)), RHN_OK);
+  ck_assert_int_eq(r_jwt_parse(jwt_verify, token, 0), RHN_OK);
+  ck_assert_int_eq(r_jwt_verify_signature(jwt_verify, NULL, 0), RHN_ERROR_INVALID);
+  
+  o_free(token);
+  json_decref(j_claims);
+  r_jwt_free(jwt_sign);
+  r_jwt_free(jwt_verify);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -270,6 +315,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_verify_error_signature_invalid);
   tcase_add_test(tc_core, test_rhonabwy_verify_signature_ok);
   tcase_add_test(tc_core, test_rhonabwy_verify_signature_with_add_keys_ok);
+  tcase_add_test(tc_core, test_rhonabwy_verify_vulnerabilty_ok);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

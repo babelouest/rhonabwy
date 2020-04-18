@@ -133,14 +133,13 @@ START_TEST(test_rhonabwy_encrypt_decrypt_invalid_privkey)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_pubkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
   ck_assert_int_eq(r_jwe_add_keys(jwe, NULL, jwk_pubkey), RHN_OK);
-  ck_assert_int_eq(r_jwe_add_keys(jwe_decrypt, jwk_privkey, NULL), RHN_OK);
   
   ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_RSA1_5), RHN_OK);
   ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
   ck_assert_ptr_ne((token = r_jwe_serialize(jwe, NULL, 0)), NULL);
   
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, token, 0), RHN_OK);
-  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_ERROR_INVALID);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
   
   o_free(token);
   r_jwk_free(jwk_privkey);
@@ -358,6 +357,6 @@ int main(int argc, char *argv[])
   number_failed = srunner_ntests_failed(sr);
   srunner_free(sr);
   
-  //y_close_logs();
+ // y_close_logs();
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

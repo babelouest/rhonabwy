@@ -1487,6 +1487,7 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
   unsigned char * cypherkey_b64 = NULL, * key = NULL;
   size_t cypherkey_b64_len = 0, key_len = 0;
   jwa_alg alg;
+  const char * kid;
   
   if (jwe != NULL) {
     if (jwk_s != NULL) {
@@ -1504,6 +1505,9 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
   }
   
   if (jwe != NULL && jwe->key != NULL && jwe->key_len && jwe->alg != R_JWA_ALG_UNKNOWN && jwe->alg != R_JWA_ALG_NONE) {
+    if ((kid = r_jwk_get_property_str(jwk, "kid")) != NULL && r_jwe_get_header_str_value(jwe, "kid") == NULL) {
+      r_jwe_set_header_str_value(jwe, "kid", kid);
+    }
       switch (jwe->alg) {
         case R_JWA_ALG_RSA1_5:
           if (jwk != NULL && (g_pub = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags)) != NULL) {

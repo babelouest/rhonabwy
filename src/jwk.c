@@ -105,7 +105,7 @@ int r_jwk_is_valid(jwk_t * jwk) {
       }
       if (json_object_get(jwk, "alg") != NULL) {
         if (r_str_to_jwa_alg(json_string_value(json_object_get(jwk, "alg"))) == R_JWA_ALG_UNKNOWN) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid alg");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid alg value: '%s'", json_string_value(json_object_get(jwk, "alg")));
           ret = RHN_ERROR_PARAM;
         }
         has_alg = 1;
@@ -130,7 +130,7 @@ int r_jwk_is_valid(jwk_t * jwk) {
               0 != o_strcmp("P-384", json_string_value(json_object_get(jwk, "crv"))) &&
               0 != o_strcmp("P-512", json_string_value(json_object_get(jwk, "crv"))) &&
               0 != o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv")))) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid crv");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid crv value: '%s'", json_string_value(json_object_get(jwk, "crv")));
             ret = RHN_ERROR_PARAM;
           }
           has_pubkey_parameters = 1;

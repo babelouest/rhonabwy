@@ -265,7 +265,7 @@ static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags)
   gnutls_datum_t body_dat, sig_dat, r, s;
   unsigned char * binary_sig = NULL, * to_return = NULL;
   int alg = GNUTLS_DIG_NULL, res;
-  unsigned int adj;
+  unsigned int adj = 0;
   int r_padding = 0, s_padding = 0, r_out_padding = 0, s_out_padding = 0;
   size_t sig_size, ret_size = 0;
     
@@ -278,9 +278,6 @@ static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags)
   } else if (jws->alg == R_JWA_ALG_ES512) {
     alg = GNUTLS_DIG_SHA512;
     adj = 66;
-  } else if (jws->alg == R_JWA_ALG_EDDSA) {
-    alg = GNUTLS_DIG_SHA512;
-    adj = 32;
   }
   
   if (privkey != NULL && GNUTLS_PK_EC == gnutls_privkey_get_pk_algorithm(privkey, NULL)) {

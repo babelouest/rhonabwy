@@ -866,7 +866,9 @@ char * r_jwt_serialize_signed(jwt_t * jwt, jwk_t * privkey, int x5u_flags) {
   
   if (jwt != NULL && (alg = r_jwt_get_sign_alg(jwt)) != R_JWA_ALG_UNKNOWN) {
     if (r_jws_init(&jws) == RHN_OK) {
-      r_jws_set_header_str_value(jws, "typ", "JWT");
+      if (r_jws_get_header_str_value(jws, "typ") != NULL) {
+        r_jws_set_header_str_value(jws, "typ", "JWT");
+      }
       j_header = r_jwt_get_full_header_json_t(jwt);
       json_object_foreach(j_header, key, j_value) {
         r_jws_set_header_json_t_value(jws, key, j_value);
@@ -906,7 +908,9 @@ char * r_jwt_serialize_encrypted(jwt_t * jwt, jwk_t * pubkey, int x5u_flags) {
   
   if (jwt != NULL && (alg = r_jwt_get_enc_alg(jwt)) != R_JWA_ALG_UNKNOWN && (enc = r_jwt_get_enc(jwt)) != R_JWA_ENC_UNKNOWN) {
     if (r_jwe_init(&jwe) == RHN_OK) {
-      r_jwe_set_header_str_value(jwe, "typ", "JWT");
+      if (r_jwe_get_header_str_value(jwe, "typ") != NULL) {
+        r_jwe_set_header_str_value(jwe, "typ", "JWT");
+      }
       j_header = r_jwt_get_full_header_json_t(jwt);
       json_object_foreach(j_header, key, j_value) {
         r_jwe_set_header_json_t_value(jwe, key, j_value);
@@ -949,7 +953,9 @@ char * r_jwt_serialize_nested(jwt_t * jwt, unsigned int type, jwk_t * sign_key, 
     if (type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT) {
       if ((token_intermediate = r_jwt_serialize_signed(jwt, sign_key, sign_key_x5u_flags)) != NULL) {
         if (r_jwe_init(&jwe) == RHN_OK) {
-          r_jwe_set_header_str_value(jwe, "typ", "JWT");
+          if (r_jwe_get_header_str_value(jwe, "typ") != NULL) {
+            r_jwe_set_header_str_value(jwe, "typ", "JWT");
+          }
           j_header = r_jwt_get_full_header_json_t(jwt);
           json_object_foreach(j_header, key, j_value) {
             r_jwe_set_header_json_t_value(jwe, key, j_value);
@@ -976,7 +982,9 @@ char * r_jwt_serialize_nested(jwt_t * jwt, unsigned int type, jwk_t * sign_key, 
     } else if (type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN) {
       if ((token_intermediate = r_jwt_serialize_encrypted(jwt, encrypt_key, encrypt_key_x5u_flags)) != NULL) {
         if (r_jws_init(&jws) == RHN_OK) {
-          r_jws_set_header_str_value(jws, "typ", "JWT");
+          if (r_jws_get_header_str_value(jws, "typ") != NULL) {
+            r_jws_set_header_str_value(jws, "typ", "JWT");
+          }
           j_header = r_jwt_get_full_header_json_t(jwt);
           json_object_foreach(j_header, key, j_value) {
             r_jws_set_header_json_t_value(jws, key, j_value);
@@ -1079,7 +1087,7 @@ int r_jwt_parsen(jwt_t * jwt, const char * token, size_t token_len, int x5u_flag
     } else if (nb_dots == 4) { // JWE
       r_jwe_free(jwt->jwe);
       if ((r_jwe_init(&jwt->jwe)) == RHN_OK) {
-        if ((res = r_jwe_parse(jwt->jwe, token, x5u_flags)) == RHN_OK) {
+        if ((res = r_jwe_parsen(jwt->jwe, token, token_len, x5u_flags)) == RHN_OK) {
           json_decref(jwt->j_header);
           jwt->j_header = json_deep_copy(jwt->jwe->j_header);
           jwt->enc_alg = jwt->jwe->alg;
@@ -1321,7 +1329,7 @@ int r_jwt_decrypt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int v
                 ret = RHN_ERROR;
               }
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_decrypt_verify_signature_nested - Error r_jws_parse");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_decrypt_verify_signature_nested - Error r_jws_parsen");
               ret = RHN_ERROR;
             }
           } else {
@@ -1406,7 +1414,7 @@ int r_jwt_decrypt_nested(jwt_t * jwt, jwk_t * decrypt_key, int decrypt_key_x5u_f
                 ret = RHN_ERROR;
               }
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_decrypt_verify_signature_nested - Error r_jws_parse");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_decrypt_nested - Error r_jws_parsen");
               ret = RHN_ERROR;
             }
           } else {

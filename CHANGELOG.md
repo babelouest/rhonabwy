@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 0.9.10
+
+- Do not overwrite header value `typ` in a JWT if one is already set
+- Small bugfixes
+
 ## 0.9.9
 
 - Fix JWE payload encryption with AES-GCM

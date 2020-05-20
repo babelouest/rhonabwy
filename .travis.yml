@@ -2,25 +2,26 @@
 # travis configuration file
 # Copyright 2018 Ilya Shipitsin <chipitsine@gmail.com>
 #                Nicolas Mora <mail@babelouest.org>
-sudo: required
 language: c
+os: linux
+dist: bionic
 addons:
   apt:
-    packages: [ libgnutls28-dev, libjansson-dev, libcurl4-gnutls-dev, libmicrohttpd-dev, check, libsubunit-dev, cppcheck, pkg-config, doxygen ]
-matrix:
+    packages: [ libgnutls28-dev, libjansson-dev, libcurl4-gnutls-dev, libmicrohttpd-dev, libsystemd-dev, check, libsubunit-dev, cppcheck, pkg-config, doxygen ]
+jobs:
   include:
-    - os: linux
+    - env: LABEL=gcc
       compiler: gcc
-    - os: linux
+    - env: LABEL=clang
       compiler: clang
     - env: LABEL=cppcheck
       os: linux
       script:
-        - cppcheck --force --enable=warning,missingInclude --error-exitcode=1 . >build.log 2>&1 || (cat build.log && exit 1)
+        - cppcheck --force --enable=warning,missingInclude --error-exitcode=1 .
 
 script:
   - mkdir build && cd build
-  - cmake -DBUILD_RHONABWY_TESTING=on -DWITH_JOURNALD=off ..
+  - cmake -DBUILD_RHONABWY_TESTING=on ..
   - make test || (cat Testing/Temporary/LastTest.log && false)
   - make package
   - sudo make install

@@ -4,6 +4,7 @@
 
 - Do not overwrite header value `typ` in a JWT if one is already set
 - Small bugfixes
+- Add function `r_jwk_export_to_gnutls_crt`
 
 ## 0.9.9
 

@@ -2028,6 +2028,83 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
   return pubkey;
 }
 
+gnutls_x509_crt_t r_jwk_export_to_gnutls_crt(jwk_t * jwk, int x5u_flags) {
+  gnutls_x509_crt_t crt;
+  unsigned char * b64_dec;
+  size_t b64_dec_len = 0;
+  gnutls_datum_t data = {NULL, 0};
+  int type = r_jwk_key_type(jwk, NULL, x5u_flags);
+
+  struct _u_request request;
+  struct _u_response response;
+
+  if (type & (R_KEY_TYPE_PUBLIC)) {
+    if (json_array_get(json_object_get(jwk, "x5c"), 0) != NULL || json_array_get(json_object_get(jwk, "x5u"), 0) != NULL) {
+      if (json_array_get(json_object_get(jwk, "x5c"), 0) != NULL) {
+        // Export first x5c
+        if (o_base64_decode((const unsigned char *)json_string_value(json_array_get(json_object_get(jwk, "x5c"), 0)), json_string_length(json_array_get(json_object_get(jwk, "x5c"), 0)), NULL, &b64_dec_len)) {
+          if ((b64_dec = o_malloc((b64_dec_len+1)*sizeof(char))) != NULL) {
+            if (o_base64_decode((const unsigned char *)json_string_value(json_array_get(json_object_get(jwk, "x5c"), 0)), json_string_length(json_array_get(json_object_get(jwk, "x5c"), 0)), b64_dec, &b64_dec_len)) {
+              if (!gnutls_x509_crt_init(&crt)) {
+                data.data = b64_dec;
+                data.size = b64_dec_len;
+                if (gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_DER)) {
+                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5c - Error gnutls_pubkey_import");
+                }
+              } else {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5c - Error gnutls_x509_crt_init");
+              }
+            } else {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5c - Error o_base64_decode (2)");
+            }
+            o_free(b64_dec);
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5c - Error o_malloc");
+          }
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5c - Error o_base64_decode (1)");
+        }
+      } else {
+        if (!(x5u_flags & R_FLAG_IGNORE_REMOTE)) {
+          // Get first x5u
+          if (ulfius_init_request(&request) == U_OK) {
+            if (ulfius_init_response(&response) == U_OK) {
+              request.http_verb = o_strdup("GET");
+              request.http_url = o_strdup(json_string_value(json_array_get(json_object_get(jwk, "x5u"), 0)));
+              request.check_server_certificate = !(x5u_flags&R_FLAG_IGNORE_SERVER_CERTIFICATE);
+              request.follow_redirect = x5u_flags&R_FLAG_FOLLOW_REDIRECT;
+              if (ulfius_send_http_request(&request, &response) == U_OK && response.status >= 200 && response.status < 300) {
+                if (!gnutls_x509_crt_init(&crt)) {
+                  data.data = response.binary_body;
+                  data.size = response.binary_body_length;
+                  if (gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_PEM)) {
+                    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5u - Error gnutls_pubkey_import");
+                  }
+                } else {
+                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5u - Error gnutls_x509_crt_init");
+                }
+              } else {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5u - Error ulfius_send_http_request");
+              }
+              ulfius_clean_request(&request);
+              ulfius_clean_response(&response);
+            } else {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5u - Error ulfius_init_response");
+            }
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5u - Error ulfius_init_request");
+          }
+        }
+      }
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt - Error invalid key type");
+    }
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt - Error not public key");
+  }
+  return crt;
+}
+
 int r_jwk_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, size_t * output_len, int x5u_flags) {
   gnutls_pubkey_t pubkey = NULL;
   gnutls_privkey_t privkey = NULL;

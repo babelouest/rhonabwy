@@ -631,6 +631,21 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags);
 gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags);
 
 /**
+ * Export a jwk_t into a gnutls_x509_crt_t format
+ * the jwt_t must contain a x5c or a x5u property
+ * pointing to a certificate
+ * @param jwk: the jwk_t * to export
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL
+ * @return a gnutls_x509_crt_t on success, NULL on error
+ */
+gnutls_x509_crt_t r_jwk_export_to_gnutls_crt(jwk_t * jwk, int x5u_flags);
+
+/**
  * Export a jwk_t into a DER or PEM format
  * @param jwk: the jwk_t * to export
  * @param format: the format of the output, values available are R_FORMAT_PEM or R_FORMAT_DER

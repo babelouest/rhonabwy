@@ -2029,7 +2029,7 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
 }
 
 gnutls_x509_crt_t r_jwk_export_to_gnutls_crt(jwk_t * jwk, int x5u_flags) {
-  gnutls_x509_crt_t crt;
+  gnutls_x509_crt_t crt = NULL;
   unsigned char * b64_dec;
   size_t b64_dec_len = 0;
   gnutls_datum_t data = {NULL, 0};

@@ -329,8 +329,8 @@ const char jwk_pubkey_rsa_x5u_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuP
                                       "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\""\
                                       ",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2011-04-29\",\"x5u\":[\"https://www.example.com/x509\"]}";
 
-const char jwk_pubkey_rsa_x5u_only_rsa_pub[] = "{\"alg\": \"RS256\",\"x5u\":[\"https://localhost:7462/x5u_rsa_crt\"]}";
-const char jwk_pubkey_rsa_x5u_only_ecdsa_pub[] = "{\"alg\": \"RS256\",\"x5u\":[\"https://localhost:7462/x5u_ecdsa_crt\"]}";
+const char jwk_pubkey_rsa_x5u_only_rsa_pub[] = "{\"alg\": \"RS256\",\"x5u\":[\"https://localhost:7464/x5u_rsa_crt\"]}";
+const char jwk_pubkey_rsa_x5u_only_ecdsa_pub[] = "{\"alg\": \"RS256\",\"x5u\":[\"https://localhost:7464/x5u_ecdsa_crt\"]}";
 
 const char jwk_pubkey_rsa_x5u_str_invalid_x5u[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWK"\
                                                   "RXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZ"\
@@ -1064,14 +1064,14 @@ START_TEST(test_rhonabwy_import_from_x5u)
   struct _u_instance instance;
   unsigned int bits = 0;
   
-  ck_assert_int_eq(ulfius_init_instance(&instance, 7462, NULL, NULL), U_OK);
+  ck_assert_int_eq(ulfius_init_instance(&instance, 7463, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_ecdsa_crt", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);
   
   ck_assert_int_eq(ulfius_start_secure_framework(&instance, HTTPS_CERT_KEY, HTTPS_CERT_PEM), U_OK);
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_x5u(jwk, R_X509_TYPE_CERTIFICATE, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7462/x5u_rsa_crt"), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_x5u(jwk, R_X509_TYPE_CERTIFICATE, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7463/x5u_rsa_crt"), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
   ck_assert_int_eq(bits, 3072);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
@@ -1084,7 +1084,7 @@ START_TEST(test_rhonabwy_import_from_x5u)
   
 #if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_x5u(jwk, R_X509_TYPE_CERTIFICATE, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7462/x5u_ecdsa_crt"), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_x5u(jwk, R_X509_TYPE_CERTIFICATE, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7463/x5u_ecdsa_crt"), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
   ck_assert_int_eq(bits, 256);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
@@ -1108,7 +1108,7 @@ START_TEST(test_rhonabwy_key_type)
   struct _u_instance instance;
   unsigned int bits = 0;
   
-  ck_assert_int_eq(ulfius_init_instance(&instance, 7462, NULL, NULL), U_OK);
+  ck_assert_int_eq(ulfius_init_instance(&instance, 7464, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_ecdsa_crt", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);
   

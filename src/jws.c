@@ -245,7 +245,7 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
           to_return = NULL;
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_rsa - Error allocating resoures for to_return");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_rsa - Error allocating resources for to_return");
       }
       gnutls_free(sig_dat.data);
     } else {
@@ -313,11 +313,11 @@ static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags)
               to_return = NULL;
             }
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_ecdsa - Error allocating resoures for to_return");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_ecdsa - Error allocating resources for to_return");
           }
           o_free(binary_sig);
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_ecdsa - Error allocating resoures for binary_sig");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_ecdsa - Error allocating resources for binary_sig");
         }
         gnutls_free(r.data);
         gnutls_free(s.data);
@@ -364,7 +364,7 @@ static unsigned char * r_jws_sign_eddsa(jws_t * jws, jwk_t * jwk, int x5u_flags)
           to_return = NULL;
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_eddsa - Error allocating resoures for to_return");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_eddsa - Error allocating resources for to_return");
       }
       gnutls_free(sig_dat.data);
     } else {

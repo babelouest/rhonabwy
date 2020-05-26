@@ -1561,7 +1561,7 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
                 }
                 o_free(key);
               } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Error allocating resoures for key");
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Error allocating resources for key");
                 ret = RHN_ERROR_MEMORY;
               }
             } else {
@@ -1681,7 +1681,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
                 }
                 o_free(key);
               } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error allocating resoures for key");
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error allocating resources for key");
                 ret = RHN_ERROR_MEMORY;
               }
             } else {
@@ -1847,7 +1847,7 @@ char * r_jwe_serialize(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags) {
         }
         o_free(key);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_serialize - Error allocating resoures for key");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_serialize - Error allocating resources for key");
         res = RHN_ERROR_MEMORY;
       }
     } else {

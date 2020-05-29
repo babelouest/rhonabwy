@@ -517,12 +517,13 @@ START_TEST(test_rhonabwy_encrypt_payload_all_format)
   ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
   ck_assert_int_eq(0, o_strncmp(PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(PAYLOAD)));
   
-  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A192GCM), RHN_OK);
-  ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
-  ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
-  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
-  ck_assert_ptr_eq(jwe->ciphertext_b64url, NULL);
-  ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_ERROR_PARAM); // R_JWA_ENC_A192GCM not supported by GnuTLS
+  // R_JWA_ENC_A192GCM not supported by GnuTLS until 3.6.7
+  //ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A192GCM), RHN_OK);
+  //ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
+  //ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
+  //ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  //ck_assert_ptr_eq(jwe->ciphertext_b64url, NULL);
+  //ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_OK);
   
   ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A256GCM), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
@@ -550,8 +551,8 @@ START_TEST(test_rhonabwy_decrypt_payload_invalid_key_no_tag)
   ck_assert_ptr_eq(jwe->ciphertext_b64url, NULL);
   ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_OK);
   ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
-  jwe->key[18]++;
-  ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
+  jwe->key[4]++;
+  ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_ERROR_INVALID);
   ck_assert_int_ne(memcmp(payload_control, jwe->payload, jwe->payload_len), 0);
   
   r_jwe_free(jwe);

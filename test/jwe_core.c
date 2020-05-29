@@ -551,8 +551,8 @@ START_TEST(test_rhonabwy_decrypt_payload_invalid_key_no_tag)
   ck_assert_ptr_eq(jwe->ciphertext_b64url, NULL);
   ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_OK);
   ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
-  jwe->key[4]++;
-  ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_ERROR_INVALID);
+  jwe->key[18]++;
+  ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
   ck_assert_int_ne(memcmp(payload_control, jwe->payload, jwe->payload_len), 0);
   
   r_jwe_free(jwe);

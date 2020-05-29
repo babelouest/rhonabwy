@@ -22,8 +22,8 @@
 #define TOKEN_INVALID_TAG_B64 "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJTTWdHekVEMHBNY05wQk00IiwidGFnIjoiclYwdnZPX1JMZTBJRDNuam5wcklLZyJ9.xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFFsoUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.;error;"
 #define TOKEN_INVALID_DOTS "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJTTWdHekVEMHBNY05wQk00IiwidGFnIjoiclYwdnZPX1JMZTBJRDNuam5wcklLZyJ9xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFFsoUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.8v_65BtY-tYA1QzBaqUcKA"
 
-const char jwk_key_128_1[] = "{\"kty\":\"oct\",\"k\":\"Zd3bPKCfbPc2A6sh3M7dIbzgD6PS-qIwsbN79VgN5PY\"}";
-const char jwk_key_128_2[] = "{\"kty\":\"oct\",\"k\":\"ELG-YDhuRKg-6zH2QTR7Tug2zYz7v3coGLx_VWkcnVs\"}";
+const char jwk_key_128_1[] = "{\"kty\":\"oct\",\"k\":\"Zd3bPKCfbPc2A6sh3M7dIQ\"}";
+const char jwk_key_128_2[] = "{\"kty\":\"oct\",\"k\":\"ELG-YDhuRKg-6zH2QTR7Tg\"}";
 
 START_TEST(test_rhonabwy_parse_token_invalid)
 {

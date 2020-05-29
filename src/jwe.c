@@ -232,6 +232,8 @@ int r_jwe_aesgcm_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
       iv_g.size = iv_len;
       if ((res = gnutls_cipher_init(&handle, r_jwe_get_alg_from_alg(jwe->alg), &key_g, &iv_g))) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error gnutls_cipher_init: '%s'", gnutls_strerror(res));
+        y_log_message(Y_LOG_LEVEL_DEBUG, "key_len (real): '%zu'", key_len);
+        y_log_message(Y_LOG_LEVEL_DEBUG, "key_len (expected): '%zu'", gnutls_cipher_get_key_size(r_jwe_get_alg_from_alg(jwe->alg)));
         ret = RHN_ERROR;
         break;
       }
@@ -273,6 +275,32 @@ int r_jwe_aesgcm_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
   return ret;
 }
 
+static size_t r_jwe_get_key_size(jwa_enc enc) {
+  size_t size = 0;
+  switch (enc) {
+    case R_JWA_ENC_A128GCM:
+      size = 16;
+      break;
+    case R_JWA_ENC_A192GCM:
+      size = 24;
+      break;
+    case R_JWA_ENC_A128CBC:
+    case R_JWA_ENC_A256GCM:
+      size = 32;
+      break;
+    case R_JWA_ENC_A192CBC:
+      size = 48;
+      break;
+    case R_JWA_ENC_A256CBC:
+      size = 64;
+      break;
+    default:
+      size = 0;
+      break;
+  }
+  return size;
+}
+
 static unsigned char * r_jwe_set_ptext_with_block(const unsigned char * data, size_t data_len, size_t * ptext_len, gnutls_cipher_algorithm_t alg) {
   size_t b_size = (size_t)gnutls_cipher_get_block_size(alg);
   unsigned char * ptext = NULL;
@@ -291,28 +319,6 @@ static unsigned char * r_jwe_set_ptext_with_block(const unsigned char * data, si
     }
   }
   return ptext;
-}
-
-static size_t r_jwe_get_key_size(jwa_enc enc) {
-  size_t size = 0;
-  switch (enc) {
-    case R_JWA_ENC_A128CBC:
-    case R_JWA_ENC_A128GCM:
-    case R_JWA_ENC_A192GCM:
-    case R_JWA_ENC_A256GCM:
-      size = 32;
-      break;
-    case R_JWA_ENC_A192CBC:
-      size = 48;
-      break;
-    case R_JWA_ENC_A256CBC:
-      size = 64;
-      break;
-    default:
-      size = 0;
-      break;
-  }
-  return size;
 }
 
 static int r_jwe_extract_header(jwe_t * jwe, json_t * j_header, int x5u_flags) {
@@ -626,7 +632,9 @@ int r_jwe_generate_cypher_key(jwe_t * jwe) {
     jwe->encrypted_key_b64url = NULL;
     jwe->key_len = r_jwe_get_key_size(jwe->enc);
     o_free(jwe->key);
-    if ((jwe->key = o_malloc(jwe->key_len)) != NULL) {
+    if (!jwe->key_len) {
+      ret = RHN_ERROR_PARAM;
+    } else if ((jwe->key = o_malloc(jwe->key_len)) != NULL) {
       if (!gnutls_rnd(GNUTLS_RND_KEY, jwe->key, jwe->key_len)) {
         ret = RHN_OK;
       } else {
@@ -1249,7 +1257,7 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
     if (ret == RHN_OK) {
       if (jwe->enc == R_JWA_ENC_A128CBC || jwe->enc == R_JWA_ENC_A192CBC || jwe->enc == R_JWA_ENC_A256CBC) {
         key.data = jwe->key+(jwe->key_len/2);
-        key.size = (jwe->key_len/2);
+        key.size = jwe->key_len/2;
         cipher_cbc = 1;
       } else {
         key.data = jwe->key;
@@ -1363,7 +1371,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
     if (ret == RHN_OK) {
       if (jwe->enc == R_JWA_ENC_A128CBC || jwe->enc == R_JWA_ENC_A192CBC || jwe->enc == R_JWA_ENC_A256CBC) {
         key.data = jwe->key+(jwe->key_len/2);
-        key.size = gnutls_hmac_get_len(r_jwe_get_digest_from_enc(jwe->enc))/2;
+        key.size = jwe->key_len/2;
         cipher_cbc = 1;
       } else {
         key.data = jwe->key;
@@ -1822,7 +1830,7 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
   if ((res = r_jwe_decrypt_key(jwe, jwk_privkey, x5u_flags)) == RHN_OK && (res = r_jwe_decrypt_payload(jwe)) == RHN_OK) {
     ret = RHN_OK;
   } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt - Error decrypting data");
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt - Error decrypting data ");
     ret = res;
   }
   return ret;

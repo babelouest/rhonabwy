@@ -103,16 +103,16 @@ const char jwk_pubkey_rsa_x5c_str[] = "{\"kty\":\"RSA\",\"use\":\"sig\",\"kid\":
 const char jwk_pubkey_rsa_x5u_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
                                       "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
                                       "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\""\
-                                      ",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2011-04-29\",\"x5u\":[\"https://www.example.com/x509\"]}";
+                                      ",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2011-04-29\",\"x5u\":\"https://www.example.com/x509\"}";
 
-const char jwk_pubkey_rsa_x5u_only_rsa_pub_7465[] = "{\"alg\": \"RS256\",\"x5u\":[\"https://localhost:7465/x5u_rsa_crt\"]}";
-const char jwk_pubkey_rsa_x5u_only_ecdsa_pub_7465[] = "{\"alg\": \"RS256\",\"x5u\":[\"https://localhost:7465/x5u_ecdsa_crt\"]}";
+const char jwk_pubkey_rsa_x5u_only_rsa_pub_7465[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7465/x5u_rsa_crt\"}";
+const char jwk_pubkey_rsa_x5u_only_ecdsa_pub_7465[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7465/x5u_ecdsa_crt\"}";
 
-const char jwk_pubkey_rsa_x5u_only_rsa_pub_7466[] = "{\"alg\": \"RS256\",\"x5u\":[\"https://localhost:7466/x5u_rsa_crt\"]}";
-const char jwk_pubkey_rsa_x5u_only_ecdsa_pub_7466[] = "{\"alg\": \"RS256\",\"x5u\":[\"https://localhost:7466/x5u_ecdsa_crt\"]}";
+const char jwk_pubkey_rsa_x5u_only_rsa_pub_7466[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7466/x5u_rsa_crt\"}";
+const char jwk_pubkey_rsa_x5u_only_ecdsa_pub_7466[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7466/x5u_ecdsa_crt\"}";
 
-const char jwk_pubkey_rsa_x5u_only_rsa_pub_7467[] = "{\"alg\": \"RS256\",\"x5u\":[\"https://localhost:7467/x5u_rsa_crt\"]}";
-const char jwk_pubkey_rsa_x5u_only_ecdsa_pub_7467[] = "{\"alg\": \"RS256\",\"x5u\":[\"https://localhost:7467/x5u_ecdsa_crt\"]}";
+const char jwk_pubkey_rsa_x5u_only_rsa_pub_7467[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7467/x5u_rsa_crt\"}";
+const char jwk_pubkey_rsa_x5u_only_ecdsa_pub_7467[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7467/x5u_ecdsa_crt\"}";
 
 const char jwk_pubkey_rsa_x5u_export[] = "-----BEGIN PUBLIC KEY-----\n"\
 "MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAsUWjL3wK1B/dQbXbhSXa\n"\
@@ -321,7 +321,7 @@ START_TEST(test_rhonabwy_export_to_str)
   ck_assert_ptr_ne(o_strstr(export_str, "\"e\":\"AQAB\""), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"alg\":\"RS256\""), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"kid\":\"2011-04-29\""), NULL);
-  ck_assert_ptr_ne(o_strstr(export_str, "\"x5u\":[\"https://www.example.com/x509\"]"), NULL);
+  ck_assert_ptr_ne(o_strstr(export_str, "\"x5u\":\"https://www.example.com/x509\""), NULL);
   o_free(export_str);
   r_jwk_free(jwk);
 
@@ -418,7 +418,7 @@ START_TEST(test_rhonabwy_export_to_json)
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "e")), "AQAB");
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "alg")), "RS256");
   ck_assert_str_eq(json_string_value(json_object_get(j_export, "kid")), "2011-04-29");
-  ck_assert_str_eq(json_string_value(json_array_get(json_object_get(j_export, "x5u"), 0)), "https://www.example.com/x509");
+  ck_assert_str_eq(json_string_value(json_object_get(j_export, "x5u")), "https://www.example.com/x509");
   json_decref(j_export);
   r_jwk_free(jwk);
 

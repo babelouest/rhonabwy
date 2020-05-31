@@ -5,6 +5,8 @@
 - Do not overwrite header value `typ` in a JWT if one is already set
 - Small bugfixes
 - Add function `r_jwk_export_to_gnutls_crt`
+- Add `x5c` when importing certificate
+- Fix AES GCM encryption/decryption
 
 ## 0.9.9
 

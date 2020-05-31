@@ -496,14 +496,14 @@ START_TEST(test_rhonabwy_export_to_gnutls_pubkey)
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_rsa_pub_7465), RHN_OK);
   ck_assert_ptr_ne((pubkey = r_jwk_export_to_gnutls_pubkey(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE)), NULL);
-  ck_assert_ptr_eq((pubkey = r_jwk_export_to_gnutls_pubkey(jwk, R_FLAG_IGNORE_REMOTE)), NULL);
+  ck_assert_ptr_eq(r_jwk_export_to_gnutls_pubkey(jwk, R_FLAG_IGNORE_REMOTE), NULL);
   gnutls_pubkey_deinit(pubkey);
   r_jwk_free(jwk);
 
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_ecdsa_pub_7465), RHN_OK);
   ck_assert_ptr_ne((pubkey = r_jwk_export_to_gnutls_pubkey(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE)), NULL);
-  ck_assert_ptr_eq((pubkey = r_jwk_export_to_gnutls_pubkey(jwk, R_FLAG_IGNORE_REMOTE)), NULL);
+  ck_assert_ptr_eq(r_jwk_export_to_gnutls_pubkey(jwk, R_FLAG_IGNORE_REMOTE), NULL);
   gnutls_pubkey_deinit(pubkey);
   r_jwk_free(jwk);
 
@@ -555,14 +555,14 @@ START_TEST(test_rhonabwy_export_to_gnutls_crt)
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_rsa_pub_7466), RHN_OK);
   ck_assert_ptr_ne((crt = r_jwk_export_to_gnutls_crt(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE)), NULL);
-  ck_assert_ptr_eq((crt = r_jwk_export_to_gnutls_crt(jwk, R_FLAG_IGNORE_REMOTE)), NULL);
+  ck_assert_ptr_eq(r_jwk_export_to_gnutls_crt(jwk, R_FLAG_IGNORE_REMOTE), NULL);
   gnutls_x509_crt_deinit(crt);
   r_jwk_free(jwk);
 
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_ecdsa_pub_7466), RHN_OK);
   ck_assert_ptr_ne((crt = r_jwk_export_to_gnutls_crt(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE)), NULL);
-  ck_assert_ptr_eq((crt = r_jwk_export_to_gnutls_crt(jwk, R_FLAG_IGNORE_REMOTE)), NULL);
+  ck_assert_ptr_eq(r_jwk_export_to_gnutls_crt(jwk, R_FLAG_IGNORE_REMOTE), NULL);
   gnutls_x509_crt_deinit(crt);
   r_jwk_free(jwk);
 

@@ -2096,6 +2096,8 @@ gnutls_x509_crt_t r_jwk_export_to_gnutls_crt(jwk_t * jwk, int x5u_flags) {
                   data.size = response.binary_body_length;
                   if (gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_PEM)) {
                     y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5u - Error gnutls_pubkey_import");
+                    gnutls_x509_crt_deinit(crt);
+                    crt = NULL;
                   }
                 } else {
                   y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5u - Error gnutls_x509_crt_init");

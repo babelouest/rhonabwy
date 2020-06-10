@@ -1,5 +1,5 @@
 #.rst:
-# FindJansson
+# FindMHD
 # -----------
 #
 # Find libmicrohttpd

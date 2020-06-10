@@ -51,7 +51,11 @@ static gnutls_cipher_algorithm_t r_jwe_get_alg_from_enc(jwa_enc enc) {
       alg = GNUTLS_CIPHER_AES_128_GCM;
       break;
     case R_JWA_ENC_A192GCM:
-      alg = GNUTLS_CIPHER_UNKNOWN; // Unsupported on GnuTLS 3.6
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
+      alg = GNUTLS_CIPHER_AES_192_GCM;
+#else
+      alg = GNUTLS_CIPHER_UNKNOWN; // Unsupported until GnuTLS 3.6.14
+#endif
       break;
     case R_JWA_ENC_A256GCM:
       alg = GNUTLS_CIPHER_AES_256_GCM;
@@ -100,7 +104,11 @@ static gnutls_cipher_algorithm_t r_jwe_get_alg_from_alg(jwa_alg alg) {
       ret_alg = GNUTLS_CIPHER_AES_128_GCM;
       break;
     case R_JWA_ALG_A192GCMKW:
-      ret_alg = GNUTLS_CIPHER_UNKNOWN; // Unsupported on GnuTLS 3.6
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
+      ret_alg = GNUTLS_CIPHER_AES_192_GCM;
+#else
+      ret_alg = GNUTLS_CIPHER_UNKNOWN; // Unsupported until GnuTLS 3.6.14
+#endif
       break;
     case R_JWA_ALG_A256GCMKW:
       ret_alg = GNUTLS_CIPHER_AES_256_GCM;
@@ -1584,7 +1592,9 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
           }
           break;
         case R_JWA_ALG_A128GCMKW:
-        //case R_JWA_ALG_A192GCMKW: // Unsupported
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
+        case R_JWA_ALG_A192GCMKW:
+#endif
         case R_JWA_ALG_A256GCMKW:
           if ((res = r_jwe_aesgcm_key_wrap(jwe, jwk, x5u_flags)) == RHN_OK) {
             ret = RHN_OK;
@@ -1704,7 +1714,9 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
           }
           break;
         case R_JWA_ALG_A128GCMKW:
-        //case R_JWA_ALG_A192GCMKW: // Unsupported
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
+        case R_JWA_ALG_A192GCMKW:
+#endif
         case R_JWA_ALG_A256GCMKW:
           if ((res = r_jwe_aesgcm_key_unwrap(jwe, jwk, x5u_flags)) == RHN_OK) {
             ret = RHN_OK;

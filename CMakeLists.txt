@@ -104,6 +104,14 @@ if (ZLIB_FOUND)
 	include_directories(${ZLIB_INCLUDE_DIRS})
 endif ()
 
+include(FindMHD)
+find_package(MHD REQUIRED)
+if (MHD_FOUND)
+	set(LIBS ${LIBS} ${MHD_LIBRARIES})
+	include_directories(${MHD_INCLUDE_DIRS})
+endif ()
+  
+
 # directories and source
 
 set(INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)

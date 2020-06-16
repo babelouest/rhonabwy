@@ -1019,10 +1019,29 @@ int r_jwt_parsen(jwt_t * jwt, const char * token, size_t token_len, int x5u_flag
   size_t nb_dots = 0, i, payload_len = 0;
   int ret, res;
   const unsigned char * payload = NULL;
-  char * payload_str = NULL, * token_dup = NULL;
+  char * payload_str = NULL, * token_dup = NULL, * tmp;
   
   if (jwt != NULL && token != NULL && token_len) {
     token_dup = o_strndup(token, token_len);
+    // Remove whitespaces and newlines
+    tmp = str_replace(token_dup, " ", "");
+    o_free(token_dup);
+    token_dup = tmp;
+    tmp = str_replace(token_dup, "\n", "");
+    o_free(token_dup);
+    token_dup = tmp;
+    tmp = str_replace(token_dup, "\t", "");
+    o_free(token_dup);
+    token_dup = tmp;
+    tmp = str_replace(token_dup, "\v", "");
+    o_free(token_dup);
+    token_dup = tmp;
+    tmp = str_replace(token_dup, "\f", "");
+    o_free(token_dup);
+    token_dup = tmp;
+    tmp = str_replace(token_dup, "\r", "");
+    o_free(token_dup);
+    token_dup = tmp;
     for (i=0; i<token_len; i++) {
       if (token_dup[i] == '.') {
         nb_dots++;

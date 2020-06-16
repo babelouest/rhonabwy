@@ -1,13 +1,13 @@
 # Rhonabwy - JWK, JWKS, JWS, JWE and JWT library
 
+[![View on jwt.io](http://jwt.io/img/badge.svg)](https://jwt.io)
 [![Build Status](https://travis-ci.com/babelouest/rhonabwy.svg?branch=master)](https://travis-ci.com/babelouest/rhonabwy)
 ![C/C++ CI](https://github.com/babelouest/rhonabwy/workflows/C/C++%20CI/badge.svg)
-
-[![View on JWT.IO](http://jwt.io/img/badge.svg)](https://jwt.io)
+[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/github@babelouest.org)
 
 - Create, modify, parse, import or export [JSON Web Keys](https://tools.ietf.org/html/rfc7517) (JWK) and JSON Web Keys Set (JWKS)
 - Create, modify, parse, validate or serialize [JSON Web Signatures](https://tools.ietf.org/html/rfc7515) (JWS)
-- Create, modify, parse, validate or serialize [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE) **limited and experimental!**
+- Create, modify, parse, validate or serialize [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE) **limited!**
 - Create, modify, parse, validate or serialize [JSON Web Token](https://tools.ietf.org/html/rfc7519) (JWT)
 
 JWT Relies on JWS and JWE functions, so it supports the same functionnalities as the other 2. JWT functionnalities also support nesting serilization (JWE nested in a JWS or the opposite).
@@ -22,16 +22,18 @@ JWT Relies on JWS and JWE functions, so it supports the same functionnalities as
 | RS256 | RSASSA-PKCS1-v1_5 using SHA-256 |**YES**|
 | RS384 | RSASSA-PKCS1-v1_5 using SHA-384 |**YES**|
 | RS512 | RSASSA-PKCS1-v1_5 using SHA-512 |**YES**|
-| ES256 | ECDSA using P-256 and SHA-256 |**YES**|
-| ES384 | ECDSA using P-384 and SHA-384 |**YES**|
-| ES512 | ECDSA using P-521 and SHA-512 |**YES**|
-| PS256 | RSASSA-PSS using SHA-256 and MGF1 with SHA-256 |**YES**|
-| PS384 | RSASSA-PSS using SHA-384 and MGF1 with SHA-384 |**YES**|
-| PS512 | RSASSA-PSS using SHA-512 and MGF1 with SHA-512 |**YES**|
+| ES256 | ECDSA using P-256 and SHA-256 |**YES** (1)|
+| ES384 | ECDSA using P-384 and SHA-384 |**YES** (1)|
+| ES512 | ECDSA using P-521 and SHA-512 |**YES** (1)|
+| PS256 | RSASSA-PSS using SHA-256 and MGF1 with SHA-256 |**YES** (1)|
+| PS384 | RSASSA-PSS using SHA-384 and MGF1 with SHA-384 |**YES** (1)|
+| PS512 | RSASSA-PSS using SHA-512 and MGF1 with SHA-512 |**YES** (1)|
 | none | No digital signature or MAC performed |**YES**|
-| EdDSA | Digital Signature with Ed25519 Elliptic Curve |**YES**|
+| EdDSA | Digital Signature with Ed25519 Elliptic Curve |**YES** (1)|
 
-**JWE support is experimental and limited, please use with great caution!**
+(1) GnuTLS 3.6 minimum is required for ECDSA, Ed25519 (EDDSA) and RSA-PSS signatures.
+
+**JWE support is limited, please use with great caution!**
 
 - Supported Encryption Algorithm (`enc`) for JWE payload encryption:
 
@@ -41,7 +43,7 @@ JWT Relies on JWS and JWE functions, so it supports the same functionnalities as
 | A192CBC-HS384 | AES_192_CBC_HMAC_SHA_384 authenticated encryption algorithm, as defined in Section 5.2.4 |**YES**|
 | A256CBC-HS512 | AES_256_CBC_HMAC_SHA_512 authenticated encryption algorithm, as defined in Section 5.2.5 |**YES**|
 | A128GCM | AES GCM using 128-bit key |**YES**|
-| A192GCM | AES GCM using 192-bit key |*NO*|
+| A192GCM | AES GCM using 192-bit key |**YES** (2)|
 | A256GCM | AES GCM using 256-bit key |**YES**|
 
 - Supported Cryptographic Algorithms for Key Management:
@@ -60,11 +62,13 @@ JWT Relies on JWS and JWE functions, so it supports the same functionnalities as
 | ECDH-ES+A192KW | ECDH-ES using Concat KDF and CEK wrapped with "A192KW" | *NO* |
 | ECDH-ES+A256KW | ECDH-ES using Concat KDF and CEK wrapped with "A256KW" | *NO* |
 | A128GCMKW | Key wrapping with AES GCM using 128-bit key | **YES** |
-| A192GCMKW | Key wrapping with AES GCM using 192-bit key | *NO* |
+| A192GCMKW | Key wrapping with AES GCM using 192-bit key | **YES** (2)|
 | A256GCMKW | Key wrapping with AES GCM using 256-bit key | **YES** |
 | PBES2-HS256+A128KW | PBES2 with HMAC SHA-256 and "A128KW" wrapping | *NO* |
 | PBES2-HS384+A192KW | PBES2 with HMAC SHA-384 and "A192KW" wrapping | *NO* |
 | PBES2-HS512+A256KW | PBES2 with HMAC SHA-512 and "A256KW" wrapping | *NO* |
+
+(2) GnuTLS 3.6.14 minumum is required for `A192GCM` enc and `A192GCMKW` key wrapping algorithm.
 
 # API Documentation
 
@@ -133,8 +137,6 @@ int main(void) {
 ## Dependencies
 
 Rhonabwy is based on [GnuTLS](https://www.gnutls.org/), [jansson](http://www.digip.org/jansson/), [zlib](https://www.zlib.net/), [libmicrohttpd](https://www.gnu.org/software/libmicrohttpd/), [libcurl](https://curl.haxx.se/libcurl/) and libsystemd (if possible), you must install those libraries first before building librhonabwy.
-
-GnuTLS 3.6 minimum is required for ECDSA, Ed25519 (EDDSA) and RSA-PSS signatures.
 
 ## Prerequisites
 

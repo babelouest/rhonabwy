@@ -14,6 +14,7 @@
 #define TOKEN_INVALID_CLAIMS_B64 "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjMifQ.;error;.SgopnfP3vEE7HbuvfyYqZQZZsbu49GBR5w2YCesW7J0i_s5pVYPMIjl6xU4vOs-nV1lEwn7Z_OaQiyEhVftlOUkM5n7w57YViBZkus5C64S6LuQli150oXWNnis4La6qpg_12EocKffvmG940gL2dWg3dnQYenC-fgtX-CNcaIDZUL-NKq3iaQrwvdbuzNADlSBQUfHh80b7uyKgqcT4tboRyAnJXhcjZ-0NWxCIEusnbskmQEqdxEiq28xL8b_F2hDYe5ZuuHw8tmXcXNHUplswEefTCm0phbvi5D490nVBav6ri6zLTkC9IEOR0hA-1f5AYmvsE5NUepLfpjqCsg"
 #define TOKEN_INVALID_DOTS "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjMifQeyJzdHIiOiJncnV0IiwiaW50Ijo0Miwib2JqIjp0cnVlfQ.SgopnfP3vEE7HbuvfyYqZQZZsbu49GBR5w2YCesW7J0i_s5pVYPMIjl6xU4vOs-nV1lEwn7Z_OaQiyEhVftlOUkM5n7w57YViBZkus5C64S6LuQli150oXWNnis4La6qpg_12EocKffvmG940gL2dWg3dnQYenC-fgtX-CNcaIDZUL-NKq3iaQrwvdbuzNADlSBQUfHh80b7uyKgqcT4tboRyAnJXhcjZ-0NWxCIEusnbskmQEqdxEiq28xL8b_F2hDYe5ZuuHw8tmXcXNHUplswEefTCm0phbvi5D490nVBav6ri6zLTkC9IEOR0hA-1f5AYmvsE5NUepLfpjqCsg"
 #define TOKEN_INVALID_SIGNATURE "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjMifQ.eyJzdHIiOiJncnV0IiwiaW50Ijo0Miwib2JqIjp0cnVlfQ.SgopnfP3vEE7HbuvfyYqZQZZsbu49GBR5w2YCesW7J0i_s5pVYPMIjl6xU4vOs-nV1lEwn7Z_OaQiyEhVftlOUkM5n7w57YViBZkus5C64S6LuQli150oXWNnis4La6qpg_12EocKffvmG940gL2dWg3dnQYenC-fgtX-CNcaIDZUL-NKq3iaQrwvdbuzNADlSBQUfHh80b7uyKgqcT4tboRyAnJXhcjZ-0NWxCIEusnbskmQEqdxEiq28xL8b_F2hDYe5ZuuHw8tmXcXNHUplswEefTCm0phbvi5D490nVBav6ri6zLTkC9IEOR0hA-1f5AYmvsE5NUepLfp6qCsg"
+#define TOKEN_WITH_WHITESPACES "           \v\n\teyJ0eXAiOiJKV1QiLCJhbGciOi\n\n\n   \tJSUzI1NiIsImtpZCI6IjMifQ.eyJz\t\t \v\rdHIiOiJncnV0IiwiaW50I\n\t\vjo0Miwib2JqIjp0cnVlfQ.SgopnfP3vEE7HbuvfyYqZQZZsbu49GBR5w2YCesW7J0i_s5pVYPMIjl6xU4vOs-nV1lEwn7Z_OaQiyEhVftlOUkM5n7w57YViBZkus5C64S6LuQli150oXWNnis4La6qpg_12EocKffvmG940gL2dWg3dnQYenC-fgtX-CNcaIDZUL-NKq3iaQrwvdbuzNADlSBQUfHh80b7uyKgqcT4tboRyAnJXhcjZ-0NWxCIEusnbskmQEqdxEiq28xL8b_F2hDYe5ZuuHw8tmXcXNHUplswEefTCm0phbvi5D490nVBav6ri6zLTkC9\t\n   \vIEOR0hA-1f5AYmvsE5NUepLfpjqCsg     \t\n"
 
 const char jwk_pubkey_rsa_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
                                    "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
@@ -243,6 +244,25 @@ START_TEST(test_rhonabwy_verify_signature_ok)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_verify_signature_with_whitespaces)
+{
+  jwt_t * jwt;
+  jwk_t * jwk_pubkey_ecdsa;
+  
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey_ecdsa), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey_ecdsa, jwk_pubkey_sign_str), RHN_OK);
+  
+  ck_assert_int_eq(r_jwt_parse(jwt, TOKEN_WITH_WHITESPACES, 0), RHN_OK);
+  ck_assert_int_eq(r_jwt_get_type(jwt), R_JWT_TYPE_SIGN);
+  
+  ck_assert_int_eq(r_jwt_verify_signature(jwt, jwk_pubkey_ecdsa, 0), RHN_OK);
+  
+  r_jwk_free(jwk_pubkey_ecdsa);
+  r_jwt_free(jwt);
+}
+END_TEST
+
 START_TEST(test_rhonabwy_verify_signature_with_add_keys_ok)
 {
   jwt_t * jwt;
@@ -314,6 +334,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_verify_error_token_invalid);
   tcase_add_test(tc_core, test_rhonabwy_verify_error_signature_invalid);
   tcase_add_test(tc_core, test_rhonabwy_verify_signature_ok);
+  tcase_add_test(tc_core, test_rhonabwy_verify_signature_with_whitespaces);
   tcase_add_test(tc_core, test_rhonabwy_verify_signature_with_add_keys_ok);
   tcase_add_test(tc_core, test_rhonabwy_verify_vulnerabilty_ok);
   tcase_set_timeout(tc_core, 30);

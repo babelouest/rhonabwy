@@ -30,7 +30,7 @@ set(PROJECT_HOMEPAGE_URL "https://github.com/babelouest/rhonabwy/")
 set(PROJECT_BUGREPORT_PATH "https://github.com/babelouest/rhonabwy/issues")
 set(LIBRARY_VERSION_MAJOR "0")
 set(LIBRARY_VERSION_MINOR "9")
-set(LIBRARY_VERSION_PATCH "10")
+set(LIBRARY_VERSION_PATCH "11")
 set(ORCANIA_VERSION_REQUIRED "2.1.0")
 set(YDER_VERSION_REQUIRED "1.4.10")
 set(ULFIUS_VERSION_REQUIRED "2.6.7")
@@ -106,11 +106,6 @@ endif ()
 
 include(FindMHD)
 find_package(MHD REQUIRED)
-if (MHD_FOUND)
-	set(LIBS ${LIBS} ${MHD_LIBRARIES})
-	include_directories(${MHD_INCLUDE_DIRS})
-endif ()
-  
 
 # directories and source
 

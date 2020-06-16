@@ -111,6 +111,7 @@ find_package(MHD REQUIRED)
 
 set(INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(RNBYC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tools/rnbyc)
 
 include_directories(${INC_DIR})
 
@@ -232,6 +233,18 @@ if (SEARCH_ULFIUS_R)
     endif ()
     target_link_libraries(rhonabwy ${LIBS} ${ULFIUS_LIBRARIES})
     set(LIBS ${LIBS} ${ULFIUS_LIBRARIES})
+endif ()
+
+# build rnbyc
+
+option(BUILD_RNBYC "Build rnbyc application." ON)
+
+if (BUILD_RNBYC)
+    add_executable(rnbyc ${RNBYC_DIR}/rnbyc.c ${INC_DIR}/rhonabwy.h ${PROJECT_BINARY_DIR}/rhonabwy-cfg.h)
+    set_target_properties(rnbyc PROPERTIES SKIP_BUILD_RPATH TRUE)
+    add_dependencies(rnbyc rhonabwy)
+    target_link_libraries(rnbyc rhonabwy ${LIBS})
+    install(TARGETS rnbyc RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 
 # documentation
@@ -397,6 +410,7 @@ include(CPack)
 
 message(STATUS "Build testing tree:       ${BUILD_RHONABWY_TESTING}")
 message(STATUS "Install the header files: ${INSTALL_HEADER}")
+message(STATUS "Build CLI rnbyc:          ${BUILD_RNBYC}")
 message(STATUS "Build Static library:     ${BUILD_STATIC}")
 message(STATUS "Build RPM package:        ${BUILD_RPM}")
 message(STATUS "Build documentation:      ${BUILD_RHONABWY_DOCUMENTATION}")

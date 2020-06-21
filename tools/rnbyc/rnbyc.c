@@ -190,8 +190,8 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
         r_jwk_set_property_str(jwk_priv, "alg", json_string_value(json_object_get(j_element, "alg")));
         r_jwk_set_property_str(jwk_pub, "alg", json_string_value(json_object_get(j_element, "alg")));
       } else {
-        r_jwk_set_property_str(jwk_priv, "alg", "Ed25519");
-        r_jwk_set_property_str(jwk_pub, "alg", "Ed25519");
+        r_jwk_set_property_str(jwk_priv, "alg", "EdDSA");
+        r_jwk_set_property_str(jwk_pub, "alg", "EdDSA");
       }
       r_jwks_append_jwk(jwks_privkey, jwk_priv);
       if (jwks_pubkey != NULL) {
@@ -233,13 +233,13 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
 static int jwks_parse_str(jwks_t * jwks_priv, jwks_t * jwks_pub, const char * in, const char * kid) {
   jwks_t * jwks = NULL;
   jwk_t * jwk = NULL;
-  int ret;
+  int ret, key_type;
   size_t i;
 
   if (r_jwks_init(&jwks) == RHN_OK && r_jwks_import_from_str(jwks, in) == RHN_OK) {
     for (i=0; i<r_jwks_size(jwks); i++) {
       jwk = r_jwks_get_at(jwk, i);
-      if (r_jwk_key_type(jwk, NULL, 0) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
+      if ((key_type = r_jwk_key_type(jwk, NULL, 0)) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
         r_jwks_append_jwk(jwks_pub, jwk);
       } else {
         r_jwks_append_jwk(jwks_priv, jwk);
@@ -254,41 +254,41 @@ static int jwks_parse_str(jwks_t * jwks_priv, jwks_t * jwks_pub, const char * in
         if (kid != NULL) {
           r_jwk_set_property_str(jwk, "kid", kid);
         }
-  if (r_jwk_key_type(jwk, NULL, 0) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
+        if (r_jwk_key_type(jwk, NULL, 0) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
           r_jwks_append_jwk(jwks_pub, jwk);
-  } else {
+        } else {
           r_jwks_append_jwk(jwks_priv, jwk);
-  }
+        }
       } else if (r_jwk_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_PEM, (const unsigned char *)in, o_strlen(in)) == RHN_OK) {
         ret = 0;
         if (kid != NULL) {
           r_jwk_set_property_str(jwk, "kid", kid);
         }
-  if (r_jwk_key_type(jwk, NULL, 0) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
+        if (r_jwk_key_type(jwk, NULL, 0) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
           r_jwks_append_jwk(jwks_pub, jwk);
-  } else {
+        } else {
           r_jwks_append_jwk(jwks_priv, jwk);
-  }
+        }
       } else if (r_jwk_import_from_pem_der(jwk, R_X509_TYPE_PRIVKEY, R_FORMAT_PEM, (const unsigned char *)in, o_strlen(in)) == RHN_OK) {
         ret = 0;
         if (kid != NULL) {
           r_jwk_set_property_str(jwk, "kid", kid);
         }
-  if (r_jwk_key_type(jwk, NULL, 0) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
+        if (r_jwk_key_type(jwk, NULL, 0) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
           r_jwks_append_jwk(jwks_pub, jwk);
-  } else {
+        } else {
           r_jwks_append_jwk(jwks_priv, jwk);
-  }
+        }
       } else if (r_jwk_import_from_pem_der(jwk, R_X509_TYPE_PUBKEY, R_FORMAT_PEM, (const unsigned char *)in, o_strlen(in)) == RHN_OK) {
         ret = 0;
         if (kid != NULL) {
           r_jwk_set_property_str(jwk, "kid", kid);
         }
-  if (r_jwk_key_type(jwk, NULL, 0) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
+        if (r_jwk_key_type(jwk, NULL, 0) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
           r_jwks_append_jwk(jwks_pub, jwk);
-  } else {
+        } else {
           r_jwks_append_jwk(jwks_priv, jwk);
-  }
+        }
       } else {
         ret = 1;
       }

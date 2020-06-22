@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
 #include <getopt.h>
 #include <gnutls/gnutls.h>
 #include <gnutls/crypto.h>
@@ -47,7 +48,7 @@
 #include <yder.h>
 #include <rhonabwy.h>
 
-#define _RNBYC_VERSION_ "0.5"
+#define _RNBYC_VERSION_ "0.8"
 
 #define R_RSA_DEFAULT_SIZE 4096
 #define R_OCT_DEFAULT_SIZE 128
@@ -56,6 +57,69 @@
 #define R_ACTION_JWKS_OUT        1
 #define R_ACTION_PARSE_TOKEN     2
 #define R_ACTION_SERIALIZE_TOKEN 3
+
+static void print_help(FILE * output) {
+  fprintf(output, "\nrnbyc - Rhonabwy JWK and JWT parser and generator\n");
+  fprintf(output, "\n");
+  fprintf(output, "Version %s\n", _RNBYC_VERSION_);
+  fprintf(output, "\n");
+  fprintf(output, "Copyright 2020 Nicolas Mora <mail@babelouest.org>\n");
+  fprintf(output, "\n");
+  fprintf(output, "This program is free software; you can redistribute it and/or\n");
+  fprintf(output, "modify it under the terms of the GPL 3\n");
+  fprintf(output, "\n");
+  fprintf(output, "Command-line options:\n");
+  fprintf(output, "\n");
+  fprintf(output, "-j --jwks\n");
+  fprintf(output, "\tAction: JWKS, parse or generate keys and output JWKS\n");
+  fprintf(output, "-g --generate <type>\n");
+  fprintf(output, "\tGenerate a key pair or a symmetric key\n");
+  fprintf(output, "\t<type> - values available:\n");
+  fprintf(output, "\tRSA[key size] (default key size: 4096), ECDSA256, ECDSA384, ECDSA512, EDDSA, oct[key size] (default key size: 128 bits)\n");
+  fprintf(output, "-i --stdin\n");
+  fprintf(output, "\tReads key to parse from stdin\n");
+  fprintf(output, "-f --in-file\n");
+  fprintf(output, "\tReads key to parse from a file\n");
+  fprintf(output, "-k --key-id\n");
+  fprintf(output, "\tSpecifies the key-id to add to the current key\n");
+  fprintf(output, "-a --alg\n");
+  fprintf(output, "\tAction: JWKS - Specifies the alg value to add to the current key\n");
+  fprintf(output, "\tAction: Serialize - Specifies the alg value to sign the token\n");
+  fprintf(output, "-e --enc\n");
+  fprintf(output, "\tSpecifies the enc value to encrypt the token (default A128CBC)\n");
+  fprintf(output, "-l --enc-alg\n");
+  fprintf(output, "\tSpecifies the encryption algorithm for key management of the token\n");
+  fprintf(output, "-o --out-file\n");
+  fprintf(output, "\tSpecifies the output file for the private keys (or all the keys if no public file is specified) in the JWKS\n");
+  fprintf(output, "-p --out-file-public\n");
+  fprintf(output, "\tSpecifies the output file for the public keys in the JWKS\n");
+  fprintf(output, "-n --indent\n");
+  fprintf(output, "\tJWKS output spaces indentation: 0 is compact mode, default is 2 spaces indent\n");
+  fprintf(output, "-x --split\n");
+  fprintf(output, "\tSplit JWKS output in public and private keys\n");
+  fprintf(output, "-t --parse-token\n");
+  fprintf(output, "\tAction: Parse token\n");
+  fprintf(output, "-s --serialize-token\n");
+  fprintf(output, "\tAction: serialize given claims in a token\n");
+  fprintf(output, "-H --header\n");
+  fprintf(output, "\tDisplay header of a parsed token, default false\n");
+  fprintf(output, "-C --claims\n");
+  fprintf(output, "\tDisplay claims of a parsed token, default true\n");
+  fprintf(output, "-K --public-key\n");
+  fprintf(output, "\tSpecifies the public key to for key management encryption or signature verification\n");
+  fprintf(output, "\tPublic key must be in JWKS format and can be either a JWKS string or a path to a JWKS file\n");
+  fprintf(output, "-P --private-key\n");
+  fprintf(output, "\tSpecifies the private key to for key management decryption or signature generation\n");
+  fprintf(output, "\tPublic key must be in JWKS format and can be either a JWKS string or a path to a JWKS file\n");
+  fprintf(output, "-u --x5u-flags\n");
+  fprintf(output, "\tSet x5u flags to retrieve online certificate, values available are:\n");
+  fprintf(output, "\t\tcert: ignore server certificate errors (self-signed, expired, etc.)\n");
+  fprintf(output, "\t\tfollow: follow jwks_uri redirection if any\n");
+  fprintf(output, "-v --version\n");
+  fprintf(output, "\tPrint uwsc's current version\n");
+  fprintf(output, "-h --help\n");
+  fprintf(output, "\tPrint this message\n\n");
+}
 
 static int write_file_content(const char * file_path, const char * content) {
   FILE * f;
@@ -66,12 +130,12 @@ static int write_file_content(const char * file_path, const char * content) {
     if (fwrite(content, 1, o_strlen(content), f) > 0) {
       ret = 0;
     } else {
-      ret = 1;
+      ret = ENOENT;
     }
     fclose (f);
   } else {
     fprintf(stderr, "error opening file %s\n", file_path);
-    ret = 1;
+    ret = EACCES;
   }
   
   return ret;
@@ -220,17 +284,18 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
       r_jwks_append_jwk(jwks_privkey, jwk_priv);
       o_free(oct);
     } else {
-      ret = 1;
+      fprintf(stderr, "Invalid key type");
+      ret = EINVAL;
     }
   } else {
-    ret = 1;
+    ret = ENOMEM;
   }
   r_jwk_free(jwk_priv);
   r_jwk_free(jwk_pub);
   return ret;
 }
 
-static int jwks_parse_str(jwks_t * jwks_priv, jwks_t * jwks_pub, const char * in, const char * kid) {
+static int jwks_parse_str(jwks_t * jwks_priv, jwks_t * jwks_pub, const char * in, const char * kid, int x5u_flags) {
   jwks_t * jwks = NULL;
   jwk_t * jwk = NULL;
   int ret, key_type;
@@ -238,8 +303,8 @@ static int jwks_parse_str(jwks_t * jwks_priv, jwks_t * jwks_pub, const char * in
 
   if (r_jwks_init(&jwks) == RHN_OK && r_jwks_import_from_str(jwks, in) == RHN_OK) {
     for (i=0; i<r_jwks_size(jwks); i++) {
-      jwk = r_jwks_get_at(jwk, i);
-      if ((key_type = r_jwk_key_type(jwk, NULL, 0)) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
+      jwk = r_jwks_get_at(jwks, i);
+      if ((key_type = r_jwk_key_type(jwk, NULL, x5u_flags)) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
         r_jwks_append_jwk(jwks_pub, jwk);
       } else {
         r_jwks_append_jwk(jwks_priv, jwk);
@@ -254,7 +319,7 @@ static int jwks_parse_str(jwks_t * jwks_priv, jwks_t * jwks_pub, const char * in
         if (kid != NULL) {
           r_jwk_set_property_str(jwk, "kid", kid);
         }
-        if (r_jwk_key_type(jwk, NULL, 0) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
+        if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
           r_jwks_append_jwk(jwks_pub, jwk);
         } else {
           r_jwks_append_jwk(jwks_priv, jwk);
@@ -264,7 +329,7 @@ static int jwks_parse_str(jwks_t * jwks_priv, jwks_t * jwks_pub, const char * in
         if (kid != NULL) {
           r_jwk_set_property_str(jwk, "kid", kid);
         }
-        if (r_jwk_key_type(jwk, NULL, 0) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
+        if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
           r_jwks_append_jwk(jwks_pub, jwk);
         } else {
           r_jwks_append_jwk(jwks_priv, jwk);
@@ -274,7 +339,7 @@ static int jwks_parse_str(jwks_t * jwks_priv, jwks_t * jwks_pub, const char * in
         if (kid != NULL) {
           r_jwk_set_property_str(jwk, "kid", kid);
         }
-        if (r_jwk_key_type(jwk, NULL, 0) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
+        if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
           r_jwks_append_jwk(jwks_pub, jwk);
         } else {
           r_jwks_append_jwk(jwks_priv, jwk);
@@ -284,16 +349,16 @@ static int jwks_parse_str(jwks_t * jwks_priv, jwks_t * jwks_pub, const char * in
         if (kid != NULL) {
           r_jwk_set_property_str(jwk, "kid", kid);
         }
-        if (r_jwk_key_type(jwk, NULL, 0) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
+        if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
           r_jwks_append_jwk(jwks_pub, jwk);
         } else {
           r_jwks_append_jwk(jwks_priv, jwk);
         }
       } else {
-        ret = 1;
+        ret = EINVAL;
       }
     } else {
-      ret = 1;
+      ret = ENOMEM;
     }
     r_jwk_free(jwk);
   }
@@ -301,33 +366,33 @@ static int jwks_parse_str(jwks_t * jwks_priv, jwks_t * jwks_pub, const char * in
   return ret;
 }
 
-static int jwk_stdin(jwks_t * jwks_priv, jwks_t * jwks_pub, json_t * j_element) {
+static int jwk_stdin(jwks_t * jwks_priv, jwks_t * jwks_pub, json_t * j_element, int x5u_flags) {
   char * in = get_stdin_content();
   int ret;
   
   if (in != NULL) {
-    ret = jwks_parse_str(jwks_priv, jwks_pub, in, json_string_value(json_object_get(j_element, "kid")));
+    ret = jwks_parse_str(jwks_priv, jwks_pub, in, json_string_value(json_object_get(j_element, "kid")), x5u_flags);
   } else {
-    ret = 1;
+    ret = EIO;
   }
   o_free(in);
   return ret;
 }
 
-static int jwk_file(jwks_t * jwks_priv, jwks_t * jwks_pub, json_t * j_element) {
+static int jwk_file(jwks_t * jwks_priv, jwks_t * jwks_pub, json_t * j_element, int x5u_flags) {
   char * in = get_file_content(json_string_value(json_object_get(j_element, "path")));
   int ret;
   
   if (in != NULL) {
-    ret = jwks_parse_str(jwks_priv, jwks_pub, in, json_string_value(json_object_get(j_element, "kid")));
+    ret = jwks_parse_str(jwks_priv, jwks_pub, in, json_string_value(json_object_get(j_element, "kid")), x5u_flags);
   } else {
-    ret = 1;
+    ret = EIO;
   }
   o_free(in);
   return ret;
 }
 
-static void get_jwks_out(json_t * j_arguments, int split_keys, int indent, const char * out_file, const char * out_file_public) {
+static void get_jwks_out(json_t * j_arguments, int split_keys, int x5u_flags, int indent, const char * out_file, const char * out_file_public) {
   jwks_t * jwks_privkey = NULL, * jwks_pubkey = NULL;
   json_t * j_element = NULL, * j_jwks;
   size_t index = 0;
@@ -340,11 +405,11 @@ static void get_jwks_out(json_t * j_arguments, int split_keys, int indent, const
           fprintf(stderr, "Error jwk_generate\n");
         }
       } else if (0 == o_strcmp("stdin", json_string_value(json_object_get(j_element, "source")))) {
-        if (jwk_stdin(jwks_privkey, split_keys?jwks_pubkey:NULL, j_element)) {
+        if (jwk_stdin(jwks_privkey, split_keys?jwks_pubkey:NULL, j_element, x5u_flags)) {
           fprintf(stderr, "Error jwk_stdin\n");
         }
       } else if (0 == o_strcmp("file", json_string_value(json_object_get(j_element, "source")))) {
-        if (jwk_file(jwks_privkey, split_keys?jwks_pubkey:NULL, j_element)) {
+        if (jwk_file(jwks_privkey, split_keys?jwks_pubkey:NULL, j_element, x5u_flags)) {
           fprintf(stderr, "Error jwk_file\n");
         }
       }
@@ -354,7 +419,6 @@ static void get_jwks_out(json_t * j_arguments, int split_keys, int indent, const
   }
   if (r_jwks_size(jwks_privkey)) {
     j_jwks = r_jwks_export_to_json_t(jwks_privkey);
-    r_jwks_free(jwks_privkey);
     str_jwks = json_dumps(j_jwks, JSON_INDENT(indent));
     if (out_file != NULL) {
       if (write_file_content(out_file, str_jwks)) {
@@ -366,12 +430,11 @@ static void get_jwks_out(json_t * j_arguments, int split_keys, int indent, const
       }
       printf("%s\n", str_jwks);
     }
-    json_decref(jwks_privkey);
     o_free(str_jwks);
+    json_decref(j_jwks);
   }
   if (r_jwks_size(jwks_pubkey)) {
     j_jwks = r_jwks_export_to_json_t(jwks_pubkey);
-    r_jwks_free(jwks_privkey);
     str_jwks = json_dumps(j_jwks, JSON_INDENT(indent));
     if (out_file_public != NULL) {
       if (write_file_content(out_file_public, str_jwks)) {
@@ -379,22 +442,25 @@ static void get_jwks_out(json_t * j_arguments, int split_keys, int indent, const
       }
     } else {
       printf("\nPublic keys:\n%s\n", str_jwks);
-      json_decref(jwks_privkey);
     }
     o_free(str_jwks);
+    json_decref(j_jwks);
   }
+  r_jwks_free(jwks_privkey);
+  r_jwks_free(jwks_pubkey);
 }
 
-static int parse_token(const char * token, int indent, const char * str_jwks_pubkey, const char * str_jwks_privkey) {
-  int ret = 0;
+static int parse_token(const char * token, int indent, int x5u_flags, const char * str_jwks_pubkey, const char * str_jwks_privkey, int show_header, int show_claims) {
+  int ret = 0, type;
   char * content, * str_value;
   jwt_t * jwt = NULL;
   jwks_t * jwks_pubkey = NULL, * jwks_privkey = NULL;
   json_t * j_value;
 
   if (r_jwt_init(&jwt) == RHN_OK) {
-    if (r_jwt_parse(jwt, token, 0) == RHN_OK) {
-      if (r_jwt_get_type(jwt) == R_JWT_TYPE_SIGN || r_jwt_get_type(jwt) == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || r_jwt_get_type(jwt) == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT) {
+    if (r_jwt_parse(jwt, token, x5u_flags) == RHN_OK) {
+      type = r_jwt_get_type(jwt);
+      if (type == R_JWT_TYPE_SIGN || type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT) {
         if (r_jwks_init(&jwks_pubkey) == RHN_OK) {
           if (o_strlen(str_jwks_pubkey) && str_jwks_pubkey[0] == '{') {
             if (r_jwks_import_from_str(jwks_pubkey, str_jwks_pubkey) != RHN_OK) {
@@ -409,7 +475,7 @@ static int parse_token(const char * token, int indent, const char * str_jwks_pub
           }
         }
       }
-      if (r_jwt_get_type(jwt) == R_JWT_TYPE_ENCRYPT || r_jwt_get_type(jwt) == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || r_jwt_get_type(jwt) == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT) {
+      if (type == R_JWT_TYPE_ENCRYPT || type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT) {
         if (r_jwks_init(&jwks_privkey) == RHN_OK) {
           if (o_strlen(str_jwks_privkey) && str_jwks_privkey[0] == '{') {
             if (r_jwks_import_from_str(jwks_privkey, str_jwks_privkey) != RHN_OK) {
@@ -434,32 +500,39 @@ static int parse_token(const char * token, int indent, const char * str_jwks_pub
           fprintf(stderr, "Error setting private key\n");
         }
       }
-      if (r_jwks_size(jwks_privkey) && (r_jwt_get_type(jwt) == R_JWT_TYPE_ENCRYPT || r_jwt_get_type(jwt) == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || r_jwt_get_type(jwt) == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT)) {
-        if (r_jwt_decrypt(jwt, NULL, 0) == RHN_OK) {
+      if (r_jwks_size(jwks_privkey) && (type == R_JWT_TYPE_ENCRYPT || type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT)) {
+        if (r_jwt_decrypt(jwt, NULL, x5u_flags) == RHN_OK) {
           fprintf(stdout, "Token payload decrypted\n");
         } else {
-          fprintf(stdout, "Unable to decrypt payload\n");
-          ret = 1;
+          fprintf(stderr, "Unable to decrypt payload\n");
+          ret = EINVAL;
         }
       }
-      if (r_jwks_size(jwks_pubkey) && (r_jwt_get_type(jwt) == R_JWT_TYPE_SIGN || r_jwt_get_type(jwt) == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || r_jwt_get_type(jwt) == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT)) {
-        if (r_jwt_verify_signature(jwt, NULL, 0) == RHN_OK) {
+      if (r_jwks_size(jwks_pubkey) && (type == R_JWT_TYPE_SIGN || type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT)) {
+        if (r_jwt_verify_signature(jwt, NULL, x5u_flags) == RHN_OK) {
           fprintf(stdout, "Token signature verified\n");
         } else {
-          fprintf(stdout, "Token signature invalid\n");
-          ret = 1;
+          fprintf(stderr, "Token signature invalid\n");
+          ret = EINVAL;
         }
       }
-      j_value = r_jwt_get_full_header_json_t(jwt);
-      str_value = json_dumps(j_value, JSON_INDENT(indent));
-      printf("Token header:\n%s\n", str_value);
-      o_free(str_value);
-      json_decref(j_value);
-      j_value = r_jwt_get_full_claims_json_t(jwt);
-      str_value = json_dumps(j_value, JSON_INDENT(indent));
-      printf("Token claims:\n%s\n", str_value);
-      o_free(str_value);
-      json_decref(j_value);
+      if (show_header) {
+        j_value = r_jwt_get_full_header_json_t(jwt);
+        str_value = json_dumps(j_value, JSON_INDENT(indent));
+        printf("%s\n", str_value);
+        o_free(str_value);
+        json_decref(j_value);
+      }
+      if (show_claims) {
+        str_value = NULL;
+        j_value = r_jwt_get_full_claims_json_t(jwt);
+        if (j_value != NULL) {
+          str_value = json_dumps(j_value, JSON_INDENT(indent));
+          printf("%s\n", str_value);
+          o_free(str_value);
+          json_decref(j_value);
+        }
+      }
     } else {
       fprintf(stderr, "Invalid token\n");
     }
@@ -470,7 +543,7 @@ static int parse_token(const char * token, int indent, const char * str_jwks_pub
   return ret;
 }
 
-static int serialize_token(const char * claims, const char * str_jwks_pubkey, const char * str_jwks_privkey, const char * alg, const char * enc, const char * enc_alg) {
+static int serialize_token(const char * claims, int x5u_flags, const char * str_jwks_pubkey, const char * str_jwks_privkey, const char * alg, const char * enc, const char * enc_alg) {
   jwt_t * jwt = NULL;
   jwks_t * jwks_pubkey = NULL, * jwks_privkey = NULL;
   char * token = NULL, * content = NULL;
@@ -482,13 +555,13 @@ static int serialize_token(const char * claims, const char * str_jwks_pubkey, co
         if (o_strlen(str_jwks_pubkey) && str_jwks_pubkey[0] == '{') {
           if (r_jwks_import_from_str(jwks_pubkey, str_jwks_pubkey) != RHN_OK) {
             fprintf(stderr, "Invalid jwks_pubkey\n");
-            ret = 1;
+            ret = EINVAL;
           }
         } else if (o_strlen(str_jwks_pubkey)) {
           content = get_file_content(str_jwks_pubkey);
           if (r_jwks_import_from_str(jwks_pubkey, content) != RHN_OK) {
             fprintf(stderr, "Invalid jwks_pubkey path\n");
-            ret = 1;
+            ret = EAGAIN;
           }
           o_free(content);
         }
@@ -497,13 +570,13 @@ static int serialize_token(const char * claims, const char * str_jwks_pubkey, co
         if (o_strlen(str_jwks_privkey) && str_jwks_privkey[0] == '{') {
           if (r_jwks_import_from_str(jwks_privkey, str_jwks_privkey) != RHN_OK) {
             fprintf(stderr, "Invalid jwks_privkey\n");
-            ret = 1;
+            ret = EINVAL;
           }
         } else if (o_strlen(str_jwks_privkey)) {
           content = get_file_content(str_jwks_privkey);
           if (r_jwks_import_from_str(jwks_privkey, content) != RHN_OK) {
             fprintf(stderr, "Invalid jwks_privkey path\n");
-            ret = 1;
+            ret = EAGAIN;
           }
           o_free(content);
         }
@@ -511,12 +584,12 @@ static int serialize_token(const char * claims, const char * str_jwks_pubkey, co
       if (jwks_pubkey != NULL) {
         if (r_jwt_add_enc_jwks(jwt, NULL, jwks_pubkey) != RHN_OK) {
           fprintf(stderr, "Error setting public key\n");
-          ret = 1;
+          ret = ENOMEM;
         }
         if (enc != NULL) {
           if (r_jwt_set_enc(jwt, r_str_to_jwa_enc(enc)) != RHN_OK) {
             fprintf(stderr, "Invalid enc value\n");
-            ret = 1;
+            ret = EINVAL;
           }
         } else {
           r_jwt_set_enc(jwt, R_JWA_ENC_A128CBC);
@@ -524,29 +597,32 @@ static int serialize_token(const char * claims, const char * str_jwks_pubkey, co
         if (enc_alg != NULL) {
           if (r_jwt_set_enc_alg(jwt, r_str_to_jwa_alg(enc_alg)) != RHN_OK) {
             fprintf(stderr, "Invalid enc_alg value\n");
-            ret = 1;
+            ret = EINVAL;
           }
         }
       }
       if (jwks_privkey != NULL) {
         if (r_jwt_add_sign_jwks(jwt, jwks_privkey, NULL) != RHN_OK) {
           fprintf(stderr, "Error setting private key\n");
-          ret = 1;
+          ret = ENOMEM;
         }
         if (alg != NULL) {
           if (r_jwt_set_sign_alg(jwt, r_str_to_jwa_alg(alg)) != RHN_OK) {
             fprintf(stderr, "Invalid alg value\n");
-            ret = 1;
+            ret = EINVAL;
           }
         }
       }
       if (!ret) {
         if (r_jwks_size(jwks_pubkey) && r_jwks_size(jwks_privkey)) {
-          token = r_jwt_serialize_nested(jwt, R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN, NULL, 0, NULL, 0);
+          token = r_jwt_serialize_nested(jwt, R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT, NULL, x5u_flags, NULL, x5u_flags);
         } else if (r_jwks_size(jwks_pubkey) && !r_jwks_size(jwks_privkey)) {
-          token = r_jwt_serialize_encrypted(jwt, NULL, 0);
+          token = r_jwt_serialize_encrypted(jwt, NULL, x5u_flags);
         } else if (!r_jwks_size(jwks_pubkey) && r_jwks_size(jwks_privkey)) {
-          token = r_jwt_serialize_signed(jwt, NULL, 0);
+          token = r_jwt_serialize_signed(jwt, NULL, x5u_flags);
+        } else {
+          r_jwt_set_sign_alg(jwt, R_JWA_ALG_NONE);
+          token = r_jwt_serialize_signed(jwt, NULL, x5u_flags);
         }
       }
       if (token == NULL) {
@@ -565,64 +641,16 @@ static int serialize_token(const char * claims, const char * str_jwks_pubkey, co
   return ret;
 }
 
-static void print_help(FILE * output) {
-  fprintf(output, "\nrnbyc - Rhonabwy JWK and JWT parser and generator\n");
-  fprintf(output, "\n");
-  fprintf(output, "Version %s\n", _RNBYC_VERSION_);
-  fprintf(output, "\n");
-  fprintf(output, "Copyright 2020 Nicolas Mora <mail@babelouest.org>\n");
-  fprintf(output, "\n");
-  fprintf(output, "This program is free software; you can redistribute it and/or\n");
-  fprintf(output, "modify it under the terms of the GPL 3\n");
-  fprintf(output, "\n");
-  fprintf(output, "Command-line options:\n");
-  fprintf(output, "\n");
-  fprintf(output, "-j --jwks\n");
-  fprintf(output, "\tAction: JWKS, parse or generate keys and output JWKS\n");
-  fprintf(output, "-g --generate\n");
-  fprintf(output, "\tGenerate a key pair or a symmetric key\n");
-  fprintf(output, "-i --stdin\n");
-  fprintf(output, "\tReads key to parse from stdin\n");
-  fprintf(output, "-f --in-file\n");
-  fprintf(output, "\tReads key to parse from a file\n");
-  fprintf(output, "-k --key-id\n");
-  fprintf(output, "\tSpecifies the key-id to add to the current key\n");
-  fprintf(output, "-a --alg\n");
-  fprintf(output, "\tAction: JWKS\n");
-  fprintf(output, "\tSpecifies the alg value to add to the current key\n");
-  fprintf(output, "\tAction: Serialize\n");
-  fprintf(output, "\tSpecifies the alg value to sign the token\n");
-  fprintf(output, "-e --enc\n");
-  fprintf(output, "\tSpecifies the enc value to encrypt the token (default A128CBC)\n");
-  fprintf(output, "-l --enc-alg\n");
-  fprintf(output, "\tSpecifies the encryption algorithm for key management of the token\n");
-  fprintf(output, "-o --out-file\n");
-  fprintf(output, "\tSpecifies the output file for the private keys (or all the keys if no public file is specified) in the JWKS\n");
-  fprintf(output, "-p --out-file-public\n");
-  fprintf(output, "\tSpecifies the output file for the public keys in the JWKS\n");
-  fprintf(output, "-n --indent\n");
-  fprintf(output, "\tJWKS output spaces indentation: 0 is compact mode, default is 2 spaces indent\n");
-  fprintf(output, "-x --split\n");
-  fprintf(output, "\tSplit JWKS output in public and private keys\n");
-  fprintf(output, "-t --parse-token\n");
-  fprintf(output, "\tAction: Parse token\n");
-  fprintf(output, "-s --serialize-token\n");
-  fprintf(output, "\tAction: serialize given claims in a token\n");
-  fprintf(output, "-K --public-key\n");
-  fprintf(output, "\tSpecifies the public key to for key management encryption or signature verification\n");
-  fprintf(output, "\tPublic key must be in JWKS format and can be either a JWKS string or a path to a JWKS file\n");
-  fprintf(output, "-P --private-key\n");
-  fprintf(output, "\tSpecifies the private key to for key management decryption or signature generation\n");
-  fprintf(output, "\tPublic key must be in JWKS format and can be either a JWKS string or a path to a JWKS file\n");
-  fprintf(output, "-v --version\n");
-  fprintf(output, "\tPrint uwsc's current version\n\n");
-  fprintf(output, "-h --help\n");
-  fprintf(output, "\tPrint this message\n\n");
-}
-
 int main (int argc, char ** argv) {
-  int next_option, action = R_ACTION_NONE, ret = 0, has_stdin = 0, split_keys = 0;
-  const char * short_options = "j::g:i::f:k:a:e:l:o:p:n:x::t:s:K:P:v::h::";
+  int next_option, 
+      action = R_ACTION_NONE, 
+      ret = 0, 
+      has_stdin = 0, 
+      split_keys = 0, 
+      show_header = 0,
+      show_claims = 1,
+      x5u_flags = 0;
+  const char * short_options = "j::g:i::f:k:a:e:l:o:p:n:x::t:s:H:C:K:P:u:v::h::";
   char * out_file = NULL, 
        * out_file_public = NULL, 
        * parsed_token = NULL, 
@@ -647,8 +675,11 @@ int main (int argc, char ** argv) {
     {"split", no_argument, NULL, 'x'},
     {"parse-token", required_argument, NULL, 't'},
     {"serialize-token", required_argument, NULL, 's'},
-    {"public-key", required_argument, NULL, 'K'},
-    {"private-key", required_argument, NULL, 'P'},
+    {"header", required_argument, NULL, 'H'},
+    {"claims", required_argument, NULL, 'C'},
+    {"public-key", required_argument, NULL, 'P'},
+    {"private-key", required_argument, NULL, 'K'},
+    {"x5u-flags", required_argument, NULL, 'u'},
     {"version", no_argument, NULL, 'v'},
     {"help", no_argument, NULL, 'h'},
     {NULL, 0, NULL, 0}
@@ -676,7 +707,7 @@ int main (int argc, char ** argv) {
               json_array_append_new(j_arguments, json_pack("{sssssi}", "source", "generate", "type", "RSA", "bits", bits));
             } else {
               fprintf(stderr, "--generate: Invalid argument\n");
-              ret = 1;
+              ret = EINVAL;
             }
           } else if (0 == o_strcasecmp("ECDSA256", optarg) || 0 == o_strcasecmp("ECDSA384", optarg) || 0 == o_strcasecmp("ECDSA512", optarg) || 0 == o_strcasecmp("EDDSA", optarg)) {
             json_array_append_new(j_arguments, json_pack("{ssss}", "source", "generate", "type", optarg));
@@ -687,27 +718,27 @@ int main (int argc, char ** argv) {
               json_array_append_new(j_arguments, json_pack("{sssssi}", "source", "generate", "type", "oct", "bits", bits));
             } else {
               fprintf(stderr, "--generate: Invalid argument\n");
-              ret = 1;
+              ret = EINVAL;
             }
           } else {
             fprintf(stderr, "--generate: Invalid argument\n");
-            ret = 1;
+            ret = EINVAL;
           }
         } else {
           fprintf(stderr, "--generate: argument incompatible with parse or serialize action\n");
-          ret = 1;
+          ret = EINVAL;
         }
         break;
       case 'i':
         if (has_stdin) {
           fprintf(stderr, "--stdin: can not use more than once\n");
-          ret = 1;
+          ret = EINVAL;
         } else if (action == R_ACTION_JWKS_OUT) {
           json_array_append_new(j_arguments, json_pack("{ss}", "source", "stdin"));
           has_stdin = 1;
         } else {
           fprintf(stderr, "--stdin: argument incompatible with parse or serialize action\n");
-          ret = 1;
+          ret = EINVAL;
         }
         break;
       case 'f':
@@ -715,7 +746,7 @@ int main (int argc, char ** argv) {
           json_array_append_new(j_arguments, json_pack("{ssss}", "source", "file", "path", optarg));
         } else {
           fprintf(stderr, "--file: argument incompatible with parse or serialize action\n");
-          ret = 1;
+          ret = EINVAL;
         }
         break;
       case 'k':
@@ -760,33 +791,58 @@ int main (int argc, char ** argv) {
         action = R_ACTION_SERIALIZE_TOKEN;
         claims = o_strdup(optarg);
         break;
+      case 'H':
+        if (0 == o_strcasecmp("false", optarg) || 0 == o_strcasecmp("no", optarg) || 0 == o_strcmp("0", optarg)) {
+          show_header = 0;
+        } else {
+          show_header = 1;
+        }
+        break;
+      case 'C':
+        if (0 == o_strcasecmp("false", optarg) || 0 == o_strcasecmp("no", optarg) || 0 == o_strcmp("0", optarg)) {
+          show_claims = 0;
+        } else {
+          show_claims = 1;
+        }
+        break;
       case 'K':
-        str_token_public_key = o_strdup(optarg);
+        str_token_private_key = o_strdup(optarg);
         break;
       case 'P':
-        str_token_private_key = o_strdup(optarg);
+        str_token_public_key = o_strdup(optarg);
+        break;
+      case 'u':
+        if (o_strcasestr(optarg, "cert") != NULL) {
+          x5u_flags |= R_FLAG_IGNORE_SERVER_CERTIFICATE;
+        }
+        if (o_strcasestr(optarg, "follow") != NULL) {
+          x5u_flags |= R_FLAG_FOLLOW_REDIRECT;
+        }
         break;
       case 'v':
         // Print version and exit
         fprintf(stdout, "%s\n", _RNBYC_VERSION_);
+        exit(0);
         break;
       case 'h':
         // Print help and exit
         print_help(stdout);
+        exit(0);
         break;
       default:
         break;
     }
-  } while (next_option != -1 && ret == 0);
+  } while (next_option != -1 && !ret);
   
   if (!ret) {
     if (action == R_ACTION_JWKS_OUT) {
-      get_jwks_out(j_arguments, split_keys, indent, out_file, out_file_public);
+      get_jwks_out(j_arguments, split_keys, x5u_flags, indent, out_file, out_file_public);
     } else if (action == R_ACTION_PARSE_TOKEN) {
-      ret = parse_token(parsed_token, indent, str_token_public_key, str_token_private_key);
+      ret = parse_token(parsed_token, indent, x5u_flags, str_token_public_key, str_token_private_key, show_header, show_claims);
     } else if (action == R_ACTION_SERIALIZE_TOKEN) {
-      ret = serialize_token(claims, str_token_public_key, str_token_private_key, alg, enc, enc_alg);
+      ret = serialize_token(claims, x5u_flags, str_token_public_key, str_token_private_key, alg, enc, enc_alg);
     } else {
+      ret = EINVAL;
       fprintf(stderr, "Please epecify an action\n");
       print_help(stderr);
     }
@@ -800,6 +856,8 @@ int main (int argc, char ** argv) {
   o_free(enc_alg);
   o_free(parsed_token);
   o_free(claims);
+  o_free(str_token_private_key);
+  o_free(str_token_public_key);
   
   //y_close_logs();
   return ret;

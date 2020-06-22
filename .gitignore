@@ -7,3 +7,4 @@ valgrind*.txt
 rhonabwy-cfg.h
 tools/rnbyc/rnbyc
 *.jwks
+*.jwt

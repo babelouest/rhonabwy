@@ -70,6 +70,16 @@ JWT Relies on JWS and JWE functions, so it supports the same functionnalities as
 
 (2) GnuTLS 3.6.14 minumum is required for `A192GCM` enc and `A192GCMKW` key wrapping algorithm.
 
+# rnbyc, Rhonabwy command-line tool 
+
+This command-line program can be used to:
+
+- Generate and/or parse keys and output the result in a JWKS or a public/private pair of JWKS files.
+- Parse, decrypt, and/or verify signature of a JWT, using given key
+- Serialize a JWT, he JWT can be signed, encrypted or nested
+
+Check its [documentation](tools/rnbyc/README.md)
+
 # API Documentation
 
 Documentation is available in the documentation page: [https://babelouest.github.io/rhonabwy/](https://babelouest.github.io/rhonabwy/)

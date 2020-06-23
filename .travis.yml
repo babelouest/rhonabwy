@@ -26,5 +26,6 @@ script:
   - make package
   - make doc
   - sudo make install
+  - ldconfig
   - cd ../tools/rnbyc/
   - make test

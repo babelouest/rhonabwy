@@ -26,6 +26,7 @@ jobs:
         make package
         make doc
         sudo make install
+        sudo ldconfig
         # test rnbyc
         #cd ../tools/rnbyc/
         #make test

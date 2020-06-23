@@ -115,6 +115,7 @@ static void print_help(FILE * output) {
   fprintf(output, "\tSet x5u flags to retrieve online certificate, values available are:\n");
   fprintf(output, "\t\tcert: ignore server certificate errors (self-signed, expired, etc.)\n");
   fprintf(output, "\t\tfollow: follow jwks_uri redirection if any\n");
+  fprintf(output, "\t\tvalues can be contatenated, e.g. --x5u-flags cert,follow\n");
   fprintf(output, "-v --version\n");
   fprintf(output, "\tPrint uwsc's current version\n");
   fprintf(output, "-h --help\n");

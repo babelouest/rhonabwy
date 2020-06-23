@@ -37,7 +37,7 @@ OBJECTS=jwk.o jwks.o jws.o jwe.o jwt.o misc.o
 OUTPUT=librhonabwy.so
 VERSION_MAJOR=0
 VERSION_MINOR=9
-VERSION_PATCH=10
+VERSION_PATCH=11
 
 .PHONY: all clean
 

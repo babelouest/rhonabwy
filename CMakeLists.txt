@@ -30,7 +30,7 @@ set(PROJECT_HOMEPAGE_URL "https://github.com/babelouest/rhonabwy/")
 set(PROJECT_BUGREPORT_PATH "https://github.com/babelouest/rhonabwy/issues")
 set(LIBRARY_VERSION_MAJOR "0")
 set(LIBRARY_VERSION_MINOR "9")
-set(LIBRARY_VERSION_PATCH "10")
+set(LIBRARY_VERSION_PATCH "11")
 set(ORCANIA_VERSION_REQUIRED "2.1.0")
 set(YDER_VERSION_REQUIRED "1.4.10")
 set(ULFIUS_VERSION_REQUIRED "2.6.7")
@@ -106,16 +106,12 @@ endif ()
 
 include(FindMHD)
 find_package(MHD REQUIRED)
-if (MHD_FOUND)
-	set(LIBS ${LIBS} ${MHD_LIBRARIES})
-	include_directories(${MHD_INCLUDE_DIRS})
-endif ()
-  
 
 # directories and source
 
 set(INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(RNBYC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tools/rnbyc)
 
 include_directories(${INC_DIR})
 
@@ -237,6 +233,18 @@ if (SEARCH_ULFIUS_R)
     endif ()
     target_link_libraries(rhonabwy ${LIBS} ${ULFIUS_LIBRARIES})
     set(LIBS ${LIBS} ${ULFIUS_LIBRARIES})
+endif ()
+
+# build rnbyc
+
+option(BUILD_RNBYC "Build rnbyc application." ON)
+
+if (BUILD_RNBYC)
+    add_executable(rnbyc ${RNBYC_DIR}/rnbyc.c ${INC_DIR}/rhonabwy.h ${PROJECT_BINARY_DIR}/rhonabwy-cfg.h)
+    set_target_properties(rnbyc PROPERTIES SKIP_BUILD_RPATH TRUE)
+    add_dependencies(rnbyc rhonabwy)
+    target_link_libraries(rnbyc rhonabwy ${LIBS})
+    install(TARGETS rnbyc RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 
 # documentation
@@ -402,6 +410,7 @@ include(CPack)
 
 message(STATUS "Build testing tree:       ${BUILD_RHONABWY_TESTING}")
 message(STATUS "Install the header files: ${INSTALL_HEADER}")
+message(STATUS "Build CLI rnbyc:          ${BUILD_RNBYC}")
 message(STATUS "Build Static library:     ${BUILD_STATIC}")
 message(STATUS "Build RPM package:        ${BUILD_RPM}")
 message(STATUS "Build documentation:      ${BUILD_RHONABWY_DOCUMENTATION}")

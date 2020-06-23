@@ -1109,13 +1109,32 @@ jwks_t * r_jws_get_jwks_pubkey(jws_t * jws) {
 int r_jws_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_flags) {
   int ret;
   char ** str_array = NULL;
-  char * str_header = NULL, * token = NULL;
+  char * str_header = NULL, * token = NULL, * tmp;
   size_t header_len = 0, payload_len = 0, split_size = 0;
   json_t * j_header = NULL;
   
   
   if (jws != NULL && jws_str != NULL && jws_str_len) {
     token = o_strndup(jws_str, jws_str_len);
+    // Remove whitespaces and newlines
+    tmp = str_replace(token, " ", "");
+    o_free(token);
+    token = tmp;
+    tmp = str_replace(token, "\n", "");
+    o_free(token);
+    token = tmp;
+    tmp = str_replace(token, "\t", "");
+    o_free(token);
+    token = tmp;
+    tmp = str_replace(token, "\v", "");
+    o_free(token);
+    token = tmp;
+    tmp = str_replace(token, "\f", "");
+    o_free(token);
+    token = tmp;
+    tmp = str_replace(token, "\r", "");
+    o_free(token);
+    token = tmp;
     if ((split_size = split_string(token, ".", &str_array)) == 2 || split_size == 3) {
       // Check if all first 2 elements are base64url
       if (o_base64url_decode((unsigned char *)str_array[0], o_strlen(str_array[0]), NULL, &header_len) && o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), NULL, &payload_len)) {

@@ -1450,9 +1450,6 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
               ret = RHN_ERROR;
             }
           } else {
-            // This doesn't work at all according to the RFC example
-            // https://tools.ietf.org/html/rfc7516#appendix-A.1
-            // TODO: Fix AES GCM tag
             tag_len = gnutls_cipher_get_tag_size(r_jwe_get_alg_from_enc(jwe->enc));
             memset(tag, 0, tag_len);
             if ((res = gnutls_cipher_tag(handle, tag, tag_len))) {
@@ -1742,13 +1739,32 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
 int r_jwe_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_str_len, int x5u_flags) {
   int ret;
   char ** str_array = NULL;
-  char * str_header = NULL, * token = NULL;
+  char * str_header = NULL, * token = NULL, * tmp;
   unsigned char * iv = NULL;
   size_t header_len = 0, iv_len = 0, cypher_len = 0, tag_len = 0;
   json_t * j_header = NULL;
   
   if (jwe != NULL && jwe_str != NULL && jwe_str_len) {
     token = o_strndup(jwe_str, jwe_str_len);
+    // Remove whitespaces and newlines
+    tmp = str_replace(token, " ", "");
+    o_free(token);
+    token = tmp;
+    tmp = str_replace(token, "\n", "");
+    o_free(token);
+    token = tmp;
+    tmp = str_replace(token, "\t", "");
+    o_free(token);
+    token = tmp;
+    tmp = str_replace(token, "\v", "");
+    o_free(token);
+    token = tmp;
+    tmp = str_replace(token, "\f", "");
+    o_free(token);
+    token = tmp;
+    tmp = str_replace(token, "\r", "");
+    o_free(token);
+    token = tmp;
     if (split_string(token, ".", &str_array) == 5) {
       // Check if all elements 0, 2 and 3 are base64url encoded
       if (o_base64url_decode((unsigned char *)str_array[0], o_strlen(str_array[0]), NULL, &header_len) && 

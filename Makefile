@@ -21,22 +21,28 @@
 
 LIBIDDAWC_LOCATION=./src
 TESTS_LOCATION=./test
+RNBYC_LOCATION=./tools/rnbyc
 
 all:
 	cd $(LIBIDDAWC_LOCATION) && $(MAKE) $*
+	cd $(RNBYC_LOCATION) && $(MAKE) $*
 
 debug:
 	cd $(LIBIDDAWC_LOCATION) && $(MAKE) debug $*
+	cd $(RNBYC_LOCATION) && $(MAKE) debug $*
 
 clean:
 	cd $(LIBIDDAWC_LOCATION) && $(MAKE) clean
 	cd $(TESTS_LOCATION) && $(MAKE) clean
+	cd $(RNBYC_LOCATION) && $(MAKE) clean
 
 install:
 	cd $(LIBIDDAWC_LOCATION) && $(MAKE) install
+	cd $(RNBYC_LOCATION) && $(MAKE) install
 
 uninstall:
 	cd $(LIBIDDAWC_LOCATION) && $(MAKE) uninstall
+	cd $(RNBYC_LOCATION) && $(MAKE) uninstall
 
 check:
 	cd $(TESTS_LOCATION) && $(MAKE)

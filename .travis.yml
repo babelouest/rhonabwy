@@ -7,7 +7,7 @@ os: linux
 dist: bionic
 addons:
   apt:
-    packages: [ libgnutls28-dev, libjansson-dev, libcurl4-gnutls-dev, libmicrohttpd-dev, libsystemd-dev, check, libsubunit-dev, cppcheck, pkg-config, doxygen ]
+    packages: [ libgnutls28-dev, libjansson-dev, libcurl4-gnutls-dev, libmicrohttpd-dev, libsystemd-dev, check, libsubunit-dev, cppcheck, pkg-config, doxygen, valgrind ]
 jobs:
   include:
     - env: LABEL=gcc
@@ -21,9 +21,10 @@ jobs:
 
 script:
   - mkdir build && cd build
-  - cmake -DBUILD_RHONABWY_TESTING=on ..
+  - cmake -DBUILD_RHONABWY_TESTING=on -DBUILD_RHONABWY_DOCUMENTATION=on ..
   - make test || (cat Testing/Temporary/LastTest.log && false)
   - make package
+  - make doc
   - sudo make install
   - cd ../tools/rnbyc/
   - make test

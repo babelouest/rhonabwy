@@ -26,7 +26,7 @@ script:
   - make package
   - make doc
   - sudo make install
-  - ldconfig
+  - sudo ldconfig
   - cd ../tools/rnbyc/
 #  - make test
   - valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes ./rnbyc -h

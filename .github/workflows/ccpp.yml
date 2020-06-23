@@ -28,6 +28,5 @@ jobs:
         sudo make install
         sudo ldconfig
         # test rnbyc
-        #cd ../tools/rnbyc/
-        #make test
-        valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes ./rnbyc -h
+        cd ../tools/rnbyc/
+        make test

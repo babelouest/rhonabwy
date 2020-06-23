@@ -28,4 +28,5 @@ script:
   - sudo make install
   - ldconfig
   - cd ../tools/rnbyc/
-  - make test
+#  - make test
+  - valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes ./rnbyc -h

@@ -1450,9 +1450,6 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
               ret = RHN_ERROR;
             }
           } else {
-            // This doesn't work at all according to the RFC example
-            // https://tools.ietf.org/html/rfc7516#appendix-A.1
-            // TODO: Fix AES GCM tag
             tag_len = gnutls_cipher_get_tag_size(r_jwe_get_alg_from_enc(jwe->enc));
             memset(tag, 0, tag_len);
             if ((res = gnutls_cipher_tag(handle, tag, tag_len))) {

@@ -76,7 +76,7 @@ This command-line program can be used to:
 
 - Generate and/or parse keys and output the result in a JWKS or a public/private pair of JWKS files.
 - Parse, decrypt, and/or verify signature of a JWT, using given key
-- Serialize a JWT, he JWT can be signed, encrypted or nested
+- Serialize a JWT, the JWT can be signed, encrypted or nested
 
 Check its [documentation](tools/rnbyc/README.md)
 

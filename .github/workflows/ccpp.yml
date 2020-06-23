@@ -25,3 +25,6 @@ jobs:
         make test || (cat Testing/Temporary/LastTest.log && false)
         make package
         sudo make install
+        # test rnbyc
+        cd ../tools/rnbyc/
+        make test

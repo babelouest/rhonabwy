@@ -25,3 +25,5 @@ script:
   - make test || (cat Testing/Temporary/LastTest.log && false)
   - make package
   - sudo make install
+  - cd ../tools/rnbyc/
+  - make test

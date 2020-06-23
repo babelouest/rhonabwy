@@ -5,6 +5,7 @@
 - Support `A192KW` and `A192GCM` with GnuTLS >= 3.6.14
 - Add command-line program `rnbyc` to generate, parse and serialize keys (JWK, JWKS) and tokens (JWT)
 - Remove whitespaces on token parse
+- Fix default header value `typ` in a JWT
 
 ## 0.9.10
 

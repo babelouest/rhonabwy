@@ -62,6 +62,7 @@ Options available:
 	Set x5u flags to retrieve online certificate, values available are:
 		cert: ignore server certificate errors (self-signed, expired, etc.)
 		follow: follow jwks_uri redirection if any
+		values can be contatenated, e.g. --x5u-flags cert,follow
 -v --version
 	Print uwsc's current version
 -h --help

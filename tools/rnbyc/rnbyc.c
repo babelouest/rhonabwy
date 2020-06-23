@@ -500,12 +500,21 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
           fprintf(stderr, "Error setting private key\n");
         }
       }
-      if (r_jwks_size(jwks_privkey) && (type == R_JWT_TYPE_ENCRYPT || type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT)) {
-        if (r_jwt_decrypt(jwt, NULL, x5u_flags) == RHN_OK) {
-          fprintf(stdout, "Token payload decrypted\n");
-        } else {
-          fprintf(stderr, "Unable to decrypt payload\n");
-          ret = EINVAL;
+      if (r_jwks_size(jwks_privkey)) {
+        if (type == R_JWT_TYPE_ENCRYPT) {
+          if (r_jwt_decrypt(jwt, NULL, x5u_flags) == RHN_OK) {
+            fprintf(stdout, "Token payload decrypted\n");
+          } else {
+            fprintf(stderr, "Unable to decrypt payload %d\n", r_jwt_decrypt(jwt, NULL, x5u_flags));
+            ret = EINVAL;
+          }
+        } else if (type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT) {
+          if (r_jwt_decrypt_nested(jwt, NULL, x5u_flags) == RHN_OK) {
+            fprintf(stdout, "Token payload decrypted\n");
+          } else {
+            fprintf(stderr, "Unable to decrypt payload %d\n", r_jwt_decrypt(jwt, NULL, x5u_flags));
+            ret = EINVAL;
+          }
         }
       }
       if (r_jwks_size(jwks_pubkey) && (type == R_JWT_TYPE_SIGN || type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT)) {

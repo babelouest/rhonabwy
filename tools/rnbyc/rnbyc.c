@@ -128,7 +128,7 @@ static int write_file_content(const char * file_path, const char * content) {
 
   f = fopen (file_path, "w+");
   if (f) {
-    if (fwrite(content, 1, o_strlen(content), f) > 0) {
+    if (fwrite(content, 1, o_strlen(content), f) > 0 && fwrite("\n", 1, 1, f) > 0) {
       ret = 0;
     } else {
       ret = ENOENT;

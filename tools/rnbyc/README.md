@@ -95,7 +95,7 @@ $ rnbyc -j -f /path/to/certificate.crt
 ### Generates a ECDSA 256 bits key pair in a single JWKS and specifies the kid
 
 ```shell
-$ rnbyc -j -f /path/to/certificate.crt
+$ rnbyc -j -g ecdsa256 -k key1
 {
   "keys": [
     {

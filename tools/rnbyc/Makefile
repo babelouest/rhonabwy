@@ -47,7 +47,9 @@ rnbyc: $(RHONABWY_LIBRARY) rnbyc.c
 	$(CC) -o rnbyc $(CFLAGS) rnbyc.c $(LIBS)
 
 install: rnbyc
+	mkdir -p $(DESTDIR)/bin $(DESTDIR)/man/man1/
 	install -m755 rnbyc $(DESTDIR)/bin
+	install -m644 rnbyc.1 $(DESTDIR)/man/man1/
 
 uninstall:
 	rm -f $(DESTDIR)/bin/rnbyc

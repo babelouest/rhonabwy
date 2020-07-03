@@ -144,6 +144,10 @@ int main(void) {
 
 # Installation
 
+Rhonabwy is available in the following distributions.
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/rhonabwy.svg)](https://repology.org/project/rhonabwy/versions)
+
 ## Dependencies
 
 Rhonabwy is based on [GnuTLS](https://www.gnutls.org/), [jansson](http://www.digip.org/jansson/), [zlib](https://www.zlib.net/), [libmicrohttpd](https://www.gnu.org/software/libmicrohttpd/), [libcurl](https://curl.haxx.se/libcurl/) and libsystemd (if possible), you must install those libraries first before building librhonabwy.

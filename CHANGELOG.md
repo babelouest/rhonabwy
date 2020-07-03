@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 0.9.12
+
+- Add rnbyc manpage
+- Small bugfixes
+
 ## 0.9.11
 
 - Support `A192KW` and `A192GCM` with GnuTLS >= 3.6.14

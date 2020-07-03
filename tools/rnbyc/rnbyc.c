@@ -48,7 +48,7 @@
 #include <yder.h>
 #include <rhonabwy.h>
 
-#define _RNBYC_VERSION_ "0.8"
+#define _RNBYC_VERSION_ "0.9"
 
 #define R_RSA_DEFAULT_SIZE 4096
 #define R_OCT_DEFAULT_SIZE 128
@@ -105,10 +105,10 @@ static void print_help(FILE * output) {
   fprintf(output, "\tDisplay header of a parsed token, default false\n");
   fprintf(output, "-C --claims\n");
   fprintf(output, "\tDisplay claims of a parsed token, default true\n");
-  fprintf(output, "-K --public-key\n");
+  fprintf(output, "-P --public-key\n");
   fprintf(output, "\tSpecifies the public key to for key management encryption or signature verification\n");
   fprintf(output, "\tPublic key must be in JWKS format and can be either a JWKS string or a path to a JWKS file\n");
-  fprintf(output, "-P --private-key\n");
+  fprintf(output, "-K --private-key\n");
   fprintf(output, "\tSpecifies the private key to for key management decryption or signature generation\n");
   fprintf(output, "\tPublic key must be in JWKS format and can be either a JWKS string or a path to a JWKS file\n");
   fprintf(output, "-u --x5u-flags\n");

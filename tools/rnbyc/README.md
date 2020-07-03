@@ -52,10 +52,10 @@ Options available:
 	Display header of a parsed token, default false
 -C --claims
 	Display claims of a parsed token, default true
--K --public-key
+-P --public-key
 	Specifies the public key to for key management encryption or signature verification
 	Public key must be in JWKS format and can be either a JWKS string or a path to a JWKS file
--P --private-key
+-K --private-key
 	Specifies the private key to for key management decryption or signature generation
 	Public key must be in JWKS format and can be either a JWKS string or a path to a JWKS file
 -u --x5u-flags

@@ -54,6 +54,9 @@ install: rnbyc
 uninstall:
 	rm -f $(DESTDIR)/bin/rnbyc
 
+manpage: rnbyc
+	help2man ./rnbyc -s 1 -n "JWK and JWT parser and generator" > rnbyc.1
+
 test: test-jwks test-serialize test-parse
 
 test-jwks: debug

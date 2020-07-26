@@ -205,6 +205,19 @@ typedef struct {
  */
 
 /**
+ * Initialize rhonabwy global parameters
+ * This function isn't thread-safe so it must be called once before any other call to rhonabwy functions
+ * The function r_global_close must be called when rhonabwy library is no longer required
+ * @return RHN_OK on success, an error value on error
+ */
+int r_global_init();
+
+/**
+ * Close rhonabwy global parameters
+ */
+void r_global_close();
+
+/**
  * Get the library information as a json_t * object
  * - library version
  * - supported JWS algorithms

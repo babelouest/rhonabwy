@@ -23,7 +23,21 @@
 
 #include <orcania.h>
 #include <yder.h>
+#include <ulfius.h>
 #include <rhonabwy.h>
+
+int r_global_init() {
+  if (ulfius_send_request_init() == U_OK) {
+    return RHN_OK;
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_global_init - Error ulfius_send_request_init");
+    return RHN_ERROR;
+  }
+}
+
+void r_global_close() {
+  ulfius_send_request_close();
+}
 
 int _r_json_set_str_value(json_t * j_json, const char * key, const char * str_value) {
   int ret;

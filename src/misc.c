@@ -190,6 +190,8 @@ jwa_alg r_str_to_jwa_alg(const char * alg) {
     return R_JWA_ALG_PBES2_H384;
   } else if (0 == o_strcmp("PBES2-HS512+A256KW", alg)) {
     return R_JWA_ALG_PBES2_H512;
+  } else if (0 == o_strcmp("ES256K", alg)) {
+    return R_JWA_ALG_ES256K;
   } else {
     return R_JWA_ALG_UNKNOWN;
   }
@@ -289,6 +291,9 @@ const char * r_jwa_alg_to_str(jwa_alg alg) {
       break;
      case R_JWA_ALG_PBES2_H512:
       return "PBES2-HS512+A256KW";
+      break;
+     case R_JWA_ALG_ES256K:
+      return "ES256K";
       break;
     default:
       return NULL;

@@ -134,7 +134,8 @@ typedef enum {
   R_JWA_ALG_A256GCMKW      = 28,
   R_JWA_ALG_PBES2_H256     = 29,
   R_JWA_ALG_PBES2_H384     = 30,
-  R_JWA_ALG_PBES2_H512     = 31
+  R_JWA_ALG_PBES2_H512     = 31,
+  R_JWA_ALG_ES256K         = 32
 } jwa_alg;
 
 typedef enum {

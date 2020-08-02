@@ -1264,6 +1264,9 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags) {
             ret = RHN_ERROR_INVALID;
           }
           break;
+        case R_JWA_ALG_ES256K:
+          ret = RHN_ERROR_UNSUPPORTED;
+          break;
         case R_JWA_ALG_NONE:
           ret = RHN_OK;
           break;
@@ -1344,7 +1347,10 @@ char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags) {
         o_free(jws->signature_b64url);
         jws->signature_b64url = (unsigned char *)o_strdup("");
         break;
+      case R_JWA_ALG_ES256K:
       default:
+        o_free(jws->signature_b64url);
+        jws->signature_b64url = NULL;
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_serialize - Unsupported algorithm");
         break;
     }

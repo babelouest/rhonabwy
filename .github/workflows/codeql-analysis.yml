@@ -47,9 +47,6 @@ jobs:
     #    uses a compiled language
 
     - run: |
-    #   make bootstrap
-    #   make release
-        # prepare build folders
         mkdir build
         # build ulfius, run tests, build package
         cd build

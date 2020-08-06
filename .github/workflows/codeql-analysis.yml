@@ -47,8 +47,9 @@ jobs:
     #    uses a compiled language
 
     - run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake pkg-config libsystemd-dev libgnutls28-dev libjansson-dev libcurl4-gnutls-dev libmicrohttpd-dev doxygen
         mkdir build
-        # build ulfius, run tests, build package
         cd build
         cmake -DBUILD_RHONABWY_DOCUMENTATION=on ..
         make

@@ -46,16 +46,15 @@ jobs:
     #    and modify them (or add more) to build your code if your project
     #    uses a compiled language
 
-    #- run: |
+    - run: |
     #   make bootstrap
     #   make release
         # prepare build folders
         mkdir build
         # build ulfius, run tests, build package
         cd build
-        cmake -DBUILD_RHONABWY_TESTING=on -DBUILD_RHONABWY_DOCUMENTATION=on ..
-        make test || (cat Testing/Temporary/LastTest.log && false)
-        make package
+        cmake -DBUILD_RHONABWY_DOCUMENTATION=on ..
+        make
         make doc
         sudo make install
 

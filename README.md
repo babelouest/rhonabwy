@@ -10,7 +10,7 @@
 - Create, modify, parse, validate or serialize [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE) **limited!**
 - Create, modify, parse, validate or serialize [JSON Web Token](https://tools.ietf.org/html/rfc7519) (JWT)
 
-JWT Relies on JWS and JWE functions, so it supports the same functionnalities as the other 2. JWT functionnalities also support nesting serilization (JWE nested in a JWS or the opposite).
+JWT Relies on JWS and JWE functions, so it supports the same functionalities as the other 2. JWT functionalities also support nesting serialization (JWE nested in a JWS or the opposite).
 
 - Supported Cryptographic Algorithms for Digital Signatures and MACs:
 
@@ -68,7 +68,7 @@ JWT Relies on JWS and JWE functions, so it supports the same functionnalities as
 | PBES2-HS384+A192KW | PBES2 with HMAC SHA-384 and "A192KW" wrapping | *NO* |
 | PBES2-HS512+A256KW | PBES2 with HMAC SHA-512 and "A256KW" wrapping | *NO* |
 
-(2) GnuTLS 3.6.14 minumum is required for `A192GCM` enc and `A192GCMKW` key wrapping algorithm.
+(2) GnuTLS 3.6.14 minimum is required for `A192GCM` enc and `A192GCMKW` key wrapping algorithm.
 
 # rnbyc, Rhonabwy command-line tool 
 
@@ -84,7 +84,7 @@ Check its [documentation](tools/rnbyc/README.md)
 
 Documentation is available in the documentation page: [https://babelouest.github.io/rhonabwy/](https://babelouest.github.io/rhonabwy/)
 
-Example program to parse and verify the signature of a JWT using its publick key in JWK format:
+Example program to parse and verify the signature of a JWT using its public key in JWK format:
 
 ```C
 /**
@@ -150,11 +150,11 @@ Rhonabwy is available in the following distributions.
 
 ## Dependencies
 
-Rhonabwy is based on [GnuTLS](https://www.gnutls.org/), [jansson](http://www.digip.org/jansson/), [zlib](https://www.zlib.net/), [libmicrohttpd](https://www.gnu.org/software/libmicrohttpd/), [libcurl](https://curl.haxx.se/libcurl/) and libsystemd (if possible), you must install those libraries first before building librhonabwy.
+Rhonabwy is based on [GnuTLS](https://www.gnutls.org/), [Jansson](http://www.digip.org/jansson/), [zlib](https://www.zlib.net/), [libmicrohttpd](https://www.gnu.org/software/libmicrohttpd/), [libcurl](https://curl.haxx.se/libcurl/) and libsystemd (if possible), you must install those libraries first before building Rhonabwy.
 
 ## Prerequisites
 
-You need [liborcania](https://github.com/babelouest/orcania), [libyder](https://github.com/babelouest/yder), [libulfius](https://github.com/babelouest/ulfius).
+You need [Orcania](https://github.com/babelouest/orcania), [Yder](https://github.com/babelouest/yder), [Ulfius](https://github.com/babelouest/ulfius).
 
 Those libraries are included in the package `rhonabwy-dev-full_{x.x.x}_{OS}_{ARCH}.tar.gz` in the [Latest release](https://github.com/babelouest/rhonabwy/releases/latest) page. If you're building with CMake, they will be automatically downloaded and installed if missing.
 
@@ -168,7 +168,7 @@ You can install Rhonabwy with a pre-compiled package available in the [release p
 
 [CMake](https://cmake.org/download/) minimum 3.5 is required.
 
-Run the cmake script in a subdirectory, example:
+Run the CMake script in a sub-directory, example:
 
 ```shell
 $ git clone https://github.com/babelouest/rhonabwy.git
@@ -179,7 +179,7 @@ $ cmake ..
 $ make && sudo make install
 ```
 
-The available options for cmake are:
+The available options for CMake are:
 - `-DWITH_JOURNALD=[on|off]` (default `on`): Build with journald (SystemD) support
 - `-BUILD_RHONABWY_TESTING=[on|off]` (default `off`): Build unit tests
 - `-DINSTALL_HEADER=[on|off]` (default `on`): Install header file `rhonabwy.h`
@@ -190,7 +190,7 @@ The available options for cmake are:
 
 ### Good ol' Makefile
 
-Download rhonabwy from github repository, compile and install.
+Download Rhonabwy from GitHub repository, compile and install.
 
 ```shell
 $ git clone https://github.com/babelouest/rhonabwy.git
@@ -201,7 +201,7 @@ $ sudo make install
 
 By default, the shared library and the header file will be installed in the `/usr/local` location. To change this setting, you can modify the `DESTDIR` value in the `src/Makefile`.
 
-Example: install rhonabwy in /tmp/lib directory
+Example: install Rhonabwy in /tmp/lib directory
 
 ```shell
 $ cd src

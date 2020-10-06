@@ -463,7 +463,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_get_property);
   tcase_add_test(tc_core, test_rhonabwy_set_property);
   tcase_add_test(tc_core, test_rhonabwy_delete_property);
-  //tcase_add_test(tc_core, test_rhonabwy_generate_key_pair);
+  tcase_add_test(tc_core, test_rhonabwy_generate_key_pair);
   tcase_add_test(tc_core, test_rhonabwy_equal);
   tcase_add_test(tc_core, test_rhonabwy_copy);
   tcase_add_test(tc_core, test_rhonabwy_thumb);

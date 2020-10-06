@@ -29,11 +29,11 @@ Lots of functions in Rhonabwy library return an int value. The returned value ca
 #define RHN_ERROR_INVALID      5
 ```
 
-If a function is succesfull, it will return `RHN_OK` (0), otherwise an error code is returned.
+If a function is successful, it will return `RHN_OK` (0), otherwise an error code is returned.
 
 ## Log messages
 
-Usually, a log message is displayed to explain more specifically what happened on error. The log manager used is [Yder](https://github.com/babelouest/yder). You can enable yder log messages on the console with the following command at the beginning of your program:
+Usually, a log message is displayed to explain more specifically what happened on error. The log manager used is [Yder](https://github.com/babelouest/yder). You can enable Yder log messages on the console with the following command at the beginning of your program:
 
 ```C
 
@@ -80,13 +80,13 @@ int r_jwt_init(jwt_t ** jwt);
 void r_jwt_free(jwt_t * jwt);
 ```
 
-In addition, when a function return a `char *` value, this value must be free'd using the function `r_free(void *)`.
+In addition, when a function return a `char *` value, this value must be freed using the function `r_free(void *)`.
 
 ```C
 void r_free(void * data);
 ```
 
-## Libary information
+## Library information
 
 The functions `r_library_info_json_t()` and `r_library_info_json_str()` return a JSON object that represents the signature and encryption algorithms supported, as well as the library version.
 
@@ -119,11 +119,11 @@ Example output:
 }
 ```
 
-And finally, all `json_t *` returned values must be deallocated using `json_decref(json_t *)`, see [Jansson Documentation](https://jansson.readthedocs.io/) for more details.
+And finally, all `json_t *` returned values must be de allocated using `json_decref(json_t *)`, see [Jansson Documentation](https://jansson.readthedocs.io/) for more details.
 
 ## JWK
 
-A JWK (JSON Web Key) is a format used to store and represent a cryptoraphic key in a JSON object.
+A JWK (JSON Web Key) is a format used to store and represent a cryptographic key in a JSON object.
 
 Example of JWK:
 
@@ -150,8 +150,8 @@ Rhonabwy allows to import and export a JWK in the following formats:
 - A `GnuTLS` structure of the following: `gnutls_privkey_t`, `gnutls_pubkey_t` or `gnutls_x509_crt_t` (import only)
 
 If the imported JWK contains a `x5u` property, the key or certificate will be downloaded at the given address. If so, you can give an additional parameter `x5u_flag` which values can be:
-- `R_FLAG_IGNORE_SERVER_CERTIFICATE`: ignrore if web server certificate is invalid
-- `R_FLAG_FOLLOW_REDIRECT`: follow redirections if necessary
+- `R_FLAG_IGNORE_SERVER_CERTIFICATE`: ignore if web server certificate is invalid
+- `R_FLAG_FOLLOW_REDIRECT`: follow redirection if necessary
 - `R_FLAG_IGNORE_REMOTE`: do not download remote key, but the function may return an error
 
 The values `R_FLAG_IGNORE_SERVER_CERTIFICATE` and `R_FLAG_FOLLOW_REDIRECT` can be merged: `R_FLAG_IGNORE_SERVER_CERTIFICATE|R_FLAG_FOLLOW_REDIRECT`
@@ -186,7 +186,7 @@ You can use Rhonabwy to generate a random key pair for RSA or ECC algorithms. Th
 
 The `type` parameter can have one of the following values: `R_KEY_TYPE_RSA` or `R_KEY_TYPE_ECDSA`. The `bits` parameter specifies the length of the key. A RSA key must be at least 2048 bits, and the bits value allowed for an ECC key are 256, 384 or 512.
 
-If the parameter `kid` is used, the generated key kid property will heve the kid specified, otherwise a `kid` will be generated to identify the key pair.
+If the parameter `kid` is used, the generated key kid property will have the kid specified, otherwise a `kid` will be generated to identify the key pair.
 
 ```C
 int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, unsigned int bits, const char * kid);
@@ -194,7 +194,7 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
 
 ## JWKS
 
-A JWKS (JSON Web Key Set) is a format used to store and represent a set cryptoraphic key in a JSON object. A JWKS is always a JSON object containing the property `"keys"` that will point to an array of JWK.
+A JWKS (JSON Web Key Set) is a format used to store and represent a set cryptographic key in a JSON object. A JWKS is always a JSON object containing the property `"keys"` that will point to an array of JWK.
 
 Example of JWKS:
 
@@ -221,7 +221,7 @@ Example of JWKS:
 }
 ```
 
-In Rhonabwy library, you can manipulate the JWKs inside a JWKS by iteration or get a JWK by its kid.
+In Rhonabwy library, you can manipulate the JWKS inside a JWKS by iteration or get a JWK by its kid.
 
 ```C
 jwk_t * r_jwks_get_at(jwks_t * jwks, size_t index);
@@ -249,7 +249,7 @@ A JWS has 3 elements serialized in base64url format and separated by a dot (.). 
 - A Payload
 - A digital signature
 
-Its representaiotn uses the following format:
+Its representation uses the following format:
 
 BASE64URL(UTF8(JWS Protected Header)) || '.' ||
 BASE64URL(JWS Payload) || '.' ||
@@ -483,7 +483,7 @@ r_jwk_free(jwk_key_rsa);
 
 Finally, a JWT (JSON Web Token) is a JSON content signed and/or encrypted and serialized in a compact format that can be easily transferred in HTTP requests. Technically, a JWT is a JWS or a JWE which payload is a stringified JSON and has the property `"type":"JWT"` in the header.
 
-A JWT can be nested, which means signed and encrypted, in which case the payload is signed as a JWS first, then the seralized signed token is used as the payload in a JWE, or the opposite.
+A JWT can be nested, which means signed and encrypted, in which case the payload is signed as a JWS first, then the serialized signed token is used as the payload in a JWE, or the opposite.
 
 ### Verify a list of claims in the JWT
 

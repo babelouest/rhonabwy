@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include <check.h>
+#include <orcania.h>
 #include <yder.h>
 #include <rhonabwy.h>
 
@@ -26,6 +27,32 @@ const char jwk_pubkey_rsa_x5c_str[] = "{\"kty\":\"RSA\",\"use\":\"sig\",\"kid\":
                                        "qBNTqNgHq2G03X09266X5CpOe1zFo+Owb1zxtp3PehFdfQJ610CDLEaS9V9Rqp17hCyybEpOGVwe8fnk+fbEL2Bo3UPGrpsHzUoaGpDftmWssZkhpBJKV"\
                                        "MJyf/RuP2SmmaIzmnw9JiSlYhzo4tpzd5rFXhjRbg4zW9C+2qok+2+qDM1iJ684gPHMIY8aLWrdgQTxkumGmTqgawR+N5MDtdPTEQ0XfIBc2cJEUyMTY5"\
                                        "MPvACWpkA6SdS4xSvdXK3IVfOWA==\"]}";
+const char jwk_pubkey_rsa_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
+                                  "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
+                                  "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\""\
+                                  ",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2020-03-13\"}";
+const char jwk_pubkey_ecdsa_str_2[] = "{\"kty\":\"EC\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\",\"y\":\"AOBLZekkVtmIi1Kzeb371R7oae8fD8ZbZllpW2zOC"\
+                                      "Bcj\",\"crv\":\"P-256\",\"kid\":\"UblEzfpUTUwyc6pr81BiWn3VO7tqcXIydPU4sZogd2A\"}";
+const char jwk_pubkey_ecdsa_2_pem[] = "-----BEGIN PUBLIC KEY-----\n"\
+                                      "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMKBCTNIcKUSDii11ySs3526iDZ8A\n"\
+                                      "iTo7Tu6KPAqv7D7gS2XpJFbZiItSs3m9+9Ue6GnvHw/GW2ZZaVtszggXIw==\n"\
+                                      "-----END PUBLIC KEY-----\n";
+const char jwk_key_symmetric[] = "{\"kty\":\"oct\",\"alg\":\"HS256\",\"k\":\"c2VjcmV0\"}";
+
+const char jwk_from_frc[] = "{\
+\"kty\": \"RSA\",\
+\"n\": \"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAt\
+VT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn6\
+4tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FD\
+W2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n9\
+1CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINH\
+aQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\",\
+\"e\": \"AQAB\",\
+\"alg\": \"RS256\",\
+\"kid\": \"2011-04-29\"\
+}";
+
+const char jwk_from_frc_thumb[] = "NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs";
 
 #define KID "kid_1"
 
@@ -366,6 +393,65 @@ START_TEST(test_rhonabwy_copy)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_thumb)
+{
+  jwk_t * jwk1, * jwk2 = NULL;
+  char * thumb1, * thumb2;
+
+  ck_assert_int_eq(r_jwk_init(&jwk1), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk2), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk1, jwk_pubkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk2, jwk_pubkey_rsa_x5u_str), RHN_OK);
+
+  ck_assert_ptr_eq(NULL, r_jwk_thumbprint(NULL, 42, 0));
+  ck_assert_ptr_eq(NULL, r_jwk_thumbprint(NULL, R_JWK_THUMB_SHA256, 0));
+  ck_assert_ptr_eq(NULL, r_jwk_thumbprint(jwk1, 42, 0));
+
+  ck_assert_ptr_ne(NULL, (thumb1 = r_jwk_thumbprint(jwk1, R_JWK_THUMB_SHA256, 0)));
+  ck_assert_ptr_ne(NULL, (thumb2 = r_jwk_thumbprint(jwk2, R_JWK_THUMB_SHA256, 0)));
+  ck_assert_str_eq(thumb1, thumb2);
+  r_free(thumb1);
+  r_free(thumb2);
+
+  r_jwk_free(jwk1);
+  r_jwk_free(jwk2);
+
+  ck_assert_int_eq(r_jwk_init(&jwk1), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk2), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk1, jwk_pubkey_ecdsa_str_2), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_pem_der(jwk2, R_X509_TYPE_PUBKEY, R_FORMAT_PEM, (const unsigned char *)jwk_pubkey_ecdsa_2_pem, o_strlen(jwk_pubkey_ecdsa_2_pem)), RHN_OK);
+
+  ck_assert_ptr_ne(NULL, (thumb1 = r_jwk_thumbprint(jwk1, R_JWK_THUMB_SHA256, 0)));
+  ck_assert_ptr_ne(NULL, (thumb2 = r_jwk_thumbprint(jwk2, R_JWK_THUMB_SHA256, 0)));
+  ck_assert_str_eq(thumb1, thumb2);
+  r_free(thumb1);
+  r_free(thumb2);
+
+  ck_assert_ptr_ne(NULL, (thumb1 = r_jwk_thumbprint(jwk1, R_JWK_THUMB_SHA384, 0)));
+  ck_assert_ptr_ne(NULL, (thumb2 = r_jwk_thumbprint(jwk1, R_JWK_THUMB_SHA512, 0)));
+  r_free(thumb1);
+  r_free(thumb2);
+  
+  r_jwk_free(jwk1);
+  r_jwk_free(jwk2);
+  
+  ck_assert_int_eq(r_jwk_init(&jwk1), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk1, jwk_key_symmetric), RHN_OK);
+  ck_assert_ptr_ne(NULL, (thumb1 = r_jwk_thumbprint(jwk1, R_JWK_THUMB_SHA256, 0)));
+  r_free(thumb1);
+
+  r_jwk_free(jwk1);
+  
+  ck_assert_int_eq(r_jwk_init(&jwk1), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk1, jwk_from_frc), RHN_OK);
+  ck_assert_ptr_ne(NULL, (thumb1 = r_jwk_thumbprint(jwk1, R_JWK_THUMB_SHA256, 0)));
+  ck_assert_str_eq(thumb1, jwk_from_frc_thumb);
+  r_free(thumb1);
+
+  r_jwk_free(jwk1);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -377,9 +463,10 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_get_property);
   tcase_add_test(tc_core, test_rhonabwy_set_property);
   tcase_add_test(tc_core, test_rhonabwy_delete_property);
-  tcase_add_test(tc_core, test_rhonabwy_generate_key_pair);
+  //tcase_add_test(tc_core, test_rhonabwy_generate_key_pair);
   tcase_add_test(tc_core, test_rhonabwy_equal);
   tcase_add_test(tc_core, test_rhonabwy_copy);
+  tcase_add_test(tc_core, test_rhonabwy_thumb);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

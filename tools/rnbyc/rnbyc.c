@@ -120,6 +120,8 @@ static void print_help(FILE * output) {
   fprintf(output, "\tPrint uwsc's current version\n");
   fprintf(output, "-h --help\n");
   fprintf(output, "\tPrint this message\n\n");
+  fprintf(output, "-d --debug\n");
+  fprintf(output, "\tDisplay debug messages\n\n");
 }
 
 static int write_file_content(const char * file_path, const char * content) {
@@ -452,14 +454,14 @@ static void get_jwks_out(json_t * j_arguments, int split_keys, int x5u_flags, in
 }
 
 static int parse_token(const char * token, int indent, int x5u_flags, const char * str_jwks_pubkey, const char * str_jwks_privkey, int show_header, int show_claims) {
-  int ret = 0, type;
+  int ret = 0, type, res;
   char * content, * str_value;
   jwt_t * jwt = NULL;
   jwks_t * jwks_pubkey = NULL, * jwks_privkey = NULL;
   json_t * j_value;
 
   if (r_jwt_init(&jwt) == RHN_OK) {
-    if (r_jwt_parse(jwt, token, x5u_flags) == RHN_OK) {
+    if ((res = r_jwt_parse(jwt, token, x5u_flags)) == RHN_OK) {
       type = r_jwt_get_type(jwt);
       if (type == R_JWT_TYPE_SIGN || type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT) {
         if (r_jwks_init(&jwks_pubkey) == RHN_OK) {
@@ -543,8 +545,10 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
           json_decref(j_value);
         }
       }
-    } else {
+    } else if (res == RHN_ERROR_PARAM) {
       fprintf(stderr, "Invalid token\n");
+    } else {
+      fprintf(stderr, "Error parsing token\n");
     }
   }
   r_jwt_free(jwt);
@@ -659,8 +663,9 @@ int main (int argc, char ** argv) {
       split_keys = 0, 
       show_header = 0,
       show_claims = 1,
-      x5u_flags = 0;
-  const char * short_options = "j::g:i::f:k:a:e:l:o:p:n:x::t:s:H:C:K:P:u:v::h::";
+      x5u_flags = 0,
+      debug_mode = 0;
+  const char * short_options = "j::g:i::f:k:a:e:l:o:p:n:x::t:s:H:C:K:P:u:v::h::d::";
   char * out_file = NULL, 
        * out_file_public = NULL, 
        * parsed_token = NULL, 
@@ -692,13 +697,13 @@ int main (int argc, char ** argv) {
     {"x5u-flags", required_argument, NULL, 'u'},
     {"version", no_argument, NULL, 'v'},
     {"help", no_argument, NULL, 'h'},
+    {"debug", no_argument, NULL, 'd'},
     {NULL, 0, NULL, 0}
   };
   json_t * j_arguments = json_array();
   unsigned long bits = 0;
   int indent = 2;
 
-  //y_init_logs("Rnbyc", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Rnbyc start");
   do {
     next_option = getopt_long(argc, argv, short_options, long_options, NULL);
     
@@ -839,10 +844,18 @@ int main (int argc, char ** argv) {
         print_help(stdout);
         exit(0);
         break;
+      case 'd':
+        // Start yder logs
+        debug_mode = 1;
+        break;
       default:
         break;
     }
   } while (next_option != -1 && !ret);
+  
+  if (debug_mode) {
+    y_init_logs("rnbyc", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting rnbyc debug mode");
+  }
   
   if (!ret) {
     if (action == R_ACTION_JWKS_OUT) {
@@ -869,6 +882,8 @@ int main (int argc, char ** argv) {
   o_free(str_token_private_key);
   o_free(str_token_public_key);
   
-  //y_close_logs();
+  if (debug_mode) {
+    y_close_logs();
+  }
   return ret;
 }

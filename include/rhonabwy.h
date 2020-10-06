@@ -89,6 +89,10 @@ extern "C"
 #define R_JWT_CLAIM_NOW -1
 #define R_JWT_CLAIM_PRESENT -2
 
+#define R_JWK_THUMB_SHA256 0
+#define R_JWK_THUMB_SHA384 1
+#define R_JWK_THUMB_SHA512 2
+
 /**
  * @}
  */
@@ -685,6 +689,24 @@ int r_jwk_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, siz
  * @return RHN_ERROR_PARAM if output_len isn't large enough to hold the output, then output_len will be set to the required size
  */
 int r_jwk_export_to_symmetric_key(jwk_t * jwk, unsigned char * key, size_t * key_len);
+
+/**
+ * Genrates a thumbprint of a jwk_t based on the RFC 7638
+ * @param jwk: the jwk_t * to translate into a thumbprint
+ * @param hash: The hash funtion to use for the thumprint
+ * Values available for this parameter are
+ * - R_JWK_THUMB_SHA256
+ * - R_JWK_THUMB_SHA384
+ * - R_JWK_THUMB_SHA512
+ * @param x5u_flags: Flags to retrieve certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return the jwk hashed and base64url encoded on success, NULL on error, must be r_free'd after use
+ */
+char * r_jwk_thumbprint(jwk_t * jwk, int hash, int x5u_flags);
 
 /**
  * @}

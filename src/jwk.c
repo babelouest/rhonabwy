@@ -23,6 +23,7 @@
 
 #include <gnutls/abstract.h>
 #include <gnutls/x509.h>
+#include <gnutls/crypto.h>
 #include <orcania.h>
 #include <yder.h>
 #include <ulfius.h>
@@ -2312,4 +2313,72 @@ int r_jwk_delete_property_array_at(jwk_t * jwk, const char * key, size_t index) 
   } else {
     return RHN_ERROR_PARAM;
   }
+}
+
+char * r_jwk_thumbprint(jwk_t * jwk, int hash, int x5u_flags) {
+  int type;
+  json_t * key_members = json_object(), * key_export = r_jwk_export_to_json_t(jwk);
+  char * thumb = NULL, * key_dump;
+  unsigned char jwk_hash[128] = {0}, jwk_hash_b64[256] = {0};
+  gnutls_digest_algorithm_t alg = GNUTLS_DIG_NULL;
+  size_t jwk_hash_b64_len = 256;
+  
+  switch (hash) {
+    case R_JWK_THUMB_SHA256:
+      alg = GNUTLS_DIG_SHA256;
+      break;
+    case R_JWK_THUMB_SHA384:
+      alg = GNUTLS_DIG_SHA384;
+      break;
+    case R_JWK_THUMB_SHA512:
+      alg = GNUTLS_DIG_SHA512;
+      break;
+  }
+  
+  if (alg != GNUTLS_DIG_NULL) {
+    if (key_members != NULL) {
+      type = r_jwk_key_type(jwk, NULL, x5u_flags);
+      if (type & R_KEY_TYPE_SYMMETRIC) {
+        json_object_set(key_members, "kty", json_object_get(key_export, "kty"));
+        json_object_set(key_members, "k", json_object_get(key_export, "k"));
+      } else if (type & R_KEY_TYPE_RSA) {
+        json_object_set(key_members, "kty", json_object_get(key_export, "kty"));
+        json_object_set(key_members, "e", json_object_get(key_export, "e"));
+        json_object_set(key_members, "n", json_object_get(key_export, "n"));
+      } else if (type & R_KEY_TYPE_ECDSA || type & R_KEY_TYPE_EDDSA) {
+        json_object_set(key_members, "kty", json_object_get(key_export, "kty"));
+        json_object_set(key_members, "crv", json_object_get(key_export, "crb"));
+        json_object_set(key_members, "x", json_object_get(key_export, "x"));
+        json_object_set(key_members, "y", json_object_get(key_export, "y"));
+      } else {
+        type = R_KEY_TYPE_NONE;
+      }
+      if (type != R_KEY_TYPE_NONE) {
+        key_dump = json_dumps(key_members, JSON_COMPACT|JSON_SORT_KEYS);
+        if (key_dump != NULL) {
+          if (!gnutls_hash_fast(alg, key_dump, o_strlen(key_dump), jwk_hash)) {
+            if (o_base64url_encode(jwk_hash, gnutls_hash_get_len(alg), jwk_hash_b64, &jwk_hash_b64_len)) {
+              thumb = o_strndup((const char *)jwk_hash_b64, jwk_hash_b64_len);
+            } else {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_thumbprint, error o_base64url_encode");
+            }
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_thumbprint, error gnutls_hash_fast");
+          }
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_thumbprint, error json_dumps key");
+        }
+        o_free(key_dump);
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_thumbprint, error invalid key type");
+      }
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_thumbprint, error allocating resources for key_members");
+    }
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_thumbprint, invalid hash option");
+  }
+  json_decref(key_members);
+  json_decref(key_export);
+  return thumb;
 }

@@ -53,8 +53,8 @@ int r_jwk_is_valid(jwk_t * jwk) {
   const char * n, * e, * crv, * x, * y;
   size_t index = 0, b64dec_len = 0;
   jwk_t * jwk_x5c = NULL;
-  gnutls_pubkey_t pubkey         = NULL;
-  gnutls_x509_crt_t crt          = NULL;
+  gnutls_pubkey_t pubkey = NULL;
+  gnutls_x509_crt_t crt  = NULL;
   gnutls_datum_t data;
   
   if (jwk != NULL) {
@@ -347,6 +347,57 @@ int r_jwk_is_valid(jwk_t * jwk) {
       }
     } else {
       ret = RHN_ERROR_PARAM;
+    }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+int r_jwk_is_valid_x5u(jwk_t * jwk, int x5u_flags) {
+  int ret, type;
+  jwk_t * jwk_x5u = NULL;
+  
+  if (r_jwk_is_valid(jwk) == RHN_OK && r_jwk_get_property_str(jwk, "x5u") != NULL) {
+    type = r_jwk_key_type(jwk, NULL, x5u_flags);
+    if (type & R_KEY_TYPE_RSA && r_jwk_get_property_str(jwk, "n") != NULL && r_jwk_get_property_str(jwk, "e") != NULL) {
+      if (r_jwk_init(&jwk_x5u) == RHN_OK) {
+        if (r_jwk_import_from_x5u(jwk_x5u, x5u_flags, r_jwk_get_property_str(jwk, "x5u")) == RHN_OK) {
+          if (type == r_jwk_key_type(jwk_x5u, NULL, x5u_flags) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "n"), r_jwk_get_property_str(jwk_x5u, "n")) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "e"), r_jwk_get_property_str(jwk_x5u, "e"))) {
+            ret = RHN_OK;
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error invalid x5u key parameters (rsa)");
+            ret = RHN_ERROR_PARAM;
+          }
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error r_jwk_import_from_x5u (rsa)");
+          ret = RHN_ERROR_PARAM;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error r_jwk_init (rsa)");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(jwk_x5u);
+    } else if ((type & R_KEY_TYPE_ECDSA || type & R_KEY_TYPE_EDDSA) && json_object_get(jwk, "x") != NULL && json_object_get(jwk, "y") != NULL) {
+      if (r_jwk_init(&jwk_x5u) == RHN_OK) {
+        if (r_jwk_import_from_x5u(jwk_x5u, x5u_flags, r_jwk_get_property_str(jwk, "x5u")) == RHN_OK) {
+          if (type == r_jwk_key_type(jwk_x5u, NULL, x5u_flags) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "x"), r_jwk_get_property_str(jwk_x5u, "x")) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "y"), r_jwk_get_property_str(jwk_x5u, "y")) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "crb"), r_jwk_get_property_str(jwk_x5u, "crb"))) {
+            ret = RHN_OK;
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error invalid x5u key parameters (ec)");
+            ret = RHN_ERROR_PARAM;
+          }
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error r_jwk_import_from_x5u (ec)");
+          ret = RHN_ERROR_PARAM;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error r_jwk_init (ec)");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(jwk_x5u);
+    } else {
+      ret = RHN_OK;
     }
   } else {
     ret = RHN_ERROR_PARAM;
@@ -1439,7 +1490,7 @@ int r_jwk_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt) {
   return ret;
 }
 
-int r_jwk_import_from_x5u(jwk_t * jwk, int type, int x5u_flags, const char * x5u) {
+int r_jwk_import_from_x5u(jwk_t * jwk, int x5u_flags, const char * x5u) {
   struct _u_request req;
   struct _u_response resp;
   int ret;
@@ -1448,7 +1499,7 @@ int r_jwk_import_from_x5u(jwk_t * jwk, int type, int x5u_flags, const char * x5u
     if (ulfius_init_request(&req) == U_OK && ulfius_init_response(&resp) == U_OK && ulfius_set_request_properties(&req, U_OPT_HTTP_URL, x5u, U_OPT_CHECK_SERVER_CERTIFICATE, !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE), U_OPT_FOLLOW_REDIRECT, x5u_flags & R_FLAG_FOLLOW_REDIRECT, U_OPT_NONE) == U_OK) {
       if (ulfius_send_http_request(&req, &resp) == U_OK) {
         if (resp.status >= 200 && resp.status < 300) {
-          if (r_jwk_import_from_pem_der(jwk, type, R_FORMAT_PEM, resp.binary_body, resp.binary_body_length) == RHN_OK) {
+          if (r_jwk_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_PEM, resp.binary_body, resp.binary_body_length) == RHN_OK) {
             ret = RHN_OK;
           } else {
             ret = RHN_ERROR;

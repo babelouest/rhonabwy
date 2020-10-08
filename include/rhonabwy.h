@@ -388,6 +388,20 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags);
 int r_jwk_is_valid(jwk_t * jwk);
 
 /**
+ * Check if the x5u property is valid
+ * @param jwk: the jwk_t * to test
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ * Logs error message with yder on error
+ */
+int r_jwk_is_valid_x5u(jwk_t * jwk, int x5u_flags);
+
+/**
  * Generates a pair of private and public key using given parameters
  * @param jwk_privkey: the private key to set, must be initialized
  * @param jwk_pubkey: the public key to set, must be initialized
@@ -547,7 +561,6 @@ int r_jwk_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt);
 /**
  * Import a certificate from an URL
  * @param jwk: the jwk_t * to import to
- * @param type: the type of the input, values available are R_X509_TYPE_PUBKEY, R_X509_TYPE_PRIVKEY or R_X509_TYPE_CERTIFICATE
  * @param x5u_flags: Flags to retrieve x5u certificates
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -556,7 +569,7 @@ int r_jwk_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt);
  * If jwk is set, values will be overwritten
  * @return RHN_OK on success, an error value on error
  */
-int r_jwk_import_from_x5u(jwk_t * jwk, int type, int x5u_flags, const char * x5u);
+int r_jwk_import_from_x5u(jwk_t * jwk, int x5u_flags, const char * x5u);
 
 /**
  * Import a symmetric key into a jwk

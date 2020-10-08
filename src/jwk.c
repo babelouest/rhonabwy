@@ -47,9 +47,15 @@ void r_jwk_free(jwk_t * jwk) {
 }
 
 int r_jwk_is_valid(jwk_t * jwk) {
-  int ret = RHN_OK, has_pubkey_parameters = 0, has_privkey_parameters = 0, has_kty = 0, has_alg = 0;
+  int ret = RHN_OK, has_pubkey_parameters = 0, has_privkey_parameters = 0, has_kty = 0, has_alg = 0, type_x5c;
   json_t * j_element = NULL;
+  unsigned char * b64dec = NULL;
+  const char * n, * e, * crv, * x, * y;
   size_t index = 0, b64dec_len = 0;
+  jwk_t * jwk_x5c = NULL;
+  gnutls_pubkey_t pubkey         = NULL;
+  gnutls_x509_crt_t crt          = NULL;
+  gnutls_datum_t data;
   
   if (jwk != NULL) {
     if (json_is_object(jwk)) {
@@ -69,6 +75,67 @@ int r_jwk_is_valid(jwk_t * jwk) {
             if (!json_string_length(j_element) || !o_base64_decode((const unsigned char *)json_string_value(j_element), json_string_length(j_element), NULL, &b64dec_len) || !b64dec_len) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x5c");
               ret = RHN_ERROR_PARAM;
+            }
+          }
+          if ((j_element = json_array_get(json_object_get(jwk, "x5c"), 0)) != NULL) {
+            if (json_string_length(j_element) && o_base64_decode((const unsigned char *)json_string_value(j_element), json_string_length(j_element), NULL, &b64dec_len)) {
+              if ((b64dec = o_malloc(b64dec_len)) != NULL) {
+                if (o_base64_decode((const unsigned char *)json_string_value(j_element), json_string_length(j_element), b64dec, &b64dec_len)) {
+                  if (!gnutls_x509_crt_init(&crt)) {
+                    if (!gnutls_pubkey_init(&pubkey)) {
+                      data.data = b64dec;
+                      data.size = b64dec_len;
+                      if (!gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_DER)) {
+                        if (gnutls_pubkey_import_x509(pubkey, crt, 0)) {
+                          gnutls_pubkey_deinit(pubkey);
+                          pubkey = NULL;
+                          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Error gnutls_pubkey_import_x509");
+                          ret = RHN_ERROR;
+                        }
+                      } else {
+                        gnutls_pubkey_deinit(pubkey);
+                        pubkey = NULL;
+                        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Error gnutls_pubkey_import");
+                        ret = RHN_ERROR;
+                      }
+                    } else {
+                      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Error gnutls_pubkey_init rsa");
+                      ret = RHN_ERROR;
+                    }
+                  } else {
+                    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Error gnutls_x509_crt_init");
+                    ret = RHN_ERROR;
+                  }
+                  gnutls_x509_crt_deinit(crt);
+                  if (pubkey != NULL) {
+                    if (r_jwk_init(&jwk_x5c) == RHN_OK) {
+                      if (r_jwk_import_from_gnutls_pubkey(jwk_x5c, pubkey) == RHN_OK) {
+                        type_x5c = r_jwk_key_type(jwk_x5c, NULL, 0);
+                        if (type_x5c & R_KEY_TYPE_RSA) {
+                          if ((n = r_jwk_get_property_str(jwk, "n")) != NULL && (e = r_jwk_get_property_str(jwk, "e")) != NULL) {
+                            if (0 != o_strcmp(n, r_jwk_get_property_str(jwk_x5c, "n")) || 0 != o_strcmp(e, r_jwk_get_property_str(jwk_x5c, "e"))) {
+                              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x5c leaf rsa parameters %s %s", r_jwk_get_property_str(jwk_x5c, "n"), r_jwk_get_property_str(jwk_x5c, "e"));
+                              ret = RHN_ERROR_PARAM;
+                            }
+                          }
+                        } else if (type_x5c & R_KEY_TYPE_ECDSA || type_x5c & R_KEY_TYPE_EDDSA) {
+                          if ((crv = r_jwk_get_property_str(jwk, "crv")) != NULL && (x = r_jwk_get_property_str(jwk, "x")) != NULL && (y = r_jwk_get_property_str(jwk, "y")) != NULL) {
+                            if (0 != o_strcmp(crv, r_jwk_get_property_str(jwk_x5c, "crv")) || 0 != o_strcmp(x, r_jwk_get_property_str(jwk_x5c, "x")) || 0 != o_strcmp(y, r_jwk_get_property_str(jwk_x5c, "y"))) {
+                              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x5c leaf ec parameters");
+                              ret = RHN_ERROR_PARAM;
+                            }
+                          }
+                        }
+                      } else {
+                        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x5c leaf");
+                        ret = RHN_ERROR_PARAM;
+                      }
+                    }
+                    r_jwk_free(jwk_x5c);
+                  }
+                }
+                o_free(b64dec);
+              }
             }
           }
         }

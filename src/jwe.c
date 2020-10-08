@@ -1639,7 +1639,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
   if (jwe != NULL && jwe->alg != R_JWA_ALG_UNKNOWN && jwe->alg != R_JWA_ALG_NONE) {
       switch (jwe->alg) {
         case R_JWA_ALG_RSA1_5:
-          if (jwk != NULL && o_strlen((const char *)jwe->encrypted_key_b64url) && (g_priv = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags)) != NULL) {
+          if (jwk != NULL && o_strlen((const char *)jwe->encrypted_key_b64url) && (g_priv = r_jwk_export_to_gnutls_privkey(jwk)) != NULL) {
             res = r_jwk_key_type(jwk, &bits, x5u_flags);
             if (res & (R_KEY_TYPE_RSA|R_KEY_TYPE_PRIVATE) && bits >= 2048) {
               if ((cypherkey_dec = o_malloc(o_strlen((const char *)jwe->encrypted_key_b64url))) != NULL) {

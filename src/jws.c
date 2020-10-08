@@ -189,8 +189,8 @@ static unsigned char * r_jws_sign_hmac(jws_t * jws, jwk_t * jwk) {
   return to_return;
 }
 
-static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
-  gnutls_privkey_t privkey = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags);
+static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk) {
+  gnutls_privkey_t privkey = r_jwk_export_to_gnutls_privkey(jwk);
   gnutls_datum_t body_dat, sig_dat;
   unsigned char * to_return = NULL;
   int alg = GNUTLS_DIG_NULL, res, flag = 0;
@@ -259,9 +259,9 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   return to_return;
 }
 
-static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
+static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk) {
 #if GNUTLS_VERSION_NUMBER >= 0x030600
-  gnutls_privkey_t privkey = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags);
+  gnutls_privkey_t privkey = r_jwk_export_to_gnutls_privkey(jwk);
   gnutls_datum_t body_dat, sig_dat, r, s;
   unsigned char * binary_sig = NULL, * to_return = NULL;
   int alg = GNUTLS_DIG_NULL, res;
@@ -337,14 +337,13 @@ static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags)
 #else
   (void)(jws);
   (void)(jwk);
-  (void)(x5u_flags);
   return NULL;
 #endif
 }
 
-static unsigned char * r_jws_sign_eddsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
+static unsigned char * r_jws_sign_eddsa(jws_t * jws, jwk_t * jwk) {
 #if GNUTLS_VERSION_NUMBER >= 0x030600
-  gnutls_privkey_t privkey = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags);
+  gnutls_privkey_t privkey = r_jwk_export_to_gnutls_privkey(jwk);
   gnutls_datum_t body_dat, sig_dat;
   unsigned char * to_return = NULL;
   int res;
@@ -379,7 +378,6 @@ static unsigned char * r_jws_sign_eddsa(jws_t * jws, jwk_t * jwk, int x5u_flags)
 #else
   (void)(jws);
   (void)(jwk);
-  (void)(x5u_flags);
   return NULL;
 #endif
 }
@@ -1326,7 +1324,7 @@ char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags) {
       case R_JWA_ALG_PS512:
         if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_RSA) {
           o_free(jws->signature_b64url);
-          jws->signature_b64url = r_jws_sign_rsa(jws, jwk, x5u_flags);
+          jws->signature_b64url = r_jws_sign_rsa(jws, jwk);
         }
         break;
       case R_JWA_ALG_ES256:
@@ -1334,13 +1332,13 @@ char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags) {
       case R_JWA_ALG_ES512:
         if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_ECDSA) {
           o_free(jws->signature_b64url);
-          jws->signature_b64url = r_jws_sign_ecdsa(jws, jwk, x5u_flags);
+          jws->signature_b64url = r_jws_sign_ecdsa(jws, jwk);
         }
         break;
       case R_JWA_ALG_EDDSA:
         if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_EDDSA) {
           o_free(jws->signature_b64url);
-          jws->signature_b64url = r_jws_sign_eddsa(jws, jwk, x5u_flags);
+          jws->signature_b64url = r_jws_sign_eddsa(jws, jwk);
         }
         break;
       case R_JWA_ALG_NONE:

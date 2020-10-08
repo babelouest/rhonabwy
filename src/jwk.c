@@ -664,7 +664,7 @@ int r_jwk_extract_pubkey(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int x5u_flags)
   gnutls_pubkey_t pubkey = NULL;
   
   if (r_jwk_is_valid(jwk_privkey) == RHN_OK && r_jwk_key_type(jwk_privkey, NULL, x5u_flags) & R_KEY_TYPE_PRIVATE && jwk_pubkey != NULL) {
-    if ((privkey = r_jwk_export_to_gnutls_privkey(jwk_privkey, x5u_flags)) != NULL) {
+    if ((privkey = r_jwk_export_to_gnutls_privkey(jwk_privkey)) != NULL) {
       if (!gnutls_pubkey_init(&pubkey)) {
         if (!gnutls_pubkey_import_privkey(pubkey, privkey, GNUTLS_KEY_DIGITAL_SIGNATURE|GNUTLS_KEY_KEY_ENCIPHERMENT|GNUTLS_KEY_DATA_ENCIPHERMENT, 0)) {
           if (r_jwk_import_from_gnutls_pubkey(jwk_pubkey, pubkey) == RHN_OK) {
@@ -1529,7 +1529,7 @@ json_t * r_jwk_export_to_json_t(jwk_t * jwk) {
   }
 }
 
-gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags) {
+gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk) {
   gnutls_privkey_t privkey       = NULL;
   gnutls_x509_privkey_t x509_key = NULL;
   gnutls_ecc_curve_t curve;
@@ -1537,7 +1537,7 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags) {
   
   unsigned char * b64_dec;
   size_t b64_dec_len = 0;
-  int res, type = r_jwk_key_type(jwk, NULL, x5u_flags);
+  int res, type = r_jwk_key_type(jwk, NULL, R_FLAG_IGNORE_REMOTE);
   
   if (type & R_KEY_TYPE_PRIVATE) {
     if (json_object_get(jwk, "n") == NULL && json_object_get(jwk, "x") == NULL && json_array_get(json_object_get(jwk, "x5c"), 0) != NULL) {
@@ -2200,7 +2200,7 @@ int r_jwk_export_to_pem_der(jwk_t * jwk, int format, unsigned char * output, siz
   int test_size = (output==NULL);
   
   if (type & R_KEY_TYPE_PRIVATE) {
-    if ((privkey = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags)) != NULL) {
+    if ((privkey = r_jwk_export_to_gnutls_privkey(jwk)) != NULL) {
       if (!gnutls_privkey_export_x509(privkey, &x509_privkey)) {
         if (!(res = gnutls_x509_privkey_export(x509_privkey, format==R_FORMAT_PEM?GNUTLS_X509_FMT_PEM:GNUTLS_X509_FMT_DER, output, output_len))) {
           ret = RHN_OK;

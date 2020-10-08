@@ -355,7 +355,7 @@ const char * r_jwa_enc_to_str(jwa_enc enc);
  * Get the type and algorithm of a jwk_t
  * @param jwk: the jwk_t * to test
  * @param bits: set the key size in bits (may be NULL)
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -548,7 +548,7 @@ int r_jwk_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt);
  * Import a certificate from an URL
  * @param jwk: the jwk_t * to import to
  * @param type: the type of the input, values available are R_X509_TYPE_PUBKEY, R_X509_TYPE_PRIVKEY or R_X509_TYPE_CERTIFICATE
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
@@ -572,7 +572,7 @@ int r_jwk_import_from_symmetric_key(jwk_t * jwk, const unsigned char * key, size
  * Extract the public key from the private key jwk_privkey and set it into jwk_pubkey
  * @param jwk_privkey: the jwt containing a private key
  * @param jwk_pubkey: the jwt that will be set with the public key data
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -625,20 +625,14 @@ json_t * r_jwk_export_to_json_t(jwk_t * jwk);
 /**
  * Export a jwk_t into a gnutls_privkey_t format
  * @param jwk: the jwk_t * to export
- * @param x5u_flags: Flags to retrieve certificates
- * pointed by x5u if necessary, could be 0 if not needed
- * Flags available are 
- * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
- * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL
  * @return a gnutls_privkey_t on success, NULL on error
  */
-gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk, int x5u_flags);
+gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk);
 
 /**
  * Export a jwk_t into a gnutls_pubkey_t format
  * @param jwk: the jwk_t * to export
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -653,7 +647,7 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags);
  * the jwt_t must contain a x5c or a x5u property
  * pointing to a certificate
  * @param jwk: the jwk_t * to export
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -669,7 +663,7 @@ gnutls_x509_crt_t r_jwk_export_to_gnutls_crt(jwk_t * jwk, int x5u_flags);
  * @param format: the format of the output, values available are R_FORMAT_PEM or R_FORMAT_DER
  * @param output: an unsigned char * that will contain the output
  * @param output_len: the size of output and will be set to the data size that has been written to output
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -698,7 +692,7 @@ int r_jwk_export_to_symmetric_key(jwk_t * jwk, unsigned char * key, size_t * key
  * - R_JWK_THUMB_SHA256
  * - R_JWK_THUMB_SHA384
  * - R_JWK_THUMB_SHA512
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -754,7 +748,7 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input);
  * @param jwks: the jwk_t * to import to
  * @param uri: an uri pointing to a JWKS
  * If jwks is set, JWK will be appended
- * @param flags: Flags to retrieve certificates
+ * @param flags: Flags to retrieve x5u certificates
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
@@ -856,22 +850,16 @@ json_t * r_jwks_export_to_json_t(jwks_t * jwks);
  * Export a jwks_t into a gnutls_privkey_t format
  * @param jwks: the jwks_t * to export
  * @param len: set the length of the output array
- * @param x5u_flags: Flags to retrieve certificates
- * pointed by x5u if necessary, could be 0 if not needed
- * Flags available are 
- * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
- * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL
  * @return a heap-allocated gnutls_privkey_t * on success, NULL on error
  * an index of the returned array may be NULL if the corresponding jwk isn't a private key
  */
-gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len, int x5u_flags);
+gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len);
 
 /**
  * Export a jwks_t into a gnutls_pubkey_t format
  * @param jwks: the jwks_t * to export
  * @param len: set the length of the output array
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -887,7 +875,7 @@ gnutls_pubkey_t * r_jwks_export_to_gnutls_pubkey(jwks_t * jwks, size_t * len, in
  * @param format: the format of the output, values available are R_FORMAT_PEM or R_FORMAT_DER
  * @param output: an unsigned char * that will contain the output
  * @param output_len: the size of output and will be set to the data size that has been written to output
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -1093,7 +1081,7 @@ jwks_t * r_jws_get_jwks_pubkey(jws_t * jws);
  * Parses the JWS, verify the signature if the JWS header contains the public key
  * @param jws: the jws_t to update
  * @param jws_str: the jws serialized to parse, must end with a NULL string terminator
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -1108,7 +1096,7 @@ int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags);
  * @param jws: the jws_t to update
  * @param jws_str: the jws serialized to parse
  * @param jws_str_len: the length of jws_str to parse
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -1125,7 +1113,7 @@ int r_jws_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_
  * @param jws: the jws_t to update
  * @param jwk_pubkey: the public key to check the signature,
  * can be NULL if jws already contains a public key
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -1140,7 +1128,7 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags);
  * @param jws: the JWS to serialize
  * @param jwk_privkey: the private key to use to sign the JWS
  * can be NULL if jws already contains a private key
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -1422,7 +1410,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe);
  * Encrypts the key
  * @param jwe: the jwe_t to update
  * @param jwk_pubkey: the jwk to encrypt the key, may be NULL
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -1436,7 +1424,7 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags);
  * Decrypts the key
  * @param jwe: the jwe_t to update
  * @param jwk_privkey: the jwk to decrypt the key, may be NULL
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -1450,7 +1438,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
  * Parses the JWE
  * @param jwe: the jwe_t to update
  * @param jwe_str: the jwe serialized to parse, must end with a NULL string terminator
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -1465,7 +1453,7 @@ int r_jwe_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags);
  * @param jwe: the jwe_t to update
  * @param jwe_str: the jwe serialized to parse
  * @param jwe_str_len: the length of jwe_str
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -1480,7 +1468,7 @@ int r_jwe_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_str_len, int x5u_
  * @param jwe: the jwe_t to update
  * @param jwk_privkey: the private key to decrypt cypher key,
  * can be NULL if jwe already contains a private key
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -1495,7 +1483,7 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
  * @param jwe: the JWE to serialize
  * @param jwk_pubkey: the public key to encrypt the cypher key,
  * can be NULL if jwe already contains a public key
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -1896,7 +1884,7 @@ jwa_enc r_jwt_get_enc(jwt_t * jwt);
  * Return a signed JWT in serialized format (xxx.yyy.zzz)
  * @param jwt: the jwt_t to sign
  * @param privkey: the private key to sign the JWT, may be NULL
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -1910,7 +1898,7 @@ char * r_jwt_serialize_signed(jwt_t * jwt, jwk_t * privkey, int x5u_flags);
  * Return an encrypted JWT in serialized format (xxx.yyy.zzz.aaa.bbb)
  * @param jwt: the jwt_t to encrypt
  * @param pubkey: the public key to encrypt the JWT, may be NULL
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -1929,14 +1917,14 @@ char * r_jwt_serialize_encrypted(jwt_t * jwt, jwk_t * pubkey, int x5u_flags);
  * - R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT: the JWT will be signed, then the token will be encrypted in a JWE
  * - R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN: The JWT will be encrypted, then the token will be signed in a JWS
  * @param sign_key: the key to sign the JWT, may be NULL
- * @param sign_key_x5u_flags: Flags to retrieve certificates in sign_key
+ * @param sign_key_x5u_flags: Flags to retrieve x5u certificates in sign_key
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
  * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL
  * @param encrypt_key: the key to encrypt the JWT, may be NULL
- * @param encrypt_key_x5u_flags: Flags to retrieve certificates in encrypt_key
+ * @param encrypt_key_x5u_flags: Flags to retrieve x5u certificates in encrypt_key
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -1953,7 +1941,7 @@ char * r_jwt_serialize_nested(jwt_t * jwt, unsigned int type, jwk_t * sign_key, 
  * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
  * @param jwt: the jwt that will contain the parsed token
  * @param token: the token to parse into a JWT, must end with a NULL string terminator
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -1971,7 +1959,7 @@ int r_jwt_parse(jwt_t * jwt, const char * token, int x5u_flags);
  * @param jwt: the jwt that will contain the parsed token
  * @param token: the token to parse into a JWT
  * @param token_len: token length
- * @param x5u_flags: Flags to retrieve certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -2000,7 +1988,7 @@ int r_jwt_get_type(jwt_t * jwt);
  * @param jwt: the jwt_t to update
  * @param pubkey: the public key to check the signature,
  * can be NULL if jws already contains a public key
- * @param x5u_flags: Flags to retrieve certificates in pubkey
+ * @param x5u_flags: Flags to retrieve x5u certificates in pubkey
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -2015,7 +2003,7 @@ int r_jwt_verify_signature(jwt_t * jwt, jwk_t * pubkey, int x5u_flags);
  * @param jwt: the jwt_t to decrypt
  * @param privkey: the private key to decrypt cypher key,
  * can be NULL if jwt already contains a private key
- * @param x5u_flags: Flags to retrieve certificates in privkey
+ * @param x5u_flags: Flags to retrieve x5u certificates in privkey
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -2031,7 +2019,7 @@ int r_jwt_decrypt(jwt_t * jwt, jwk_t * privkey, int x5u_flags);
  * @param jwt: the jwt_t to decrypt and verify signature
  * @param verify_key: the public key to check the signature,
  * can be NULL if jws already contains a public key
- * @param verify_key_x5u_flags: Flags to retrieve certificates in verify_key
+ * @param verify_key_x5u_flags: Flags to retrieve x5u certificates in verify_key
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -2039,7 +2027,7 @@ int r_jwt_decrypt(jwt_t * jwt, jwk_t * privkey, int x5u_flags);
  * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @param decrypt_key: the private key to decrypt cypher key,
  * can be NULL if jwt already contains a private key
- * @param decrypt_key_x5u_flags: Flags to retrieve certificates in decrypt_key
+ * @param decrypt_key_x5u_flags: Flags to retrieve x5u certificates in decrypt_key
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -2055,7 +2043,7 @@ int r_jwt_decrypt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int v
  * @param jwt: the jwt_t to decrypt and verify signature
  * @param decrypt_key: the private key to decrypt cypher key,
  * can be NULL if jwt already contains a private key
- * @param decrypt_key_x5u_flags: Flags to retrieve certificates in decrypt_key
+ * @param decrypt_key_x5u_flags: Flags to retrieve x5u certificates in decrypt_key
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
@@ -2070,7 +2058,7 @@ int r_jwt_decrypt_nested(jwt_t * jwt, jwk_t * decrypt_key, int decrypt_key_x5u_f
  * @param jwt: the jwt_t to decrypt and verify signature
  * @param verify_key: the public key to check the signature,
  * can be NULL if jws already contains a public key
- * @param verify_key_x5u_flags: Flags to retrieve certificates in verify_key
+ * @param verify_key_x5u_flags: Flags to retrieve x5u certificates in verify_key
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid

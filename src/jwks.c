@@ -173,7 +173,7 @@ json_t * r_jwks_export_to_json_t(jwks_t * jwks) {
   }
 }
 
-gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len, int x5u_flags) {
+gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len) {
   gnutls_privkey_t * ret = NULL;
   size_t i;
   jwk_t * jwk;
@@ -183,7 +183,7 @@ gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len, 
       *len = r_jwks_size(jwks);
       for (i=0; i<(*len); i++) {
         jwk = r_jwks_get_at(jwks, i);
-        if ((ret[i] = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags)) == NULL) {
+        if ((ret[i] = r_jwk_export_to_gnutls_privkey(jwk)) == NULL) {
           y_log_message(Y_LOG_LEVEL_ERROR, "jwks export privkey - Error exporting privkey at index %zu", i);
         }
         r_jwk_free(jwk);

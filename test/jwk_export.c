@@ -433,23 +433,23 @@ START_TEST(test_rhonabwy_export_to_gnutls_privkey)
 
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
-  ck_assert_ptr_eq(r_jwk_export_to_gnutls_privkey(jwk, 0), NULL);
+  ck_assert_ptr_eq(r_jwk_export_to_gnutls_privkey(jwk), NULL);
   r_jwk_free(jwk);
 
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
-  ck_assert_ptr_ne((privkey = r_jwk_export_to_gnutls_privkey(jwk, 0)), NULL);
+  ck_assert_ptr_ne((privkey = r_jwk_export_to_gnutls_privkey(jwk)), NULL);
   gnutls_privkey_deinit(privkey);
   r_jwk_free(jwk);
 
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
-  ck_assert_ptr_eq(r_jwk_export_to_gnutls_privkey(jwk, 0), NULL);
+  ck_assert_ptr_eq(r_jwk_export_to_gnutls_privkey(jwk), NULL);
   r_jwk_free(jwk);
 
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
-  ck_assert_ptr_ne((privkey = r_jwk_export_to_gnutls_privkey(jwk, 0)), NULL);
+  ck_assert_ptr_ne((privkey = r_jwk_export_to_gnutls_privkey(jwk)), NULL);
   gnutls_privkey_deinit(privkey);
   r_jwk_free(jwk);
 

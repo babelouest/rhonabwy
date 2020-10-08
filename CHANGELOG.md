@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 0.9.13
+
+- Add `r_jwk_thumbprint`, thumbprint of a jwk_t based on the RFC 7638
+- Test `x5c` validity on `r_jwk_is_valid`
+
 ## 0.9.12
 
 - Add rnbyc manpage

@@ -576,10 +576,11 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
         // Get first x5u
         if (ulfius_init_request(&request) == U_OK) {
           if (ulfius_init_response(&response) == U_OK) {
-            request.http_verb = o_strdup("GET");
-            request.http_url = o_strdup(json_string_value(json_object_get(jwk, "x5u")));
-            request.check_server_certificate = !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE);
-            request.follow_redirect = x5u_flags & R_FLAG_FOLLOW_REDIRECT;
+            ulfius_set_request_properties(&request, U_OPT_HTTP_VERB, "GET", 
+                                                    U_OPT_HTTP_URL, json_string_value(json_object_get(jwk, "x5u")), 
+                                                    U_OPT_CHECK_SERVER_CERTIFICATE, !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE), 
+                                                    U_OPT_FOLLOW_REDIRECT, x5u_flags & R_FLAG_FOLLOW_REDIRECT, 
+                                                    U_OPT_NONE);
             if (ulfius_send_http_request(&request, &response) == U_OK && response.status >= 200 && response.status < 300) {
               data.data = response.binary_body;
               data.size = response.binary_body_length;
@@ -1444,10 +1445,7 @@ int r_jwk_import_from_x5u(jwk_t * jwk, int type, int x5u_flags, const char * x5u
   int ret;
   
   if (jwk != NULL && x5u != NULL) {
-    if (ulfius_init_request(&req) == U_OK && ulfius_init_response(&resp) == U_OK) {
-      req.http_url = o_strdup(x5u);
-      req.check_server_certificate = !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE);
-      req.follow_redirect = x5u_flags & R_FLAG_FOLLOW_REDIRECT;
+    if (ulfius_init_request(&req) == U_OK && ulfius_init_response(&resp) == U_OK && ulfius_set_request_properties(&req, U_OPT_HTTP_URL, x5u, U_OPT_CHECK_SERVER_CERTIFICATE, !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE), U_OPT_FOLLOW_REDIRECT, x5u_flags & R_FLAG_FOLLOW_REDIRECT, U_OPT_NONE) == U_OK) {
       if (ulfius_send_http_request(&req, &resp) == U_OK) {
         if (resp.status >= 200 && resp.status < 300) {
           if (r_jwk_import_from_pem_der(jwk, type, R_FORMAT_PEM, resp.binary_body, resp.binary_body_length) == RHN_OK) {
@@ -1911,10 +1909,11 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
           // Get x5u
           if (ulfius_init_request(&request) == U_OK) {
             if (ulfius_init_response(&response) == U_OK) {
-              request.http_verb = o_strdup("GET");
-              request.http_url = o_strdup(json_string_value(json_object_get(jwk, "x5u")));
-              request.check_server_certificate = !(x5u_flags&R_FLAG_IGNORE_SERVER_CERTIFICATE);
-              request.follow_redirect = x5u_flags&R_FLAG_FOLLOW_REDIRECT;
+              ulfius_set_request_properties(&request, U_OPT_HTTP_VERB, "GET", 
+                                                      U_OPT_HTTP_URL, json_string_value(json_object_get(jwk, "x5u")), 
+                                                      U_OPT_CHECK_SERVER_CERTIFICATE, !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE), 
+                                                      U_OPT_FOLLOW_REDIRECT, x5u_flags & R_FLAG_FOLLOW_REDIRECT, 
+                                                      U_OPT_NONE);
               if (ulfius_send_http_request(&request, &response) == U_OK && response.status >= 200 && response.status < 300) {
                 if (!gnutls_x509_crt_init(&crt)) {
                   if (!gnutls_pubkey_init(&pubkey)) {
@@ -2154,10 +2153,11 @@ gnutls_x509_crt_t r_jwk_export_to_gnutls_crt(jwk_t * jwk, int x5u_flags) {
           // Get x5u
           if (ulfius_init_request(&request) == U_OK) {
             if (ulfius_init_response(&response) == U_OK) {
-              request.http_verb = o_strdup("GET");
-              request.http_url = o_strdup(json_string_value(json_object_get(jwk, "x5u")));
-              request.check_server_certificate = !(x5u_flags&R_FLAG_IGNORE_SERVER_CERTIFICATE);
-              request.follow_redirect = x5u_flags&R_FLAG_FOLLOW_REDIRECT;
+              ulfius_set_request_properties(&request, U_OPT_HTTP_VERB, "GET", 
+                                                      U_OPT_HTTP_URL, json_string_value(json_object_get(jwk, "x5u")), 
+                                                      U_OPT_CHECK_SERVER_CERTIFICATE, !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE), 
+                                                      U_OPT_FOLLOW_REDIRECT, x5u_flags & R_FLAG_FOLLOW_REDIRECT, 
+                                                      U_OPT_NONE);
               if (ulfius_send_http_request(&request, &response) == U_OK && response.status >= 200 && response.status < 300) {
                 if (!gnutls_x509_crt_init(&crt)) {
                   data.data = response.binary_body;

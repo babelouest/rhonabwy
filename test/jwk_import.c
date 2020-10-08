@@ -538,6 +538,13 @@ int callback_x5u_ecdsa_crt (const struct _u_request * request, struct _u_respons
 START_TEST(test_rhonabwy_import_from_json_str)
 {
   jwk_t * jwk;
+  struct _u_instance instance;
+  
+  ck_assert_int_eq(ulfius_init_instance(&instance, 7463, NULL, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_ecdsa_crt", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);
+  
+  ck_assert_int_eq(ulfius_start_secure_framework(&instance, HTTPS_CERT_KEY, HTTPS_CERT_PEM), U_OK);
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_simple_hmac), RHN_OK);
@@ -733,6 +740,7 @@ START_TEST(test_rhonabwy_import_from_json_str)
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_rsa_pub), RHN_OK);
+  ck_assert_int_eq(r_jwk_is_valid_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
   r_jwk_free(jwk);
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
@@ -753,6 +761,8 @@ START_TEST(test_rhonabwy_import_from_json_str)
   ck_assert_str_eq((const char *)symmetric_key_b64url, r_jwk_get_property_str(jwk, "k"));
   r_jwk_free(jwk);
   
+  ulfius_stop_framework(&instance);
+  ulfius_clean_instance(&instance);
 }
 END_TEST
 
@@ -1026,7 +1036,7 @@ START_TEST(test_rhonabwy_import_from_x5u)
   ck_assert_int_eq(ulfius_start_secure_framework(&instance, HTTPS_CERT_KEY, HTTPS_CERT_PEM), U_OK);
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_x5u(jwk, R_X509_TYPE_CERTIFICATE, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7463/x5u_rsa_crt"), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7463/x5u_rsa_crt"), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
   ck_assert_ptr_ne(r_jwk_get_property_array(jwk, "x5c", 0), NULL);
   ck_assert_int_eq(bits, 3072);
@@ -1040,7 +1050,7 @@ START_TEST(test_rhonabwy_import_from_x5u)
   
 #if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_x5u(jwk, R_X509_TYPE_CERTIFICATE, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7463/x5u_ecdsa_crt"), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7463/x5u_ecdsa_crt"), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
   ck_assert_ptr_ne(r_jwk_get_property_array(jwk, "x5c", 0), NULL);
   ck_assert_int_eq(bits, 256);
@@ -1182,6 +1192,7 @@ START_TEST(test_rhonabwy_key_type)
   bits = 0;
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_rsa_pub), RHN_OK);
+  ck_assert_int_eq(r_jwk_is_valid_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_SERVER_CERTIFICATE)), R_KEY_TYPE_NONE);
   ck_assert_int_eq(bits, 3072);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
@@ -1196,6 +1207,7 @@ START_TEST(test_rhonabwy_key_type)
   bits = 0;
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_ecdsa_pub), RHN_OK);
+  ck_assert_int_eq(r_jwk_is_valid_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_SERVER_CERTIFICATE)), R_KEY_TYPE_NONE);
   ck_assert_int_eq(bits, 256);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);

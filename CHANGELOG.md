@@ -4,6 +4,8 @@
 
 - Add `r_jwk_thumbprint`, thumbprint of a jwk_t based on the RFC 7638
 - Test `x5c` validity on `r_jwk_is_valid`
+- Breaking changes: refactor functions `r_jwk_import_from_x5u`, `r_jwks_export_to_gnutls_privkey` and `r_jwk_export_to_gnutls_privkey`
+- Add `r_jwk_is_valid_x5u` to check the validity of a remote certificate
 
 ## 0.9.12
 

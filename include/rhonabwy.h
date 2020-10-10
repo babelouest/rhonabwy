@@ -442,8 +442,16 @@ const char * r_jwk_get_property_str(jwk_t * jwk, const char * key);
 const char * r_jwk_get_property_array(jwk_t * jwk, const char * key, size_t index);
 
 /**
- * Set a property value into a jwk_t
+ * Get the array size of a property from a jwt_t
  * @param jwk: the jwk_t * to get
+ * @param key: the key of the property to retrieve
+ * @return the size of the array, or -1 if the array does not exist
+ */
+int r_jwk_get_property_array_size(jwk_t * jwk, const char * key);
+
+/**
+ * Set a property value into a jwk_t
+ * @param jwk: the jwk_t * to update
  * @param key: the key of the property to set
  * @param value: the value of the property to set
  * @return RHN_OK on success, an error value on error
@@ -453,7 +461,7 @@ int r_jwk_set_property_str(jwk_t * jwk, const char * key, const char * value);
 
 /**
  * Set a property value on an array into a jwk_t
- * @param jwk: the jwk_t * to get
+ * @param jwk: the jwk_t * to update
  * @param key: the key of the property to set
  * @param index: the index of the value to set in the array
  * @param value: the value of the property to set
@@ -464,7 +472,7 @@ int r_jwk_set_property_array(jwk_t * jwk, const char * key, size_t index, const 
 
 /**
  * Append a property value on an array into a jwk_t
- * @param jwk: the jwk_t * to get
+ * @param jwk: the jwk_t * to update
  * @param key: the key of the property to set
  * @param value: the value of the property to set
  * @return RHN_OK on success, an error value on error
@@ -474,7 +482,7 @@ int r_jwk_append_property_array(jwk_t * jwk, const char * key, const char * valu
 
 /**
  * Delete a property from a jwk_t
- * @param jwk: the jwk_t * to get
+ * @param jwk: the jwk_t * to update
  * @param key: the key of the property to delete
  * @return RHN_OK on success, an error value on error
  * Logs error message with yder on error
@@ -483,13 +491,24 @@ int r_jwk_delete_property_str(jwk_t * jwk, const char * key);
 
 /**
  * Delete an array property from a jwk_t
- * @param jwk: the jwk_t * to get
+ * @param jwk: the jwk_t * to update
  * @param key: the key of the property to delete
  * @param index: the index of the value to set in the array
  * @return RHN_OK on success, an error value on error
  * Logs error message with yder on error
  */
 int r_jwk_delete_property_array_at(jwk_t * jwk, const char * key, size_t index);
+
+/**
+ * Appends a X509 certificate in the x5c array
+ * @param jwk: the jwk_t * to update
+ * @param format: the format of the input, values available are R_FORMAT_PEM or R_FORMAT_DER
+ * @param input: the certificate input, must contain the certificate in PEM or DER format
+ * @param input_len: the length of the data contained in input
+ * @return RHN_OK on success, an error value on error
+ * Logs error message with yder on error
+ */
+int r_jwk_append_x5c(jwk_t * jwk, int format, const unsigned char * input, size_t input_len);
 
 /**
  * @}
@@ -714,6 +733,20 @@ int r_jwk_export_to_symmetric_key(jwk_t * jwk, unsigned char * key, size_t * key
  * @return the jwk hashed and base64url encoded on success, NULL on error, must be r_free'd after use
  */
 char * r_jwk_thumbprint(jwk_t * jwk, int hash, int x5u_flags);
+
+/**
+ * Verifies the certificate chain in the x5c array or the x5u
+ * The x5c chain must be complete up to the root certificate
+ * @param jwk: the jwk_t * to verify
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwk_validate_x5c_chain(jwk_t * jwk, int x5u_flags);
 
 /**
  * @}

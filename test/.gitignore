@@ -16,3 +16,6 @@ jwt_sign
 jwt_encrypt
 jwt_nested
 misc
+*.log
+*.crt
+*.key

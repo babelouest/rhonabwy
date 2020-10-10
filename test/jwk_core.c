@@ -458,6 +458,8 @@ START_TEST(test_rhonabwy_thumb)
   ck_assert_ptr_ne(NULL, (thumb1 = r_jwk_thumbprint(jwk1, R_JWK_THUMB_SHA256, 0)));
   ck_assert_ptr_ne(NULL, (thumb2 = r_jwk_thumbprint(jwk2, R_JWK_THUMB_SHA256, 0)));
   ck_assert_str_eq(thumb1, thumb2);
+  r_jwk_free(jwk1);
+  r_jwk_free(jwk2);
   r_free(thumb1);
   r_free(thumb2);
 

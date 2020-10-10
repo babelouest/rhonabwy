@@ -9,6 +9,9 @@
 #include <ulfius.h>
 
 #define HTTPS_PORT 7462
+#define FULLCHAIN1_FILE "cert/fullchain1.crt"
+#define FULLCHAIN2_FILE "cert/fullchain2.crt"
+#define FULLCHAIN_ERROR_FILE "cert/fullchain-error.crt"
 
 const unsigned char symmetric_key[] = "secret";
 const unsigned char symmetric_key_b64url[] = "c2VjcmV0";
@@ -285,10 +288,12 @@ const char jwk_pubkey_rsa_x5c_only[] = "{\"alg\": \"RS256\",\"x5c\":[\"MIIFkjCCB
                                        "4tWDQH8NVU6YZZ/XteDSGU9YzJqPjY8q3MDxrzmqepBCf5o8mw/wJ4a2G6xzUr6Fb6T8McDO22PLRL6u3M4Tzs3A2M1j6bykJYi8wWIRdAvKLWZu/axBVb"\
                                        "zYmqmwkm5zLSDW5nIAJbELCQCZwMH56t2Dvqofxs6BBcCFIZUSpxu6x6td0V7SvJCCosirSmIatj/9dSSVDQibet8q/7UK4v4ZUN80atnZz1yg==\"]}";
 
-const char jwk_pubkey_rsa_x5u_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
-                                      "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
-                                      "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\""\
-                                      ",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2011-04-29\",\"x5u\":\"https://www.example.com/x509\"}";
+const char jwk_pubkey_rsa_x5u_str[] = "{\"kty\":\"RSA\",\"n\":\"ALFFoy98CtQf3UG124Ul2qHRdIFzDZWYN2XnI2SCTioFxg1Tp1dJcuHr1vMZJ_BdoAt02CV4pO3n3YRnYmmLpfZMs6Twa"\
+                                       "-dxCxzJgHiPyNa5xeKYCMHzdbwbGg8CcPcNEehUPX8Q1CLXuO1nRJRB4bUk_VfO-JjHobElBuMTNqogb721sF9CgsipOgWPwncpY1IwD1EoXFcrClE8n3"\
+                                       "n3sN_ClFU1aZNr1i5TfmuNYgv4MRry7R9eNiw4g8f7Piod-3-KWg9s7BMOTHBfNXoikwH662iAtRo9gcchI-p9hI6siPjRUbElJqnz6BYIjM5RFo-D_AM"\
+                                       "L3xPY2418_xNBjiEol7eC_tOlO6y6Bhxa4uaFSOilJCwDsMME64vopHkBcevCCr4crQYl9Tvlx4edSWcsgvn3CijfvwE4BiiIketzOVFmMTtiZFZD76cz"\
+                                       "kSiVIr3jxUG5BHMWGW_VaqFWdOLH6Xxm94dnaLswaym5Az_yX_jtCTyg05ba1CTqWW2IVQ\",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":"\
+                                       "\"2011-04-29\",\"x5u\":\"https://localhost:7464/x5u_rsa_crt\"}";
 
 const char jwk_pubkey_rsa_x5u_only_rsa_pub[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7464/x5u_rsa_crt\"}";
 const char jwk_pubkey_rsa_x5u_only_ecdsa_pub[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7464/x5u_ecdsa_crt\"}";
@@ -525,6 +530,38 @@ const unsigned char ecdsa_crt[] = "-----BEGIN CERTIFICATE-----\n"
 "2Yxh1fFV7ONNjA==\n"
 "-----END CERTIFICATE-----";
 
+const char x5u_fullchain1_crt[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7465/x5u_fullchain1\"}";
+const char x5u_fullchain2_crt[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7465/x5u_fullchain2\"}";
+const char x5u_fullchain_error_crt[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7465/x5u_fullchain_error\"}";
+const char x5u_fullchain1_trucated_crt[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7465/x5u_fullchain1_trucated\"}";
+
+static char * get_file_content(const char * file_path) {
+  char * buffer = NULL;
+  size_t length, res;
+  FILE * f;
+
+  f = fopen (file_path, "rb");
+  if (f) {
+    fseek (f, 0, SEEK_END);
+    length = ftell (f);
+    fseek (f, 0, SEEK_SET);
+    buffer = o_malloc((length+1)*sizeof(char));
+    if (buffer) {
+      res = fread (buffer, 1, length, f);
+      if (res != length) {
+        fprintf(stderr, "fread warning, reading %zu while expecting %zu", res, length);
+      }
+      // Add null character at the end of buffer, just in case
+      buffer[length] = '\0';
+    }
+    fclose (f);
+  } else {
+    fprintf(stderr, "error opening file %s\n", file_path);
+  }
+  
+  return buffer;
+}
+
 int callback_x5u_rsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
   ulfius_set_string_body_response(response, 200, (const char *)rsa_crt);
   return U_CALLBACK_CONTINUE;
@@ -535,12 +572,41 @@ int callback_x5u_ecdsa_crt (const struct _u_request * request, struct _u_respons
   return U_CALLBACK_CONTINUE;
 }
 
+int callback_x5u_fullchain1 (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  char * cert_file = get_file_content(FULLCHAIN1_FILE);
+  ulfius_set_string_body_response(response, 200, cert_file);
+  o_free(cert_file);
+  return U_CALLBACK_CONTINUE;
+}
+
+int callback_x5u_fullchain2 (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  char * cert_file = get_file_content(FULLCHAIN2_FILE);
+  ulfius_set_string_body_response(response, 200, cert_file);
+  o_free(cert_file);
+  return U_CALLBACK_CONTINUE;
+}
+
+int callback_x5u_fullchain_error (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  char * cert_file = get_file_content(FULLCHAIN_ERROR_FILE);
+  ulfius_set_string_body_response(response, 200, cert_file);
+  o_free(cert_file);
+  return U_CALLBACK_CONTINUE;
+}
+
+int callback_x5u_fullchain1_trucated (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  char * cert_file = get_file_content(FULLCHAIN1_FILE);
+  cert_file[o_strlen(cert_file)-30] = '\0';
+  ulfius_set_string_body_response(response, 200, cert_file);
+  o_free(cert_file);
+  return U_CALLBACK_CONTINUE;
+}
+
 START_TEST(test_rhonabwy_import_from_json_str)
 {
   jwk_t * jwk;
   struct _u_instance instance;
   
-  ck_assert_int_eq(ulfius_init_instance(&instance, 7463, NULL, NULL), U_OK);
+  ck_assert_int_eq(ulfius_init_instance(&instance, 7464, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_ecdsa_crt", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);
   
@@ -720,6 +786,7 @@ START_TEST(test_rhonabwy_import_from_json_str)
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_is_valid_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
   r_jwk_free(jwk);
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
@@ -1164,9 +1231,10 @@ START_TEST(test_rhonabwy_key_type)
   bits = 0;
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_is_valid_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_REMOTE)), RHN_ERROR_UNSUPPORTED);
-  ck_assert_int_eq(bits, 2048);
+  ck_assert_int_eq(bits, 3072);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -1273,6 +1341,146 @@ START_TEST(test_rhonabwy_extract_pubkey)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_append_x5c)
+{
+  jwk_t * jwk;
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), -1);
+  ck_assert_int_eq(r_jwk_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_PEM, rsa_crt, o_strlen((const char *)rsa_crt)), RHN_OK);
+  ck_assert_int_eq(r_jwk_is_valid(jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), 1);
+  ck_assert_ptr_ne(r_jwk_get_property_array(jwk, "x5c", 0), NULL);
+  ck_assert_ptr_eq(r_jwk_get_property_array(jwk, "x5c", 1), NULL);
+  ck_assert_int_eq(r_jwk_append_x5c(NULL, R_FORMAT_PEM, rsa_crt, o_strlen((const char *)rsa_crt)), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwk_append_x5c(jwk, R_FORMAT_DER, rsa_crt, o_strlen((const char *)rsa_crt)), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwk_append_x5c(jwk, R_FORMAT_PEM, NULL, o_strlen((const char *)rsa_crt)), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwk_append_x5c(jwk, R_FORMAT_PEM, rsa_crt, o_strlen((const char *)rsa_crt)-30), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwk_append_x5c(jwk, R_FORMAT_PEM, rsa_crt, o_strlen((const char *)rsa_crt)), RHN_OK);
+  ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), 2);
+  ck_assert_ptr_ne(r_jwk_get_property_array(jwk, "x5c", 1), NULL);
+  ck_assert_ptr_eq(r_jwk_get_property_array(jwk, "x5c", 2), NULL);
+  ck_assert_int_eq(r_jwk_append_x5c(jwk, R_FORMAT_PEM, (const unsigned char *)HTTPS_CERT_PEM, o_strlen(HTTPS_CERT_PEM)), RHN_OK);
+  ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), 3);
+  ck_assert_ptr_ne(r_jwk_get_property_array(jwk, "x5c", 1), NULL);
+  ck_assert_ptr_ne(r_jwk_get_property_array(jwk, "x5c", 2), NULL);
+  ck_assert_ptr_eq(r_jwk_get_property_array(jwk, "x5c", 3), NULL);
+  r_jwk_free(jwk);
+}
+END_TEST
+
+START_TEST(test_rhonabwy_parse_x5c)
+{
+  jwk_t * jwk;
+  char * cert_file;
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), -1);
+  ck_assert_ptr_ne(cert_file = get_file_content("cert/fullchain1.crt"), NULL);
+  ck_assert_int_eq(r_jwk_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_PEM, (const unsigned char *)cert_file, o_strlen(cert_file)), RHN_OK);
+  ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), 2);
+  o_free(cert_file);
+  r_jwk_free(jwk);
+}
+END_TEST
+
+START_TEST(test_rhonabwy_validate_xc5_chain)
+{
+  jwk_t * jwk;
+  char * cert_file;
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), -1);
+  ck_assert_ptr_ne(cert_file = get_file_content(FULLCHAIN1_FILE), NULL);
+  ck_assert_int_eq(r_jwk_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_PEM, (const unsigned char *)cert_file, o_strlen(cert_file)), RHN_OK);
+  ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), 2);
+  ck_assert_int_eq(r_jwk_validate_x5c_chain(jwk, 0), RHN_OK);
+  o_free(cert_file);
+  r_jwk_free(jwk);
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), -1);
+  ck_assert_ptr_ne(cert_file = get_file_content(FULLCHAIN2_FILE), NULL);
+  ck_assert_int_eq(r_jwk_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_PEM, (const unsigned char *)cert_file, o_strlen(cert_file)), RHN_OK);
+  ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), 2);
+  ck_assert_int_eq(r_jwk_validate_x5c_chain(jwk, 0), RHN_OK);
+  o_free(cert_file);
+  r_jwk_free(jwk);
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), -1);
+  ck_assert_ptr_ne(cert_file = get_file_content(FULLCHAIN1_FILE), NULL);
+  ck_assert_int_eq(r_jwk_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_PEM, (const unsigned char *)cert_file, o_strlen(cert_file)-30), RHN_ERROR_PARAM);
+  o_free(cert_file);
+  r_jwk_free(jwk);
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), -1);
+  ck_assert_ptr_ne(cert_file = get_file_content(FULLCHAIN_ERROR_FILE), NULL);
+  ck_assert_int_eq(r_jwk_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_PEM, (const unsigned char *)cert_file, o_strlen(cert_file)), RHN_OK);
+  ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), 2);
+  ck_assert_int_eq(r_jwk_validate_x5c_chain(jwk, 0), RHN_ERROR_INVALID);
+  o_free(cert_file);
+  r_jwk_free(jwk);
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), -1);
+  ck_assert_ptr_ne(cert_file = get_file_content(FULLCHAIN1_FILE), NULL);
+  ck_assert_int_eq(r_jwk_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_PEM, (const unsigned char *)cert_file, o_strlen(cert_file)), RHN_OK);
+  ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), 2);
+  ck_assert_int_eq(r_jwk_append_property_array(jwk, "x5c", "error"), RHN_OK);
+  ck_assert_int_eq(r_jwk_validate_x5c_chain(jwk, 0), RHN_ERROR_INVALID);
+  o_free(cert_file);
+  r_jwk_free(jwk);
+}
+END_TEST
+
+START_TEST(test_rhonabwy_validate_x5u_chain)
+{
+  jwk_t * jwk;
+  struct _u_instance instance;
+  
+  ck_assert_int_eq(ulfius_init_instance(&instance, 7465, NULL, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_fullchain1", NULL, 0, &callback_x5u_fullchain1, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_fullchain2", NULL, 0, &callback_x5u_fullchain2, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_fullchain1_trucated", NULL, 0, &callback_x5u_fullchain1_trucated, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_fullchain_error", NULL, 0, &callback_x5u_fullchain_error, NULL), U_OK);
+  
+  ck_assert_int_eq(ulfius_start_secure_framework(&instance, HTTPS_CERT_KEY, HTTPS_CERT_PEM), U_OK);
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_ptr_eq(r_jwk_get_property_str(jwk, "x5u"), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, x5u_fullchain1_crt), RHN_OK);
+  ck_assert_ptr_ne(r_jwk_get_property_str(jwk, "x5u"), NULL);
+  ck_assert_int_eq(r_jwk_validate_x5c_chain(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
+  r_jwk_free(jwk);
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_ptr_eq(r_jwk_get_property_str(jwk, "x5u"), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, x5u_fullchain2_crt), RHN_OK);
+  ck_assert_ptr_ne(r_jwk_get_property_str(jwk, "x5u"), NULL);
+  ck_assert_int_eq(r_jwk_validate_x5c_chain(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
+  r_jwk_free(jwk);
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_ptr_eq(r_jwk_get_property_str(jwk, "x5u"), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, x5u_fullchain_error_crt), RHN_OK);
+  ck_assert_ptr_ne(r_jwk_get_property_str(jwk, "x5u"), NULL);
+  ck_assert_int_eq(r_jwk_validate_x5c_chain(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_ERROR_INVALID);
+  r_jwk_free(jwk);
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_ptr_eq(r_jwk_get_property_str(jwk, "x5u"), NULL);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, x5u_fullchain1_trucated_crt), RHN_OK);
+  ck_assert_ptr_ne(r_jwk_get_property_str(jwk, "x5u"), NULL);
+  ck_assert_int_eq(r_jwk_validate_x5c_chain(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_ERROR_INVALID);
+  r_jwk_free(jwk);
+
+  ulfius_stop_framework(&instance);
+  ulfius_clean_instance(&instance);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -1287,6 +1495,10 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_import_from_x5u);
   tcase_add_test(tc_core, test_rhonabwy_key_type);
   tcase_add_test(tc_core, test_rhonabwy_extract_pubkey);
+  tcase_add_test(tc_core, test_rhonabwy_append_x5c);
+  tcase_add_test(tc_core, test_rhonabwy_parse_x5c);
+  tcase_add_test(tc_core, test_rhonabwy_validate_xc5_chain);
+  tcase_add_test(tc_core, test_rhonabwy_validate_x5u_chain);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

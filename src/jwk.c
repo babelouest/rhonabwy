@@ -2609,7 +2609,7 @@ int r_jwk_validate_x5c_chain(jwk_t * jwk, int x5u_flags) {
   const char * cert;
   jwk_t * jwk_x5u = NULL;
   unsigned char * cert_dec;
-  size_t cert_dec_len, cert_x509_len = 0, i;
+  size_t cert_dec_len, cert_x509_len = 0, cert_x509_data_len, i;
   gnutls_x509_trust_list_t tlist = NULL;
   gnutls_x509_crt_t * cert_x509 = NULL, root_x509 = NULL;
   gnutls_datum_t cert_dat;
@@ -2621,8 +2621,9 @@ int r_jwk_validate_x5c_chain(jwk_t * jwk, int x5u_flags) {
         if (r_jwk_import_from_x5u(jwk_x5u, x5u_flags, cert) == RHN_OK) {
           if (r_jwk_get_property_array_size(jwk_x5u, "x5c") > 0) {
             cert_x509_len = r_jwk_get_property_array_size(jwk_x5u, "x5c");
-            if ((cert_x509 = o_malloc(cert_x509_len*sizeof(gnutls_x509_crt_t *))) != NULL) {
-              memset(cert_x509, 0, cert_x509_len*sizeof(gnutls_x509_crt_t *));
+            cert_x509_data_len = cert_x509_len*sizeof(gnutls_x509_crt_t *);
+            if ((cert_x509 = o_malloc(cert_x509_data_len)) != NULL) {
+              memset(cert_x509, 0, cert_x509_data_len);
               ret = RHN_OK;
               for (i=0; i<cert_x509_len && ret == RHN_OK; i++) {
                 cert = r_jwk_get_property_array(jwk_x5u, "x5c", i);
@@ -2669,8 +2670,9 @@ int r_jwk_validate_x5c_chain(jwk_t * jwk, int x5u_flags) {
       r_jwk_free(jwk_x5u);
     } else if (r_jwk_get_property_array_size(jwk, "x5c") > 0) {
       cert_x509_len = r_jwk_get_property_array_size(jwk, "x5c");
-      if ((cert_x509 = o_malloc(cert_x509_len*sizeof(gnutls_x509_crt_t *))) != NULL) {
-        memset(cert_x509, 0, cert_x509_len*sizeof(gnutls_x509_crt_t *));
+      cert_x509_data_len = cert_x509_len*sizeof(gnutls_x509_crt_t *);
+      if ((cert_x509 = o_malloc(cert_x509_data_len)) != NULL) {
+        memset(cert_x509, 0, cert_x509_data_len);
         ret = RHN_OK;
         for (i=0; i<cert_x509_len && ret == RHN_OK; i++) {
           cert = r_jwk_get_property_array(jwk, "x5c", i);

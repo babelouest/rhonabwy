@@ -7,7 +7,7 @@ os: linux
 dist: bionic
 addons:
   apt:
-    packages: [ libgnutls28-dev, libjansson-dev, libcurl4-gnutls-dev, libmicrohttpd-dev, libsystemd-dev, check, libsubunit-dev, cppcheck, pkg-config, doxygen, valgrind ]
+    packages: [ libgnutls28-dev, libjansson-dev, libcurl4-gnutls-dev, libmicrohttpd-dev, libsystemd-dev, check, libsubunit-dev, cppcheck, pkg-config, doxygen, gnutls-bin ]
 jobs:
   include:
     - env: LABEL=gcc
@@ -22,6 +22,9 @@ jobs:
 script:
   - mkdir build && cd build
   - cmake -DBUILD_RHONABWY_TESTING=on -DBUILD_RHONABWY_DOCUMENTATION=on ..
+  - ../test/cert/create-cert.sh || (cat ../test/cert/certtool.log && false)
+  - ln -s ../test/cert/ .
+  - ln -s ../test/ .
   - make test || (cat Testing/Temporary/LastTest.log && false)
   - make package
   - make doc

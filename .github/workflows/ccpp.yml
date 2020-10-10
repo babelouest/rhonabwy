@@ -12,7 +12,7 @@ jobs:
     - name: install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake pkg-config check libsubunit-dev cppcheck libsystemd-dev libgnutls28-dev libjansson-dev libcurl4-gnutls-dev libmicrohttpd-dev valgrind doxygen
+        sudo apt-get install -y cmake pkg-config check libsubunit-dev cppcheck libsystemd-dev libgnutls28-dev libjansson-dev libcurl4-gnutls-dev libmicrohttpd-dev valgrind doxygen gnutls-bin
     - name: cppcheck
       run: cppcheck --force --enable=warning,missingInclude --error-exitcode=1 .
     - name: build
@@ -22,6 +22,9 @@ jobs:
         # build ulfius, run tests, build package
         cd build
         cmake -DBUILD_RHONABWY_TESTING=on -DBUILD_RHONABWY_DOCUMENTATION=on ..
+        ../test/cert/create-cert.sh || (cat ../test/cert/certtool.log && false)
+        ln -s ../test/cert/ .
+        ln -s ../test/ .
         make test || (cat Testing/Temporary/LastTest.log && false)
         make package
         make doc

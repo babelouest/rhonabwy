@@ -7,7 +7,7 @@ os: linux
 dist: bionic
 addons:
   apt:
-    packages: [ libgnutls28-dev, libjansson-dev, libcurl4-gnutls-dev, libmicrohttpd-dev, libsystemd-dev, check, libsubunit-dev, cppcheck, pkg-config, doxygen, gnutls-bin ]
+    packages: [ libgnutls28-dev, libjansson-dev, libcurl4-gnutls-dev, libmicrohttpd-dev, libsystemd-dev, check, libsubunit-dev, cppcheck, pkg-config, doxygen, gnutls-bin, valgrind ]
 jobs:
   include:
     - env: LABEL=gcc

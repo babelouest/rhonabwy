@@ -1016,7 +1016,7 @@ char * r_jwt_serialize_nested(jwt_t * jwt, unsigned int type, jwk_t * sign_key, 
 }
 
 int r_jwt_parsen(jwt_t * jwt, const char * token, size_t token_len, int x5u_flags) {
-  size_t nb_dots = 0, i, payload_len = 0;
+  size_t nb_dots = 0, i, payload_len = 0, token_dup_len = 0;
   int ret, res;
   const unsigned char * payload = NULL;
   char * payload_str = NULL, * token_dup = NULL, * tmp;
@@ -1042,7 +1042,8 @@ int r_jwt_parsen(jwt_t * jwt, const char * token, size_t token_len, int x5u_flag
     tmp = str_replace(token_dup, "\r", "");
     o_free(token_dup);
     token_dup = tmp;
-    for (i=0; i<token_len; i++) {
+    token_dup_len = o_strlen(token_dup);
+    for (i=0; i<token_dup_len; i++) {
       if (token_dup[i] == '.') {
         nb_dots++;
       }

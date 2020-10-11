@@ -89,6 +89,11 @@ const char jwk_key_symmetric_str[] = "{\"kty\":\"oct\",\"alg\":\"HS256\",\"k\":\
 "-0q3vhCqCYyraMiTcFkzN-bXgauBO0Md9eAGFBR5P0pLnui8_6hpo6wRNA74lGKAs0kOi4A9jUs7Na-A4OaeyYs8Q3q425S7fu6Pzadk4rkZclfEvPIjMqFF"\
 "CCO-_llXvHTap4S09_W6tFpR_cw9JXL7g5dUcca5iWoDZxXztsKRz3p1cA1M2gkZsmMWCYD6Kv4BIsHtiitwhL2SNC8QZiYc1Wxj3A"
 
+#define TOKEN_WITH_JWK_IN_HEADER "eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6IkVDIiwieCI6Imw4dEZyaHgtMzR"\
+"0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCRnMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JEQSIsImNydiI"\
+"6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIjoiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIi"\
+"wiaWF0IjoxNTYyMjYyNjE2fQ.2-GxA6T8lP4vfrg8v-FdWP0A0zdrj8igiMLvqRMUvwnQg4PtFLbdLXiOSsX0x7NVY-FNyJK70nfbV37xRZT3Lg"
+
 const unsigned char symmetric_key[] = "my-very-secret";
 const unsigned char rsa_2048_pub[] = "-----BEGIN PUBLIC KEY-----\n"
 "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwtpMAM4l1H995oqlqdMh\n"
@@ -531,6 +536,18 @@ START_TEST(test_rhonabwy_copy)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_jwk_in_header)
+{
+  jws_t * jws;
+  
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jws_parse(jws, TOKEN_WITH_JWK_IN_HEADER, 0), RHN_OK);
+  ck_assert_int_gt(r_jwks_size(jws->jwks_pubkey), 0);
+  ck_assert_int_eq(r_jws_verify_signature(jws, NULL, 0), RHN_OK);
+  r_jws_free(jws);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -551,6 +568,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_parse_android_safetynet_jwt);
   tcase_add_test(tc_core, test_rhonabwy_token_unsecure);
   tcase_add_test(tc_core, test_rhonabwy_copy);
+  tcase_add_test(tc_core, test_rhonabwy_jwk_in_header);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

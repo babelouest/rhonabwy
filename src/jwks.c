@@ -297,19 +297,22 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input) {
 }
 
 int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int flags) {
-  struct _u_request req;
-  struct _u_response resp;
+  struct _u_request request;
+  struct _u_response response;
   int ret;
   json_t * j_result;
   
   if (jwks != NULL && uri != NULL) {
-    if (ulfius_init_request(&req) == U_OK && ulfius_init_response(&resp) == U_OK) {
-      req.http_url = o_strdup(uri);
-      req.check_server_certificate = !(flags & R_FLAG_IGNORE_SERVER_CERTIFICATE);
-      req.follow_redirect = flags & R_FLAG_FOLLOW_REDIRECT;
-      if (ulfius_send_http_request(&req, &resp) == U_OK) {
-        if (resp.status >= 200 && resp.status < 300) {
-          j_result = ulfius_get_json_body_response(&resp, NULL);
+    if (ulfius_init_request(&request) == U_OK && ulfius_init_response(&response) == U_OK) {
+      ulfius_set_request_properties(&request, U_OPT_HTTP_VERB, "GET", 
+                                              U_OPT_HTTP_URL, uri, 
+                                              U_OPT_CHECK_SERVER_CERTIFICATE, !(flags & R_FLAG_IGNORE_SERVER_CERTIFICATE), 
+                                              U_OPT_FOLLOW_REDIRECT, flags & R_FLAG_FOLLOW_REDIRECT,
+                                              U_OPT_HEADER_PARAMETER, "User-Agent", "Rhonabwy/" RHONABWY_VERSION_STR,
+                                              U_OPT_NONE);
+      if (ulfius_send_http_request(&request, &response) == U_OK) {
+        if (response.status >= 200 && response.status < 300) {
+          j_result = ulfius_get_json_body_response(&response, NULL);
           if (j_result != NULL) {
             if (r_jwks_import_from_json_t(jwks, j_result) == RHN_OK) {
               ret = RHN_OK;
@@ -328,8 +331,8 @@ int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int flags) {
         y_log_message(Y_LOG_LEVEL_ERROR, "jwks import uri - Error ulfius_send_http_request");
         ret = RHN_ERROR;
       }
-      ulfius_clean_request(&req);
-      ulfius_clean_response(&resp);
+      ulfius_clean_request(&request);
+      ulfius_clean_response(&response);
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "jwks import uri - Error ulfius_init_request or ulfius_init_response");
       ret = RHN_ERROR;

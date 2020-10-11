@@ -634,7 +634,8 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
             ulfius_set_request_properties(&request, U_OPT_HTTP_VERB, "GET", 
                                                     U_OPT_HTTP_URL, json_string_value(json_object_get(jwk, "x5u")), 
                                                     U_OPT_CHECK_SERVER_CERTIFICATE, !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE), 
-                                                    U_OPT_FOLLOW_REDIRECT, x5u_flags & R_FLAG_FOLLOW_REDIRECT, 
+                                                    U_OPT_FOLLOW_REDIRECT, x5u_flags & R_FLAG_FOLLOW_REDIRECT,
+                                                    U_OPT_HEADER_PARAMETER, "User-Agent", "Rhonabwy/" RHONABWY_VERSION_STR,
                                                     U_OPT_NONE);
             if (ulfius_send_http_request(&request, &response) == U_OK && response.status >= 200 && response.status < 300) {
               data.data = response.binary_body;
@@ -1517,7 +1518,7 @@ int r_jwk_import_from_x5u(jwk_t * jwk, int x5u_flags, const char * x5u) {
   int ret;
   
   if (jwk != NULL && x5u != NULL) {
-    if (ulfius_init_request(&req) == U_OK && ulfius_init_response(&resp) == U_OK && ulfius_set_request_properties(&req, U_OPT_HTTP_URL, x5u, U_OPT_CHECK_SERVER_CERTIFICATE, !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE), U_OPT_FOLLOW_REDIRECT, x5u_flags & R_FLAG_FOLLOW_REDIRECT, U_OPT_NONE) == U_OK) {
+    if (ulfius_init_request(&req) == U_OK && ulfius_init_response(&resp) == U_OK && ulfius_set_request_properties(&req, U_OPT_HTTP_URL, x5u, U_OPT_CHECK_SERVER_CERTIFICATE, !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE), U_OPT_FOLLOW_REDIRECT, x5u_flags & R_FLAG_FOLLOW_REDIRECT, U_OPT_HEADER_PARAMETER, "User-Agent", "Rhonabwy/" RHONABWY_VERSION_STR, U_OPT_NONE) == U_OK) {
       if (ulfius_send_http_request(&req, &resp) == U_OK) {
         if (resp.status >= 200 && resp.status < 300) {
           if (r_jwk_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_PEM, resp.binary_body, resp.binary_body_length) == RHN_OK) {
@@ -1985,6 +1986,7 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
                                                       U_OPT_HTTP_URL, json_string_value(json_object_get(jwk, "x5u")), 
                                                       U_OPT_CHECK_SERVER_CERTIFICATE, !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE), 
                                                       U_OPT_FOLLOW_REDIRECT, x5u_flags & R_FLAG_FOLLOW_REDIRECT, 
+                                                      U_OPT_HEADER_PARAMETER, "User-Agent", "Rhonabwy/" RHONABWY_VERSION_STR,
                                                       U_OPT_NONE);
               if (ulfius_send_http_request(&request, &response) == U_OK && response.status >= 200 && response.status < 300) {
                 if (!gnutls_x509_crt_init(&crt)) {
@@ -2229,6 +2231,7 @@ gnutls_x509_crt_t r_jwk_export_to_gnutls_crt(jwk_t * jwk, int x5u_flags) {
                                                       U_OPT_HTTP_URL, json_string_value(json_object_get(jwk, "x5u")), 
                                                       U_OPT_CHECK_SERVER_CERTIFICATE, !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE), 
                                                       U_OPT_FOLLOW_REDIRECT, x5u_flags & R_FLAG_FOLLOW_REDIRECT, 
+                                                      U_OPT_HEADER_PARAMETER, "User-Agent", "Rhonabwy/" RHONABWY_VERSION_STR,
                                                       U_OPT_NONE);
               if (ulfius_send_http_request(&request, &response) == U_OK && response.status >= 200 && response.status < 300) {
                 if (!gnutls_x509_crt_init(&crt)) {

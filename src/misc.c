@@ -30,7 +30,7 @@ int r_global_init() {
   if (ulfius_global_init() == U_OK) {
     return RHN_OK;
   } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "r_global_init - Error ulfius_send_request_init");
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_global_init - Error ulfius_global_init");
     return RHN_ERROR;
   }
 }

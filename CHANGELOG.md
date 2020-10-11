@@ -7,6 +7,7 @@
 - Breaking changes: refactor functions `r_jwk_import_from_x5u`, `r_jwks_export_to_gnutls_privkey` and `r_jwk_export_to_gnutls_privkey`
 - Add `r_jwk_is_valid_x5u` to check the validity of a remote certificate
 - Add `r_jwk_validate_x5c_chain` to validate the full `x5c` or `x5u` chain
+- Bugfixes
 
 ## 0.9.12
 

@@ -1,6 +1,7 @@
 /* Public domain, no copyright. Use at your own risk. */
 
 #include <stdio.h>
+#include <gnutls/gnutls.h>
 #include <gnutls/abstract.h>
 #include <gnutls/x509.h>
 
@@ -536,6 +537,7 @@ START_TEST(test_rhonabwy_copy)
 }
 END_TEST
 
+#if GNUTLS_VERSION_NUMBER >= 0x030600
 START_TEST(test_rhonabwy_jwk_in_header)
 {
   jws_t * jws;
@@ -547,6 +549,7 @@ START_TEST(test_rhonabwy_jwk_in_header)
   r_jws_free(jws);
 }
 END_TEST
+#endif
 
 static Suite *rhonabwy_suite(void)
 {
@@ -568,7 +571,9 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_parse_android_safetynet_jwt);
   tcase_add_test(tc_core, test_rhonabwy_token_unsecure);
   tcase_add_test(tc_core, test_rhonabwy_copy);
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   tcase_add_test(tc_core, test_rhonabwy_jwk_in_header);
+#endif
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

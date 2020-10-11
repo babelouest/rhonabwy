@@ -379,8 +379,9 @@ static int r_jwe_extract_header(jwe_t * jwe, json_t * j_header, int x5u_flags) {
     
     if (json_object_get(j_header, "jwk") != NULL) {
       r_jwk_init(&jwk);
-      if (r_jwk_import_from_json_t(jwk, json_object_get(j_header, "jwk")) != RHN_OK) {
+      if (r_jwk_import_from_json_t(jwk, json_object_get(j_header, "jwk")) == RHN_OK) {
         if (r_jwks_append_jwk(jwe->jwks_pubkey, jwk) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error parsing header jwk");
           ret = RHN_ERROR;
         }
       } else {
@@ -396,6 +397,7 @@ static int r_jwe_extract_header(jwe_t * jwe, json_t * j_header, int x5u_flags) {
           ret = RHN_ERROR;
         }
       } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error importing x5c or x5u");
         ret = RHN_ERROR_PARAM;
       }
       r_jwk_free(jwk);
@@ -1794,6 +1796,7 @@ int r_jwe_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_str_len, int x5u_
           }
           
           if (r_jwe_extract_header(jwe, j_header, x5u_flags) != RHN_OK) {
+            y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwe_parsen - error extracting header params");
             ret = RHN_ERROR_PARAM;
             break;
           }

@@ -93,13 +93,13 @@ int r_jwk_is_valid(jwk_t * jwk) {
                           gnutls_pubkey_deinit(pubkey);
                           pubkey = NULL;
                           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Error gnutls_pubkey_import_x509");
-                          ret = RHN_ERROR;
+                          ret = RHN_ERROR_PARAM;
                         }
                       } else {
                         gnutls_pubkey_deinit(pubkey);
                         pubkey = NULL;
                         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Error gnutls_pubkey_import");
-                        ret = RHN_ERROR;
+                        ret = RHN_ERROR_PARAM;
                       }
                     } else {
                       y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Error gnutls_pubkey_init rsa");

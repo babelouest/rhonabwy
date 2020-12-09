@@ -1,7 +1,7 @@
 # Rhonabwy - JWK, JWKS, JWS, JWE and JWT library
 
 [![View on jwt.io](http://jwt.io/img/badge.svg)](https://jwt.io)
-[![Build Status](https://travis-ci.com/babelouest/rhonabwy.svg?branch=master)](https://travis-ci.com/babelouest/rhonabwy)
+[![Build Status](https://travis-ci.org/babelouest/rhonabwy.svg?branch=master)](https://travis-ci.org/babelouest/rhonabwy)
 ![C/C++ CI](https://github.com/babelouest/rhonabwy/workflows/C/C++%20CI/badge.svg)
 [![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/github@babelouest.org)
 

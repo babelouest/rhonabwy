@@ -11,6 +11,12 @@
 
 #define PAYLOAD "The true sign of intelligence is not knowledge but imagination."
 
+#define HUGE_PAYLOAD "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis efficitur lectus sit amet libero gravida eleifend. Nulla aliquam accumsan erat, quis tincidunt purus ultricies eu. Aenean eu dui ac diam placerat mollis. Duis eget tempor ipsum, vel ullamcorper purus. Ut eget quam vehicula, congue urna vel, dictum risus. Duis tristique est sed diam lobortis commodo. Proin et urna in odio malesuada sagittis. Donec lectus ligula, porttitor sed lorem ut, malesuada posuere neque. Nullam et nisl a felis congue mattis id non lectus.\
+Quisque viverra hendrerit malesuada. Integer sollicitudin magna purus, in dignissim eros ullamcorper et. Praesent dignissim metus neque, eget tempor dolor tincidunt egestas. Nulla odio risus, tincidunt et egestas aliquet, pellentesque et eros. Etiam mattis orci a dui efficitur pharetra. Donec fermentum sem sed lacus finibus, nec luctus nisl vulputate. Donec sodales, nisi sed posuere maximus, lectus elit fermentum sapien, quis volutpat risus nisl vel dui. In vitae ante diam.\
+Vivamus a nisl quam. Proin in lectus nunc. Aliquam condimentum tellus non feugiat aliquam. Nulla eu mi ligula. Proin auctor varius massa sed consectetur. Nulla et ligula pellentesque, egestas dui eu, gravida arcu. Maecenas vehicula feugiat tincidunt. Aenean sed sollicitudin ex. Cras luctus facilisis erat eu pharetra. Vestibulum interdum consequat tellus nec sagittis. Aliquam tincidunt eget lectus non bibendum. Mauris ut consectetur diam.\
+Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed lorem lectus, ullamcorper consectetur quam ut, pharetra consectetur diam. Suspendisse eu erat quis nunc imperdiet lacinia vitae id arcu. Fusce non euismod urna. Aenean lacinia porta tellus nec rutrum. Aliquam est magna, aliquam non hendrerit eget, scelerisque quis sapien. Quisque consectetur et lacus non dapibus. Duis diam purus, vulputate convallis faucibus in, rutrum quis mi. Sed sed magna eget tellus semper suscipit a in augue.\
+Aenean vitae tortor quam. Praesent pulvinar nulla a nisi egestas, laoreet tempus mauris ullamcorper. Nam vulputate molestie velit, quis laoreet felis suscipit euismod. Pellentesque a enim dapibus, tincidunt lorem vel, suscipit turpis. Phasellus id metus vehicula, luctus sem nec, maximus purus. Duis dictum elit quam, quis rhoncus ex ullamcorper ut. Donec fringilla augue vitae vestibulum maximus. Mauris vel arcu eget arcu bibendum ornare."
+
 const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                     "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\"}";
 const char jwk_privkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
@@ -576,6 +582,21 @@ START_TEST(test_rhonabwy_encrypt_payload_zip)
   ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
   ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
   ck_assert_int_eq(0, o_strncmp(PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(PAYLOAD)));
+  
+  r_jwe_free(jwe);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
+  ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)HUGE_PAYLOAD, o_strlen(HUGE_PAYLOAD)), RHN_OK);
+  ck_assert_ptr_eq(jwe->ciphertext_b64url, NULL);
+  
+  r_jwe_set_header_str_value(jwe, "zip", "DEF");
+  ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_OK);
+  ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
+  ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
+  ck_assert_int_eq(0, o_strncmp(HUGE_PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(HUGE_PAYLOAD)));
   
   r_jwe_free(jwe);
 }

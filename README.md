@@ -3,7 +3,6 @@
 [![View on jwt.io](http://jwt.io/img/badge.svg)](https://jwt.io)
 [![Build Status](https://travis-ci.org/babelouest/rhonabwy.svg?branch=master)](https://travis-ci.org/babelouest/rhonabwy)
 ![C/C++ CI](https://github.com/babelouest/rhonabwy/workflows/C/C++%20CI/badge.svg)
-[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/github@babelouest.org)
 
 - Create, modify, parse, import or export [JSON Web Keys](https://tools.ietf.org/html/rfc7517) (JWK) and JSON Web Keys Set (JWKS)
 - Create, modify, parse, validate or serialize [JSON Web Signatures](https://tools.ietf.org/html/rfc7515) (JWS)

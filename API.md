@@ -31,6 +31,16 @@ Lots of functions in Rhonabwy library return an int value. The returned value ca
 
 If a function is successful, it will return `RHN_OK` (0), otherwise an error code is returned.
 
+## Global init and close
+
+It's **recommended** to use `r_global_init` and `r_global_close` at the beginning and at the end of your program to initialize and cleanup internal values and settings. This will make outgoing requests faster, especially if you use lots of them, and dispatch your memory allocation functions in curl and Jansson if you changed them. These functions are **NOT** thread-safe, so you must use them in a single thread context.
+
+```C
+int r_global_init();
+
+void r_global_close();
+```
+
 ## Log messages
 
 Usually, a log message is displayed to explain more specifically what happened on error. The log manager used is [Yder](https://github.com/babelouest/yder). You can enable Yder log messages on the console with the following command at the beginning of your program:

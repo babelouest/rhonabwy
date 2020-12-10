@@ -4,7 +4,7 @@ Rhonabwy library is made to manage JWK, JWKS, JWS, JWE and JWT according to thei
 
 - [JSON Web Keys](https://tools.ietf.org/html/rfc7517) (JWK) and JSON Web Keys Set (JWKS)
 - [JSON Web Signatures](https://tools.ietf.org/html/rfc7515) (JWS)
-- [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE) **limited and experimental!**
+- [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE) **limited!**
 - [JSON Web Token](https://tools.ietf.org/html/rfc7519) (JWT)
 
 Rhonabwy is based on the following libraries and actively uses them:
@@ -82,6 +82,8 @@ void r_jwt_free(jwt_t * jwt);
 
 In addition, when a function return a `char *` value, this value must be freed using the function `r_free(void *)`.
 
+And finally, all `json_t *` returned values must be de allocated using `json_decref(json_t *)`, see [Jansson Documentation](https://jansson.readthedocs.io/) for more details.
+
 ```C
 void r_free(void * data);
 ```
@@ -94,32 +96,40 @@ Example output:
 
 ```JSON
 {
-  "version": "0.9.8",
-  "jws": {
-    "alg": 
-      ["none",
-      "HS256",
-      "HS384",
-      "HS512",
-      "RS256",
-      "RS384",
-      "RS512"]
+  "version":"0.9.13",
+  "jws":{
+    "alg":[
+    "none",
+    "HS256",
+    "HS384",
+    "HS512",
+    "RS256",
+    "RS384",
+    "RS512",
+    "ES256",
+    "ES384",
+    "ES512",
+    "EdDSA",
+    "PS256",
+    "PS384",
+    "PS512"]
   },
-  "jwe": {
-    "alg": 
-      ["RSA1_5",
+  "jwe":{
+    "alg":[
+      "RSA1_5",
+      "A128KW",
+      "A256KW",
       "dir"],
-    "enc":
-      ["A128CBC-HS256",
+    "enc":[
+      "A128CBC-HS256",
       "A192CBC-HS384",
       "A256CBC-HS512",
       "A128GCM",
+      "A192GCM",
       "A256GCM"]
   }
 }
 ```
-
-And finally, all `json_t *` returned values must be de allocated using `json_decref(json_t *)`, see [Jansson Documentation](https://jansson.readthedocs.io/) for more details.
 
 ## JWK
 

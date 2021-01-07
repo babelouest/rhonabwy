@@ -43,4 +43,5 @@ var menudata={children:[
 {text:"Enumerator",url:"globals_eval.html",children:[
 {text:"r",url:"globals_eval.html#index_r"}]},
 {text:"Macros",url:"globals_defs.html",children:[
+{text:"_",url:"globals_defs.html#index__"},
 {text:"r",url:"globals_defs.html#index_r"}]}]}]}]}

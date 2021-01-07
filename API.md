@@ -388,8 +388,8 @@ BASE64URL(JWE Ciphertext) || '.' ||
 BASE64URL(JWE Authentication Tag)
 
 In Rhonabwy library, the supported algorithms are the following:
-- Supported Encryption Algorithm (`enc`) for JWE payload encryption: `A128CBC-HS256`, `A192CBC-HS384`, `A256CBC-HS512`, `A128GCM`, `A256GCM`
-- Supported Cryptographic Algorithms for Key Management: `RSA1_5` (RSAES-PKCS1-v1_5), `dir` (Direct use of a shared symmetric key), `A128GCMKW` and `A256GCMKW`
+- Supported Encryption Algorithm (`enc`) for JWE payload encryption: `A128CBC-HS256`, `A192CBC-HS384`, `A256CBC-HS512`, `A128GCM`, `A2192GCM`, `A256GCM`
+- Supported Cryptographic Algorithms for Key Management: `RSA1_5` (RSAES-PKCS1-v1_5), `dir` (Direct use of a shared symmetric key), `A128GCMKW`, `A192GCMKW` and `A256GCMKW`
 
 If you don't specify a Content Encryption Key or an Initialization Vector before the serialization, Rhonabwy will automatically generate one or the other or both depending on the algorithm specified.
 

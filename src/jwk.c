@@ -704,7 +704,7 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
       }
     } else if (ret & R_KEY_TYPE_HMAC) {
       if (o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "k")), json_string_length(json_object_get(jwk, "k")), NULL, &k_len)) {
-        *bits = (unsigned int)k_len;
+        *bits = (unsigned int)k_len*8;
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type - Error invalid base64url k value");
         ret = R_KEY_TYPE_NONE;

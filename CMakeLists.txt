@@ -20,7 +20,7 @@ project(rhonabwy C)
 
 set(CMAKE_C_STANDARD 99)
 if (NOT MSVC)
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror")
 endif()
 
 # library info
@@ -41,19 +41,19 @@ set(PROJECT_VERSION_MINOR ${LIBRARY_VERSION_MINOR})
 set(PROJECT_VERSION_PATCH ${LIBRARY_VERSION_PATCH})
 
 if (${LIBRARY_VERSION_MAJOR} VERSION_LESS 10)
-		set (LIBRARY_VERSION_MAJOR_PAD "0${LIBRARY_VERSION_MAJOR}")
+    set (LIBRARY_VERSION_MAJOR_PAD "0${LIBRARY_VERSION_MAJOR}")
 else ()
-		set (LIBRARY_VERSION_MAJOR_PAD "${LIBRARY_VERSION_MAJOR}")
+    set (LIBRARY_VERSION_MAJOR_PAD "${LIBRARY_VERSION_MAJOR}")
 endif ()
 if (${LIBRARY_VERSION_MINOR} VERSION_LESS 10)
-		set (LIBRARY_VERSION_MINOR_PAD "0${LIBRARY_VERSION_MINOR}")
+    set (LIBRARY_VERSION_MINOR_PAD "0${LIBRARY_VERSION_MINOR}")
 else ()
-		set (LIBRARY_VERSION_MINOR_PAD "${LIBRARY_VERSION_MINOR}")
+    set (LIBRARY_VERSION_MINOR_PAD "${LIBRARY_VERSION_MINOR}")
 endif ()
 if (${LIBRARY_VERSION_PATCH} VERSION_LESS 10)
-		set (LIBRARY_VERSION_PATCH_PAD "0${LIBRARY_VERSION_PATCH}")
+    set (LIBRARY_VERSION_PATCH_PAD "0${LIBRARY_VERSION_PATCH}")
 else ()
-		set (LIBRARY_VERSION_PATCH_PAD "${LIBRARY_VERSION_PATCH}")
+    set (LIBRARY_VERSION_PATCH_PAD "${LIBRARY_VERSION_PATCH}")
 endif ()
 set(PROJECT_VERSION_NUMBER "${LIBRARY_VERSION_MAJOR_PAD}${LIBRARY_VERSION_MINOR_PAD}${LIBRARY_VERSION_PATCH_PAD}")
 
@@ -70,38 +70,38 @@ include(CheckSymbolExists)
 # check if _GNU_SOURCE is available
 
 if (NOT _GNU_SOURCE)
-		check_symbol_exists(__GNU_LIBRARY__ "features.h" _GNU_SOURCE)
+    check_symbol_exists(__GNU_LIBRARY__ "features.h" _GNU_SOURCE)
 
-		if (NOT _GNU_SOURCE)
-				unset(_GNU_SOURCE CACHE)
-				check_symbol_exists(_GNU_SOURCE "features.h" _GNU_SOURCE)
-		endif ()
+    if (NOT _GNU_SOURCE)
+        unset(_GNU_SOURCE CACHE)
+        check_symbol_exists(_GNU_SOURCE "features.h" _GNU_SOURCE)
+    endif ()
 endif ()
 
 if (_GNU_SOURCE)
-		add_definitions(-D_GNU_SOURCE)
+    add_definitions(-D_GNU_SOURCE)
 endif ()
 
 include(FindJansson)
 set(JANSSON_MIN_VERSION 2.4)
 find_package(Jansson ${JANSSON_MIN_VERSION} REQUIRED)
 if (JANSSON_FOUND)
-	set(LIBS ${LIBS} ${JANSSON_LIBRARIES})
-	include_directories(${JANSSON_INCLUDE_DIRS})
+  set(LIBS ${LIBS} ${JANSSON_LIBRARIES})
+  include_directories(${JANSSON_INCLUDE_DIRS})
 endif ()
 
 include(FindGnuTLS)
 find_package(GnuTLS REQUIRED)
 if (GNUTLS_FOUND)
-	set(LIBS ${LIBS} ${GNUTLS_LIBRARIES})
-	include_directories(${GNUTLS_INCLUDE_DIRS})
+  set(LIBS ${LIBS} ${GNUTLS_LIBRARIES})
+  include_directories(${GNUTLS_INCLUDE_DIRS})
 endif ()
 
 include(FindZLIB)
 find_package(ZLIB REQUIRED)
 if (ZLIB_FOUND)
-	set(LIBS ${LIBS} ${ZLIB_LIBRARIES})
-	include_directories(${ZLIB_INCLUDE_DIRS})
+  set(LIBS ${LIBS} ${ZLIB_LIBRARIES})
+  include_directories(${ZLIB_INCLUDE_DIRS})
 endif ()
 
 include(FindMHD)
@@ -116,13 +116,13 @@ set(RNBYC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tools/rnbyc)
 include_directories(${INC_DIR})
 
 set(LIB_SRC
-				${INC_DIR}/rhonabwy.h # allow many IDEs to find and edit it
-				${SRC_DIR}/misc.c
-				${SRC_DIR}/jwk.c
-				${SRC_DIR}/jwks.c
-	${SRC_DIR}/jws.c
-	${SRC_DIR}/jwe.c
-	${SRC_DIR}/jwt.c)
+    ${INC_DIR}/rhonabwy.h # allow many IDEs to find and edit it
+    ${SRC_DIR}/misc.c
+    ${SRC_DIR}/jwk.c
+    ${SRC_DIR}/jwks.c
+    ${SRC_DIR}/jws.c
+    ${SRC_DIR}/jwe.c
+    ${SRC_DIR}/jwt.c)
 
 set(PKGCONF_REQ "")
 set(PKGCONF_REQ_PRIVATE "")
@@ -132,20 +132,20 @@ set(PKGCONF_REQ_PRIVATE "")
 option(BUILD_STATIC "Build static library." OFF)
 
 if (BUILD_STATIC)
-		add_library(rhonabwy_static STATIC ${LIB_SRC})
-		target_compile_definitions(rhonabwy_static PUBLIC -DO_STATIC_LIBRARY)
-		set_target_properties(rhonabwy_static PROPERTIES
-						OUTPUT_NAME rhonabwy)
+    add_library(rhonabwy_static STATIC ${LIB_SRC})
+    target_compile_definitions(rhonabwy_static PUBLIC -DO_STATIC_LIBRARY)
+    set_target_properties(rhonabwy_static PROPERTIES
+            OUTPUT_NAME rhonabwy)
 endif ()
 
 # shared library
 
 add_library(rhonabwy SHARED ${LIB_SRC})
 set_target_properties(rhonabwy PROPERTIES
-				COMPILE_OPTIONS -Wextra
-				PUBLIC_HEADER "${INC_DIR}/rhonabwy.h;${PROJECT_BINARY_DIR}/rhonabwy-cfg.h"
-				VERSION "${LIBRARY_VERSION}"
-				SOVERSION "${LIBRARY_SOVERSION}")
+        COMPILE_OPTIONS -Wextra
+        PUBLIC_HEADER "${INC_DIR}/rhonabwy.h;${PROJECT_BINARY_DIR}/rhonabwy-cfg.h"
+        VERSION "${LIBRARY_VERSION}"
+        SOVERSION "${LIBRARY_SOVERSION}")
 target_link_libraries(rhonabwy ${LIBS})
 
 set(SEARCH_ORCANIA OFF CACHE BOOL "Force to false") # Avoid to search and download orcania during yder search and download
@@ -156,10 +156,10 @@ option(DOWNLOAD_DEPENDENCIES "Download required dependencies" ON)
 
 option(SEARCH_ORCANIA_R "Search for ORCANIA library" ON)
 if (SEARCH_ORCANIA_R)
-		set(Orcania_FIND_QUIETLY ON) # force to find Orcania quietly
-		include(FindOrcania)
-		find_package(Orcania ${ORCANIA_VERSION_REQUIRED} QUIET) # try to find orcania
-		if (NOT ORCANIA_FOUND)
+    set(Orcania_FIND_QUIETLY ON) # force to find Orcania quietly
+    include(FindOrcania)
+    find_package(Orcania ${ORCANIA_VERSION_REQUIRED} QUIET) # try to find orcania
+    if (NOT ORCANIA_FOUND)
       if (DOWNLOAD_DEPENDENCIES)
           include(DownloadProject)
           message(STATUS "Download Orcania ${ORCANIA_VERSION_REQUIRED}")
@@ -171,20 +171,20 @@ if (SEARCH_ORCANIA_R)
           add_dependencies(rhonabwy orcania)
           set(ORCANIA_LIBRARIES orcania)
           include_directories(${orcania_BINARY_DIR})
-				else ()
-						message( FATAL_ERROR "Orcania not found")
-				endif ()
-		endif ()
-		target_link_libraries(rhonabwy ${ORCANIA_LIBRARIES})
-		set(LIBS ${LIBS} ${ORCANIA_LIBRARIES})
+        else ()
+            message( FATAL_ERROR "Orcania not found")
+        endif ()
+    endif ()
+    target_link_libraries(rhonabwy ${ORCANIA_LIBRARIES})
+    set(LIBS ${LIBS} ${ORCANIA_LIBRARIES})
 endif ()
 
 option(SEARCH_YDER_R "Search for YDER library" ON)
 if (SEARCH_YDER_R)
-		set(Yder_FIND_QUIETLY ON) # force to find Yder quietly
-		include(FindYder)
-		find_package(Yder ${YDER_VERSION_REQUIRED} QUIET) # try to find Yder
-		if (NOT YDER_FOUND)
+    set(Yder_FIND_QUIETLY ON) # force to find Yder quietly
+    include(FindYder)
+    find_package(Yder ${YDER_VERSION_REQUIRED} QUIET) # try to find Yder
+    if (NOT YDER_FOUND)
       if (DOWNLOAD_DEPENDENCIES)
           include(DownloadProject)
           message(STATUS "Download Yder ${YDER_VERSION_REQUIRED}")
@@ -198,20 +198,20 @@ if (SEARCH_YDER_R)
           add_dependencies(rhonabwy yder)
           set(YDER_LIBRARIES yder)
           include_directories(${yder_BINARY_DIR})
-				else ()
-						message( FATAL_ERROR "Yder not found")
-				endif ()
-		endif ()
-		target_link_libraries(rhonabwy ${YDER_LIBRARIES})
-		set(LIBS ${LIBS} ${YDER_LIBRARIES})
+        else ()
+            message( FATAL_ERROR "Yder not found")
+        endif ()
+    endif ()
+    target_link_libraries(rhonabwy ${YDER_LIBRARIES})
+    set(LIBS ${LIBS} ${YDER_LIBRARIES})
 endif ()
 
 option(SEARCH_ULFIUS_R "Search for ULFIUS library" ON)
 if (SEARCH_ULFIUS_R)
-		set(Ulfius_FIND_QUIETLY ON)
-		include(FindUlfius)
-		find_package(Ulfius ${ULFIUS_VERSION_REQUIRED} QUIET)
-		if (NOT ULFIUS_FOUND)
+    set(Ulfius_FIND_QUIETLY ON)
+    include(FindUlfius)
+    find_package(Ulfius ${ULFIUS_VERSION_REQUIRED} QUIET)
+    if (NOT ULFIUS_FOUND)
       if (DOWNLOAD_DEPENDENCIES)
           include(DownloadProject)
           option(CHECK_ORCANIA "specific param" off)
@@ -227,12 +227,12 @@ if (SEARCH_ULFIUS_R)
           add_dependencies(rhonabwy ulfius)
           set(ULFIUS_LIBRARIES ulfius)
           include_directories(${ulfius_BINARY_DIR})
-				else ()
-						message( FATAL_ERROR "Ulfius not found")
-				endif ()
-		endif ()
-		target_link_libraries(rhonabwy ${ULFIUS_LIBRARIES})
-		set(LIBS ${LIBS} ${ULFIUS_LIBRARIES})
+        else ()
+            message( FATAL_ERROR "Ulfius not found")
+        endif ()
+    endif ()
+    target_link_libraries(rhonabwy ${ULFIUS_LIBRARIES})
+    set(LIBS ${LIBS} ${ULFIUS_LIBRARIES})
 endif ()
 
 # build rnbyc
@@ -240,34 +240,34 @@ endif ()
 option(BUILD_RNBYC "Build rnbyc application." ON)
 
 if (BUILD_RNBYC)
-		add_executable(rnbyc ${RNBYC_DIR}/rnbyc.c ${INC_DIR}/rhonabwy.h ${PROJECT_BINARY_DIR}/rhonabwy-cfg.h)
-		set_target_properties(rnbyc PROPERTIES SKIP_BUILD_RPATH TRUE)
-		add_dependencies(rnbyc rhonabwy)
-		target_link_libraries(rnbyc rhonabwy ${LIBS})
-		install(TARGETS rnbyc RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-		INSTALL(FILES ${RNBYC_DIR}/rnbyc.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1 COMPONENT runtime)
+    add_executable(rnbyc ${RNBYC_DIR}/rnbyc.c ${INC_DIR}/rhonabwy.h ${PROJECT_BINARY_DIR}/rhonabwy-cfg.h)
+    set_target_properties(rnbyc PROPERTIES SKIP_BUILD_RPATH TRUE)
+    add_dependencies(rnbyc rhonabwy)
+    target_link_libraries(rnbyc rhonabwy ${LIBS})
+    install(TARGETS rnbyc RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    INSTALL(FILES ${RNBYC_DIR}/rnbyc.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1 COMPONENT runtime)
 endif ()
 
 # documentation
 
 option(BUILD_RHONABWY_DOCUMENTATION "Build the documentation." OFF)
 if (BUILD_RHONABWY_DOCUMENTATION)
-		find_package(Doxygen)
-		if (DOXYGEN_FOUND)
-				set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen.cfg)
-				set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/doxyfile)
-				
-				configure_file(${doxyfile_in} ${doxyfile} @ONLY)
-				
-				add_custom_target(doc
-													COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile_in}
-													WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-													COMMENT "Generating documentation with Doxygen"
-													VERBATIM)
+    find_package(Doxygen)
+    if (DOXYGEN_FOUND)
+        set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen.cfg)
+        set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/doxyfile)
+        
+        configure_file(${doxyfile_in} ${doxyfile} @ONLY)
+        
+        add_custom_target(doc
+                          COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile_in}
+                          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                          COMMENT "Generating documentation with Doxygen"
+                          VERBATIM)
 
-		else ()
-				message(FATAL_ERROR "Doxygen is needed to build the documentation.")
-		endif ()
+    else ()
+        message(FATAL_ERROR "Doxygen is needed to build the documentation.")
+    endif ()
 endif ()
 
 # build rhonabwy-cfg.h file
@@ -280,55 +280,56 @@ include_directories(${PROJECT_BINARY_DIR})
 option(BUILD_RHONABWY_TESTING "Build the testing tree." OFF) # because we do not use include(CTest)
 
 if (BUILD_RHONABWY_TESTING)
-		include(FindCheck)
-		find_package(Check REQUIRED)
-		if (CHECK_FOUND)
-		include(FindSubunit)
-		find_package(Subunit REQUIRED)
-				find_package(Threads REQUIRED)
+    include(FindCheck)
+    find_package(Check REQUIRED)
+    if (CHECK_FOUND)
+    include(FindSubunit)
+    find_package(Subunit REQUIRED)
+        find_package(Threads REQUIRED)
 
-				enable_testing()
+        enable_testing()
 
-				set(CMAKE_CTEST_COMMAND ctest -V)
+        set(CMAKE_CTEST_COMMAND ctest -V)
 
-				set(TST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test)
-				set(LIBS rhonabwy ${LIBS} ${CHECK_LIBRARIES} ${SUBUNIT_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} "-lm -lrt")
+        set(TST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test)
+        set(LIBS rhonabwy ${LIBS} ${CHECK_LIBRARIES} ${SUBUNIT_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} "-lm -lrt")
 
-				set(TESTS
-						misc
-			jwk_core
-						jwk_export
-			jwk_import
-			jwks_core
-			jws_core
-			jws_hmac
-			jws_ecdsa
-			jws_rsa
-			jws_rsapss
-			jwe_core
-			jwe_rsa
-			jwe_aesgcm
-			jwe_dir
-			jwt_core
-			jwt_encrypt
-			jwt_sign
-			jwt_nested
-			)
+        set(TESTS
+          misc
+          jwk_core
+          jwk_export
+          jwk_import
+          jwks_core
+          jws_core
+          jws_hmac
+          jws_ecdsa
+          jws_rsa
+          jws_rsapss
+          jwe_core
+          jwe_rsa
+          jwe_aesgcm
+          jwe_dir
+          jwe_kw
+          jwt_core
+          jwt_encrypt
+          jwt_sign
+          jwt_nested
+        )
 
-				configure_file(
-								"${CMAKE_MODULE_PATH}/CTestCustom.cmake.in"
-								"${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake"
-								@ONLY)
+        configure_file(
+                "${CMAKE_MODULE_PATH}/CTestCustom.cmake.in"
+                "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake"
+                @ONLY)
 
-				foreach (t ${TESTS})
-						add_executable(${t} EXCLUDE_FROM_ALL ${TST_DIR}/${t}.c)
-						target_include_directories(${t} PUBLIC ${TST_DIR})
-						target_link_libraries(${t} PUBLIC ${LIBS})
-						add_test(NAME ${t}
-										WORKING_DIRECTORY ${TST_DIR}
-										COMMAND ${t})
-				endforeach ()
-		endif ()
+        foreach (t ${TESTS})
+            add_executable(${t} EXCLUDE_FROM_ALL ${TST_DIR}/${t}.c)
+            target_include_directories(${t} PUBLIC ${TST_DIR})
+            target_link_libraries(${t} PUBLIC ${LIBS})
+            add_test(NAME ${t}
+                    WORKING_DIRECTORY ${TST_DIR}
+                    COMMAND ${t})
+        endforeach ()
+    endif ()
 endif ()
 
 # install target
@@ -338,32 +339,32 @@ option(INSTALL_HEADER "Install the header files" ON) # Install rhonabwy.h or not
 configure_file(librhonabwy.pc.in librhonabwy.pc @ONLY)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/librhonabwy.pc
-				DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
 set(TARGETS rhonabwy)
 
 if (INSTALL_HEADER)
-		install(TARGETS ${TARGETS}
-						RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-						LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-						ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-						PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    install(TARGETS ${TARGETS}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 else ()
-		install(TARGETS ${TARGETS}
-						RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-						LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-						ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    install(TARGETS ${TARGETS}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif ()
 
 # uninstall target
 
 if (NOT TARGET uninstall)
-		configure_file(
-						"${CMAKE_MODULE_PATH}/CMakeUninstall.cmake.in"
-						"${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-						IMMEDIATE @ONLY)
-		add_custom_target(uninstall
-						COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+    configure_file(
+            "${CMAKE_MODULE_PATH}/CMakeUninstall.cmake.in"
+            "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+            IMMEDIATE @ONLY)
+    add_custom_target(uninstall
+            COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 endif ()
 
 # packaging
@@ -373,14 +374,14 @@ set(CPACK_PACKAGE_VERSION_MINOR ${LIBRARY_VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${LIBRARY_VERSION_PATCH})
 
 if (INSTALL_HEADER)
-		set(PACKAGE_FILE_NAME
-						"lib${CMAKE_PROJECT_NAME}-dev_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+    set(PACKAGE_FILE_NAME
+            "lib${CMAKE_PROJECT_NAME}-dev_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 else ()
-		set(PACKAGE_FILE_NAME
-						"lib${CMAKE_PROJECT_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+    set(PACKAGE_FILE_NAME
+            "lib${CMAKE_PROJECT_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 endif ()
 set(PACKAGE_IGNORED_FILES
-				"${CMAKE_CURRENT_BINARY_DIR}/;/.git/;.gitignore;~$;${CPACK_SOURCE_IGNORE_FILES}")
+        "${CMAKE_CURRENT_BINARY_DIR}/;/.git/;.gitignore;~$;${CPACK_SOURCE_IGNORE_FILES}")
 
 set(CPACK_PACKAGE_NAME "librhonabwy")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Handle the flow of OAuth2 and OpenID Connect authentication process from the client side")
@@ -391,9 +392,9 @@ set(CPACK_PACKAGE_VERSION_PATCH ${LIBRARY_VERSION_PATCH})
 
 option(BUILD_RPM "Build a RPM for your system" OFF)
 if (BUILD_RPM)
-	set(CPACK_GENERATOR "TGZ;DEB;RPM")
-	set(CPACK_RPM_PACKAGE_LICENSE "LGPL")
-	set(CPACK_RPM_PACKAGE_URL "http://babelouest.github.io/rhonabwy/")
+  set(CPACK_GENERATOR "TGZ;DEB;RPM")
+  set(CPACK_RPM_PACKAGE_LICENSE "LGPL")
+  set(CPACK_RPM_PACKAGE_URL "http://babelouest.github.io/rhonabwy/")
 endif ()
 
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "mail@babelouest.org")

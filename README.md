@@ -48,23 +48,23 @@ JWT Relies on JWS and JWE functions, so it supports the same functionalities as 
 
 | "alg" Param Value | Key Management Algorithm | Supported |
 |---|---|---|
-| RSA1_5 | RSAES-PKCS1-v1_5 | **YES** |
-| RSA-OAEP | RSAES OAEP using default parameters | *NO* |
-| RSA-OAEP-256 | RSAES OAEP using SHA-256 and MGF1 with SHA-256 | *NO* |
-| A128KW | AES Key Wrap with default initial value using 128-bit key | *NO* |
-| A192KW | AES Key Wrap with default initial value using 192-bit key | *NO* |
-| A256KW | AES Key Wrap with default initial value using 256-bit key | *NO* |
-| dir | Direct use of a shared symmetric key as the CEK | **YES** |
-| ECDH-ES | Elliptic Curve Diffie-Hellman Ephemeral Static key agreement using Concat KDF | *NO* |
-| ECDH-ES+A128KW | ECDH-ES using Concat KDF and CEK wrapped with "A128KW" | *NO* |
-| ECDH-ES+A192KW | ECDH-ES using Concat KDF and CEK wrapped with "A192KW" | *NO* |
-| ECDH-ES+A256KW | ECDH-ES using Concat KDF and CEK wrapped with "A256KW" | *NO* |
-| A128GCMKW | Key wrapping with AES GCM using 128-bit key | **YES** |
-| A192GCMKW | Key wrapping with AES GCM using 192-bit key | **YES** (2)|
-| A256GCMKW | Key wrapping with AES GCM using 256-bit key | **YES** |
-| PBES2-HS256+A128KW | PBES2 with HMAC SHA-256 and "A128KW" wrapping | *NO* |
-| PBES2-HS384+A192KW | PBES2 with HMAC SHA-384 and "A192KW" wrapping | *NO* |
-| PBES2-HS512+A256KW | PBES2 with HMAC SHA-512 and "A256KW" wrapping | *NO* |
+| RSA1_5 | RSAES-PKCS1-v1_5 |**YES**|
+| RSA-OAEP | RSAES OAEP using default parameters |*NO*|
+| RSA-OAEP-256 | RSAES OAEP using SHA-256 and MGF1 with SHA-256 |*NO*|
+| A128KW | AES Key Wrap with default initial value using 128-bit key |**YES**|
+| A192KW | AES Key Wrap with default initial value using 192-bit key |**YES**|
+| A256KW | AES Key Wrap with default initial value using 256-bit key |**YES**|
+| dir | Direct use of a shared symmetric key as the CEK |**YES**|
+| ECDH-ES | Elliptic Curve Diffie-Hellman Ephemeral Static key agreement using Concat KDF |*NO*|
+| ECDH-ES+A128KW | ECDH-ES using Concat KDF and CEK wrapped with "A128KW" |*NO*|
+| ECDH-ES+A192KW | ECDH-ES using Concat KDF and CEK wrapped with "A192KW" |*NO*|
+| ECDH-ES+A256KW | ECDH-ES using Concat KDF and CEK wrapped with "A256KW" |*NO*|
+| A128GCMKW | Key wrapping with AES GCM using 128-bit key |**YES**|
+| A192GCMKW | Key wrapping with AES GCM using 192-bit key |**YES**(2)|
+| A256GCMKW | Key wrapping with AES GCM using 256-bit key |**YES**|
+| PBES2-HS256+A128KW | PBES2 with HMAC SHA-256 and "A128KW" wrapping |**YES**|
+| PBES2-HS384+A192KW | PBES2 with HMAC SHA-384 and "A192KW" wrapping |**YES**|
+| PBES2-HS512+A256KW | PBES2 with HMAC SHA-512 and "A256KW" wrapping |**YES**|
 
 (2) GnuTLS 3.6.14 minimum is required for `A192GCM` enc and `A192GCMKW` key wrapping algorithm.
 

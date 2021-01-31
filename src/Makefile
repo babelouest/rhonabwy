@@ -37,7 +37,7 @@ OBJECTS=jwk.o jwks.o jws.o jwe.o jwt.o misc.o nettle_pbkdf2.o
 OUTPUT=librhonabwy.so
 VERSION_MAJOR=0
 VERSION_MINOR=9
-VERSION_PATCH=13
+VERSION_PATCH=14
 
 .PHONY: all clean
 

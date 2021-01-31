@@ -4,7 +4,7 @@
 # CMake file used to build all programs
 #
 # Copyright 2018 Silvio Clecio <silvioprog@gmail.com>
-# Copyright 2020 Nicolas Mora <mail@babelouest.org>
+# Copyright 2021 Nicolas Mora <mail@babelouest.org>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the MIT License
@@ -30,7 +30,7 @@ set(PROJECT_HOMEPAGE_URL "https://github.com/babelouest/rhonabwy/")
 set(PROJECT_BUGREPORT_PATH "https://github.com/babelouest/rhonabwy/issues")
 set(LIBRARY_VERSION_MAJOR "0")
 set(LIBRARY_VERSION_MINOR "9")
-set(LIBRARY_VERSION_PATCH "13")
+set(LIBRARY_VERSION_PATCH "14")
 set(ORCANIA_VERSION_REQUIRED "2.1.1")
 set(YDER_VERSION_REQUIRED "1.4.12")
 set(ULFIUS_VERSION_REQUIRED "2.7.1")
@@ -310,6 +310,7 @@ if (BUILD_RHONABWY_TESTING)
           jwe_aesgcm
           jwe_dir
           jwe_kw
+          jwe_pbes2
           jwt_core
           jwt_encrypt
           jwt_sign

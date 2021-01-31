@@ -1,5 +1,12 @@
 # Rhonabwy Changelog
 
+## 0.9.14
+
+- Fix get symmetric key length
+- Implement CEK `A128KW`, `A192KW` and `A256KW`
+- Fix `r_library_info_json_t` output because `A***GCMKW` were supported before, not `A***KW`
+- Implement CEK `PBES2-HS256+A128KW`, `PBES2-HS384+A192KW`, `PBES2-HS512+A256KW`
+
 ## 0.9.13
 
 - Add `r_jwk_thumbprint`, thumbprint of a jwk_t based on the RFC 7638
@@ -16,7 +23,7 @@
 
 ## 0.9.11
 
-- Support `A192KW` and `A192GCM` with GnuTLS >= 3.6.14
+- Support `A192GCMKW` and `A192GCM` with GnuTLS >= 3.6.14
 - Add command-line program `rnbyc` to generate, parse and serialize keys (JWK, JWKS) and tokens (JWT)
 - Remove whitespaces on token parse
 - Fix default header value `typ` in a JWT

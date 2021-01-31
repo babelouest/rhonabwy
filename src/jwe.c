@@ -4,7 +4,7 @@
  * 
  * jwe.c: functions definitions
  * 
- * Copyright 2020 Nicolas Mora <mail@babelouest.org>
+ * Copyright 2020-2021 Nicolas Mora <mail@babelouest.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -27,16 +27,21 @@
 #include <gnutls/crypto.h>
 #include <gnutls/abstract.h>
 #include <gnutls/x509.h>
+#include <nettle/pbkdf2.h>
 #include <zlib.h>
 #include <orcania.h>
 #include <yder.h>
 #include <rhonabwy.h>
+#include "nettle_pbkdf2.h"
 
 #define R_TAG_MAX_SIZE 16
 
 #define _R_BLOCK_SIZE 256
 
-static int r_aes_key_wrap(unsigned char * kek, size_t kek_len, unsigned char * key_data, size_t key_data_len, unsigned char * iv, unsigned char * output, size_t output_len) {
+#define _R_PBES_DEFAULT_ITERATION 4096
+#define _R_PBES_DEFAULT_SALT_LENGTH 8
+
+static int r_aes_key_wrap(unsigned char * kek, size_t kek_len, unsigned char * key_data, size_t key_data_len, unsigned char * iv, unsigned char * output, size_t * output_len) {
   const unsigned char default_iv[] = {0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6};
   unsigned char R[64] = {0}, A[8] = {0}, I[16] = {0};
   size_t i, j, n;
@@ -48,7 +53,7 @@ static int r_aes_key_wrap(unsigned char * kek, size_t kek_len, unsigned char * k
   
   if (kek == NULL || kek_len % 8 || kek_len < 16 || kek_len > 32 || 
       key_data == NULL || key_data_len % 8 || key_data_len < 16 || key_data_len > 64 || 
-      output == NULL || output_len < key_data_len + 8) {
+      output == NULL || output_len == NULL || *output_len < key_data_len + 8) {
     return RHN_ERROR_PARAM;
   } else {
     n = key_data_len/8;
@@ -82,11 +87,12 @@ static int r_aes_key_wrap(unsigned char * kek, size_t kek_len, unsigned char * k
     
     memcpy(output, A, 8);
     memcpy(output+8, R, key_data_len);
+    *output_len = key_data_len+8;
     return RHN_OK;
   }
 }
 
-static int r_aes_key_unwrap(unsigned char * kek, size_t kek_len, unsigned char * key_wrapped, size_t key_wrapped_len, unsigned char * iv, unsigned char * output, size_t output_len) {
+static int r_aes_key_unwrap(unsigned char * kek, size_t kek_len, unsigned char * key_wrapped, size_t key_wrapped_len, unsigned char * iv, unsigned char * output, size_t * output_len) {
   const unsigned char default_iv[] = {0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6};
   unsigned char R[64] = {0}, A[8] = {0}, I[16] = {0};
   int i, j;
@@ -99,7 +105,7 @@ static int r_aes_key_unwrap(unsigned char * kek, size_t kek_len, unsigned char *
   
   if (kek == NULL || kek_len % 8 || kek_len < 16 || kek_len > 32 || 
       key_wrapped == NULL || key_wrapped_len % 8 || key_wrapped_len < 24 || key_wrapped_len > 72 || 
-      output == NULL || output_len < key_wrapped_len - 8) {
+      output == NULL || output_len == NULL || *output_len < key_wrapped_len - 8) {
     return RHN_ERROR_PARAM;
   } else {
     n = (key_wrapped_len/8)-1;
@@ -128,6 +134,7 @@ static int r_aes_key_unwrap(unsigned char * kek, size_t kek_len, unsigned char *
     
     if ((iv == NULL && !memcmp(A, default_iv, 8)) || (iv != NULL && !memcmp(A, iv, 8))) {
       memcpy(output, R, key_wrapped_len-8);
+      *output_len = key_wrapped_len-8;
       return RHN_OK;
     } else {
       return RHN_ERROR_INVALID;
@@ -138,7 +145,7 @@ static int r_aes_key_unwrap(unsigned char * kek, size_t kek_len, unsigned char *
 static int r_jwe_aes_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
   int ret;
   unsigned char kek[32] = {0}, wrapped_key[72] = {0}, cipherkey_b64url[256] = {0};
-  size_t kek_len = 0, cipherkey_b64url_len = 0, key_len = jwe->key_len;
+  size_t kek_len = 0, cipherkey_b64url_len = 0, key_len = jwe->key_len, wrapped_key_len = 72;
   unsigned int bits = 0;
   
   if (r_jwk_key_type(jwk, &bits, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
@@ -168,12 +175,12 @@ static int r_jwe_aes_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
       if (r_jwe_get_enc(jwe) == R_JWA_ENC_A128CBC || r_jwe_get_enc(jwe) == R_JWA_ENC_A192CBC || r_jwe_get_enc(jwe) == R_JWA_ENC_A256CBC) {
         key_len /= 2;
       }
-      if (r_aes_key_wrap(kek, kek_len, jwe->key, jwe->key_len, NULL, wrapped_key, 72) != RHN_OK) {
+      if (r_aes_key_wrap(kek, kek_len, jwe->key, jwe->key_len, NULL, wrapped_key, &wrapped_key_len) != RHN_OK) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error r_aes_key_wrap");
         ret = RHN_ERROR;
         break;
       }
-      if (!o_base64url_encode(wrapped_key, jwe->key_len+8, cipherkey_b64url, &cipherkey_b64url_len)) {
+      if (!o_base64url_encode(wrapped_key, wrapped_key_len, cipherkey_b64url, &cipherkey_b64url_len)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error o_base64url_encode wrapped_key");
         ret = RHN_ERROR;
         break;
@@ -191,7 +198,7 @@ static int r_jwe_aes_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
 static int r_jwe_aes_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
   int ret;
   unsigned char kek[32] = {0}, key_data[64], cipherkey[128] = {0};
-  size_t kek_len = 0, cipherkey_len = 0;
+  size_t kek_len = 0, cipherkey_len = 0, key_data_len = 64;
   unsigned int bits = 0;
   
   if (r_jwk_key_type(jwk, &bits, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
@@ -223,17 +230,232 @@ static int r_jwe_aes_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
         ret = RHN_ERROR;
         break;
       }
-      if (r_aes_key_unwrap(kek, kek_len, cipherkey, cipherkey_len, NULL, key_data, 64) != RHN_OK) {
+      if (r_aes_key_unwrap(kek, kek_len, cipherkey, cipherkey_len, NULL, key_data, &key_data_len) != RHN_OK) {
         ret = RHN_ERROR_INVALID;
         break;
       }
-      if (r_jwe_set_cypher_key(jwe, key_data, cipherkey_len-8) != RHN_OK) {
+      if (r_jwe_set_cypher_key(jwe, key_data, key_data_len) != RHN_OK) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error r_jwe_set_cypher_key");
         ret = RHN_ERROR;
       }
     } while (0);
   } else {
     y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error invalid key");
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+static int r_jwe_pbes2_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
+  unsigned char salt_seed[_R_PBES_DEFAULT_SALT_LENGTH] = {0}, salt_seed_b64[_R_PBES_DEFAULT_SALT_LENGTH*2], * salt = NULL, kek[64] = {0}, * key = NULL, wrapped_key[72] = {0}, cipherkey_b64url[256] = {0}, * p2s_dec = NULL;
+  size_t alg_len, salt_len, key_len = 0, cipherkey_b64url_len = 0, salt_seed_b64_len = 0, p2s_dec_len = 0, wrapped_key_len = 72, kek_len = 0;
+  int ret;
+  const char * p2s;
+  unsigned int p2c = 0;
+
+  if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
+    ret = RHN_OK;
+    
+    do {
+      alg_len = o_strlen(r_jwe_get_header_str_value(jwe, "alg"));
+      if ((p2s = r_jwe_get_header_str_value(jwe, "p2s")) != NULL) {
+        if ((p2s_dec = o_malloc(o_strlen(p2s)*2)) == NULL) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error o_malloc p2s_dec");
+          ret = RHN_ERROR_MEMORY;
+          break;
+        }
+        if (!o_base64url_decode((const unsigned char *)p2s, o_strlen(p2s), p2s_dec, &p2s_dec_len)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error o_base64url_decode p2s");
+          ret = RHN_ERROR_PARAM;
+          break;
+        }
+        if (p2s_dec_len < 8) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error invalid p2s length");
+          ret = RHN_ERROR_PARAM;
+          break;
+        }
+        salt_len = p2s_dec_len + alg_len + 1;
+        if ((salt = o_malloc(salt_len)) == NULL) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error o_malloc salt (1)");
+          ret = RHN_ERROR_MEMORY;
+          break;
+        }
+        memcpy(salt, r_jwe_get_header_str_value(jwe, "alg"), alg_len);
+        memset(salt+alg_len, 0, 1);
+        memcpy(salt+alg_len+1, p2s_dec, p2s_dec_len);
+      } else {
+        if (gnutls_rnd(GNUTLS_RND_NONCE, salt_seed, _R_PBES_DEFAULT_SALT_LENGTH)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error gnutls_rnd");
+          ret = RHN_ERROR;
+          break;
+        }
+        salt_len = _R_PBES_DEFAULT_SALT_LENGTH + alg_len + 1;
+        if ((salt = o_malloc(salt_len)) == NULL) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error o_malloc salt (2)");
+          ret = RHN_ERROR_MEMORY;
+          break;
+        }
+        if (!o_base64url_encode(salt_seed, _R_PBES_DEFAULT_SALT_LENGTH, salt_seed_b64, &salt_seed_b64_len)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error o_base64url_encode salt_seed");
+          ret = RHN_ERROR;
+          break;
+        }
+        salt_seed_b64[salt_seed_b64_len] = '\0';
+        if (r_jwe_set_header_str_value(jwe, "p2s", (const char *)salt_seed_b64) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error r_jwe_set_header_str_value p2s");
+          ret = RHN_ERROR;
+          break;
+        }
+        memcpy(salt, r_jwe_get_header_str_value(jwe, "alg"), alg_len);
+        memset(salt+alg_len, 0, 1);
+        memcpy(salt+alg_len+1, salt_seed, _R_PBES_DEFAULT_SALT_LENGTH);
+      }
+      if ((p2c = (unsigned int)r_jwe_get_header_int_value(jwe, "p2c")) <= 0) {
+        p2c = _R_PBES_DEFAULT_ITERATION;
+        if (r_jwe_set_header_int_value(jwe, "p2c", p2c) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error r_jwe_set_header_int_value p2c");
+          ret = RHN_ERROR;
+          break;
+        }
+      }
+      
+      if (r_jwk_export_to_symmetric_key(jwk, NULL, &key_len) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error r_jwk_export_to_symmetric_key (1)");
+        ret = RHN_ERROR;
+        break;
+      }
+      key_len += 4;
+      if ((key = o_malloc(key_len)) == NULL) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error o_malloc key");
+        ret = RHN_ERROR_MEMORY;
+        break;
+      }
+      if (r_jwk_export_to_symmetric_key(jwk, key, &key_len) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error r_jwk_export_to_symmetric_key (2)");
+        ret = RHN_ERROR;
+        break;
+      }
+      if (jwe->alg == R_JWA_ALG_PBES2_H256) {
+        kek_len = 16;
+        pbkdf2_hmac_sha256(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+      } else if (jwe->alg == R_JWA_ALG_PBES2_H384) {
+        kek_len = 24;
+        pbkdf2_hmac_sha384(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+      } else if (jwe->alg == R_JWA_ALG_PBES2_H512) {
+        kek_len = 32;
+        pbkdf2_hmac_sha512(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+      }
+      if (r_aes_key_wrap(kek, kek_len, jwe->key, jwe->key_len, NULL, wrapped_key, &wrapped_key_len) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error r_aes_key_wrap");
+        ret = RHN_ERROR;
+        break;
+      }
+      if (!o_base64url_encode(wrapped_key, wrapped_key_len, cipherkey_b64url, &cipherkey_b64url_len)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error o_base64url_encode wrapped_key");
+        ret = RHN_ERROR;
+        break;
+      }
+      o_free(jwe->encrypted_key_b64url);
+      jwe->encrypted_key_b64url = (unsigned char *)o_strndup((const char *)cipherkey_b64url, cipherkey_b64url_len);
+    } while (0);
+    o_free(key);
+    o_free(salt);
+    o_free(p2s_dec);
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error invalid key");
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+static int r_jwe_pbes2_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
+  unsigned char * salt = NULL, kek[64] = {0}, * key = NULL, cipherkey[128] = {0}, key_data[64], * p2s_dec = NULL;
+  size_t alg_len, salt_len, key_len = 0, cipherkey_len = 0, p2s_dec_len = 0, key_data_len = 64, kek_len = 0;
+  int ret;
+  const char * p2s;
+  unsigned int p2c;
+
+  if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
+    ret = RHN_OK;
+    
+    do {
+      alg_len = o_strlen(r_jwe_get_header_str_value(jwe, "alg"));
+      if ((p2c = (unsigned int)r_jwe_get_header_int_value(jwe, "p2c")) <= 0) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error invalid p2c");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+      if (o_strlen(r_jwe_get_header_str_value(jwe, "p2s")) < 8) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error invalid p2s");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+      p2s = r_jwe_get_header_str_value(jwe, "p2s");
+      if ((p2s_dec = o_malloc(o_strlen(p2s))) == NULL) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error o_malloc p2s_dec");
+        ret = RHN_ERROR_MEMORY;
+        break;
+      }
+      if (!o_base64url_decode((const unsigned char *)p2s, o_strlen(p2s), p2s_dec, &p2s_dec_len)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error o_base64url_decode p2s_dec");
+        ret = RHN_ERROR;
+        break;
+      }
+      salt_len = p2s_dec_len + alg_len + 1;
+      if ((salt = o_malloc(salt_len)) == NULL) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error o_malloc salt");
+        ret = RHN_ERROR_MEMORY;
+        break;
+      }
+      memcpy(salt, r_jwe_get_header_str_value(jwe, "alg"), alg_len);
+      memset(salt+alg_len, 0, 1);
+      memcpy(salt+alg_len+1, p2s_dec, p2s_dec_len);
+
+      if (r_jwk_export_to_symmetric_key(jwk, NULL, &key_len) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error r_jwk_export_to_symmetric_key (1)");
+        ret = RHN_ERROR;
+        break;
+      }
+      key_len += 4;
+      if ((key = o_malloc(key_len)) == NULL) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error o_malloc key");
+        ret = RHN_ERROR_MEMORY;
+        break;
+      }
+      if (r_jwk_export_to_symmetric_key(jwk, key, &key_len) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error r_jwk_export_to_symmetric_key (2)");
+        ret = RHN_ERROR;
+        break;
+      }
+      if (jwe->alg == R_JWA_ALG_PBES2_H256) {
+        kek_len = 16;
+        pbkdf2_hmac_sha256(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+      } else if (jwe->alg == R_JWA_ALG_PBES2_H384) {
+        kek_len = 24;
+        pbkdf2_hmac_sha384(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+      } else if (jwe->alg == R_JWA_ALG_PBES2_H512) {
+        kek_len = 32;
+        pbkdf2_hmac_sha512(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+      }
+      if (!o_base64url_decode(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), cipherkey, &cipherkey_len)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error o_base64url_decode cipherkey");
+        ret = RHN_ERROR;
+        break;
+      }
+      if (r_aes_key_unwrap(kek, kek_len, cipherkey, cipherkey_len, NULL, key_data, &key_data_len) != RHN_OK) {
+        ret = RHN_ERROR_INVALID;
+        break;
+      }
+      if (r_jwe_set_cypher_key(jwe, key_data, key_data_len) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error r_jwe_set_cypher_key");
+        ret = RHN_ERROR;
+      }
+    } while (0);
+    o_free(key);
+    o_free(salt);
+    o_free(p2s_dec);
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error invalid key");
     ret = RHN_ERROR_PARAM;
   }
   return ret;
@@ -745,7 +967,6 @@ jwe_t * r_jwe_copy(jwe_t * jwe) {
           r_jwe_set_alg(jwe_copy, r_jwe_get_alg(jwe)) == RHN_OK) {
         jwe_copy->header_b64url = (unsigned char *)o_strdup((const char *)jwe->header_b64url);
         jwe_copy->encrypted_key_b64url = (unsigned char *)o_strdup((const char *)jwe->encrypted_key_b64url);
-        jwe_copy->iv_b64url = (unsigned char *)o_strdup((const char *)jwe->iv_b64url);
         jwe_copy->ciphertext_b64url = (unsigned char *)o_strdup((const char *)jwe->ciphertext_b64url);
         jwe_copy->auth_tag_b64url = (unsigned char *)o_strdup((const char *)jwe->auth_tag_b64url);
         r_jwks_free(jwe_copy->jwks_privkey);
@@ -881,6 +1102,7 @@ int r_jwe_set_iv(jwe_t * jwe, const unsigned char * iv, size_t iv_len) {
         jwe->iv_len = iv_len;
         if ((iv_b64 = o_malloc(jwe->iv_len*2)) != NULL) {
           if (o_base64url_encode(jwe->iv, jwe->iv_len, iv_b64, &iv_b64_len)) {
+            o_free(jwe->iv_b64url);
             jwe->iv_b64url = (unsigned char *)o_strndup((const char *)iv_b64, iv_b64_len);
             ret = RHN_OK;
           } else {
@@ -1851,6 +2073,16 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
           ret = res;
         }
         break;
+      case R_JWA_ALG_PBES2_H256:
+      case R_JWA_ALG_PBES2_H384:
+      case R_JWA_ALG_PBES2_H512:
+        if ((res = r_jwe_pbes2_key_wrap(jwe, jwk, x5u_flags)) == RHN_OK) {
+          ret = RHN_OK;
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Error r_jwe_pbes2_key_wrap");
+          ret = res;
+        }
+        break;
       default:
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Unsupported alg");
         ret = RHN_ERROR_PARAM;
@@ -1980,6 +2212,16 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
             ret = RHN_OK;
           } else {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error r_jwe_aes_key_unwrap");
+            ret = res;
+          }
+          break;
+        case R_JWA_ALG_PBES2_H256:
+        case R_JWA_ALG_PBES2_H384:
+        case R_JWA_ALG_PBES2_H512:
+          if ((res = r_jwe_pbes2_key_unwrap(jwe, jwk, x5u_flags)) == RHN_OK) {
+            ret = RHN_OK;
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error r_jwe_pbes2_key_unwrap");
             ret = res;
           }
           break;

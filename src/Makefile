@@ -3,7 +3,7 @@
 #
 # Makefile used to build the software
 #
-# Copyright 2020 Nicolas Mora <mail@babelouest.org>
+# Copyright 2020-2021 Nicolas Mora <mail@babelouest.org>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -33,7 +33,7 @@ CC=gcc
 CFLAGS+=-c -pedantic -std=gnu99 -fPIC -Wall -Werror -Wextra -D_REENTRANT -I$(RHONABWY_INCLUDE) $(ADDITIONALFLAGS) $(CPPFLAGS)
 LIBS=-L$(DESTDIR)/lib -lc -lorcania -lyder -lulfius -ljansson -lgnutls -lz $(LDFLAGS)
 SONAME=-soname
-OBJECTS=jwk.o jwks.o jws.o jwe.o jwt.o misc.o
+OBJECTS=jwk.o jwks.o jws.o jwe.o jwt.o misc.o nettle_pbkdf2.o
 OUTPUT=librhonabwy.so
 VERSION_MAJOR=0
 VERSION_MINOR=9

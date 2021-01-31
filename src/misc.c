@@ -4,7 +4,7 @@
  * 
  * misc.c: Misc functions definitions
  * 
- * Copyright 2020 Nicolas Mora <mail@babelouest.org>
+ * Copyright 2020-2021 Nicolas Mora <mail@babelouest.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -363,8 +363,8 @@ json_t * r_library_info_json_t() {
                                   "A128KW",
                                   "A192KW",
                                   "A256KW",
-                                  "A128KW",
-                                  "A256KW",
+                                  "A128GCMKW",
+                                  "A256GCMKW",
                                   "dir",
                                 "enc",
                                   "A128CBC-HS256",
@@ -382,7 +382,7 @@ json_t * r_library_info_json_t() {
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS512"));
 #endif
 #if GNUTLS_VERSION_NUMBER >= 0x03060e
-  json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("A192KW"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("A192GCMKW"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "enc"), json_string("A192GCM"));
 #endif
   return j_info;

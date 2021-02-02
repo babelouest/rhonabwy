@@ -122,9 +122,7 @@ set(LIB_SRC
     ${SRC_DIR}/jwks.c
     ${SRC_DIR}/jws.c
     ${SRC_DIR}/jwe.c
-    ${SRC_DIR}/jwt.c
-    ${SRC_DIR}/nettle_pbkdf2.h
-    ${SRC_DIR}/nettle_pbkdf2.c)
+    ${SRC_DIR}/jwt.c)
 
 set(PKGCONF_REQ "")
 set(PKGCONF_REQ_PRIVATE "")

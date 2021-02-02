@@ -76,9 +76,9 @@ _r_pbkdf2_hmac_sha512 (size_t key_length, const uint8_t *key,
 }
 #endif
 
-static int _r_aes_key_wrap(unsigned char * kek, size_t kek_len, unsigned char * key_data, size_t key_data_len, unsigned char * iv, unsigned char * output, size_t * output_len) {
-  const unsigned char default_iv[] = {0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6};
-  unsigned char R[64] = {0}, A[8] = {0}, I[16] = {0}, B[16] = {0};
+static int _r_aes_key_wrap(size_t kek_len, const uint8_t * kek, size_t key_data_len, const uint8_t * key_data, const uint8_t * iv, size_t * output_len, uint8_t * output) {
+  const uint8_t default_iv[] = {0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6};
+  uint8_t R[64] = {0}, A[8] = {0}, I[16] = {0}, B[16] = {0};
   size_t i, j, n;
 
   struct aes128_ctx aes128;
@@ -88,7 +88,7 @@ static int _r_aes_key_wrap(unsigned char * kek, size_t kek_len, unsigned char * 
   if (kek == NULL || kek_len % 8 || kek_len < 16 || kek_len > 32 || 
       key_data == NULL || key_data_len % 8 || key_data_len < 16 || key_data_len > 64 || 
       output == NULL || output_len == NULL || *output_len < key_data_len + 8) {
-    return RHN_ERROR_PARAM;
+    return 0;
   } else {
     n = key_data_len/8;
     memcpy(R, key_data, key_data_len);
@@ -132,13 +132,13 @@ static int _r_aes_key_wrap(unsigned char * kek, size_t kek_len, unsigned char * 
     memcpy(output, A, 8);
     memcpy(output+8, R, key_data_len);
     *output_len = key_data_len+8;
-    return RHN_OK;
+    return 1;
   }
 }
 
-static int _r_aes_key_unwrap(unsigned char * kek, size_t kek_len, unsigned char * key_wrapped, size_t key_wrapped_len, unsigned char * iv, unsigned char * output, size_t * output_len) {
-  const unsigned char default_iv[] = {0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6};
-  unsigned char R[64] = {0}, A[8] = {0}, I[16] = {0}, B[16] = {0};
+static int _r_aes_key_unwrap(size_t kek_len, const uint8_t * kek, size_t key_wrapped_len, const uint8_t * key_wrapped, const uint8_t * iv, size_t * output_len, uint8_t * output) {
+  const uint8_t default_iv[] = {0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6};
+  uint8_t R[64] = {0}, A[8] = {0}, I[16] = {0}, B[16] = {0};
   int i, j;
   size_t n;
   
@@ -149,7 +149,7 @@ static int _r_aes_key_unwrap(unsigned char * kek, size_t kek_len, unsigned char 
   if (kek == NULL || kek_len % 8 || kek_len < 16 || kek_len > 32 || 
       key_wrapped == NULL || key_wrapped_len % 8 || key_wrapped_len < 24 || key_wrapped_len > 72 || 
       output == NULL || output_len == NULL || *output_len < key_wrapped_len - 8) {
-    return RHN_ERROR_PARAM;
+    return 0;
   } else {
     n = (key_wrapped_len/8)-1;
     memcpy(A, key_wrapped, 8);
@@ -188,9 +188,9 @@ static int _r_aes_key_unwrap(unsigned char * kek, size_t kek_len, unsigned char 
     if ((iv == NULL && !memcmp(A, default_iv, 8)) || (iv != NULL && !memcmp(A, iv, 8))) {
       memcpy(output, R, key_wrapped_len-8);
       *output_len = key_wrapped_len-8;
-      return RHN_OK;
+      return 1;
     } else {
-      return RHN_ERROR_INVALID;
+      return 0;
     }
   }
 }
@@ -228,7 +228,7 @@ static int r_jwe_aes_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
       if (r_jwe_get_enc(jwe) == R_JWA_ENC_A128CBC || r_jwe_get_enc(jwe) == R_JWA_ENC_A192CBC || r_jwe_get_enc(jwe) == R_JWA_ENC_A256CBC) {
         key_len /= 2;
       }
-      if (_r_aes_key_wrap(kek, kek_len, jwe->key, jwe->key_len, NULL, wrapped_key, &wrapped_key_len) != RHN_OK) {
+      if (!_r_aes_key_wrap(kek_len, kek, jwe->key_len, jwe->key, NULL, &wrapped_key_len, wrapped_key)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error _r_aes_key_wrap");
         ret = RHN_ERROR;
         break;
@@ -283,7 +283,7 @@ static int r_jwe_aes_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
         ret = RHN_ERROR;
         break;
       }
-      if (_r_aes_key_unwrap(kek, kek_len, cipherkey, cipherkey_len, NULL, key_data, &key_data_len) != RHN_OK) {
+      if (!_r_aes_key_unwrap(kek_len, kek, cipherkey_len, cipherkey, NULL, &key_data_len, key_data)) {
         ret = RHN_ERROR_INVALID;
         break;
       }
@@ -398,7 +398,7 @@ static int r_jwe_pbes2_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
         kek_len = 32;
         _r_pbkdf2_hmac_sha512(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
       }
-      if (_r_aes_key_wrap(kek, kek_len, jwe->key, jwe->key_len, NULL, wrapped_key, &wrapped_key_len) != RHN_OK) {
+      if (!_r_aes_key_wrap(kek_len, kek, jwe->key_len, jwe->key, NULL, &wrapped_key_len, wrapped_key)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error _r_aes_key_wrap");
         ret = RHN_ERROR;
         break;
@@ -495,7 +495,7 @@ static int r_jwe_pbes2_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
         ret = RHN_ERROR;
         break;
       }
-      if (_r_aes_key_unwrap(kek, kek_len, cipherkey, cipherkey_len, NULL, key_data, &key_data_len) != RHN_OK) {
+      if (!_r_aes_key_unwrap(kek_len, kek, cipherkey_len, cipherkey, NULL, &key_data_len, key_data)) {
         ret = RHN_ERROR_INVALID;
         break;
       }

@@ -1,6 +1,6 @@
 # rnbyc: Rhonabwy command-line tool
 
-Copyright 2018-2020 Nicolas Mora <mail@babelouest.org>
+Copyright 2020 Nicolas Mora <mail@babelouest.org>
 
 This program is free software; you can redistribute it and/or modify it under the terms of the GPL3 License.
 
@@ -67,6 +67,8 @@ Options available:
 	Print uwsc's current version
 -h --help
 	Print this message
+-d --debug
+	Display debug messages
 ```
 
 ## Examples

@@ -27,8 +27,6 @@
 #include <gnutls/crypto.h>
 #include <gnutls/abstract.h>
 #include <gnutls/x509.h>
-#include <nettle/pbkdf2.h>
-#include <nettle/aes.h>
 #include <zlib.h>
 #include <orcania.h>
 #include <yder.h>
@@ -41,16 +39,18 @@
 #define _R_PBES_DEFAULT_ITERATION 4096
 #define _R_PBES_DEFAULT_SALT_LENGTH 8
 
-#if 1
-
 #if HAVE_CONFIG_H
 # include <nettle/config.h>
 #endif
 
 #include <nettle/hmac.h>
+#include <nettle/pbkdf2.h>
+#include <nettle/aes.h>
+#include <nettle/memops.h>
 
+#ifndef pbkdf2_hmac_sha384
 static void
-_r_pbkdf2_hmac_sha384 (size_t key_length, const uint8_t *key,
+pbkdf2_hmac_sha384 (size_t key_length, const uint8_t *key,
 		    unsigned iterations,
 		    size_t salt_length, const uint8_t *salt,
 		    size_t length, uint8_t *dst)
@@ -61,9 +61,11 @@ _r_pbkdf2_hmac_sha384 (size_t key_length, const uint8_t *key,
   PBKDF2 (&sha384ctx, hmac_sha384_update, hmac_sha384_digest,
 	  SHA384_DIGEST_SIZE, iterations, salt_length, salt, length, dst);
 }
+#endif
 
+#ifndef pbkdf2_hmac_sha512
 static void
-_r_pbkdf2_hmac_sha512 (size_t key_length, const uint8_t *key,
+pbkdf2_hmac_sha512 (size_t key_length, const uint8_t *key,
 		    unsigned iterations,
 		    size_t salt_length, const uint8_t *salt,
 		    size_t length, uint8_t *dst)
@@ -76,129 +78,156 @@ _r_pbkdf2_hmac_sha512 (size_t key_length, const uint8_t *key,
 }
 #endif
 
-static int _r_aes_key_wrap(size_t kek_len, const uint8_t * kek, size_t key_data_len, const uint8_t * key_data, const uint8_t * iv, size_t * output_len, uint8_t * output) {
-  const uint8_t default_iv[] = {0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6};
+#ifndef nist_keywrap16
+static void
+nist_keywrap16(const void *ctx, nettle_cipher_func *encrypt, 
+               const uint8_t *iv, size_t ciphertext_length, 
+               uint8_t *ciphertext, const uint8_t *cleartext) {
   uint8_t R[64] = {0}, A[8] = {0}, I[16] = {0}, B[16] = {0};
+  uint64_t A64;
   size_t i, j, n;
 
-  struct aes128_ctx aes128;
-  struct aes192_ctx aes192;
-  struct aes256_ctx aes256;
-  
-  if (kek == NULL || kek_len % 8 || kek_len < 16 || kek_len > 32 || 
-      key_data == NULL || key_data_len % 8 || key_data_len < 16 || key_data_len > 64 || 
-      output == NULL || output_len == NULL || *output_len < key_data_len + 8) {
-    return 0;
-  } else {
-    n = key_data_len/8;
-    memcpy(R, key_data, key_data_len);
-    if (iv != NULL) {
-      memcpy(A, iv, 8);
-    } else {
-      memcpy(A, default_iv, 8);
-    }
+  n = (ciphertext_length-8)/8;
+  memcpy(R, cleartext, (ciphertext_length-8));
+  memcpy(A, iv, 8);
 
-    if (kek_len == 16) {
-      aes128_set_encrypt_key(&aes128, kek);
-    } else if (kek_len == 24) {
-      aes192_set_encrypt_key(&aes192, kek);
-    } else {
-      aes256_set_encrypt_key(&aes256, kek);
+  for (j=0; j<6; j++) {
+    for (i=0; i<n; i++) {
+      // I = A | R[1]
+      memcpy(I, A, 8);
+      memcpy(I+8, R+(i*8), 8);
+      
+      // B = AES(K, I)
+      encrypt(ctx, 16, B, I);
+      
+      // A = MSB(64, B) ^ t where t = (n*j)+i
+      A64 = ((uint64_t)B[0] << 56) | ((uint64_t)B[1] << 48) | ((uint64_t)B[2] << 40) | ((uint64_t)B[3] << 32) | ((uint64_t)B[4] << 24) | ((uint64_t)B[5] << 16) | ((uint64_t)B[6] << 8) | (uint64_t)B[7];
+      A64 ^= (n*j)+(i+1);
+      A[7] = (uint8_t)A64;
+      A[6] = (uint8_t)(A64 >> 8);
+      A[5] = (uint8_t)(A64 >> 16);
+      A[4] = (uint8_t)(A64 >> 24);
+      A[3] = (uint8_t)(A64 >> 32);
+      A[2] = (uint8_t)(A64 >> 40);
+      A[1] = (uint8_t)(A64 >> 48);
+      A[0] = (uint8_t)(A64 >> 56);
+      
+      //  R[i] = LSB(64, B)
+      memcpy(R+(i*8), B+8, 8);
+
     }
-    for (j=0; j<6; j++) {
-      for (i=0; i<n; i++) {
-        // I = A | R[1]
-        memcpy(I, A, 8);
-        memcpy(I+8, R+(i*8), 8);
-        
-        // B = AES(K, I)
-        if (kek_len == 16) {
-          aes128_encrypt(&aes128, 16, B, I);
-        } else if (kek_len == 24) {
-          aes192_encrypt(&aes192, 16, B, I);
-        } else {
-          aes256_encrypt(&aes256, 16, B, I);
-        }
-        
-        // A = MSB(64, B) ^ t where t = (n*j)+i
-        memcpy(A, B, 8);
-        A[7] ^= (n*j)+(i+1);
-        
-        //  R[i] = LSB(64, B)
-        memcpy(R+(i*8), B+8, 8);
-      }
-    }
-    
-    memcpy(output, A, 8);
-    memcpy(output+8, R, key_data_len);
-    *output_len = key_data_len+8;
-    return 1;
   }
+  
+  memcpy(ciphertext, A, 8);
+  memcpy(ciphertext+8, R, (ciphertext_length-8));
 }
+#endif
 
-static int _r_aes_key_unwrap(size_t kek_len, const uint8_t * kek, size_t key_wrapped_len, const uint8_t * key_wrapped, const uint8_t * iv, size_t * output_len, uint8_t * output) {
-  const uint8_t default_iv[] = {0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6};
+#ifndef nist_keyunwrap16
+static int
+nist_keyunwrap16(const void *ctx, nettle_cipher_func *decrypt,
+                 const uint8_t *iv, size_t cleartext_length, 
+                 uint8_t *cleartext, const uint8_t *ciphertext) {
   uint8_t R[64] = {0}, A[8] = {0}, I[16] = {0}, B[16] = {0};
+  uint64_t A64;
   int i, j;
   size_t n;
   
-  struct aes128_ctx aes128;
-  struct aes192_ctx aes192;
-  struct aes256_ctx aes256;
+  n = (cleartext_length/8);
+  memcpy(A, ciphertext, 8);
+  memcpy(R, ciphertext+8, cleartext_length);
   
-  if (kek == NULL || kek_len % 8 || kek_len < 16 || kek_len > 32 || 
-      key_wrapped == NULL || key_wrapped_len % 8 || key_wrapped_len < 24 || key_wrapped_len > 72 || 
-      output == NULL || output_len == NULL || *output_len < key_wrapped_len - 8) {
-    return 0;
-  } else {
-    n = (key_wrapped_len/8)-1;
-    memcpy(A, key_wrapped, 8);
-    memcpy(R, key_wrapped+8, key_wrapped_len-8);
-    
-    if (kek_len == 16) {
-      aes128_set_decrypt_key(&aes128, kek);
-    } else if (kek_len == 24) {
-      aes192_set_decrypt_key(&aes192, kek);
-    } else {
-      aes256_set_decrypt_key(&aes256, kek);
-    }
-    for (j=5; j>=0; j--) {
-      for (i=n-1; i>=0; i--) {
+  for (j=5; j>=0; j--) {
+    for (i=n-1; i>=0; i--) {
 
-        // B = AES-1(K, (A ^ t) | R[i]) where t = n*j+i
-        memcpy(I, A, 8);
-        I[7] ^= (n*j)+(i+1);
-        memcpy(I+8, R+(i*8), 8);
-        if (kek_len == 16) {
-          aes128_decrypt(&aes128, 16, B, I);
-        } else if (kek_len == 24) {
-          aes192_decrypt(&aes192, 16, B, I);
-        } else {
-          aes256_decrypt(&aes256, 16, B, I);
-        }
-        
-        // A = MSB(64, B)
-        memcpy(A, B, 8);
-        
-        // R[i] = LSB(64, B)
-        memcpy(R+(i*8), B+8, 8);
-      }
-    }
-    
-    if ((iv == NULL && !memcmp(A, default_iv, 8)) || (iv != NULL && !memcmp(A, iv, 8))) {
-      memcpy(output, R, key_wrapped_len-8);
-      *output_len = key_wrapped_len-8;
-      return 1;
-    } else {
-      return 0;
+      // B = AES-1(K, (A ^ t) | R[i]) where t = n*j+i
+      A64 = ((uint64_t)A[0] << 56) | ((uint64_t)A[1] << 48) | ((uint64_t)A[2] << 40) | ((uint64_t)A[3] << 32) | ((uint64_t)A[4] << 24) | ((uint64_t)A[5] << 16) | ((uint64_t)A[6] << 8) | (uint64_t)A[7];
+      A64 ^= (n*j)+(i+1);
+      I[7] = (uint8_t)A64;
+      I[6] = (uint8_t)(A64 >> 8);
+      I[5] = (uint8_t)(A64 >> 16);
+      I[4] = (uint8_t)(A64 >> 24);
+      I[3] = (uint8_t)(A64 >> 32);
+      I[2] = (uint8_t)(A64 >> 40);
+      I[1] = (uint8_t)(A64 >> 48);
+      I[0] = (uint8_t)(A64 >> 56);
+      memcpy(I+8, R+(i*8), 8);
+      decrypt(ctx, 16, B, I);
+      
+      // A = MSB(64, B)
+      memcpy(A, B, 8);
+      
+      // R[i] = LSB(64, B)
+      memcpy(R+(i*8), B+8, 8);
     }
   }
+  
+  if (memeql_sec(A, iv, 8)) {
+    memcpy(cleartext, R, cleartext_length);
+    return 1;
+  } else {
+    return 0;
+  }
+}
+#endif
+
+static void _r_aes_key_wrap(uint8_t * kek, size_t kek_len, uint8_t * key, size_t key_len, uint8_t * wrapped_key) {
+  struct aes128_ctx ctx_128;
+  struct aes192_ctx ctx_192;
+  struct aes256_ctx ctx_256;
+  void * ctx = NULL;
+  nettle_cipher_func * encrypt = NULL;
+  const uint8_t default_iv[] = {0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6};
+
+  if (kek_len == 16) {
+    aes128_set_encrypt_key(&ctx_128, kek);
+    ctx = (void*)&ctx_128;
+    encrypt = (nettle_cipher_func*)&aes128_encrypt;
+  }
+  if (kek_len == 24) {
+    aes192_set_encrypt_key(&ctx_192, kek);
+    ctx = (void*)&ctx_192;
+    encrypt = (nettle_cipher_func*)&aes192_encrypt;
+  }
+  if (kek_len == 32) {
+    aes256_set_encrypt_key(&ctx_256, kek);
+    ctx = (void*)&ctx_256;
+    encrypt = (nettle_cipher_func*)&aes256_encrypt;
+  }
+  nist_keywrap16(ctx, encrypt, default_iv, key_len+8, wrapped_key, key);
+}
+
+static int _r_aes_key_unwrap(uint8_t * kek, size_t kek_len, uint8_t * key, size_t key_len, uint8_t * wrapped_key) {
+  struct aes128_ctx ctx_128;
+  struct aes192_ctx ctx_192;
+  struct aes256_ctx ctx_256;
+  void * ctx = NULL;
+  nettle_cipher_func * decrypt = NULL;
+  const uint8_t default_iv[] = {0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6};
+
+  if (kek_len == 16) {
+    aes128_set_decrypt_key(&ctx_128, kek);
+    ctx = (void*)&ctx_128;
+    decrypt = (nettle_cipher_func*)&aes128_decrypt;
+  }
+  if (kek_len == 24) {
+    aes192_set_decrypt_key(&ctx_192, kek);
+    ctx = (void*)&ctx_192;
+    decrypt = (nettle_cipher_func*)&aes192_decrypt;
+  }
+  if (kek_len == 32) {
+    aes256_set_decrypt_key(&ctx_256, kek);
+    ctx = (void*)&ctx_256;
+    decrypt = (nettle_cipher_func*)&aes256_decrypt;
+  }
+  return nist_keyunwrap16(ctx, decrypt, default_iv, key_len, key, wrapped_key);
 }
 
 static int r_jwe_aes_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
   int ret;
-  unsigned char kek[32] = {0}, wrapped_key[72] = {0}, cipherkey_b64url[256] = {0};
-  size_t kek_len = 0, cipherkey_b64url_len = 0, key_len = jwe->key_len, wrapped_key_len = 72;
+  uint8_t kek[32] = {0}, wrapped_key[72] = {0};
+  unsigned char cipherkey_b64url[256] = {0};
+  size_t kek_len = 0, cipherkey_b64url_len = 0;
   unsigned int bits = 0;
   
   if (r_jwk_key_type(jwk, &bits, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
@@ -225,15 +254,8 @@ static int r_jwe_aes_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
         ret = RHN_ERROR;
         break;
       }
-      if (r_jwe_get_enc(jwe) == R_JWA_ENC_A128CBC || r_jwe_get_enc(jwe) == R_JWA_ENC_A192CBC || r_jwe_get_enc(jwe) == R_JWA_ENC_A256CBC) {
-        key_len /= 2;
-      }
-      if (!_r_aes_key_wrap(kek_len, kek, jwe->key_len, jwe->key, NULL, &wrapped_key_len, wrapped_key)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error _r_aes_key_wrap");
-        ret = RHN_ERROR;
-        break;
-      }
-      if (!o_base64url_encode(wrapped_key, wrapped_key_len, cipherkey_b64url, &cipherkey_b64url_len)) {
+      _r_aes_key_wrap(kek, kek_len, jwe->key, jwe->key_len, wrapped_key);
+      if (!o_base64url_encode(wrapped_key, jwe->key_len+8, cipherkey_b64url, &cipherkey_b64url_len)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error o_base64url_encode wrapped_key");
         ret = RHN_ERROR;
         break;
@@ -250,10 +272,10 @@ static int r_jwe_aes_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
 
 static int r_jwe_aes_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
   int ret;
-  unsigned char kek[32] = {0}, key_data[64], cipherkey[128] = {0};
-  size_t kek_len = 0, cipherkey_len = 0, key_data_len = 64;
+  uint8_t kek[32] = {0}, key_data[64], cipherkey[128] = {0};
+  size_t kek_len = 0, cipherkey_len = 0;
   unsigned int bits = 0;
-  
+
   if (r_jwk_key_type(jwk, &bits, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
     ret = RHN_OK;
     
@@ -278,16 +300,26 @@ static int r_jwe_aes_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
         ret = RHN_ERROR;
         break;
       }
+      if (!o_base64url_decode(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), NULL, &cipherkey_len)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error o_base64url_decode cipherkey");
+        ret = RHN_ERROR;
+        break;
+      }
+      if (cipherkey_len > 72) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error invalid cipherkey len");
+        ret = RHN_ERROR;
+        break;
+      }
       if (!o_base64url_decode(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), cipherkey, &cipherkey_len)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error o_base64url_decode cipherkey");
         ret = RHN_ERROR;
         break;
       }
-      if (!_r_aes_key_unwrap(kek_len, kek, cipherkey_len, cipherkey, NULL, &key_data_len, key_data)) {
+      if (!_r_aes_key_unwrap(kek, kek_len, key_data, cipherkey_len-8, cipherkey)) {
         ret = RHN_ERROR_INVALID;
         break;
       }
-      if (r_jwe_set_cypher_key(jwe, key_data, key_data_len) != RHN_OK) {
+      if (r_jwe_set_cypher_key(jwe, key_data, cipherkey_len-8) != RHN_OK) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error r_jwe_set_cypher_key");
         ret = RHN_ERROR;
       }
@@ -301,7 +333,7 @@ static int r_jwe_aes_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
 
 static int r_jwe_pbes2_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
   unsigned char salt_seed[_R_PBES_DEFAULT_SALT_LENGTH] = {0}, salt_seed_b64[_R_PBES_DEFAULT_SALT_LENGTH*2], * salt = NULL, kek[64] = {0}, * key = NULL, wrapped_key[72] = {0}, cipherkey_b64url[256] = {0}, * p2s_dec = NULL;
-  size_t alg_len, salt_len, key_len = 0, cipherkey_b64url_len = 0, salt_seed_b64_len = 0, p2s_dec_len = 0, wrapped_key_len = 72, kek_len = 0;
+  size_t alg_len, salt_len, key_len = 0, cipherkey_b64url_len = 0, salt_seed_b64_len = 0, p2s_dec_len = 0, kek_len = 0;
   int ret;
   const char * p2s;
   unsigned int p2c = 0;
@@ -349,13 +381,13 @@ static int r_jwe_pbes2_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
           break;
         }
         if (!o_base64url_encode(salt_seed, _R_PBES_DEFAULT_SALT_LENGTH, salt_seed_b64, &salt_seed_b64_len)) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error o_base64url_encode salt_seed");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error o_base64url_encode salt_seed");
           ret = RHN_ERROR;
           break;
         }
         salt_seed_b64[salt_seed_b64_len] = '\0';
         if (r_jwe_set_header_str_value(jwe, "p2s", (const char *)salt_seed_b64) != RHN_OK) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error r_jwe_set_header_str_value p2s");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error r_jwe_set_header_str_value p2s");
           ret = RHN_ERROR;
           break;
         }
@@ -366,7 +398,7 @@ static int r_jwe_pbes2_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
       if ((p2c = (unsigned int)r_jwe_get_header_int_value(jwe, "p2c")) <= 0) {
         p2c = _R_PBES_DEFAULT_ITERATION;
         if (r_jwe_set_header_int_value(jwe, "p2c", p2c) != RHN_OK) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error r_jwe_set_header_int_value p2c");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error r_jwe_set_header_int_value p2c");
           ret = RHN_ERROR;
           break;
         }
@@ -393,17 +425,13 @@ static int r_jwe_pbes2_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
         pbkdf2_hmac_sha256(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
       } else if (jwe->alg == R_JWA_ALG_PBES2_H384) {
         kek_len = 24;
-        _r_pbkdf2_hmac_sha384(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+        pbkdf2_hmac_sha384(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
       } else if (jwe->alg == R_JWA_ALG_PBES2_H512) {
         kek_len = 32;
-        _r_pbkdf2_hmac_sha512(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+        pbkdf2_hmac_sha512(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
       }
-      if (!_r_aes_key_wrap(kek_len, kek, jwe->key_len, jwe->key, NULL, &wrapped_key_len, wrapped_key)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error _r_aes_key_wrap");
-        ret = RHN_ERROR;
-        break;
-      }
-      if (!o_base64url_encode(wrapped_key, wrapped_key_len, cipherkey_b64url, &cipherkey_b64url_len)) {
+      _r_aes_key_wrap(kek, kek_len, jwe->key, jwe->key_len, wrapped_key);
+      if (!o_base64url_encode(wrapped_key, jwe->key_len+8, cipherkey_b64url, &cipherkey_b64url_len)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error o_base64url_encode wrapped_key");
         ret = RHN_ERROR;
         break;
@@ -422,8 +450,8 @@ static int r_jwe_pbes2_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
 }
 
 static int r_jwe_pbes2_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
-  unsigned char * salt = NULL, kek[64] = {0}, * key = NULL, cipherkey[128] = {0}, key_data[64], * p2s_dec = NULL;
-  size_t alg_len, salt_len, key_len = 0, cipherkey_len = 0, p2s_dec_len = 0, key_data_len = 64, kek_len = 0;
+  unsigned char * salt = NULL, kek[64] = {0}, * key = NULL, cipherkey[128] = {0}, key_data[64] = {0}, * p2s_dec = NULL;
+  size_t alg_len, salt_len, key_len = 0, cipherkey_len = 0, p2s_dec_len = 0, kek_len = 0;
   int ret;
   const char * p2s;
   unsigned int p2c;
@@ -485,21 +513,21 @@ static int r_jwe_pbes2_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
         pbkdf2_hmac_sha256(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
       } else if (jwe->alg == R_JWA_ALG_PBES2_H384) {
         kek_len = 24;
-        _r_pbkdf2_hmac_sha384(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+        pbkdf2_hmac_sha384(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
       } else if (jwe->alg == R_JWA_ALG_PBES2_H512) {
         kek_len = 32;
-        _r_pbkdf2_hmac_sha512(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+        pbkdf2_hmac_sha512(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
       }
       if (!o_base64url_decode(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), cipherkey, &cipherkey_len)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error o_base64url_decode cipherkey");
         ret = RHN_ERROR;
         break;
       }
-      if (!_r_aes_key_unwrap(kek_len, kek, cipherkey_len, cipherkey, NULL, &key_data_len, key_data)) {
+      if (!_r_aes_key_unwrap(kek, kek_len, key_data, cipherkey_len-8, cipherkey)) {
         ret = RHN_ERROR_INVALID;
         break;
       }
-      if (r_jwe_set_cypher_key(jwe, key_data, key_data_len) != RHN_OK) {
+      if (r_jwe_set_cypher_key(jwe, key_data, cipherkey_len-8) != RHN_OK) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error r_jwe_set_cypher_key");
         ret = RHN_ERROR;
       }

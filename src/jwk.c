@@ -1916,6 +1916,7 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk) {
 
 gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
   gnutls_pubkey_t pubkey = NULL;
+  gnutls_privkey_t privkey = NULL;
   gnutls_x509_crt_t crt;
   unsigned char * b64_dec;
   size_t b64_dec_len = 0;
@@ -2037,43 +2038,65 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
       }
     } else if (type & R_KEY_TYPE_RSA) {
       res = RHN_OK;
-      do {
-        if ((b64_dec = o_malloc(json_string_length(json_object_get(jwk, "n"))*sizeof(char))) == NULL) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error malloc (n)");
-          res = RHN_ERROR_MEMORY;
-          break;
-        }
-        if (!o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "n")), json_string_length(json_object_get(jwk, "n")), b64_dec, &b64_dec_len)) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error o_base64url_decode (n)");
-          res = RHN_ERROR;
-          break;
-        }
-        m.data = b64_dec;
-        m.size = b64_dec_len;
-        if ((b64_dec = o_malloc(json_string_length(json_object_get(jwk, "e"))*sizeof(char))) == NULL) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error malloc (e)");
-          res = RHN_ERROR_MEMORY;
-          break;
-        }
-        if (!o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "e")), json_string_length(json_object_get(jwk, "e")), b64_dec, &b64_dec_len)) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error o_base64url_decode (e)");
-          res = RHN_ERROR;
-          break;
-        }
-        e.data = b64_dec;
-        e.size = b64_dec_len;
-        
-        if (gnutls_pubkey_init(&pubkey)) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error gnutls_privkey_init rsa");
-          res = RHN_ERROR;
-          break;
-        }
-        if (gnutls_pubkey_import_rsa_raw(pubkey, &m, &e)) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error gnutls_pubkey_import_rsa_raw");
-          res = RHN_ERROR;
-          break;
-        }
-      } while (0);
+      if (!(type & R_KEY_TYPE_PRIVATE)) {
+        do {
+          if ((b64_dec = o_malloc(json_string_length(json_object_get(jwk, "n"))*sizeof(char))) == NULL) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error malloc (n)");
+            res = RHN_ERROR_MEMORY;
+            break;
+          }
+          if (!o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "n")), json_string_length(json_object_get(jwk, "n")), b64_dec, &b64_dec_len)) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error o_base64url_decode (n)");
+            res = RHN_ERROR;
+            break;
+          }
+          m.data = b64_dec;
+          m.size = b64_dec_len;
+          if ((b64_dec = o_malloc(json_string_length(json_object_get(jwk, "e"))*sizeof(char))) == NULL) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error malloc (e)");
+            res = RHN_ERROR_MEMORY;
+            break;
+          }
+          if (!o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "e")), json_string_length(json_object_get(jwk, "e")), b64_dec, &b64_dec_len)) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error o_base64url_decode (e)");
+            res = RHN_ERROR;
+            break;
+          }
+          e.data = b64_dec;
+          e.size = b64_dec_len;
+          
+          if (gnutls_pubkey_init(&pubkey)) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error gnutls_privkey_init rsa");
+            res = RHN_ERROR;
+            break;
+          }
+          if (gnutls_pubkey_import_rsa_raw(pubkey, &m, &e)) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error gnutls_pubkey_import_rsa_raw");
+            res = RHN_ERROR;
+            break;
+          }
+        } while (0);
+      } else {
+        printf("yo man\n");
+        do {
+          if ((privkey = r_jwk_export_to_gnutls_privkey(jwk)) == NULL) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error r_jwk_export_to_gnutls_privkey rsa");
+            res = RHN_ERROR;
+            break;
+          }
+          if (gnutls_pubkey_init(&pubkey)) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error gnutls_privkey_init rsa");
+            res = RHN_ERROR;
+            break;
+          }
+          if (gnutls_pubkey_import_privkey(pubkey, privkey, GNUTLS_KEY_DIGITAL_SIGNATURE|GNUTLS_KEY_DATA_ENCIPHERMENT, 0)) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error gnutls_pubkey_import_privkey rsa");
+            res = RHN_ERROR;
+            break;
+          }
+        } while (0);
+        gnutls_privkey_deinit(privkey);
+      }
       if (res != RHN_OK) {
         if (pubkey != NULL) {
           gnutls_pubkey_deinit(pubkey);

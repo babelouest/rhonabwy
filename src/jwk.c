@@ -2077,7 +2077,6 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
           }
         } while (0);
       } else {
-        printf("yo man\n");
         do {
           if ((privkey = r_jwk_export_to_gnutls_privkey(jwk)) == NULL) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error r_jwk_export_to_gnutls_privkey rsa");

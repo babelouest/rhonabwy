@@ -1651,6 +1651,30 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
           }
           json_decref(j_expected_value);
           break;
+        case R_JWT_CLAIM_TYP:
+          str_value = va_arg(vl, const char *);
+          if (o_strlen(str_value)) {
+            if (0 != o_strcmp(str_value, r_jwt_get_header_str_value(jwt, "typ"))) {
+              ret = RHN_ERROR_PARAM;
+            }
+          } else {
+            if (!o_strlen(r_jwt_get_header_str_value(jwt, "typ"))) {
+              ret = RHN_ERROR_PARAM;
+            }
+          }
+          break;
+        case R_JWT_CLAIM_CTY:
+          str_value = va_arg(vl, const char *);
+          if (o_strlen(str_value)) {
+            if (0 != o_strcmp(str_value, r_jwt_get_header_str_value(jwt, "cty"))) {
+              ret = RHN_ERROR_PARAM;
+            }
+          } else {
+            if (!o_strlen(r_jwt_get_header_str_value(jwt, "cty"))) {
+              ret = RHN_ERROR_PARAM;
+            }
+          }
+          break;
       }
     }
     va_end(vl);

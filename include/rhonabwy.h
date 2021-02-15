@@ -85,6 +85,8 @@ extern "C"
 #define R_JWT_CLAIM_STR 8
 #define R_JWT_CLAIM_INT 9
 #define R_JWT_CLAIM_JSN 10
+#define R_JWT_CLAIM_TYP 11
+#define R_JWT_CLAIM_CTY 12
 
 #define R_JWT_CLAIM_NOW -1
 #define R_JWT_CLAIM_PRESENT -2

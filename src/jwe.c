@@ -47,6 +47,270 @@
 #include <nettle/pbkdf2.h>
 #include <nettle/aes.h>
 #include <nettle/memops.h>
+#include <nettle/bignum.h>
+#include <nettle/pss-mgf1.h>
+#include <nettle/rsa.h>
+
+#ifndef pkcs1_oaep_decrypt
+int
+pkcs1_oaep_decrypt (size_t key_size,
+	       const mpz_t m,
+	       /* Hash function */
+	       size_t hlen,
+	       void * ctx, const struct nettle_hash *hash, nettle_hash_init_func *hash_init, nettle_hash_update_func *hash_update, nettle_hash_digest_func *hash_digest,
+	       size_t label_length, const uint8_t *label,
+	       size_t *length, uint8_t *message)
+{
+  int ret = 1;
+  size_t dbMask_len = key_size-1-hlen, i;
+  uint8_t lHash[hlen], k[hlen], seedMask[hlen], maskedSeed[hlen];
+
+  uint8_t *em, *maskedDB, *dbMask, *db;
+
+  em = o_malloc(key_size);
+  maskedDB = o_malloc(dbMask_len);
+  dbMask = o_malloc(dbMask_len);
+  db = o_malloc(dbMask_len);
+
+  // lHash = Hash(L)
+  hash_init(ctx);
+  hash_update(ctx, label_length, label);
+  hash_digest(ctx, hlen, lHash);
+
+  nettle_mpz_get_str_256(key_size, em, m);
+
+  if (em[0])
+    {
+      ret = 0;
+      goto cleanup;
+    }
+
+  memcpy(maskedSeed, em+1, hlen);
+  memcpy(maskedDB, em+1+hlen, key_size-1-hlen);
+
+  // seedMask = MGF(maskedDB, hLen).
+  hash_init(ctx);
+  hash_update(ctx, dbMask_len, maskedDB);
+  pss_mgf1(ctx, hash, hlen, seedMask);
+
+  // seed = maskedSeed \xor seedMask.
+  for (i=0; i<hlen; i++)
+    {
+      k[i] = maskedSeed[i]^seedMask[i];
+    }
+
+  // dbMask = MGF(seed, k - hLen - 1).
+  hash_init(ctx);
+  hash_update(ctx, hlen, k);
+  pss_mgf1(ctx, hash, dbMask_len, dbMask);
+
+  // DB = maskedDB \xor dbMask.
+  for (i=0; i<dbMask_len; i++)
+    {
+      db[i] = maskedDB[i]^dbMask[i];
+    }
+
+  //print_hex(dbMask_len, db);
+
+  if (!memeql_sec(db, lHash, hlen))
+    {
+      ret = 0;
+      goto cleanup;
+    }
+
+  for (i=hlen; i<dbMask_len-1; i++)
+    {
+      if (db[i] == 0x01)
+      {
+        break;
+      }
+    }
+
+  if (*length >= dbMask_len-i-1 && i < dbMask_len-1)
+  {
+    *length = dbMask_len-i-1;
+    memcpy(message, db+i+1, *length);
+  }
+  else
+  {
+    ret = 0;
+  }
+
+cleanup:
+  o_free(em);
+  o_free(maskedDB);
+  o_free(dbMask);
+  o_free(db);
+
+  return ret;
+}
+
+int
+rsa_oaep_sha1_decrypt(const struct rsa_private_key *key,
+	    size_t label_length, const uint8_t *label,
+	    size_t *length, uint8_t *message,
+	    const mpz_t gibberish)
+{
+  mpz_t m;
+  int res;
+  struct sha1_ctx ctx;
+
+  mpz_init(m);
+  rsa_compute_root(key, m, gibberish);
+
+  res = pkcs1_oaep_decrypt (key->size, m, SHA1_DIGEST_SIZE,
+                            &ctx, &nettle_sha1, (nettle_hash_init_func*)&sha1_init, (nettle_hash_update_func*)&sha1_update, (nettle_hash_digest_func*)&sha1_digest,
+                            label_length, label, length, message);
+  mpz_clear(m);
+  return res;
+}
+
+int
+rsa_oaep_sha256_decrypt(const struct rsa_private_key *key,
+	    size_t label_length, const uint8_t *label,
+	    size_t *length, uint8_t *message,
+	    const mpz_t gibberish)
+{
+  mpz_t m;
+  int res;
+  struct sha256_ctx ctx;
+
+  mpz_init(m);
+  rsa_compute_root(key, m, gibberish);
+
+  res = pkcs1_oaep_decrypt (key->size, m, SHA256_DIGEST_SIZE,
+                            &ctx, &nettle_sha256, (nettle_hash_init_func*)&sha256_init, (nettle_hash_update_func*)&sha256_update, (nettle_hash_digest_func*)&sha256_digest,
+                            label_length, label, length, message);
+  mpz_clear(m);
+  return res;
+}
+
+int
+pkcs1_oaep_encrypt (size_t key_size,
+	       void *random_ctx, nettle_random_func *random,
+	       /* Hash function */
+	       size_t hlen,
+	       void * ctx, const struct nettle_hash *hash, nettle_hash_init_func *hash_init, nettle_hash_update_func *hash_update, nettle_hash_digest_func *hash_digest,
+	       size_t label_length, const uint8_t *label,
+	       size_t message_length, const uint8_t *message,
+	       mpz_t m)
+{
+  size_t ps_len = key_size - message_length - (2*hlen) - 2, dbMask_len = key_size - hlen - 1, i;
+  uint8_t lHash[hlen], k[hlen], seedMask[hlen], maskedSeed[hlen];
+  int ret = 1;
+
+  if (key_size < (2*hlen) - 2 || message_length > key_size - (2*hlen) - 2)
+    {
+      return 0;
+    }
+  uint8_t *em, *maskedDB, *dbMask, *db;
+
+  em = o_malloc(dbMask_len + hlen + 1);
+  maskedDB = o_malloc(dbMask_len);
+  dbMask = o_malloc(dbMask_len);
+  db = o_malloc(dbMask_len);
+
+  // lHash = Hash(L)
+  hash_init(ctx);
+  hash_update(ctx, label_length, label);
+  hash_digest(ctx, hlen, lHash);
+
+  // DB = lHash || PS || 0x01 || M.
+
+  memcpy(db, lHash, hlen);
+  memset(db+hlen, 0, ps_len);
+  memset(db+hlen+ps_len, 1, 1);
+  memcpy(db+hlen+ps_len+1, message, message_length);
+
+  random(random_ctx, hlen, k);
+
+  // dbMask = MGF(seed, k - hLen - 1).
+  hash_init(ctx);
+  hash_update(ctx, hlen, k);
+  pss_mgf1(ctx, hash, dbMask_len, dbMask);
+
+  // maskedDB = DB \xor dbMask.
+  for (i=0; i<dbMask_len; i++)
+    {
+      maskedDB[i] = db[i]^dbMask[i];
+    }
+
+  // seedMask = MGF(maskedDB, hLen).
+  memset(seedMask, 0, hlen);
+  hash_init(ctx);
+  hash_update(ctx, dbMask_len, maskedDB);
+  pss_mgf1(ctx, hash, hlen, seedMask);
+
+  // maskedSeed = seed \xor seedMask.
+  for (i=0; i<hlen; i++)
+    {
+      maskedSeed[i] = k[i]^seedMask[i];
+    }
+  
+  // EM = 0x00 || maskedSeed || maskedDB.
+
+  em[0] = 0;
+  memcpy(em+1, maskedSeed, hlen);
+  memcpy(em+1+hlen, maskedDB, dbMask_len);
+
+  nettle_mpz_set_str_256_u(m, dbMask_len + hlen + 1, em);
+
+  o_free(db);
+  o_free(dbMask);
+  o_free(maskedDB);
+  o_free(em);
+
+  return ret;
+}
+
+int
+rsa_oaep_sha1_encrypt(const struct rsa_public_key *key,
+	    void *random_ctx, nettle_random_func *random,
+	    size_t label_length, const uint8_t *label,
+	    size_t length, const uint8_t *message,
+	    mpz_t gibberish)
+{
+  struct sha1_ctx ctx;
+  if (pkcs1_oaep_encrypt (key->size, random_ctx, random,
+         SHA1_DIGEST_SIZE,
+         &ctx, &nettle_sha1, (nettle_hash_init_func*)&sha1_init, (nettle_hash_update_func*)&sha1_update, (nettle_hash_digest_func*)&sha1_digest,
+         label_length, label,
+		     length, message, gibberish))
+    {
+      mpz_powm(gibberish, gibberish, key->e, key->n);
+      return 1;
+    }
+  else
+    return 0;
+}
+
+int
+rsa_oaep_sha256_encrypt(const struct rsa_public_key *key,
+	    void *random_ctx, nettle_random_func *random,
+	    size_t label_length, const uint8_t *label,
+	    size_t length, const uint8_t *message,
+	    mpz_t gibberish)
+{
+  struct sha256_ctx ctx;
+  if (pkcs1_oaep_encrypt (key->size, random_ctx, random,
+         SHA256_DIGEST_SIZE,
+         &ctx, &nettle_sha256, (nettle_hash_init_func*)&sha256_init, (nettle_hash_update_func*)&sha256_update, (nettle_hash_digest_func*)&sha256_digest,
+         label_length, label,
+		     length, message, gibberish))
+    {
+      mpz_powm(gibberish, gibberish, key->e, key->n);
+      return 1;
+    }
+  else
+    return 0;
+}
+
+static void rnd_nonce_func(void *_ctx, size_t length, uint8_t * data)
+{
+  (void)_ctx;
+	gnutls_rnd(GNUTLS_RND_NONCE, data, length);
+}
+#endif
 
 #ifndef pbkdf2_hmac_sha384
 static void
@@ -170,6 +434,101 @@ nist_keyunwrap16(const void *ctx, nettle_cipher_func *decrypt,
   }
 }
 #endif
+
+static int _r_rsa_oaep_encrypt(gnutls_pubkey_t g_pub, jwa_alg alg, uint8_t * cleartext, size_t cleartext_len, uint8_t * ciphertext, size_t * cyphertext_len) {
+  struct rsa_public_key pub;
+  gnutls_datum_t m = {NULL, 0}, e = {NULL, 0};
+  int ret = RHN_OK;
+  mpz_t gibberish;
+  
+  rsa_public_key_init(&pub);
+  mpz_init(gibberish);
+  if (gnutls_pubkey_export_rsa_raw(g_pub, &m, &e) == GNUTLS_E_SUCCESS) {
+    mpz_import(pub.n, m.size, 1, 1, 0, 0, m.data);
+    mpz_import(pub.e, e.size, 1, 1, 0, 0, e.data);
+    rsa_public_key_prepare(&pub);
+    if (*cyphertext_len >= pub.size) {
+      if (alg == R_JWA_ALG_RSA_OAEP) {
+        if (!rsa_oaep_sha1_encrypt(&pub, NULL, rnd_nonce_func, 0, NULL, cleartext_len, cleartext, gibberish)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error rsa_oaep_sha1_encrypt");
+          ret = RHN_ERROR;
+        }
+      } else {
+        if (!rsa_oaep_sha256_encrypt(&pub, NULL, rnd_nonce_func, 0, NULL, cleartext_len, cleartext, gibberish)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error rsa_oaep_sha256_encrypt");
+          ret = RHN_ERROR;
+        }
+      }
+      if (ret == RHN_OK) {
+        nettle_mpz_get_str_256(pub.size, ciphertext, gibberish);
+        *cyphertext_len = pub.size;
+      }
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error cyphertext to small");
+      ret = RHN_ERROR_PARAM;
+    }
+    gnutls_free(m.data);
+    gnutls_free(e.data);
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error gnutls_pubkey_export_rsa_raw");
+    ret = RHN_ERROR;
+  }
+  rsa_public_key_clear(&pub);
+  mpz_clear(gibberish);
+  
+  return ret;
+}
+
+static int _r_rsa_oaep_decrypt(gnutls_privkey_t g_priv, jwa_alg alg, uint8_t * ciphertext, size_t cyphertext_len, uint8_t * cleartext, size_t * cleartext_len) {
+  struct rsa_private_key priv;
+  gnutls_datum_t m = {NULL, 0}, e = {NULL, 0}, d = {NULL, 0}, p = {NULL, 0}, q = {NULL, 0}, u = {NULL, 0}, e1 = {NULL, 0}, e2 = {NULL, 0};
+  int ret = RHN_OK;
+  mpz_t gibberish;
+  
+  rsa_private_key_init(&priv);
+  mpz_init(gibberish);
+  nettle_mpz_set_str_256_u(gibberish, cyphertext_len, ciphertext);
+  if (gnutls_privkey_export_rsa_raw(g_priv, &m, &e, &d, &p, &q, &u, &e1, &e2) == GNUTLS_E_SUCCESS) {
+    mpz_import(priv.d, d.size, 1, 1, 0, 0, d.data);
+    mpz_import(priv.p, p.size, 1, 1, 0, 0, p.data);
+    mpz_import(priv.q, q.size, 1, 1, 0, 0, q.data);
+    mpz_import(priv.a, e1.size, 1, 1, 0, 0, e1.data);
+    mpz_import(priv.b, e2.size, 1, 1, 0, 0, e2.data);
+    mpz_import(priv.c, u.size, 1, 1, 0, 0, u.data);
+    rsa_private_key_prepare(&priv);
+    if (cyphertext_len >= priv.size) {
+      if (alg == R_JWA_ALG_RSA_OAEP) {
+        if (!rsa_oaep_sha1_decrypt(&priv, 0, NULL, cleartext_len, cleartext, gibberish)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_decrypt - Error rsa_oaep_sha1_decrypt");
+          ret = RHN_ERROR;
+        }
+      } else {
+        if (!rsa_oaep_sha256_decrypt(&priv, 0, NULL, cleartext_len, cleartext, gibberish)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_decrypt - Error rsa_oaep_sha256_decrypt");
+          ret = RHN_ERROR;
+        }
+      }
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error cyphertext to small");
+      ret = RHN_ERROR_PARAM;
+    }
+    gnutls_free(m.data);
+    gnutls_free(e.data);
+    gnutls_free(d.data);
+    gnutls_free(p.data);
+    gnutls_free(q.data);
+    gnutls_free(u.data);
+    gnutls_free(e1.data);
+    gnutls_free(e2.data);
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error gnutls_pubkey_export_rsa_raw");
+    ret = RHN_ERROR;
+  }
+  rsa_private_key_clear(&priv);
+  mpz_clear(gibberish);
+  
+  return ret;
+}
 
 static void _r_aes_key_wrap(uint8_t * kek, size_t kek_len, uint8_t * key, size_t key_len, uint8_t * wrapped_key) {
   struct aes128_ctx ctx_128;
@@ -2042,7 +2401,8 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
   gnutls_pubkey_t g_pub = NULL;
   unsigned int bits = 0;
   unsigned char * cypherkey_b64 = NULL, * key = NULL;
-  size_t cypherkey_b64_len = 0, key_len = 0;
+  uint8_t * cyphertext = NULL;
+  size_t cypherkey_b64_len = 0, key_len = 0, cyphertext_len = 0;
   jwa_alg alg;
   const char * kid;
   
@@ -2067,9 +2427,9 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
     }
     switch (jwe->alg) {
       case R_JWA_ALG_RSA1_5:
-        if (jwk != NULL && (g_pub = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags)) != NULL) {
-          res = r_jwk_key_type(jwk, &bits, x5u_flags);
-          if (res & (R_KEY_TYPE_RSA|R_KEY_TYPE_PUBLIC) && bits >= 2048) {
+        res = r_jwk_key_type(jwk, &bits, x5u_flags);
+        if (res & (R_KEY_TYPE_RSA|R_KEY_TYPE_PUBLIC) && bits >= 2048) {
+          if (jwk != NULL && (g_pub = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags)) != NULL) {
             plainkey.data = jwe->key;
             plainkey.size = jwe->key_len;
             if (!(res = gnutls_pubkey_encrypt_data(g_pub, 0, &plainkey, &cypherkey))) {
@@ -2093,11 +2453,51 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
               ret = RHN_ERROR;
             }
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - invalid key type");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Unable to export public key");
             ret = RHN_ERROR_PARAM;
           }
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Unable to export public key");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - invalid key type");
+          ret = RHN_ERROR_PARAM;
+        }
+        break;
+      case R_JWA_ALG_RSA_OAEP:
+      case R_JWA_ALG_RSA_OAEP_256:
+        res = r_jwk_key_type(jwk, &bits, x5u_flags);
+        if (res & (R_KEY_TYPE_RSA|R_KEY_TYPE_PUBLIC) && bits >= 2048) {
+          if (jwk != NULL && (g_pub = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags)) != NULL) {
+            if ((cyphertext = o_malloc(bits+1)) != NULL) {
+              cyphertext_len = bits+1;
+              if (_r_rsa_oaep_encrypt(g_pub, jwe->alg, jwe->key, jwe->key_len, cyphertext, &cyphertext_len) == RHN_OK) {
+                if ((cypherkey_b64 = o_malloc(cyphertext_len*2)) != NULL) {
+                  if (o_base64url_encode(cyphertext, cyphertext_len, cypherkey_b64, &cypherkey_b64_len)) {
+                    o_free(jwe->encrypted_key_b64url);
+                    jwe->encrypted_key_b64url = (unsigned char *)o_strndup((const char *)cypherkey_b64, cypherkey_b64_len);
+                    ret = RHN_OK;
+                  } else {
+                    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Error o_base64url_encode cypherkey_b64");
+                    ret = RHN_ERROR_MEMORY;
+                  }
+                  o_free(cypherkey_b64);
+                } else {
+                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Error o_malloc cypherkey_b64");
+                  ret = RHN_ERROR_MEMORY;
+                }
+              } else {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Error _r_rsa_oaep_encrypt");
+                ret = RHN_ERROR;
+              }
+            } else {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Error allocating resources for cyphertext");
+              ret = RHN_ERROR_MEMORY;
+            }
+            o_free(cyphertext);
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - Unable to export public key");
+            ret = RHN_ERROR_PARAM;
+          }
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - invalid key type");
           ret = RHN_ERROR_PARAM;
         }
         break;
@@ -2186,7 +2586,8 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
   gnutls_privkey_t g_priv = NULL;
   unsigned int bits = 0;
   unsigned char * cypherkey_dec = NULL, * key = NULL;
-  size_t cypherkey_dec_len = 0, key_len = 0;
+  uint8_t * clearkey = NULL;
+  size_t cypherkey_dec_len = 0, key_len = 0, clearkey_len = 0;
   
   if (jwe != NULL) {
     if (jwk_s != NULL) {
@@ -2203,17 +2604,14 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
   if (jwe != NULL && jwe->alg != R_JWA_ALG_UNKNOWN && jwe->alg != R_JWA_ALG_NONE) {
       switch (jwe->alg) {
         case R_JWA_ALG_RSA1_5:
-          if (jwk != NULL && o_strlen((const char *)jwe->encrypted_key_b64url) && (g_priv = r_jwk_export_to_gnutls_privkey(jwk)) != NULL) {
-            res = r_jwk_key_type(jwk, &bits, x5u_flags);
-            if (res & (R_KEY_TYPE_RSA|R_KEY_TYPE_PRIVATE) && bits >= 2048) {
+          if (r_jwk_key_type(jwk, &bits, x5u_flags) & (R_KEY_TYPE_RSA|R_KEY_TYPE_PRIVATE) && bits >= 2048) {
+            if (jwk != NULL && o_strlen((const char *)jwe->encrypted_key_b64url) && (g_priv = r_jwk_export_to_gnutls_privkey(jwk)) != NULL) {
               if ((cypherkey_dec = o_malloc(o_strlen((const char *)jwe->encrypted_key_b64url))) != NULL) {
                 memset(cypherkey_dec, 0, o_strlen((const char *)jwe->encrypted_key_b64url));
                 if (o_base64url_decode(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), cypherkey_dec, &cypherkey_dec_len)) {
                   cypherkey.size = cypherkey_dec_len;
                   cypherkey.data = cypherkey_dec;
                   if (!(res = gnutls_privkey_decrypt_data(g_priv, 0, &cypherkey, &plainkey))) {
-                    o_free(jwe->key);
-                    jwe->key = NULL;
                     if (r_jwe_set_cypher_key(jwe, plainkey.data, plainkey.size) == RHN_OK) {
                       ret = RHN_OK;
                     } else {
@@ -2237,11 +2635,58 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
                 ret = RHN_ERROR_MEMORY;
               }
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error invalid key size");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error invalid RSA1_5 input parameters");
               ret = RHN_ERROR_PARAM;
             }
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error invalid RSA1_5 input parameters");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error invalid key size");
+            ret = RHN_ERROR_PARAM;
+          }
+          break;
+        case R_JWA_ALG_RSA_OAEP:
+        case R_JWA_ALG_RSA_OAEP_256:
+          if (r_jwk_key_type(jwk, &bits, x5u_flags) & (R_KEY_TYPE_RSA|R_KEY_TYPE_PRIVATE) && bits >= 2048) {
+            if (jwk != NULL && o_strlen((const char *)jwe->encrypted_key_b64url) && (g_priv = r_jwk_export_to_gnutls_privkey(jwk)) != NULL) {
+              if ((cypherkey_dec = o_malloc(o_strlen((const char *)jwe->encrypted_key_b64url))) != NULL) {
+                if (o_base64url_decode(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), cypherkey_dec, &cypherkey_dec_len)) {
+                  if ((clearkey = o_malloc(bits+1)) != NULL) {
+                    clearkey_len = bits+1;
+                    if (_r_rsa_oaep_decrypt(g_priv, jwe->alg, cypherkey_dec, cypherkey_dec_len, clearkey, &clearkey_len) == RHN_OK) {
+                      if (r_jwe_get_key_size(jwe->enc) == clearkey_len) {
+                        if (r_jwe_set_cypher_key(jwe, clearkey, clearkey_len) == RHN_OK) {
+                          ret = RHN_OK;
+                        } else {
+                          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error r_jwe_set_cypher_key (RSA_OAEP)");
+                          ret = RHN_ERROR;
+                        }
+                      } else {
+                        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error invalid key length");
+                        ret = RHN_ERROR_PARAM;
+                      }
+                    } else {
+                      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error _r_rsa_oaep_decrypt");
+                      ret = RHN_ERROR_INVALID;
+                    }
+                  } else {
+                    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error o_malloc clearkey");
+                    ret = RHN_ERROR_MEMORY;
+                  }
+                  o_free(clearkey);
+                } else {
+                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error o_base64url_decode cypherkey_dec");
+                  ret = RHN_ERROR_PARAM;
+                }
+                o_free(cypherkey_dec);
+              } else {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error o_malloc cypherkey_dec");
+                ret = RHN_ERROR_MEMORY;
+              }
+            } else {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error invalid RSA1_5 input parameters");
+              ret = RHN_ERROR_PARAM;
+            }
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error invalid key size");
             ret = RHN_ERROR_PARAM;
           }
           break;

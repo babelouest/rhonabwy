@@ -13,6 +13,7 @@ jwe_dir
 jwe_aesgcm
 jwe_kw
 jwe_pbes2
+jwe_rsa_oaep
 jwt_core
 jwt_sign
 jwt_encrypt

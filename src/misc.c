@@ -346,7 +346,7 @@ const char * r_jwa_enc_to_str(jwa_enc enc) {
 }
 
 json_t * r_library_info_json_t() {
-  json_t * j_info = json_pack("{sss{s[sssssss]}s{s[ssssssssss]s[sssss]}}",
+  json_t * j_info = json_pack("{sss{s[sssssssss]}s{s[ssssssssss]s[sssss]}}",
                               "version", RHONABWY_VERSION_STR,
                               "jws",
                                 "alg",
@@ -360,6 +360,8 @@ json_t * r_library_info_json_t() {
                               "jwe",
                                 "alg",
                                   "RSA1_5",
+                                  "RSA-OAEP",
+                                  "RSA-OAEP-256",
                                   "A128KW",
                                   "A192KW",
                                   "A256KW",

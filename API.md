@@ -127,9 +127,18 @@ Example output:
   "jwe":{
     "alg":[
       "RSA1_5",
+      "RSA-OAEP",
+      "RSA-OAEP-256",
       "A128KW",
+      "A192KW",
       "A256KW",
-      "dir"],
+      "dir",
+      "A128GCMKW",
+      "A192GCMKW",
+      "A256GCMKW",
+      "PBES2-HS256+A128KW",
+      "PBES2-HS384+A192KW",
+      "PBES2-HS512+A256KW"],
     "enc":[
       "A128CBC-HS256",
       "A192CBC-HS384",
@@ -520,6 +529,8 @@ Claim types available
 - `R_JWT_CLAIM_STR`: the claim name specified must have the string value expected or `NULL` to validate the presence of the claim
 - `R_JWT_CLAIM_INT`: the claim name specified must have the integer value expected
 - `R_JWT_CLAIM_JSN`: the claim name specified must have the json_t * value expected or `NULL` to validate the presence of the claim
+- `R_JWT_CLAIM_TYP`: header parameter `"typ"` (type), values expected a string or `NULL` to validate the presence of the header parameter
+- `R_JWT_CLAIM_CTY`: header parameter `"cty"` (Content Type), values expected a string or `NULL` to validate the presence of the header parameter
 
 For example, the following code will check the jwt against the claim `iss` has the value `"https://example.com"`, the claim `sub` has the value `"client_1"`, the presence of the claim `aud`, the claim `exp` is after now, the claim `nbf` is before now, the claim `scope` has the value `"scope1"`, the claim `age` has the value `42` and the claim `verified` has the JSON value `true`:
 

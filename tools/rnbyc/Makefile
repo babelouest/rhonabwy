@@ -34,7 +34,7 @@ all: rnbyc
 all: ADDITIONALFLAGS= -O3
 
 clean:
-	rm -f *.o rnbyc valgrind-??.txt priv.jwks pub.jwks token?.jwt
+	rm -f *.o rnbyc valgrind-*.txt priv.jwks pub.jwks token?.jwt
 
 debug: ADDITIONALFLAGS=-DDEBUG -g -O0
 
@@ -80,10 +80,16 @@ test-serialize: debug
 	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -P pub.jwks 2>valgrind-22.txt || true
 	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -P pub.jwks -l RSA1_5 1>token1.jwt 2>valgrind-23.txt
 	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -P priv.jwks -l RSA1_5 2>valgrind-24.txt || true
+	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -P pub.jwks -l RSA-OAEP 1>token4.jwt 2>valgrind-23-1.txt
+	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -P priv.jwks -l RSA-OAEP 2>valgrind-24-1.txt || true
+	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -P pub.jwks -l RSA-OAEP-256 1>token5.jwt 2>valgrind-23-2.txt
+	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -P priv.jwks -l RSA-OAEP-256 2>valgrind-24-2.txt || true
 	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -K priv.jwks 2>valgrind-25.txt || true
 	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -K priv.jwks -a RS256 1>token2.jwt 2>valgrind-26.txt
 	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -K pub.jwks -a RS256 2>valgrind-27.txt || true
 	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -K priv.jwks -P pub.jwks -a RS256 -l RSA1_5 1>token3.jwt 2>valgrind-28.txt
+	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -K priv.jwks -P pub.jwks -a RS256 -l RSA-OAEP 1>token6.jwt 2>valgrind-28-1.txt
+	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -K priv.jwks -P pub.jwks -a RS256 -l RSA-OAEP-256 1>token7.jwt 2>valgrind-28-1.txt
 	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -K token0.jwt 2>valgrind-29.txt || true
 	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -P token0.jwt 2>valgrind-30.txt || true
 
@@ -101,5 +107,21 @@ test-parse: debug
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token3.jwt) -K priv.jwks 2>valgrind-49.txt
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token3.jwt) -P pub.jwks 2>valgrind-50.txt || true
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token3.jwt) -P pub.jwks -K priv.jwks 2>valgrind-51.txt
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token4.jwt) 2>valgrind-48.txt || true
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token4.jwt) -K priv.jwks 2>valgrind-49.txt
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token4.jwt) -P pub.jwks 2>valgrind-50.txt || true
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token4.jwt) -P pub.jwks -K priv.jwks 2>valgrind-51.txt
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token5.jwt) 2>valgrind-48.txt || true
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token5.jwt) -K priv.jwks 2>valgrind-49.txt
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token5.jwt) -P pub.jwks 2>valgrind-50.txt || true
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token5.jwt) -P pub.jwks -K priv.jwks 2>valgrind-51.txt
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token6.jwt) 2>valgrind-48.txt || true
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token6.jwt) -K priv.jwks 2>valgrind-49.txt
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token6.jwt) -P pub.jwks 2>valgrind-50.txt || true
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token6.jwt) -P pub.jwks -K priv.jwks 2>valgrind-51.txt
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token7.jwt) 2>valgrind-48.txt || true
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token7.jwt) -K priv.jwks 2>valgrind-49.txt
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token7.jwt) -P pub.jwks 2>valgrind-50.txt || true
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token7.jwt) -P pub.jwks -K priv.jwks 2>valgrind-51.txt
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token1.jwt) -P pub.jwks -H true -C false 2>valgrind-52.txt
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token1.jwt) -P pub.jwks -H false -C false 2>valgrind-53.txt

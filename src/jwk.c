@@ -1833,8 +1833,10 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk) {
           curve = GNUTLS_ECC_CURVE_SECP384R1;
         } else if (0 == o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv"))) || 0 == o_strcmp("secp256k1", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_SECP256R1;
+#if GNUTLS_VERSION_NUMBER >= 0x030600
         } else if (0 == o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_ED25519;
+#endif
         } else {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_privkey - Error crv data");
           res = RHN_ERROR;

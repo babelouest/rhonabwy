@@ -4,7 +4,7 @@ Rhonabwy library is made to manage JWK, JWKS, JWS, JWE and JWT according to thei
 
 - [JSON Web Keys](https://tools.ietf.org/html/rfc7517) (JWK) and JSON Web Keys Set (JWKS)
 - [JSON Web Signatures](https://tools.ietf.org/html/rfc7515) (JWS)
-- [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE) **limited!**
+- [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE)
 - [JSON Web Token](https://tools.ietf.org/html/rfc7519) (JWT)
 
 Rhonabwy is based on the following libraries and actively uses them:
@@ -120,6 +120,7 @@ Example output:
     "ES384",
     "ES512",
     "EdDSA",
+    "ES256K",
     "PS256",
     "PS384",
     "PS512"]
@@ -291,7 +292,7 @@ BASE64URL(UTF8(JWS Protected Header)) || '.' || BASE64URL(JWS Payload)
 The algorithms supported by Rhonabwy are the following:
 - HMAC with SHA-2 Functions: `HS256`, `HS384`, `HS512`
 - Digital Signature with RSASSA-PKCS1-v1_5: `RS256`, `RS384`, `RS512`
-- Digital Signature with ECDSA: `ES256`, `ES384`, `ES512`
+- Digital Signature with ECDSA: `ES256`, `ES384`, `ES512`, `ES256K`
 - Digital Signature with RSASSA-PSS: `PS256`, `PS384`, `PS512`
 - Digital Signature with Ed25519 Elliptic Curve: `EDdSA`
 - Unsecured: `none`

@@ -5,12 +5,12 @@
 
 - Create, modify, parse, import or export [JSON Web Keys](https://tools.ietf.org/html/rfc7517) (JWK) and JSON Web Keys Set (JWKS)
 - Create, modify, parse, validate or serialize [JSON Web Signatures](https://tools.ietf.org/html/rfc7515) (JWS)
-- Create, modify, parse, validate or serialize [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE) **limited!**
+- Create, modify, parse, validate or serialize [JSON Web Encryption](https://tools.ietf.org/html/rfc7516) (JWE)
 - Create, modify, parse, validate or serialize [JSON Web Token](https://tools.ietf.org/html/rfc7519) (JWT)
 
 JWT Relies on JWS and JWE functions, so it supports the same functionalities as the other 2. JWT functionalities also support nesting serialization (JWE nested in a JWS or the opposite).
 
-- Supported Cryptographic Algorithms for Digital Signatures and MACs:
+- Supported Cryptographic Algorithms (`alg`) for Digital Signatures and MACs:
 
 | "alg" Param Value | Digital Signature or MAC Algorithm | Supported |
 |---|---|---|
@@ -28,10 +28,9 @@ JWT Relies on JWS and JWE functions, so it supports the same functionalities as 
 | PS512 | RSASSA-PSS using SHA-512 and MGF1 with SHA-512 |**YES** (1)|
 | none | No digital signature or MAC performed |**YES**|
 | EdDSA | Digital Signature with Ed25519 Elliptic Curve |**YES** (1)|
+| ES256K | Digital Signature with secp256k1 Curve Key |**YES** (1)|
 
-(1) GnuTLS 3.6 minimum is required for ECDSA, Ed25519 (EDDSA) and RSA-PSS signatures.
-
-**JWE support is limited, please use with great caution!**
+(1) GnuTLS 3.6 minimum is required for ECDSA, Ed25519 (EDDSA), ES256K and RSA-PSS signatures.
 
 - Supported Encryption Algorithm (`enc`) for JWE payload encryption:
 
@@ -44,7 +43,7 @@ JWT Relies on JWS and JWE functions, so it supports the same functionalities as 
 | A192GCM | AES GCM using 192-bit key |**YES** (2)|
 | A256GCM | AES GCM using 256-bit key |**YES**|
 
-- Supported Cryptographic Algorithms for Key Management:
+- Supported Cryptographic Algorithms (`alg`) for Key Management:
 
 | "alg" Param Value | Key Management Algorithm | Supported |
 |---|---|---|
@@ -75,6 +74,20 @@ This command-line program can be used to:
 - Generate and/or parse keys and output the result in a JWKS or a public/private pair of JWKS files.
 - Parse, decrypt, and/or verify signature of a JWT, using given key
 - Serialize a JWT, the JWT can be signed, encrypted or nested
+
+Example commands to generate a RSA2048 key pair, serialize a JWT signed with the private key, then parse the serialized token and verifies the signature with the public key.
+
+```shell
+$ rnbyc -j -g RSA2048 -o priv.jwks -p pub.jwks
+$ rnbyc -s '{"iss":"https://rhonabwy.tld","aud":"abcxyz1234"}' -K priv.jwks -a RS256
+eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImVNdnI3bktBX2I5QUI4NGpMU05zTFFKZHRmdHpadnllV2M1V0VVMjhnRFkifQ.eyJpc3MiOiJodHRwczovL3Job25hYnd5LnRsZCIsImF1ZCI6ImFiY3h5ejEyMzQifQ.j6v-yxcWvHhyLIc-r3Nzn5rCF9yeJJzgyLSHW_10wREfckspbzf8UTof5Zsrwg8JvKNlJ4Tt4ZffJC4BkkehdBYXPrgcfq9NtvNYsRmAdiNJhOXtZCU9j9X89j2xhY7pRBgWENI9c3730cmAUgaC-IUKsoNRw_dd-eboyrgYKIzUCYRnuwqDB31T2oUSVjy6CckoenyoeHJhHg-x384G-g4ovP1l-L4YpjgCyr6BR8mjBFwHU56MP6hNN299HpUd56usQ3vMn7z5hL6QqE92qz-SsJBySrv8whLWjjN9J4Wq5g3_R7Qw00x60bFnuCDhPBjg3EPXXGqlI0x0vwgwHw
+$ rnbyc -P pub.jwks -t eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6ImVNdnI3bktBX2I5QUI4NGpMU05zTFFKZHRmdHpadnllV2M1V0VVMjhnRFkifQ.eyJpc3MiOiJodHRwczovL3Job25hYnd5LnRsZCIsImF1ZCI6ImFiY3h5ejEyMzQifQ.j6v-yxcWvHhyLIc-r3Nzn5rCF9yeJJzgyLSHW_10wREfckspbzf8UTof5Zsrwg8JvKNlJ4Tt4ZffJC4BkkehdBYXPrgcfq9NtvNYsRmAdiNJhOXtZCU9j9X89j2xhY7pRBgWENI9c3730cmAUgaC-IUKsoNRw_dd-eboyrgYKIzUCYRnuwqDB31T2oUSVjy6CckoenyoeHJhHg-x384G-g4ovP1l-L4YpjgCyr6BR8mjBFwHU56MP6hNN299HpUd56usQ3vMn7z5hL6QqE92qz-SsJBySrv8whLWjjN9J4Wq5g3_R7Qw00x60bFnuCDhPBjg3EPXXGqlI0x0vwgwHw
+Token signature verified
+{
+  "iss": "https://rhonabwy.tld",
+  "aud": "abcxyz1234"
+}
+```
 
 Check its [documentation](tools/rnbyc/README.md)
 

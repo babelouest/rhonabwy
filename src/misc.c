@@ -150,6 +150,8 @@ jwa_alg r_str_to_jwa_alg(const char * alg) {
     return R_JWA_ALG_ES512;
   } else if (0 == o_strcmp("EdDSA", alg)) {
     return R_JWA_ALG_EDDSA;
+  } else if (0 == o_strcmp("ES256K", alg)) {
+    return R_JWA_ALG_ES256K;
   } else if (0 == o_strcmp("PS256", alg)) {
     return R_JWA_ALG_PS256;
   } else if (0 == o_strcmp("PS384", alg)) {
@@ -232,6 +234,9 @@ const char * r_jwa_alg_to_str(jwa_alg alg) {
     case R_JWA_ALG_EDDSA:
       return "EdDSA";
       break;
+    case R_JWA_ALG_ES256K:
+      return "ES256K";
+      break;
     case R_JWA_ALG_PS256:
       return "PS256";
       break;
@@ -291,9 +296,6 @@ const char * r_jwa_alg_to_str(jwa_alg alg) {
       break;
      case R_JWA_ALG_PBES2_H512:
       return "PBES2-HS512+A256KW";
-      break;
-     case R_JWA_ALG_ES256K:
-      return "ES256K";
       break;
     default:
       return NULL;
@@ -382,6 +384,7 @@ json_t * r_library_info_json_t() {
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES384"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES512"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("EdDSA"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES256K"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS256"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS384"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS512"));

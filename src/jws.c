@@ -41,7 +41,7 @@ static int r_jws_extract_header(jws_t * jws, json_t * j_header, int x5u_flags) {
     0 != o_strcmp("RS256", json_string_value(json_object_get(j_header, "alg"))) && 0 != o_strcmp("RS384", json_string_value(json_object_get(j_header, "alg"))) && 0 != o_strcmp("RS512", json_string_value(json_object_get(j_header, "alg"))) &&
     0 != o_strcmp("PS256", json_string_value(json_object_get(j_header, "alg"))) && 0 != o_strcmp("PS384", json_string_value(json_object_get(j_header, "alg"))) && 0 != o_strcmp("PS512", json_string_value(json_object_get(j_header, "alg"))) &&
     0 != o_strcmp("ES256", json_string_value(json_object_get(j_header, "alg"))) && 0 != o_strcmp("ES384", json_string_value(json_object_get(j_header, "alg"))) && 0 != o_strcmp("ES512", json_string_value(json_object_get(j_header, "alg"))) && 
-    0 != o_strcmp("EdDSA", json_string_value(json_object_get(j_header, "alg"))) && 0 != o_strcmp("none", json_string_value(json_object_get(j_header, "alg")))) {
+    0 != o_strcmp("EdDSA", json_string_value(json_object_get(j_header, "alg"))) && 0 != o_strcmp("ES256K", json_string_value(json_object_get(j_header, "alg"))) && 0 != o_strcmp("none", json_string_value(json_object_get(j_header, "alg")))) {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_extract_header - Invalid alg");
       ret = RHN_ERROR_PARAM;
     } else {
@@ -384,6 +384,47 @@ static unsigned char * r_jws_sign_eddsa(jws_t * jws, jwk_t * jwk) {
 #endif
 }
 
+static unsigned char * r_jws_sign_es256k(jws_t * jws, jwk_t * jwk) {
+#if GNUTLS_VERSION_NUMBER >= 0x030600
+  gnutls_privkey_t privkey = r_jwk_export_to_gnutls_privkey(jwk);
+  gnutls_datum_t body_dat, sig_dat;
+  unsigned char * to_return = NULL;
+  int res;
+  size_t ret_size = 0;
+  
+  if (privkey != NULL && GNUTLS_PK_EC == gnutls_privkey_get_pk_algorithm(privkey, NULL)) {
+    body_dat.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
+    body_dat.size = o_strlen((const char *)body_dat.data);
+    
+    if (!(res = gnutls_privkey_sign_data(privkey, GNUTLS_DIG_SHA256, 0, &body_dat, &sig_dat))) {
+      if ((to_return = o_malloc(sig_dat.size*2)) != NULL) {
+        if (o_base64url_encode(sig_dat.data, sig_dat.size, to_return, &ret_size)) {
+          to_return[ret_size] = '\0';
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_es256k - Error o_base64url_encode for to_return");
+          o_free(to_return);
+          to_return = NULL;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_es256k - Error allocating resources for to_return");
+      }
+      gnutls_free(sig_dat.data);
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_es256k - Error gnutls_privkey_sign_data: %d", res);
+    }
+    o_free(body_dat.data);
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_es256k - Error extracting privkey");
+  }
+  gnutls_privkey_deinit(privkey);
+  return to_return;
+#else
+  (void)(jws);
+  (void)(jwk);
+  return NULL;
+#endif
+}
+
 static int r_jws_verify_sig_hmac(jws_t * jws, jwk_t * jwk) {
   unsigned char * sig = r_jws_sign_hmac(jws, jwk);
   int ret;
@@ -595,6 +636,51 @@ static int r_jws_verify_sig_eddsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 #endif
 }
 
+static int r_jws_verify_sig_es256k(jws_t * jws, jwk_t * jwk, int x5u_flags) {
+#if GNUTLS_VERSION_NUMBER >= 0x030600
+  int ret = RHN_OK;
+  gnutls_datum_t sig_dat = {NULL, 0}, data;
+  gnutls_pubkey_t pubkey = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags);
+  unsigned char * sig = NULL;
+  size_t sig_len = 0;
+  
+  data.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
+  data.size = o_strlen((const char *)data.data);
+  
+  if (pubkey != NULL && GNUTLS_PK_EC == gnutls_pubkey_get_pk_algorithm(pubkey, NULL)) {
+    sig = o_malloc(o_strlen((const char *)jws->signature_b64url));
+    if (sig != NULL) {
+      if (o_base64url_decode(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), sig, &sig_len)) {
+        sig_dat.data = sig;
+        sig_dat.size = sig_len;
+        if (gnutls_pubkey_verify_data2(pubkey, GNUTLS_SIGN_ECDSA_SHA256, 0, &data, &sig_dat)) {
+          y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_verify_sig_es256k - Error invalid signature");
+          ret = RHN_ERROR_INVALID;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Error o_base64url_decode for sig");
+        ret = RHN_ERROR;
+      }
+      o_free(sig);
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Error allocating resources for sig");
+      ret = RHN_ERROR_MEMORY;
+    }
+  } else {
+    y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_verify_sig_es256k - Invalid public key");
+    ret = RHN_ERROR_PARAM;
+  }
+  o_free(data.data);
+  gnutls_pubkey_deinit(pubkey);
+  return ret;
+#else
+  (void)(jws);
+  (void)(jwk);
+  (void)(x5u_flags);
+  return RHN_ERROR_INVALID;
+#endif
+}
+
 int r_jws_init(jws_t ** jws) {
   int ret;
   
@@ -757,6 +843,9 @@ int r_jws_set_alg(jws_t * jws, jwa_alg alg) {
         break;
       case R_JWA_ALG_EDDSA:
         json_object_set_new(jws->j_header, "alg", json_string("EdDSA"));
+        break;
+      case R_JWA_ALG_ES256K:
+        json_object_set_new(jws->j_header, "alg", json_string("ES256K"));
         break;
       default:
         ret = RHN_ERROR_PARAM;
@@ -1266,7 +1355,11 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags) {
           }
           break;
         case R_JWA_ALG_ES256K:
-          ret = RHN_ERROR_UNSUPPORTED;
+          if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_ECDSA) {
+            ret = r_jws_verify_sig_es256k(jws, jwk, x5u_flags);
+          } else {
+            ret = RHN_ERROR_INVALID;
+          }
           break;
         case R_JWA_ALG_NONE:
           ret = RHN_OK;
@@ -1349,6 +1442,11 @@ char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags) {
         jws->signature_b64url = (unsigned char *)o_strdup("");
         break;
       case R_JWA_ALG_ES256K:
+        if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_ECDSA) {
+          o_free(jws->signature_b64url);
+          jws->signature_b64url = r_jws_sign_es256k(jws, jwk);
+        }
+        break;
       default:
         o_free(jws->signature_b64url);
         jws->signature_b64url = NULL;

@@ -194,6 +194,7 @@ int r_jwk_is_valid(jwk_t * jwk) {
           if (0 != o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv"))) &&
               0 != o_strcmp("P-384", json_string_value(json_object_get(jwk, "crv"))) &&
               0 != o_strcmp("P-512", json_string_value(json_object_get(jwk, "crv"))) &&
+              0 != o_strcmp("secp256k1", json_string_value(json_object_get(jwk, "crv"))) &&
               0 != o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv")))) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid crv value: '%s'", json_string_value(json_object_get(jwk, "crv")));
             ret = RHN_ERROR_PARAM;
@@ -700,6 +701,8 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
       } else if (0 == o_strcmp("P-512", json_string_value(json_object_get(jwk, "crv")))) {
         *bits = 512;
       } else if (0 == o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv")))) {
+        *bits = 256;
+      } else if (0 == o_strcmp("secp256k1", json_string_value(json_object_get(jwk, "crv")))) {
         *bits = 256;
       }
     } else if (ret & R_KEY_TYPE_HMAC) {
@@ -1828,8 +1831,10 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk) {
           curve = GNUTLS_ECC_CURVE_SECP521R1;
         } else if (0 == o_strcmp("P-384", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_SECP384R1;
-        } else if (0 == o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv")))) {
+        } else if (0 == o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv"))) || 0 == o_strcmp("secp256k1", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_SECP256R1;
+        } else if (0 == o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv")))) {
+          curve = GNUTLS_ECC_CURVE_ED25519;
         } else {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_privkey - Error crv data");
           res = RHN_ERROR;
@@ -2137,8 +2142,10 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
           curve = GNUTLS_ECC_CURVE_SECP521R1;
         } else if (0 == o_strcmp("P-384", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_SECP384R1;
-        } else if (0 == o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv")))) {
+        } else if (0 == o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv"))) || 0 == o_strcmp("secp256k1", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_SECP256R1;
+        } else if (0 == o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv")))) {
+          curve = GNUTLS_ECC_CURVE_ED25519;
         } else {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error crv data");
           res = RHN_ERROR;

@@ -46,6 +46,7 @@ START_TEST(test_rhonabwy_info_json_t)
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES384"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES512"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("EdDSA"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES256K"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS256"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS384"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS512"));
@@ -102,6 +103,7 @@ START_TEST(test_rhonabwy_info_str)
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES384"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES512"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("EdDSA"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES256K"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS256"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS384"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS512"));
@@ -138,6 +140,10 @@ START_TEST(test_rhonabwy_alg_conversion)
   ck_assert_str_eq(r_jwa_alg_to_str(R_JWA_ALG_ES384), "ES384");
   ck_assert_int_eq(r_str_to_jwa_alg("ES512"), R_JWA_ALG_ES512);
   ck_assert_str_eq(r_jwa_alg_to_str(R_JWA_ALG_ES512), "ES512");
+  ck_assert_int_eq(r_str_to_jwa_alg("EdDSA"), R_JWA_ALG_EDDSA);
+  ck_assert_str_eq(r_jwa_alg_to_str(R_JWA_ALG_EDDSA), "EdDSA");
+  ck_assert_int_eq(r_str_to_jwa_alg("ES256K"), R_JWA_ALG_ES256K);
+  ck_assert_str_eq(r_jwa_alg_to_str(R_JWA_ALG_ES256K), "ES256K");
   ck_assert_int_eq(r_str_to_jwa_alg("RS256"), R_JWA_ALG_RS256);
   ck_assert_str_eq(r_jwa_alg_to_str(R_JWA_ALG_RS256), "RS256");
   ck_assert_int_eq(r_str_to_jwa_alg("RS384"), R_JWA_ALG_RS384);

@@ -51,6 +51,7 @@
 #include <nettle/pss-mgf1.h>
 #include <nettle/rsa.h>
 
+// https://git.lysator.liu.se/nettle/nettle/-/merge_requests/20
 #ifndef pkcs1_oaep_decrypt
 int
 pkcs1_oaep_decrypt (size_t key_size,
@@ -82,7 +83,6 @@ pkcs1_oaep_decrypt (size_t key_size,
   if (em[0])
     {
       ret = 0;
-      goto cleanup;
     }
 
   memcpy(maskedSeed, em+1, hlen);
@@ -115,7 +115,6 @@ pkcs1_oaep_decrypt (size_t key_size,
   if (!memeql_sec(db, lHash, hlen))
     {
       ret = 0;
-      goto cleanup;
     }
 
   for (i=hlen; i<dbMask_len-1; i++)
@@ -126,7 +125,7 @@ pkcs1_oaep_decrypt (size_t key_size,
       }
     }
 
-  if (*length >= dbMask_len-i-1 && i < dbMask_len-1)
+  if (i < dbMask_len-1 && *length >= dbMask_len-i-1 && i < dbMask_len-1)
   {
     *length = dbMask_len-i-1;
     memcpy(message, db+i+1, *length);
@@ -136,7 +135,6 @@ pkcs1_oaep_decrypt (size_t key_size,
     ret = 0;
   }
 
-cleanup:
   o_free(em);
   o_free(maskedDB);
   o_free(dbMask);
@@ -312,6 +310,7 @@ static void rnd_nonce_func(void *_ctx, size_t length, uint8_t * data)
 }
 #endif
 
+// Available in Nettle 3.7.1
 #ifndef pbkdf2_hmac_sha384
 static void
 pbkdf2_hmac_sha384 (size_t key_length, const uint8_t *key,
@@ -325,9 +324,7 @@ pbkdf2_hmac_sha384 (size_t key_length, const uint8_t *key,
   PBKDF2 (&sha384ctx, hmac_sha384_update, hmac_sha384_digest,
 	  SHA384_DIGEST_SIZE, iterations, salt_length, salt, length, dst);
 }
-#endif
 
-#ifndef pbkdf2_hmac_sha512
 static void
 pbkdf2_hmac_sha512 (size_t key_length, const uint8_t *key,
 		    unsigned iterations,
@@ -342,6 +339,7 @@ pbkdf2_hmac_sha512 (size_t key_length, const uint8_t *key,
 }
 #endif
 
+// https://git.lysator.liu.se/nettle/nettle/-/merge_requests/19
 #ifndef nist_keywrap16
 static void
 nist_keywrap16(const void *ctx, nettle_cipher_func *encrypt, 
@@ -385,9 +383,7 @@ nist_keywrap16(const void *ctx, nettle_cipher_func *encrypt,
   memcpy(ciphertext, A, 8);
   memcpy(ciphertext+8, R, (ciphertext_length-8));
 }
-#endif
 
-#ifndef nist_keyunwrap16
 static int
 nist_keyunwrap16(const void *ctx, nettle_cipher_func *decrypt,
                  const uint8_t *iv, size_t cleartext_length, 

@@ -58,6 +58,10 @@
 #define R_ACTION_PARSE_TOKEN     2
 #define R_ACTION_SERIALIZE_TOKEN 3
 
+#define RNBYC_FORMAT_JWK 0
+#define RNBYC_FORMAT_PEM 1
+#define RNBYC_FORMAT_DER 2
+
 static void print_help(FILE * output) {
   fprintf(output, "\nrnbyc - Rhonabwy JWK and JWT parser and generator\n");
   fprintf(output, "\n");
@@ -95,6 +99,8 @@ static void print_help(FILE * output) {
   fprintf(output, "\tSpecifies the output file for the public keys in the JWKS\n");
   fprintf(output, "-n --indent\n");
   fprintf(output, "\tJWKS output spaces indentation: 0 is compact mode, default is 2 spaces indent\n");
+  fprintf(output, "-F --format\n");
+  fprintf(output, "\tOutput format, values available are JWK (default), PEM or DER\n");
   fprintf(output, "-x --split\n");
   fprintf(output, "\tSplit JWKS output in public and private keys\n");
   fprintf(output, "-t --parse-token\n");
@@ -124,13 +130,13 @@ static void print_help(FILE * output) {
   fprintf(output, "\tDisplay debug messages\n\n");
 }
 
-static int write_file_content(const char * file_path, const char * content) {
+static int write_file_content(const char * file_path, const char * content, size_t content_len) {
   FILE * f;
   int ret;
 
   f = fopen (file_path, "w+");
   if (f) {
-    if (fwrite(content, 1, o_strlen(content), f) > 0 && fwrite("\n", 1, 1, f) > 0) {
+    if (fwrite(content, 1, content_len, f) > 0 && fwrite("\n", 1, 1, f) > 0) {
       ret = 0;
     } else {
       ret = ENOENT;
@@ -395,11 +401,13 @@ static int jwk_file(jwks_t * jwks_priv, jwks_t * jwks_pub, json_t * j_element, i
   return ret;
 }
 
-static void get_jwks_out(json_t * j_arguments, int split_keys, int x5u_flags, int indent, const char * out_file, const char * out_file_public) {
+static void get_jwks_out(json_t * j_arguments, int split_keys, int x5u_flags, int indent, int format, const char * out_file, const char * out_file_public) {
   jwks_t * jwks_privkey = NULL, * jwks_pubkey = NULL;
-  json_t * j_element = NULL, * j_jwks;
-  size_t index = 0;
-  char * str_jwks;
+  jwk_t * cur_jwk;
+  json_t * j_element = NULL, * j_jwks = NULL;
+  size_t index = 0, out_len = 0, str_jwks_len = 0;
+  char * str_jwks = NULL;
+  unsigned char * out = NULL;
   
   if (r_jwks_init(&jwks_privkey) == RHN_OK && r_jwks_init(&jwks_pubkey) == RHN_OK) {
     json_array_foreach(j_arguments, index, j_element) {
@@ -421,30 +429,88 @@ static void get_jwks_out(json_t * j_arguments, int split_keys, int x5u_flags, in
     fprintf(stderr, "Error r_jwks_init\n");
   }
   if (r_jwks_size(jwks_privkey)) {
-    j_jwks = r_jwks_export_to_json_t(jwks_privkey);
-    str_jwks = json_dumps(j_jwks, JSON_INDENT(indent));
-    if (out_file != NULL) {
-      if (write_file_content(out_file, str_jwks)) {
-        fprintf(stderr, "Error writing to file %s\n", out_file);
-      }
+    if (format == RNBYC_FORMAT_JWK) {
+      j_jwks = r_jwks_export_to_json_t(jwks_privkey);
+      str_jwks = json_dumps(j_jwks, JSON_INDENT(indent));
+      str_jwks_len = o_strlen(str_jwks);
     } else {
-      if (r_jwks_size(jwks_pubkey)) {
-        printf("Private keys:\n");
+      str_jwks = NULL;
+      for (index=0; index<r_jwks_size(jwks_privkey); index++) {
+        cur_jwk = r_jwks_get_at(jwks_privkey, index);
+        if (r_jwk_export_to_pem_der(cur_jwk, format==RNBYC_FORMAT_PEM?R_FORMAT_PEM:R_FORMAT_DER, NULL, &out_len, x5u_flags) == RHN_ERROR_PARAM) {
+          if ((out = o_malloc(out_len+1)) != NULL) {
+            if (r_jwk_export_to_pem_der(cur_jwk, format==RNBYC_FORMAT_PEM?R_FORMAT_PEM:R_FORMAT_DER, out, &out_len, x5u_flags) == RHN_OK) {
+              str_jwks = o_realloc(str_jwks, str_jwks_len+out_len);
+              memcpy(str_jwks+str_jwks_len, out, out_len);
+              str_jwks_len += out_len;
+            } else {
+              fprintf(stderr, "Error exporting jwks (2)\n");
+            }
+          } else {
+            fprintf(stderr, "Error allocating resources\n");
+          }
+          o_free(out);
+          out_len = 0;
+        } else {
+          fprintf(stderr, "Error exporting jwks (1)\n");
+        }
+        r_jwk_free(cur_jwk);
       }
-      printf("%s\n", str_jwks);
+    }
+    if (str_jwks != NULL) {
+      if (out_file != NULL) {
+        if (write_file_content(out_file, str_jwks, str_jwks_len)) {
+          fprintf(stderr, "Error writing to file %s\n", out_file);
+        }
+      } else {
+        if (r_jwks_size(jwks_pubkey)) {
+          printf("Private keys:\n");
+        }
+        printf("%.*s\n", (int)str_jwks_len, str_jwks);
+      }
     }
     o_free(str_jwks);
+    str_jwks = NULL;
     json_decref(j_jwks);
+    j_jwks = NULL;
+    str_jwks_len = 0;
   }
   if (r_jwks_size(jwks_pubkey)) {
-    j_jwks = r_jwks_export_to_json_t(jwks_pubkey);
-    str_jwks = json_dumps(j_jwks, JSON_INDENT(indent));
-    if (out_file_public != NULL) {
-      if (write_file_content(out_file_public, str_jwks)) {
-        fprintf(stderr, "Error writing to file %s\n", out_file_public);
-      }
+    if (format == RNBYC_FORMAT_JWK) {
+      j_jwks = r_jwks_export_to_json_t(jwks_pubkey);
+      str_jwks = json_dumps(j_jwks, JSON_INDENT(indent));
+      str_jwks_len = o_strlen(str_jwks);
     } else {
-      printf("\nPublic keys:\n%s\n", str_jwks);
+      for (index=0; index<r_jwks_size(jwks_pubkey); index++) {
+        cur_jwk = r_jwks_get_at(jwks_pubkey, index);
+        if (r_jwk_export_to_pem_der(cur_jwk, format==RNBYC_FORMAT_PEM?R_FORMAT_PEM:R_FORMAT_DER, NULL, &out_len, x5u_flags) == RHN_ERROR_PARAM) {
+          if ((out = o_malloc(out_len+1)) != NULL) {
+            if (r_jwk_export_to_pem_der(cur_jwk, format==RNBYC_FORMAT_PEM?R_FORMAT_PEM:R_FORMAT_DER, out, &out_len, x5u_flags) == RHN_OK) {
+              str_jwks = o_realloc(str_jwks, str_jwks_len+out_len);
+              memcpy(str_jwks+str_jwks_len, out, out_len);
+              str_jwks_len += out_len;
+            } else {
+              fprintf(stderr, "Error exporting jwks public\n");
+            }
+          } else {
+            fprintf(stderr, "Error allocating resources\n");
+          }
+          o_free(out);
+          out_len = 0;
+        } else {
+          fprintf(stderr, "Error exporting jwks public\n");
+        }
+        r_jwk_free(cur_jwk);
+      }
+    }
+    if (str_jwks != NULL) {
+      if (out_file_public != NULL) {
+        if (write_file_content(out_file_public, str_jwks, str_jwks_len)) {
+          fprintf(stderr, "Error writing to file %s\n", out_file_public);
+        }
+      } else {
+        printf("\nPublic keys:\n%.*s\n", (int)str_jwks_len, str_jwks);
+      }
     }
     o_free(str_jwks);
     json_decref(j_jwks);
@@ -664,8 +730,9 @@ int main (int argc, char ** argv) {
       show_header = 0,
       show_claims = 1,
       x5u_flags = 0,
-      debug_mode = 0;
-  const char * short_options = "j::g:i::f:k:a:e:l:o:p:n:x::t:s:H:C:K:P:u:v::h::d::";
+      debug_mode = 0,
+      format = RNBYC_FORMAT_JWK;
+  const char * short_options = "j::g:i::f:k:a:e:l:o:p:n:F:x::t:s:H:C:K:P:u:v::h::d::";
   char * out_file = NULL, 
        * out_file_public = NULL, 
        * parsed_token = NULL, 
@@ -687,6 +754,7 @@ int main (int argc, char ** argv) {
     {"out-file", required_argument, NULL, 'o'},
     {"out-file-public", required_argument, NULL, 'p'},
     {"indent", required_argument, NULL, 'n'},
+    {"format", no_argument, NULL, 'F'},
     {"split", no_argument, NULL, 'x'},
     {"parse-token", required_argument, NULL, 't'},
     {"serialize-token", required_argument, NULL, 's'},
@@ -776,6 +844,23 @@ int main (int argc, char ** argv) {
         out_file_public = o_strdup(optarg);
         split_keys = 1;
         break;
+      case 'F':
+        if (action == R_ACTION_JWKS_OUT) {
+          if (0 == o_strncasecmp(optarg, "JWK", o_strlen("JWK"))) {
+            format = RNBYC_FORMAT_JWK;
+          } else if (0 == o_strncasecmp(optarg, "PEM", o_strlen("PEM"))) {
+            format = RNBYC_FORMAT_PEM;
+          } else if (0 == o_strncasecmp(optarg, "DER", o_strlen("DER"))) {
+            format = RNBYC_FORMAT_DER;
+          } else {
+            fprintf(stderr, "--format: Invalid format\n");
+            ret = EINVAL;
+          }
+        } else {
+          fprintf(stderr, "--format: argument incompatible with parse or serialize action\n");
+          ret = EINVAL;
+        }
+        break;
       case 'x':
         split_keys = 1;
         break;
@@ -859,7 +944,7 @@ int main (int argc, char ** argv) {
   
   if (!ret) {
     if (action == R_ACTION_JWKS_OUT) {
-      get_jwks_out(j_arguments, split_keys, x5u_flags, indent, out_file, out_file_public);
+      get_jwks_out(j_arguments, split_keys, x5u_flags, indent, format, out_file, out_file_public);
     } else if (action == R_ACTION_PARSE_TOKEN) {
       ret = parse_token(parsed_token, indent, x5u_flags, str_token_public_key, str_token_private_key, show_header, show_claims);
     } else if (action == R_ACTION_SERIALIZE_TOKEN) {

@@ -106,27 +106,28 @@ Example output:
 
 ```JSON
 {
-  "version":"0.9.13",
-  "jws":{
-    "alg":[
-    "none",
-    "HS256",
-    "HS384",
-    "HS512",
-    "RS256",
-    "RS384",
-    "RS512",
-    "ES256",
-    "ES384",
-    "ES512",
-    "EdDSA",
-    "ES256K",
-    "PS256",
-    "PS384",
-    "PS512"]
+  "version": "0.9.99",
+  "jws": {
+    "alg": [
+      "none",
+      "HS256",
+      "HS384",
+      "HS512",
+      "RS256",
+      "RS384",
+      "RS512",
+      "ES256",
+      "ES384",
+      "ES512",
+      "EdDSA",
+      "ES256K",
+      "PS256",
+      "PS384",
+      "PS512"
+    ]
   },
-  "jwe":{
-    "alg":[
+  "jwe": {
+    "alg": [
       "RSA1_5",
       "RSA-OAEP",
       "RSA-OAEP-256",
@@ -135,18 +136,24 @@ Example output:
       "A256KW",
       "dir",
       "A128GCMKW",
-      "A192GCMKW",
       "A256GCMKW",
       "PBES2-HS256+A128KW",
       "PBES2-HS384+A192KW",
-      "PBES2-HS512+A256KW"],
-    "enc":[
+      "PBES2-HS512+A256KW",
+      "A192GCMKW",
+      "ECDH-ES",
+      "ECDH-ES+A128KW",
+      "ECDH-ES+A192KW",
+      "ECDH-ES+A256KW"
+    ],
+    "enc": [
       "A128CBC-HS256",
       "A192CBC-HS384",
       "A256CBC-HS512",
       "A128GCM",
-      "A192GCM",
-      "A256GCM"]
+      "A256GCM",
+      "A192GCM"
+    ]
   }
 }
 ```
@@ -289,12 +296,13 @@ The signature is based on the following data:
 
 BASE64URL(UTF8(JWS Protected Header)) || '.' || BASE64URL(JWS Payload)
 
-The algorithms supported by Rhonabwy are the following:
+The algorithms supported by Rhonabwy are:
 - HMAC with SHA-2 Functions: `HS256`, `HS384`, `HS512`
 - Digital Signature with RSASSA-PKCS1-v1_5: `RS256`, `RS384`, `RS512`
 - Digital Signature with ECDSA: `ES256`, `ES384`, `ES512`, `ES256K`
 - Digital Signature with RSASSA-PSS: `PS256`, `PS384`, `PS512`
 - Digital Signature with Ed25519 Elliptic Curve: `EDdSA`
+- Digital Signature with secp256k1 Elliptic Curve: `ES256K`
 - Unsecured: `none`
 
 ### JWS example
@@ -311,7 +319,7 @@ The JWS will be signed using HMAC with SHA256 algorithm, in this example, the si
 {"alg":"HS256","kid":"1"}
 ```
 
-The key used to sign the data is the following:
+The key used to sign the data is:
 
 ```JSON
 {
@@ -397,9 +405,9 @@ BASE64URL(JWE Initialization Vector) || '.' ||
 BASE64URL(JWE Ciphertext) || '.' ||
 BASE64URL(JWE Authentication Tag)
 
-In Rhonabwy library, the supported algorithms are the following:
+In Rhonabwy library, the supported algorithms are:
 - Supported Encryption Algorithm (`enc`) for JWE payload encryption: `A128CBC-HS256`, `A192CBC-HS384`, `A256CBC-HS512`, `A128GCM`, `A2192GCM`, `A256GCM`
-- Supported Cryptographic Algorithms for Key Management: `RSA1_5` (RSAES-PKCS1-v1_5), `dir` (Direct use of a shared symmetric key), `A128GCMKW`, `A192GCMKW` and `A256GCMKW`
+- Supported Cryptographic Algorithms for Key Management: `RSA1_5` (RSAES-PKCS1-v1_5), `RSA-OAEP`, `RSA-OAEP-256`, `A128KW`, `A192KW`, `A256KW`, `dir` (Direct use of a shared symmetric key), `A128GCMKW`, `A192GCMKW`, `A256GCMKW`, `ECDH-ES`, `ECDH-ES+A128KW`, `ECDH-ES+A192KW`, `ECDH-ES+A256KW`, `PBES2-HS384+A192KW` and `PBES2-HS512+A256KW`, `PBES2-HS256+A128KW`
 
 If you don't specify a Content Encryption Key or an Initialization Vector before the serialization, Rhonabwy will automatically generate one or the other or both depending on the algorithm specified.
 
@@ -429,7 +437,7 @@ The RSA private key associated to this token is:
 
 The encryption algorithm used is `A128CBC-HS256` and the cryptographic algorithm to encrypt the key is `RSA1_5`
 
-Finally, the complete representation of the JWE is the following:
+Finally, the complete representation of the JWE is:
 
 ```
 eyJhbGciOiJSU0ExXzUiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.0ouvmluqT8kvBCgjMw8mhBFFEI5Rua58WnnATU21RqEQ2f9M6FqGEkgYpJ81ePtTkOyW1l8V-4nxIDxy-xeTHd0v5bDEbxhWKRdOmUHACC018Gt1ZB9EHHJt7k4UYj3up2xVa8qykKbZ3WGF0Gffi6ctfLCfRCWNnXMbAylV02mf4Tfhpad_WC4EeZENNryilXbAKD_9NNje-CoXD0IQK4-z2fkzfyUislwzK7dyz--uNNAC3N6XO3Blr_z61wXWGEHBa62fyHCsQqagAzN_MqTZv6cxOpRpeWM4_SwjjvcyC77rRyVpN0lC9ukyX_pNrGLXW8zH4mH78OcKPoDLPw.o5e-xb5ZzvZA2JYD2qgFbA.YNTPRS7Hv0fqE7ReEUAS_KNM31wMPPldhBGmYuQTzUWVcX8pGqooTbwaV4o_7BBiF4apD_VCGWwQ-fDD0eDofg.uyAjCu7WSo8BeBDFmYfkLA
@@ -568,7 +576,7 @@ The JWT can be signed using the algorithm `HS256` and the following key:
 }
 ```
 
-The signed JWT serialized will be the following:
+The signed JWT serialized will be:
 
 ```
 eyJ0eXAiOiJKV1QiLA0KICJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ.dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk

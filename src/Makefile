@@ -37,7 +37,13 @@ OBJECTS=jwk.o jwks.o jws.o jwe.o jwt.o misc.o
 OUTPUT=librhonabwy.so
 VERSION_MAJOR=0
 VERSION_MINOR=9
-VERSION_PATCH=14
+VERSION_PATCH=99
+
+ifdef ECDHFLAG
+ENABLE_ECDH=1
+else
+ENABLE_ECDH=0
+endif
 
 .PHONY: all clean
 
@@ -51,6 +57,13 @@ $(CONFIG_FILE):
 	@sed -i -e 's/$${PROJECT_VERSION_MINOR}/$(VERSION_MINOR)/g' $(CONFIG_FILE)        
 	@sed -i -e 's/$${PROJECT_VERSION_PATCH}/$(VERSION_PATCH)/g' $(CONFIG_FILE)        
 	@sed -i -e 's/$${PROJECT_VERSION_NUMBER}/$(shell printf '%02d' $(VERSION_MAJOR))$(shell printf '%02d' $(VERSION_MINOR))$(shell printf '%02d' $(VERSION_PATCH))/g' $(CONFIG_FILE)        
+	@if [ "$(ENABLE_ECDH)" = "1" ]; then \
+		sed -i -e 's/\#cmakedefine R_ECDH_ENABLED/\#define R_ECDH_ENABLED/g' $(CONFIG_FILE); \
+		echo "ECDH SUPPORT    ENABLED"; \
+	else \
+		sed -i -e 's/\#cmakedefine R_ECDH_ENABLED/\/* #undef R_ECDH_ENABLED *\//g' $(CONFIG_FILE); \
+		echo "ECDH SUPPORT    DISABLED"; \
+	fi
 
 $(PKGCONFIG_FILE):
 	@cp $(PKGCONFIG_TEMPLATE) $(PKGCONFIG_FILE)
@@ -71,7 +84,7 @@ target: $(OBJECTS)
 	$(CC) $(CFLAGS) $<
 
 librhonabwy.so: $(CONFIG_FILE) $(OBJECTS)
-	$(CC) -shared -fPIC -Wl,$(SONAME),$(OUTPUT) -o $(OUTPUT).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH) $(OBJECTS) $(LIBS) $(LYDER) $(LJANSSON) $(LGNUTLS)
+	$(CC) -shared -fPIC -Wl,$(SONAME),$(OUTPUT) -o $(OUTPUT).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH) $(OBJECTS) $(LIBS)
 	ln -sf $(OUTPUT).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH) $(OUTPUT)
 
 clean:

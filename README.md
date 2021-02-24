@@ -68,6 +68,10 @@ JWT Relies on JWS and JWE functions, so it supports the same functionalities as 
 (2) GnuTLS 3.6.14 minimum is required for `A192GCM` enc and `A192GCMKW` key wrapping algorithm.
 (3) GnuTLS 3.6 minimum with [FIPS140-2 mode enabled](https://www.gnutls.org/manual/html_node/FIPS140_002d2-mode.html)
 
+## ECDH-ES support
+
+As for now, ECDH-ES key management support is implemented, but experimental. You need GnuTLS with [FIPS140-2 mode enabled](https://www.gnutls.org/manual/html_node/FIPS140_002d2-mode.html) and please know that memory leaks have been detected but can't be fixed for now.
+
 # rnbyc, Rhonabwy command-line tool 
 
 This command-line program can be used to:
@@ -199,6 +203,7 @@ The available options for CMake are:
 - `-DCMAKE_BUILD_TYPE=[Debug|Release]` (default `Release`): Compile with debugging symbols or not
 - `-DBUILD_STATIC=[on|off]` (default `off`): Compile static library
 - `-DBUILD_RHONABWY_DOCUMENTATION=[on|off]` (default `off`): Build documentation with doxygen
+- `-DWITH_ECDH=[on|off]` (default `off`): Allow ECDH-ES for JWE key exchange management
 
 ### Good ol' Makefile
 
@@ -208,6 +213,14 @@ Download Rhonabwy from GitHub repository, compile and install.
 $ git clone https://github.com/babelouest/rhonabwy.git
 $ cd rhonabwy/src
 $ make
+$ sudo make install
+```
+
+To enable ECDH-ES key exchange management, you can pass the option `ECDHFLAG=1` to the make command.
+
+```shell
+$ cd rhonabwy/src
+$ make ECDHFLAG=1
 $ sudo make install
 ```
 

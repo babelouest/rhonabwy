@@ -107,6 +107,14 @@ endif ()
 include(FindMHD)
 find_package(MHD REQUIRED)
 
+option(WITH_ECDH "ECDH-ES key management support" OFF)
+
+if (WITH_ECDH)
+    set(R_ECDH_ENABLED ON)
+else ()
+    set(R_ECDH_ENABLED OFF)
+endif ()
+
 # directories and source
 
 set(INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -413,9 +421,10 @@ set(CPACK_SOURCE_IGNORE_FILES ${PACKAGE_IGNORED_FILES})
 
 include(CPack)
 
-message(STATUS "Build testing tree:       ${BUILD_RHONABWY_TESTING}")
-message(STATUS "Install the header files: ${INSTALL_HEADER}")
-message(STATUS "Build CLI rnbyc:          ${BUILD_RNBYC}")
-message(STATUS "Build Static library:     ${BUILD_STATIC}")
-message(STATUS "Build RPM package:        ${BUILD_RPM}")
-message(STATUS "Build documentation:      ${BUILD_RHONABWY_DOCUMENTATION}")
+message(STATUS "Build testing tree:             ${BUILD_RHONABWY_TESTING}")
+message(STATUS "Install the header files:       ${INSTALL_HEADER}")
+message(STATUS "Build CLI rnbyc:                ${BUILD_RNBYC}")
+message(STATUS "Build Static library:           ${BUILD_STATIC}")
+message(STATUS "Build RPM package:              ${BUILD_RPM}")
+message(STATUS "Build documentation:            ${BUILD_RHONABWY_DOCUMENTATION}")
+message(STATUS "ECDH-ES key management support: ${WITH_ECDH}")

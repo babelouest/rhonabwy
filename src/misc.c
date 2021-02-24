@@ -348,7 +348,7 @@ const char * r_jwa_enc_to_str(jwa_enc enc) {
 }
 
 json_t * r_library_info_json_t() {
-  json_t * j_info = json_pack("{sss{s[sssssssss]}s{s[ssssssssss]s[sssss]}}",
+  json_t * j_info = json_pack("{sss{s[sssssss]}s{s[ssssssssssss]s[sssss]}}",
                               "version", RHONABWY_VERSION_STR,
                               "jws",
                                 "alg",
@@ -392,6 +392,12 @@ json_t * r_library_info_json_t() {
 #if GNUTLS_VERSION_NUMBER >= 0x03060e
   json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("A192GCMKW"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "enc"), json_string("A192GCM"));
+#endif
+#if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
+  json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("ECDH-ES"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("ECDH-ES+A128KW"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("ECDH-ES+A192KW"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("ECDH-ES+A256KW"));
 #endif
   return j_info;
 }

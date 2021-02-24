@@ -55,9 +55,9 @@ JWT Relies on JWS and JWE functions, so it supports the same functionalities as 
 | A256KW | AES Key Wrap with default initial value using 256-bit key |**YES**|
 | dir | Direct use of a shared symmetric key as the CEK |**YES**|
 | ECDH-ES | Elliptic Curve Diffie-Hellman Ephemeral Static key agreement using Concat KDF |*NO*|
-| ECDH-ES+A128KW | ECDH-ES using Concat KDF and CEK wrapped with "A128KW" |*NO*|
-| ECDH-ES+A192KW | ECDH-ES using Concat KDF and CEK wrapped with "A192KW" |*NO*|
-| ECDH-ES+A256KW | ECDH-ES using Concat KDF and CEK wrapped with "A256KW" |*NO*|
+| ECDH-ES+A128KW | ECDH-ES using Concat KDF and CEK wrapped with "A128KW" |**YES**(3)|
+| ECDH-ES+A192KW | ECDH-ES using Concat KDF and CEK wrapped with "A192KW" |**YES**(3)|
+| ECDH-ES+A256KW | ECDH-ES using Concat KDF and CEK wrapped with "A256KW" |**YES**(3)|
 | A128GCMKW | Key wrapping with AES GCM using 128-bit key |**YES**|
 | A192GCMKW | Key wrapping with AES GCM using 192-bit key |**YES**(2)|
 | A256GCMKW | Key wrapping with AES GCM using 256-bit key |**YES**|
@@ -66,6 +66,7 @@ JWT Relies on JWS and JWE functions, so it supports the same functionalities as 
 | PBES2-HS512+A256KW | PBES2 with HMAC SHA-512 and "A256KW" wrapping |**YES**|
 
 (2) GnuTLS 3.6.14 minimum is required for `A192GCM` enc and `A192GCMKW` key wrapping algorithm.
+(3) GnuTLS 3.6 minimum with [FIPS140-2 mode enabled](https://www.gnutls.org/manual/html_node/FIPS140_002d2-mode.html)
 
 # rnbyc, Rhonabwy command-line tool 
 

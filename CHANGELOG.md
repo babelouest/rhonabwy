@@ -1,12 +1,13 @@
 # Rhonabwy Changelog
 
-## 0.9.14
+## 0.9.99
 
 - Fix get symmetric key length
 - Implement CEK `A128KW`, `A192KW` and `A256KW`
 - Fix `r_library_info_json_t` output because `A***GCMKW` were supported before, not `A***KW`
 - Implement CEK `PBES2-HS256+A128KW`, `PBES2-HS384+A192KW`, `PBES2-HS512+A256KW`
 - Implement CEK `RSA-OAEP`, `RSA-OAEP-256`
+- Implement CEK `ECDH-ES`, `ECDH-ES+A128KW`, `ECDH-ES+A192KW`, `ECDH-ES+A256KW` (not recommended for now)
 - Implement signature algorithm `ES256K`
 
 ## 0.9.13

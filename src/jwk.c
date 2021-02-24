@@ -730,6 +730,9 @@ int r_jwk_extract_pubkey(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int x5u_flags)
             if (json_string_length(json_object_get(jwk_privkey, "kid"))) {
               json_object_set_new(jwk_pubkey, "kid", json_string(json_string_value(json_object_get(jwk_privkey, "kid"))));
             }
+            if (json_string_length(json_object_get(jwk_privkey, "alg"))) {
+              json_object_set_new(jwk_pubkey, "alg", json_string(json_string_value(json_object_get(jwk_privkey, "alg"))));
+            }
             ret = RHN_OK;
           } else {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_extract_pubkey - Error r_jwk_init or r_jwk_import_from_gnutls_pubkey");

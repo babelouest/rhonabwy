@@ -621,24 +621,6 @@ START_TEST(test_rhonabwy_encrypt_key_invalid)
 }
 END_TEST
 
-START_TEST(test_rhonabwy_encrypt_key_unsupported_alg)
-{
-  jwe_t * jwe;
-  jwk_t * jwk_pubkey_rsa;
-  
-  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
-  ck_assert_int_eq(r_jwk_init(&jwk_pubkey_rsa), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey_rsa, jwk_pubkey_rsa_str), RHN_OK);
-  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
-  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_ECDH_ES), RHN_OK);
-  ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
-  ck_assert_int_eq(r_jwe_encrypt_key(jwe, jwk_pubkey_rsa, 0), RHN_ERROR_PARAM);
-  
-  r_jwe_free(jwe);
-  r_jwk_free(jwk_pubkey_rsa);
-}
-END_TEST
-
 START_TEST(test_rhonabwy_encrypt_key_valid)
 {
   jwe_t * jwe;
@@ -751,7 +733,6 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_decrypt_payload_invalid_key_no_tag);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_payload_zip);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_key_invalid);
-  tcase_add_test(tc_core, test_rhonabwy_encrypt_key_unsupported_alg);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_key_valid);
 #if GNUTLS_VERSION_NUMBER >= 0x030600
   tcase_add_test(tc_core, test_rhonabwy_decrypt_key_invalid_encrypted_key);

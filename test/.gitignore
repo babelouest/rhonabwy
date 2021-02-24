@@ -14,6 +14,7 @@ jwe_aesgcm
 jwe_kw
 jwe_pbes2
 jwe_rsa_oaep
+jwe_ecdh
 jwt_core
 jwt_sign
 jwt_encrypt

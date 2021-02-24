@@ -10,7 +10,7 @@
 START_TEST(test_rhonabwy_info_json_t)
 {
   json_t * j_info_control = r_library_info_json_t();
-  json_t * j_info = json_pack("{sss{s[sssssssss]}s{s[ssssssssss]s[sssss]}}",
+  json_t * j_info = json_pack("{sss{s[sssssss]}s{s[ssssssssssss]s[sssss]}}",
                             "version", RHONABWY_VERSION_STR,
                             "jws",
                               "alg",
@@ -55,10 +55,17 @@ START_TEST(test_rhonabwy_info_json_t)
   json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("A192GCMKW"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "enc"), json_string("A192GCM"));
 #endif
+#if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
+  json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("ECDH-ES"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("ECDH-ES+A128KW"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("ECDH-ES+A192KW"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("ECDH-ES+A256KW"));
+#endif
 
   ck_assert_ptr_ne(j_info, NULL);
   ck_assert_ptr_ne(j_info_control, NULL);
   ck_assert_int_eq(json_equal(j_info, j_info_control), 1);
+  printf("j_info_control\n%s\n", json_dumps(j_info_control, JSON_INDENT(2)));
   json_decref(j_info);
   json_decref(j_info_control);
 }
@@ -67,7 +74,7 @@ END_TEST
 START_TEST(test_rhonabwy_info_str)
 {
   char * j_info_control_str = r_library_info_json_str();
-  json_t * j_info = json_pack("{sss{s[sssssssss]}s{s[ssssssssss]s[sssss]}}",
+  json_t * j_info = json_pack("{sss{s[sssssss]}s{s[ssssssssssss]s[sssss]}}",
                             "version", RHONABWY_VERSION_STR,
                             "jws",
                               "alg",
@@ -111,6 +118,12 @@ START_TEST(test_rhonabwy_info_str)
 #if GNUTLS_VERSION_NUMBER >= 0x03060e
   json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("A192GCMKW"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "enc"), json_string("A192GCM"));
+#endif
+#if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
+  json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("ECDH-ES"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("ECDH-ES+A128KW"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("ECDH-ES+A192KW"));
+  json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("ECDH-ES+A256KW"));
 #endif
   json_t * j_info_control_parsed = json_loads(j_info_control_str, JSON_DECODE_ANY, NULL);
 

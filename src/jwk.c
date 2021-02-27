@@ -169,9 +169,16 @@ int r_jwk_is_valid(jwk_t * jwk) {
         }
       }
       if (json_object_get(jwk, "alg") != NULL) {
-        if (r_str_to_jwa_alg(json_string_value(json_object_get(jwk, "alg"))) == R_JWA_ALG_UNKNOWN) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid alg value: '%s'", json_string_value(json_object_get(jwk, "alg")));
-          ret = RHN_ERROR_PARAM;
+        if (0 == o_strcmp(json_string_value(json_object_get(jwk, "kty")), "oct")) {
+          if (r_str_to_jwa_enc(json_string_value(json_object_get(jwk, "alg"))) == R_JWA_ENC_UNKNOWN && r_str_to_jwa_alg(json_string_value(json_object_get(jwk, "alg"))) == R_JWA_ALG_UNKNOWN) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid oct alg value: '%s'", json_string_value(json_object_get(jwk, "alg")));
+            ret = RHN_ERROR_PARAM;
+          }
+        } else {
+          if (r_str_to_jwa_alg(json_string_value(json_object_get(jwk, "alg"))) == R_JWA_ALG_UNKNOWN) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid oct alg value: '%s'", json_string_value(json_object_get(jwk, "alg")));
+            ret = RHN_ERROR_PARAM;
+          }
         }
         has_alg = 1;
       }
@@ -193,9 +200,8 @@ int r_jwk_is_valid(jwk_t * jwk) {
         if (json_object_get(jwk, "crv")) {
           if (0 != o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv"))) &&
               0 != o_strcmp("P-384", json_string_value(json_object_get(jwk, "crv"))) &&
-              0 != o_strcmp("P-512", json_string_value(json_object_get(jwk, "crv"))) &&
-              0 != o_strcmp("secp256k1", json_string_value(json_object_get(jwk, "crv"))) &&
-              0 != o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv")))) {
+              0 != o_strcmp("P-521", json_string_value(json_object_get(jwk, "crv"))) &&
+              0 != o_strcmp("secp256k1", json_string_value(json_object_get(jwk, "crv")))) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid crv value: '%s'", json_string_value(json_object_get(jwk, "crv")));
             ret = RHN_ERROR_PARAM;
           }
@@ -210,15 +216,44 @@ int r_jwk_is_valid(jwk_t * jwk) {
             ret = RHN_ERROR_PARAM;
           }
         }
-        if (0 != o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv")))) {
-          if (!json_string_length(json_object_get(jwk, "y"))) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid y");
+        if (!json_string_length(json_object_get(jwk, "y"))) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid y");
+          ret = RHN_ERROR_PARAM;
+        } else if (has_pubkey_parameters) {
+          if (!o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "y")), json_string_length(json_object_get(jwk, "y")), NULL, &b64dec_len) || !b64dec_len) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid y format");
             ret = RHN_ERROR_PARAM;
-          } else if (has_pubkey_parameters) {
-            if (!o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "y")), json_string_length(json_object_get(jwk, "y")), NULL, &b64dec_len) || !b64dec_len) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid y format");
+          }
+        }
+        if (json_object_get(jwk, "d") != NULL) {
+          if (!json_string_length(json_object_get(jwk, "d"))) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid d");
+            ret = RHN_ERROR_PARAM;
+          } else {
+            if (!o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "d")), json_string_length(json_object_get(jwk, "d")), NULL, &b64dec_len) || !b64dec_len) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid d format");
               ret = RHN_ERROR_PARAM;
             }
+            has_privkey_parameters = 1;
+          }
+        }
+      } else if (0 == o_strcmp(json_string_value(json_object_get(jwk, "kty")), "OKP")) {
+        if (json_object_get(jwk, "crv")) {
+          if (0 != o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv"))) &&
+              0 != o_strcmp("X25519", json_string_value(json_object_get(jwk, "crv"))) &&
+              0 != o_strcmp("X448", json_string_value(json_object_get(jwk, "crv")))) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid crv value: '%s'", json_string_value(json_object_get(jwk, "crv")));
+            ret = RHN_ERROR_PARAM;
+          }
+          has_pubkey_parameters = 1;
+        }
+        if (!json_string_length(json_object_get(jwk, "x"))) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x");
+          ret = RHN_ERROR_PARAM;
+        } else if (has_pubkey_parameters) {
+          if (!o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "x")), json_string_length(json_object_get(jwk, "x")), NULL, &b64dec_len) || !b64dec_len) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x format");
+            ret = RHN_ERROR_PARAM;
           }
         }
         if (json_object_get(jwk, "d") != NULL) {
@@ -456,7 +491,7 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
           } else if (bits == 384) {
             ec_bits = GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP384R1);
             alg = GNUTLS_PK_ECDSA;
-          } else if (bits == 512) {
+          } else if (bits == 521) {
             ec_bits = GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP521R1);
             alg = GNUTLS_PK_ECDSA;
           }
@@ -493,7 +528,7 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
             ret = RHN_ERROR;
           }
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_generate_key_pair - Error curve length, values allowed are 256, 384 or 512");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_generate_key_pair - Error curve length, values allowed are 256, 384 or 521");
           ret = RHN_ERROR_PARAM;
         }
 #endif // GNUTLS_VERSION_NUMBER >= 0x030500
@@ -540,6 +575,13 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
       } else {
         ret = R_KEY_TYPE_EDDSA;
       }
+      if (json_object_get(jwk, "d") != NULL) {
+        ret |= R_KEY_TYPE_PRIVATE;
+      } else {
+        ret |= R_KEY_TYPE_PUBLIC;
+      }
+    } else if (0 == o_strcmp(json_string_value(json_object_get(jwk, "kty")), "OKP")) {
+      ret = R_KEY_TYPE_EDDSA;
       if (json_object_get(jwk, "d") != NULL) {
         ret |= R_KEY_TYPE_PRIVATE;
       } else {
@@ -698,10 +740,13 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
         *bits = 256;
       } else if (0 == o_strcmp("P-384", json_string_value(json_object_get(jwk, "crv")))) {
         *bits = 384;
-      } else if (0 == o_strcmp("P-512", json_string_value(json_object_get(jwk, "crv")))) {
-        *bits = 512;
+      } else if (0 == o_strcmp("P-521", json_string_value(json_object_get(jwk, "crv")))) {
+        *bits = 521;
       } else if (0 == o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv")))) {
         *bits = 256;
+      } else if (0 == o_strcmp("X25519", json_string_value(json_object_get(jwk, "crv")))) {
+        *bits = 256;
+        ret |= R_KEY_TYPE_X25519;
       } else if (0 == o_strcmp("secp256k1", json_string_value(json_object_get(jwk, "crv")))) {
         *bits = 256;
       }
@@ -1162,7 +1207,7 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
             
             switch (curve) {
               case GNUTLS_ECC_CURVE_SECP521R1:
-                json_object_set_new(jwk, "crv", json_string("P-512"));
+                json_object_set_new(jwk, "crv", json_string("P-521"));
                 break;
               case GNUTLS_ECC_CURVE_SECP384R1:
                 json_object_set_new(jwk, "crv", json_string("P-384"));
@@ -1203,7 +1248,7 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
         break;
       case GNUTLS_PK_EDDSA_ED25519:
         if ((res = gnutls_privkey_export_ecc_raw(key, &curve, &x, NULL, &k)) == GNUTLS_E_SUCCESS) {
-          json_object_set_new(jwk, "kty", json_string("EC"));
+          json_object_set_new(jwk, "kty", json_string("OKP"));
           ret = RHN_OK;
           do {
             if (!o_base64url_encode(x.data, x.size, NULL, &b64_enc_len)) {
@@ -1389,7 +1434,7 @@ int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
             json_object_set_new(jwk, "y", json_string((const char *)b64_enc));
             switch (curve) {
               case GNUTLS_ECC_CURVE_SECP521R1:
-                json_object_set_new(jwk, "crv", json_string("P-512"));
+                json_object_set_new(jwk, "crv", json_string("P-521"));
                 break;
               case GNUTLS_ECC_CURVE_SECP384R1:
                 json_object_set_new(jwk, "crv", json_string("P-384"));
@@ -1427,7 +1472,7 @@ int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
         break;
       case GNUTLS_PK_EDDSA_ED25519:
         if ((res = gnutls_pubkey_export_ecc_raw(pub, &curve, &x, NULL)) == GNUTLS_E_SUCCESS) {
-          json_object_set_new(jwk, "kty", json_string("EC"));
+          json_object_set_new(jwk, "kty", json_string("OKP"));
           ret = RHN_OK;
           do {
             if (!o_base64url_encode(x.data, x.size, NULL, &b64_enc_len)) {
@@ -1830,16 +1875,12 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk) {
         k.data = b64_dec;
         k.size = b64_dec_len;
 
-        if (0 == o_strcmp("P-512", json_string_value(json_object_get(jwk, "crv")))) {
+        if (0 == o_strcmp("P-521", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_SECP521R1;
         } else if (0 == o_strcmp("P-384", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_SECP384R1;
         } else if (0 == o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv"))) || 0 == o_strcmp("secp256k1", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_SECP256R1;
-#if GNUTLS_VERSION_NUMBER >= 0x030600
-        } else if (0 == o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv")))) {
-          curve = GNUTLS_ECC_CURVE_ED25519;
-#endif
         } else {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_privkey - Error crv data");
           res = RHN_ERROR;
@@ -2143,14 +2184,12 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
         y.data = b64_dec;
         y.size = b64_dec_len;
 
-        if (0 == o_strcmp("P-512", json_string_value(json_object_get(jwk, "crv")))) {
+        if (0 == o_strcmp("P-521", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_SECP521R1;
         } else if (0 == o_strcmp("P-384", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_SECP384R1;
         } else if (0 == o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv"))) || 0 == o_strcmp("secp256k1", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_SECP256R1;
-        } else if (0 == o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv")))) {
-          curve = GNUTLS_ECC_CURVE_ED25519;
         } else {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error crv data");
           res = RHN_ERROR;

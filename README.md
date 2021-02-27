@@ -66,6 +66,7 @@ JWT Relies on JWS and JWE functions, so it supports the same functionalities as 
 | PBES2-HS512+A256KW | PBES2 with HMAC SHA-512 and "A256KW" wrapping |**YES**|
 
 (2) GnuTLS 3.6.14 minimum is required for `A192GCM` enc and `A192GCMKW` key wrapping algorithm.
+
 (3) GnuTLS 3.6 minimum with [FIPS140-2 mode enabled](https://www.gnutls.org/manual/html_node/FIPS140_002d2-mode.html)
 
 ## ECDH-ES support

@@ -72,6 +72,7 @@ const char jwk_privkey_rsa_str_2[] = "{\"kty\":\"RSA\",\"n\":\"ANjyvB_f8xm80wMZM
                                      "cqDaqwKude14HPJaZSckkKbAYxLJli8NscCg1C28_tw70bRxo4BzAMtVfESS0BmRJfUzYtht-MeEr0X34O1Sm714yZ141wMvp_KxwaLTd1q72AND8orVskT-Clh4Oh7g"
                                      "k7Gojbsv48w2Wx6jHL6sgmKk9Eyh94br3uqKVpC_f6EXYXFgAaukitw8GKsMQ3AZiF2lZy_t2OZ1SXRDNhLeToY-XxMalEdYsFnYjp2kJhjZMzt2CsRQQ\",\"kid\":\"2\"}";
 
+#if NETTLE_VERSION_NUMBER >= 0x030400
 START_TEST(test_rhonabwy_parse_token_invalid)
 {
   jwe_t * jwe_decrypt;
@@ -385,6 +386,7 @@ eL4HrtZkUuKvnPrMnsUUFlfUdybVzxyjz9JF_XyaY14ardLSjf4L_FNY\"}",
   r_jwe_free(jwe);
 }
 END_TEST
+#endif
 
 static Suite *rhonabwy_suite(void)
 {
@@ -393,6 +395,7 @@ static Suite *rhonabwy_suite(void)
 
   s = suite_create("Rhonabwy JWE RSA OAEP key encryption tests");
   tc_core = tcase_create("test_rhonabwy_rsa_oaep");
+#if NETTLE_VERSION_NUMBER >= 0x030400
   tcase_add_test(tc_core, test_rhonabwy_parse_token_invalid);
   tcase_add_test(tc_core, test_rhonabwy_decrypt_token_invalid);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_invalid_privkey);
@@ -402,6 +405,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_rsa256_aesgcm_ok);
   tcase_add_test(tc_core, test_rhonabwy_flood_ok);
   tcase_add_test(tc_core, test_rhonabwy_decrypt_rfc_ok);
+#endif
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

@@ -44,9 +44,11 @@
 #include <nettle/aes.h>
 #include <nettle/memops.h>
 #include <nettle/bignum.h>
+#if NETTLE_VERSION_NUMBER >= 0x030400
 #include <nettle/pss-mgf1.h>
 #include <nettle/rsa.h>
 #include <nettle/curve25519.h>
+#endif
 
 static size_t r_jwe_get_key_size(jwa_enc enc) {
   size_t size = 0;
@@ -271,7 +273,7 @@ static int _r_dh_compute(gnutls_privkey_t priv, gnutls_pubkey_t pub, gnutls_datu
 #endif
 
 // https://git.lysator.liu.se/nettle/nettle/-/merge_requests/20
-#ifndef pkcs1_oaep_decrypt
+#if !defined(pkcs1_oaep_decrypt) && NETTLE_VERSION_NUMBER >= 0x030400
 int
 pkcs1_oaep_decrypt (size_t key_size,
 	       const mpz_t m,
@@ -648,6 +650,7 @@ nist_keyunwrap16(const void *ctx, nettle_cipher_func *decrypt,
 }
 #endif
 
+#if NETTLE_VERSION_NUMBER >= 0x030400
 static int _r_rsa_oaep_encrypt(gnutls_pubkey_t g_pub, jwa_alg alg, uint8_t * cleartext, size_t cleartext_len, uint8_t * ciphertext, size_t * cyphertext_len) {
   struct rsa_public_key pub;
   gnutls_datum_t m = {NULL, 0}, e = {NULL, 0};
@@ -691,7 +694,9 @@ static int _r_rsa_oaep_encrypt(gnutls_pubkey_t g_pub, jwa_alg alg, uint8_t * cle
   
   return ret;
 }
+#endif
 
+#if NETTLE_VERSION_NUMBER >= 0x030400
 static int _r_rsa_oaep_decrypt(gnutls_privkey_t g_priv, jwa_alg alg, uint8_t * ciphertext, size_t cyphertext_len, uint8_t * cleartext, size_t * cleartext_len) {
   struct rsa_private_key priv;
   gnutls_datum_t m = {NULL, 0}, e = {NULL, 0}, d = {NULL, 0}, p = {NULL, 0}, q = {NULL, 0}, u = {NULL, 0}, e1 = {NULL, 0}, e2 = {NULL, 0};
@@ -742,6 +747,7 @@ static int _r_rsa_oaep_decrypt(gnutls_privkey_t g_priv, jwa_alg alg, uint8_t * c
   
   return ret;
 }
+#endif
 
 static void _r_aes_key_wrap(uint8_t * kek, size_t kek_len, uint8_t * key, size_t key_len, uint8_t * wrapped_key) {
   struct aes128_ctx ctx_128;
@@ -2884,10 +2890,13 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
   gnutls_pubkey_t g_pub = NULL;
   unsigned int bits = 0;
   unsigned char * cypherkey_b64 = NULL, * key = NULL;
-  uint8_t * cyphertext = NULL;
-  size_t cypherkey_b64_len = 0, key_len = 0, cyphertext_len = 0;
+  size_t cypherkey_b64_len = 0, key_len = 0;
   jwa_alg alg;
   const char * kid;
+#if NETTLE_VERSION_NUMBER >= 0x030400
+  uint8_t * cyphertext = NULL;
+  size_t cyphertext_len = 0;
+#endif
   
   if (jwe != NULL) {
     if (jwk_s != NULL) {
@@ -2944,6 +2953,7 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
           ret = RHN_ERROR_PARAM;
         }
         break;
+#if NETTLE_VERSION_NUMBER >= 0x030400
       case R_JWA_ALG_RSA_OAEP:
       case R_JWA_ALG_RSA_OAEP_256:
         res = r_jwk_key_type(jwk, &bits, x5u_flags);
@@ -2984,6 +2994,7 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
           ret = RHN_ERROR_PARAM;
         }
         break;
+#endif
       case R_JWA_ALG_DIR:
         o_free(jwe->encrypted_key_b64url);
         jwe->encrypted_key_b64url = NULL;
@@ -3090,8 +3101,11 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
   gnutls_privkey_t g_priv = NULL;
   unsigned int bits = 0;
   unsigned char * cypherkey_dec = NULL, * key = NULL;
+  size_t cypherkey_dec_len = 0, key_len = 0;
+#if NETTLE_VERSION_NUMBER >= 0x030400
   uint8_t * clearkey = NULL;
-  size_t cypherkey_dec_len = 0, key_len = 0, clearkey_len = 0;
+  size_t clearkey_len = 0;
+#endif
   
   if (jwe != NULL) {
     if (jwk_s != NULL) {
@@ -3147,6 +3161,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
             ret = RHN_ERROR_PARAM;
           }
           break;
+#if NETTLE_VERSION_NUMBER >= 0x030400
         case R_JWA_ALG_RSA_OAEP:
         case R_JWA_ALG_RSA_OAEP_256:
           if (r_jwk_key_type(jwk, &bits, x5u_flags) & (R_KEY_TYPE_RSA|R_KEY_TYPE_PRIVATE) && bits >= 2048) {
@@ -3194,6 +3209,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
             ret = RHN_ERROR_PARAM;
           }
           break;
+#endif
         case R_JWA_ALG_DIR:
           o_free(jwe->encrypted_key_b64url);
           jwe->encrypted_key_b64url = NULL;

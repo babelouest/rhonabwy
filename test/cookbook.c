@@ -251,7 +251,9 @@ END_TEST
 START_TEST(test_rhonabwy_cookbook_jwe)
 {
   jwe_test(JSON_JWE_5_1_RSA_V15_AES_CBC);
+#if NETTLE_VERSION_NUMBER >= 0x030400
   jwe_test(JSON_JWE_5_2_RSA_OAEP_AES_GCM);
+#endif
   jwe_test(JSON_JWE_5_3_PBES2_AES_CBC);
 #if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
   jwe_test(JSON_JWE_5_4_ECDH_ES_AES_GCM);

@@ -34,6 +34,7 @@ extern "C"
 
 #include <jansson.h>
 #include <gnutls/gnutls.h>
+#include <nettle/version.h>
 
 /**
  * @defgroup const Constants and properties

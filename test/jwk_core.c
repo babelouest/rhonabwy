@@ -349,10 +349,11 @@ START_TEST(test_rhonabwy_generate_key_pair)
   ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
   ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, jwk_pubkey, R_KEY_TYPE_ECDSA, 1, KID), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, jwk_pubkey, R_KEY_TYPE_ECDSA, 555, KID), RHN_ERROR_PARAM);
-  ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, jwk_pubkey, R_KEY_TYPE_ECDSA, 512, KID), RHN_OK);
+  ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, jwk_pubkey, R_KEY_TYPE_ECDSA, 521, KID), RHN_OK);
   ck_assert_str_eq(KID, r_jwk_get_property_str(jwk_privkey, "kid"));
+  ck_assert_str_eq("P-521", r_jwk_get_property_str(jwk_privkey, "crv"));
   ck_assert_int_ne((type = r_jwk_key_type(jwk_privkey, &bits, 0)), R_KEY_TYPE_NONE);
-  ck_assert_int_eq(bits, 512);
+  ck_assert_int_eq(bits, 521);
   ck_assert_int_eq(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -360,8 +361,9 @@ START_TEST(test_rhonabwy_generate_key_pair)
   ck_assert_int_ne(type & R_KEY_TYPE_ECDSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   ck_assert_str_eq(KID, r_jwk_get_property_str(jwk_pubkey, "kid"));
+  ck_assert_str_eq("P-521", r_jwk_get_property_str(jwk_pubkey, "crv"));
   ck_assert_int_ne((type = r_jwk_key_type(jwk_pubkey, &bits, 0)), R_KEY_TYPE_NONE);
-  ck_assert_int_eq(bits, 512);
+  ck_assert_int_eq(bits, 521);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -375,6 +377,7 @@ START_TEST(test_rhonabwy_generate_key_pair)
   ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
   ck_assert_int_eq(r_jwk_generate_key_pair(jwk_privkey, jwk_pubkey, R_KEY_TYPE_EDDSA, 256, KID), RHN_OK);
   ck_assert_str_eq(KID, r_jwk_get_property_str(jwk_pubkey, "kid"));
+  ck_assert_str_eq("Ed25519", r_jwk_get_property_str(jwk_pubkey, "crv"));
   ck_assert_int_ne((type = r_jwk_key_type(jwk_pubkey, &bits, 0)), R_KEY_TYPE_NONE);
   ck_assert_int_eq(bits, 256);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);

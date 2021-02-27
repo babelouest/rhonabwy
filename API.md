@@ -517,6 +517,44 @@ r_jwe_free(jwe);
 r_jwk_free(jwk_key_rsa);
 ```
 
+### ECDH-ES implementation
+
+The ECDH-ES algorithms requires only an ECDSA public key for the encryption. The RFC specifies `"A new ephemeral public key value MUST be generated for each key agreement operation.", so an ephemeral key is genererated on each encryption.
+
+You can specify the ephemeral key to use though, by setting an encryption key to the JWE before generating the token. The responsibilty not to reuse the same ephemeral key is yours then.
+
+Example with a specified ephemeral key:
+
+```C
+#define PAYLOAD "The true sign of intelligence is not knowledge but imagination..."
+
+const char eph[] = " {\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"gI0GAILBdu7T53akrFmMyGcsF3n5dO7MmwNBHKW5SV0\",\"y\":\"SLW_xSffzlPWrHEVI30DHM_4egVwt3NQqeUD7nMFpps\",\"d\":\"0_NxaRPUMQoAJt50Gz8YiTr8gRTwyEaCumd-MToTmIo\"}", // This is the ephemeral key
+bob[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"weNJy2HscCSM6AEDTDg04biOvhFhyyWvOHQfeF_PxMQ\",\"y\":\"e8lnCO-AlStT-NJVX-crhB7QRYhiix03illJOVAOyck\"}"; // This is the public key
+jwk_t * jwk_eph, * jwk_bob;
+jwe_t * jwe;
+char * token;
+
+r_jwk_init(&jwk_eph);
+r_jwk_init(&jwk_bob);
+r_jwe_init(&jwe);
+r_jwk_import_from_json_str(jwk_eph, eph);
+r_jwk_import_from_json_str(jwk_bob, bob);
+r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD));
+
+r_jwe_add_keys(jwe, jwk_eph, jwk_bob); // Add both public and ephemeral keys here
+
+r_jwe_set_alg(jwe, R_JWA_ALG_ECDH_ES);
+r_jwe_set_enc(jwe, R_JWA_ENC_A128GCM);
+r_jwe_set_header_str_value(jwe, "apu", "QWxpY2U");
+r_jwe_set_header_str_value(jwe, "apv", "Qm9i");
+
+token = r_jwe_serialize(jwe, NULL, 0);
+
+r_jwk_free(jwk_eph);
+r_jwk_free(jwk_bob);
+r_jwe_free(jwe);
+```
+
 ## JWT
 
 Finally, a JWT (JSON Web Token) is a JSON content signed and/or encrypted and serialized in a compact format that can be easily transferred in HTTP requests. Technically, a JWT is a JWS or a JWE which payload is a stringified JSON and has the property `"type":"JWT"` in the header.

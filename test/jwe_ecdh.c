@@ -44,7 +44,7 @@ static void test_encrypt_decrypt_ok(jwa_alg alg, jwa_enc enc) {
   jwk_t * jwk_privkey, * jwk_pubkey;
   char * token = NULL;
   
-  y_log_message(Y_LOG_LEVEL_DEBUG, "Test ok alg %s, enc %s", r_jwa_alg_to_str(alg), r_jwa_enc_to_str(enc));
+  y_log_message(Y_LOG_LEVEL_DEBUG, "Test alg %s, enc %s", r_jwa_alg_to_str(alg), r_jwa_enc_to_str(enc));
   ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
   ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
   ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
@@ -132,6 +132,45 @@ START_TEST(test_rhonabwy_encrypt_decrypt_ok)
   test_encrypt_decrypt_ok(R_JWA_ALG_ECDH_ES_A256KW, R_JWA_ENC_A128GCM);
   test_encrypt_decrypt_ok(R_JWA_ALG_ECDH_ES_A256KW, R_JWA_ENC_A192GCM);
   test_encrypt_decrypt_ok(R_JWA_ALG_ECDH_ES_A256KW, R_JWA_ENC_A256GCM);
+}
+END_TEST
+
+START_TEST(test_rhonabwy_encrypt_invalid_parameters)
+{
+  jwe_t * jwe;
+  jwk_t * jwk_pubkey;
+
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_pubkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_int_eq(r_jwe_add_keys(jwe, NULL, jwk_pubkey), RHN_OK);
+
+  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_ECDH_ES_A128KW), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apu", ";not a base64;"), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apv", "Z3J1dAo"), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, NULL, 0), NULL);
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apu", "cGxvcAo"), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apv", ";not a base64;"), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, NULL, 0), NULL);
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apu", ";not a base64;"), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apv", ";not a base64;"), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, NULL, 0), NULL);
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apu", NULL), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apv", ";not a base64;"), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, NULL, 0), NULL);
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apu", ";not a base64;"), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apv", NULL), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, NULL, 0), NULL);
+  
+  r_jwk_free(jwk_pubkey);
+  r_jwe_free(jwe);
 }
 END_TEST
 
@@ -326,6 +365,7 @@ static Suite *rhonabwy_suite(void)
   tc_core = tcase_create("test_rhonabwy_ecdh_es");
 #if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_ok);
+  tcase_add_test(tc_core, test_rhonabwy_encrypt_invalid_parameters);
   tcase_add_test(tc_core, test_rhonabwy_decrypt_invalid_key);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_invalid_key_type);
   tcase_add_test(tc_core, test_rhonabwy_parse_token_invalid);

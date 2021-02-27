@@ -65,7 +65,6 @@ START_TEST(test_rhonabwy_info_json_t)
   ck_assert_ptr_ne(j_info, NULL);
   ck_assert_ptr_ne(j_info_control, NULL);
   ck_assert_int_eq(json_equal(j_info, j_info_control), 1);
-  printf("j_info_control\n%s\n", json_dumps(j_info_control, JSON_INDENT(2)));
   json_decref(j_info);
   json_decref(j_info_control);
 }

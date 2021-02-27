@@ -24,6 +24,7 @@ jobs:
         cmake -DBUILD_RHONABWY_TESTING=on -DBUILD_RHONABWY_DOCUMENTATION=on ..
         ../test/cert/create-cert.sh || (cat ../test/cert/certtool.log && false)
         ln -s ../test/cert/ .
+        ln -s ../test/cookbook-master .
         ln -s ../test/ .
         make test || (cat Testing/Temporary/LastTest.log && false)
         make package

@@ -304,6 +304,7 @@ if (BUILD_RHONABWY_TESTING)
 
         set(TESTS
           misc
+          cookbook
           jwk_core
           jwk_export
           jwk_import

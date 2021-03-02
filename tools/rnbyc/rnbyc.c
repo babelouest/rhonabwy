@@ -1,9 +1,9 @@
 /**
- * 
+ *
  * rnbyc: Rhonabwy command-line tool
- * 
+ *
  * Copyright 2020 Nicolas Mora <mail@babelouest.org>
- * 
+ *
  * Command-line tool to manipulate JWK, JWKS, JWE, JWS and JWT
  * - Generates random JWK using the specified algorithm
  * - Generates random JWKS using the specified algorithm
@@ -30,7 +30,7 @@
  *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <string.h>
@@ -79,7 +79,11 @@ static void print_help(FILE * output) {
   fprintf(output, "-g --generate <type>\n");
   fprintf(output, "\tGenerate a key pair or a symmetric key\n");
   fprintf(output, "\t<type> - values available:\n");
-  fprintf(output, "\tRSA[key size] (default key size: 4096), ECDSA256, ECDSA384, ECDSA521, EDDSA, oct[key size] (default key size: 128 bits)\n");
+#if 0 // Disabled for now
+  fprintf(output, "\tRSA[key size] (default key size: 4096), ECDSA256, ECDSA384, ECDSA521, Ed25519, Ed448, X25519, X448, oct[key size] (default key size: 128 bits)\n");
+#else
+  fprintf(output, "\tRSA[key size] (default key size: 4096), ECDSA256, ECDSA384, ECDSA521, Ed25519, Ed448, oct[key size] (default key size: 128 bits)\n");
+#endif
   fprintf(output, "-i --stdin\n");
   fprintf(output, "\tReads key to parse from stdin\n");
   fprintf(output, "-f --in-file\n");
@@ -146,7 +150,7 @@ static int write_file_content(const char * file_path, const char * content, size
     fprintf(stderr, "error opening file %s\n", file_path);
     ret = EACCES;
   }
-  
+
   return ret;
 }
 
@@ -173,7 +177,7 @@ static char * get_file_content(const char * file_path) {
   } else {
     fprintf(stderr, "error opening file %s\n", file_path);
   }
-  
+
   return buffer;
 }
 
@@ -198,7 +202,7 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
   const char * type = json_string_value(json_object_get(j_element, "type"));
   int ret = 0;
   json_int_t bits;
-  
+
   if (r_jwk_init(&jwk_priv) == RHN_OK && r_jwk_init(&jwk_pub) == RHN_OK) {
     if (0 == o_strcmp("RSA", type)) {
       r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_RSA, json_integer_value(json_object_get(j_element, "bits")), json_string_value(json_object_get(j_element, "kid")));
@@ -242,7 +246,7 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
       } else {
         r_jwks_append_jwk(jwks_privkey, jwk_pub);
       }
-    } else if (0 == o_strcasecmp("ECDSA512", type)) {
+    } else if (0 == o_strcasecmp("ECDSA521", type)) {
       r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_ECDSA, 521, json_string_value(json_object_get(j_element, "kid")));
       if (json_string_length(json_object_get(j_element, "alg"))) {
         r_jwk_set_property_str(jwk_priv, "alg", json_string_value(json_object_get(j_element, "alg")));
@@ -257,7 +261,7 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
       } else {
         r_jwks_append_jwk(jwks_privkey, jwk_pub);
       }
-    } else if (0 == o_strcasecmp("EDDSA", type)) {
+    } else if (0 == o_strcasecmp("Ed25519", type)) {
       r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_EDDSA, 256, json_string_value(json_object_get(j_element, "kid")));
       if (json_string_length(json_object_get(j_element, "alg"))) {
         r_jwk_set_property_str(jwk_priv, "alg", json_string_value(json_object_get(j_element, "alg")));
@@ -272,6 +276,53 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
       } else {
         r_jwks_append_jwk(jwks_privkey, jwk_pub);
       }
+    } else if (0 == o_strcasecmp("Ed448", type)) {
+      r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_EDDSA, 448, json_string_value(json_object_get(j_element, "kid")));
+      if (json_string_length(json_object_get(j_element, "alg"))) {
+        r_jwk_set_property_str(jwk_priv, "alg", json_string_value(json_object_get(j_element, "alg")));
+        r_jwk_set_property_str(jwk_pub, "alg", json_string_value(json_object_get(j_element, "alg")));
+      } else {
+        r_jwk_set_property_str(jwk_priv, "alg", "EdDSA");
+        r_jwk_set_property_str(jwk_pub, "alg", "EdDSA");
+      }
+      r_jwks_append_jwk(jwks_privkey, jwk_priv);
+      if (jwks_pubkey != NULL) {
+        r_jwks_append_jwk(jwks_pubkey, jwk_pub);
+      } else {
+        r_jwks_append_jwk(jwks_privkey, jwk_pub);
+      }
+#if 0 // Disabled for now
+    } else if (0 == o_strcasecmp("X25519", type)) {
+      r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_ECDH, 256, json_string_value(json_object_get(j_element, "kid")));
+      if (json_string_length(json_object_get(j_element, "alg"))) {
+        r_jwk_set_property_str(jwk_priv, "alg", json_string_value(json_object_get(j_element, "alg")));
+        r_jwk_set_property_str(jwk_pub, "alg", json_string_value(json_object_get(j_element, "alg")));
+      } else {
+        r_jwk_set_property_str(jwk_priv, "alg", "X25519");
+        r_jwk_set_property_str(jwk_pub, "alg", "X25519");
+      }
+      r_jwks_append_jwk(jwks_privkey, jwk_priv);
+      if (jwks_pubkey != NULL) {
+        r_jwks_append_jwk(jwks_pubkey, jwk_pub);
+      } else {
+        r_jwks_append_jwk(jwks_privkey, jwk_pub);
+      }
+    } else if (0 == o_strcasecmp("X448", type)) {
+      r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_ECDH, 448, json_string_value(json_object_get(j_element, "kid")));
+      if (json_string_length(json_object_get(j_element, "alg"))) {
+        r_jwk_set_property_str(jwk_priv, "alg", json_string_value(json_object_get(j_element, "alg")));
+        r_jwk_set_property_str(jwk_pub, "alg", json_string_value(json_object_get(j_element, "alg")));
+      } else {
+        r_jwk_set_property_str(jwk_priv, "alg", "X25519");
+        r_jwk_set_property_str(jwk_pub, "alg", "X25519");
+      }
+      r_jwks_append_jwk(jwks_privkey, jwk_priv);
+      if (jwks_pubkey != NULL) {
+        r_jwks_append_jwk(jwks_pubkey, jwk_pub);
+      } else {
+        r_jwks_append_jwk(jwks_privkey, jwk_pub);
+      }
+#endif
     } else if (0 == o_strcasecmp("oct", type)) {
       bits = json_integer_value(json_object_get(j_element, "bits"));
       bits += (bits%8);
@@ -378,7 +429,7 @@ static int jwks_parse_str(jwks_t * jwks_priv, jwks_t * jwks_pub, const char * in
 static int jwk_stdin(jwks_t * jwks_priv, jwks_t * jwks_pub, json_t * j_element, int x5u_flags) {
   char * in = get_stdin_content();
   int ret;
-  
+
   if (in != NULL) {
     ret = jwks_parse_str(jwks_priv, jwks_pub, in, json_string_value(json_object_get(j_element, "kid")), x5u_flags);
   } else {
@@ -391,7 +442,7 @@ static int jwk_stdin(jwks_t * jwks_priv, jwks_t * jwks_pub, json_t * j_element, 
 static int jwk_file(jwks_t * jwks_priv, jwks_t * jwks_pub, json_t * j_element, int x5u_flags) {
   char * in = get_file_content(json_string_value(json_object_get(j_element, "path")));
   int ret;
-  
+
   if (in != NULL) {
     ret = jwks_parse_str(jwks_priv, jwks_pub, in, json_string_value(json_object_get(j_element, "kid")), x5u_flags);
   } else {
@@ -408,7 +459,7 @@ static void get_jwks_out(json_t * j_arguments, int split_keys, int x5u_flags, in
   size_t index = 0, out_len = 0, str_jwks_len = 0;
   char * str_jwks = NULL;
   unsigned char * out = NULL;
-  
+
   if (r_jwks_init(&jwks_privkey) == RHN_OK && r_jwks_init(&jwks_pubkey) == RHN_OK) {
     json_array_foreach(j_arguments, index, j_element) {
       if (0 == o_strcmp("generate", json_string_value(json_object_get(j_element, "source")))) {
@@ -628,7 +679,7 @@ static int serialize_token(const char * claims, int x5u_flags, const char * str_
   jwks_t * jwks_pubkey = NULL, * jwks_privkey = NULL;
   char * token = NULL, * content = NULL;
   int ret = 0;
-  
+
   if (r_jwt_init(&jwt) == RHN_OK) {
     if (r_jwt_set_full_claims_json_str(jwt, claims) == RHN_OK) {
       if (r_jwks_init(&jwks_pubkey) == RHN_OK) {
@@ -722,24 +773,24 @@ static int serialize_token(const char * claims, int x5u_flags, const char * str_
 }
 
 int main (int argc, char ** argv) {
-  int next_option, 
-      action = R_ACTION_NONE, 
-      ret = 0, 
-      has_stdin = 0, 
-      split_keys = 0, 
+  int next_option,
+      action = R_ACTION_NONE,
+      ret = 0,
+      has_stdin = 0,
+      split_keys = 0,
       show_header = 0,
       show_claims = 1,
       x5u_flags = 0,
       debug_mode = 0,
       format = RNBYC_FORMAT_JWK;
   const char * short_options = "j::g:i::f:k:a:e:l:o:p:n:F:x::t:s:H:C:K:P:u:v::h::d::";
-  char * out_file = NULL, 
-       * out_file_public = NULL, 
-       * parsed_token = NULL, 
-       * str_token_public_key = NULL, 
-       * str_token_private_key = NULL, 
-       * alg = NULL, 
-       * enc = NULL, 
+  char * out_file = NULL,
+       * out_file_public = NULL,
+       * parsed_token = NULL,
+       * str_token_public_key = NULL,
+       * str_token_private_key = NULL,
+       * alg = NULL,
+       * enc = NULL,
        * enc_alg = NULL,
        * claims = NULL;
   static const struct option long_options[]= {
@@ -774,7 +825,7 @@ int main (int argc, char ** argv) {
 
   do {
     next_option = getopt_long(argc, argv, short_options, long_options, NULL);
-    
+
     switch (next_option) {
       case 'j':
         if (action == R_ACTION_NONE) {
@@ -792,7 +843,7 @@ int main (int argc, char ** argv) {
               fprintf(stderr, "--generate: Invalid argument\n");
               ret = EINVAL;
             }
-          } else if (0 == o_strcasecmp("ECDSA256", optarg) || 0 == o_strcasecmp("ECDSA384", optarg) || 0 == o_strcasecmp("ECDSA521", optarg) || 0 == o_strcasecmp("EDDSA", optarg)) {
+          } else if (0 == o_strcasecmp("ECDSA256", optarg) || 0 == o_strcasecmp("ECDSA384", optarg) || 0 == o_strcasecmp("ECDSA521", optarg) || 0 == o_strcasecmp("EDDSA", optarg) || 0 == o_strcasecmp("X25519", optarg)) {
             json_array_append_new(j_arguments, json_pack("{ssss}", "source", "generate", "type", optarg));
           } else if (0 == o_strncasecmp(optarg, "oct", o_strlen("oct"))) {
             if (o_strlen(optarg) == o_strlen("oct")) {
@@ -937,11 +988,11 @@ int main (int argc, char ** argv) {
         break;
     }
   } while (next_option != -1 && !ret);
-  
+
   if (debug_mode) {
     y_init_logs("rnbyc", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting rnbyc debug mode");
   }
-  
+
   if (!ret) {
     if (action == R_ACTION_JWKS_OUT) {
       get_jwks_out(j_arguments, split_keys, x5u_flags, indent, format, out_file, out_file_public);
@@ -955,7 +1006,7 @@ int main (int argc, char ** argv) {
       print_help(stderr);
     }
   }
-  
+
   json_decref(j_arguments);
   o_free(out_file);
   o_free(out_file_public);
@@ -966,7 +1017,7 @@ int main (int argc, char ** argv) {
   o_free(claims);
   o_free(str_token_private_key);
   o_free(str_token_public_key);
-  
+
   if (debug_mode) {
     y_close_logs();
   }

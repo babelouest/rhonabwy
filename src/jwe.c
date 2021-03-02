@@ -39,10 +39,12 @@
 #define _R_PBES_DEFAULT_ITERATION 4096
 #define _R_PBES_DEFAULT_SALT_LENGTH 8
 
+#if NETTLE_VERSION_NUMBER >= 0x030400
 #include <nettle/hmac.h>
 #include <nettle/aes.h>
 #include <nettle/memops.h>
 #include <nettle/bignum.h>
+#endif
 
 #if NETTLE_VERSION_NUMBER >= 0x030400
 #include <nettle/pss-mgf1.h>
@@ -76,6 +78,7 @@ static size_t r_jwe_get_key_size(jwa_enc enc) {
 }
 
 #if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
+
 int _gnutls_ecdh_compute_key(gnutls_ecc_curve_t curve,
 			   const gnutls_datum_t *x, const gnutls_datum_t *y,
 			   const gnutls_datum_t *k,
@@ -954,7 +957,7 @@ static int r_jwe_ecdh_decrypt(jwe_t * jwe, jwk_t * jwk, int type, unsigned int b
         break;
       }
     } else {
-      if (!(r_jwk_key_type(jwk_ephemeral_pub, &epk_bits, x5u_flags) & (R_KEY_TYPE_EDDSA|R_KEY_TYPE_PUBLIC)) || epk_bits != bits) {
+      if (!(r_jwk_key_type(jwk_ephemeral_pub, &epk_bits, x5u_flags) & (R_KEY_TYPE_ECDH|R_KEY_TYPE_PUBLIC)) || epk_bits != bits) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error invalid private key type (eddsa)");
         ret = RHN_ERROR_PARAM;
         break;

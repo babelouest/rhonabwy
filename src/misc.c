@@ -1,9 +1,9 @@
 /**
- * 
+ *
  * Rhonabwy library
- * 
+ *
  * misc.c: Misc functions definitions
- * 
+ *
  * Copyright 2020-2021 Nicolas Mora <mail@babelouest.org>
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <orcania.h>
@@ -41,7 +41,7 @@ void r_global_close() {
 
 int _r_json_set_str_value(json_t * j_json, const char * key, const char * str_value) {
   int ret;
-  
+
   if (j_json != NULL && o_strlen(key)) {
     if (str_value != NULL) {
       if (!json_object_set_new(j_json, key, json_string(str_value))) {
@@ -62,7 +62,7 @@ int _r_json_set_str_value(json_t * j_json, const char * key, const char * str_va
 
 int _r_json_set_int_value(json_t * j_json, const char * key, int i_value) {
   int ret;
-  
+
   if (j_json != NULL && o_strlen(key)) {
     if (!json_object_set_new(j_json, key, json_integer(i_value))) {
       ret = RHN_OK;
@@ -78,7 +78,7 @@ int _r_json_set_int_value(json_t * j_json, const char * key, int i_value) {
 
 int _r_json_set_json_t_value(json_t * j_json, const char * key, json_t * j_value) {
   int ret;
-  
+
   if (j_json != NULL && o_strlen(key)) {
     if (j_value != NULL) {
       if (!json_object_set_new(j_json, key, json_deep_copy(j_value))) {
@@ -113,7 +113,7 @@ int _r_json_get_int_value(json_t * j_json, const char * key) {
 
 json_t * _r_json_get_json_t_value(json_t * j_json, const char * key) {
   json_t * j_value;
-  
+
   if (j_json != NULL && o_strlen(key) && (j_value = json_object_get(j_json, key)) != NULL) {
     return json_deep_copy(j_value);
   }

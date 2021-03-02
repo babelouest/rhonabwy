@@ -1,9 +1,9 @@
 /**
- * 
+ *
  * Rhonabwy JSON Web Key Set (JWKS) library
- * 
+ *
  * jwks.c: functions definitions
- * 
+ *
  * Copyright 2020-2021 Nicolas Mora <mail@babelouest.org>
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <orcania.h>
@@ -47,7 +47,7 @@ int r_jwks_is_valid(jwks_t * jwks) {
   int ret;
   json_t * jwk = NULL;
   size_t index = 0;
-  
+
   if (jwks != NULL) {
     if (json_array_size(json_object_get(jwks, "keys"))) {
       json_array_foreach(json_object_get(jwks, "keys"), index, jwk) {
@@ -177,7 +177,7 @@ gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len) 
   gnutls_privkey_t * ret = NULL;
   size_t i;
   jwk_t * jwk;
-  
+
   if (jwks != NULL && len != NULL && r_jwks_size(jwks)) {
     if ((ret = o_malloc(r_jwks_size(jwks)*sizeof(gnutls_privkey_t))) != NULL) {
       *len = r_jwks_size(jwks);
@@ -199,7 +199,7 @@ gnutls_pubkey_t * r_jwks_export_to_gnutls_pubkey(jwks_t * jwks, size_t * len, in
   gnutls_pubkey_t * ret = NULL;
   size_t i;
   jwk_t * jwk;
-  
+
   if (jwks != NULL && len != NULL && r_jwks_size(jwks)) {
     if ((ret = o_malloc(r_jwks_size(jwks)*sizeof(gnutls_pubkey_t))) != NULL) {
       *len = r_jwks_size(jwks);
@@ -272,7 +272,7 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input) {
   size_t index = 0;
   json_t * j_jwk = NULL;
   jwk_t * jwk = NULL;
-  
+
   if (jwks != NULL && j_input != NULL && json_is_array(json_object_get(j_input, "keys"))) {
     json_array_foreach(json_object_get(j_input, "keys"), index, j_jwk) {
       if (r_jwk_init(&jwk) == RHN_OK) {
@@ -301,12 +301,12 @@ int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int flags) {
   struct _u_response response;
   int ret;
   json_t * j_result;
-  
+
   if (jwks != NULL && uri != NULL) {
     if (ulfius_init_request(&request) == U_OK && ulfius_init_response(&response) == U_OK) {
-      ulfius_set_request_properties(&request, U_OPT_HTTP_VERB, "GET", 
-                                              U_OPT_HTTP_URL, uri, 
-                                              U_OPT_CHECK_SERVER_CERTIFICATE, !(flags & R_FLAG_IGNORE_SERVER_CERTIFICATE), 
+      ulfius_set_request_properties(&request, U_OPT_HTTP_VERB, "GET",
+                                              U_OPT_HTTP_URL, uri,
+                                              U_OPT_CHECK_SERVER_CERTIFICATE, !(flags & R_FLAG_IGNORE_SERVER_CERTIFICATE),
                                               U_OPT_FOLLOW_REDIRECT, flags & R_FLAG_FOLLOW_REDIRECT,
                                               U_OPT_HEADER_PARAMETER, "User-Agent", "Rhonabwy/" RHONABWY_VERSION_STR,
                                               U_OPT_NONE);

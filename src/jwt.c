@@ -1,9 +1,9 @@
 /**
- * 
+ *
  * Rhonabwy JSON Web Token (JWT) library
- * 
+ *
  * jwt.c: functions definitions
- * 
+ *
  * Copyright 2020-2021 Nicolas Mora <mail@babelouest.org>
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@
  *
  * You should have received a copy of the GNU General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <orcania.h>
@@ -27,7 +27,7 @@
 
 int r_jwt_init(jwt_t ** jwt) {
   int ret;
-  
+
   if (jwt != NULL) {
     if ((*jwt = o_malloc(sizeof(jwt_t))) != NULL) {
       if (((*jwt)->j_header = json_object()) != NULL) {
@@ -97,7 +97,7 @@ void r_jwt_free(jwt_t * jwt) {
 
 jwt_t * r_jwt_copy(jwt_t * jwt) {
   jwt_t * jwt_copy = NULL;
-  
+
   if (jwt != NULL) {
     if (r_jwt_init(&jwt_copy) == RHN_OK) {
       jwt_copy->sign_alg = jwt->sign_alg;
@@ -270,7 +270,7 @@ int r_jwt_set_full_claims_json_str(jwt_t * jwt, const char * str_claims) {
 int r_jwt_append_claims_json_t(jwt_t * jwt, json_t * j_claim) {
   json_t * j_claim_copy = json_deep_copy(j_claim);
   int ret;
-  
+
   if (jwt != NULL && j_claim_copy != NULL) {
     if (!json_object_update(jwt->j_claims, j_claim_copy)) {
       ret = RHN_OK;
@@ -288,7 +288,7 @@ int r_jwt_append_claims_json_t(jwt_t * jwt, json_t * j_claim) {
 int r_jwt_add_sign_keys(jwt_t * jwt, jwk_t * privkey, jwk_t * pubkey) {
   int ret = RHN_OK;
   jwa_alg alg;
-  
+
   if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
     if (privkey != NULL) {
       if (r_jwks_append_jwk(jwt->jwks_privkey_sign, privkey) != RHN_OK) {
@@ -315,7 +315,7 @@ int r_jwt_add_sign_jwks(jwt_t * jwt, jwks_t * jwks_privkey, jwks_t * jwks_pubkey
   size_t i;
   int ret, res;
   jwk_t * jwk;
-  
+
   if (jwt != NULL && (jwks_privkey != NULL || jwks_pubkey != NULL)) {
     ret = RHN_OK;
     if (jwks_privkey != NULL) {
@@ -348,7 +348,7 @@ int r_jwt_add_sign_keys_json_str(jwt_t * jwt, const char * privkey, const char *
   int ret = RHN_OK;
   jwa_alg alg;
   jwk_t * j_privkey = NULL, * j_pubkey = NULL;
-  
+
   if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
     if (privkey != NULL) {
       if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_json_str(j_privkey, privkey) == RHN_OK) {
@@ -387,7 +387,7 @@ int r_jwt_add_sign_keys_json_t(jwt_t * jwt, json_t * privkey, json_t * pubkey) {
   int ret = RHN_OK;
   jwa_alg alg;
   jwk_t * j_privkey = NULL, * j_pubkey = NULL;
-  
+
   if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
     if (privkey != NULL) {
       if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_json_t(j_privkey, privkey) == RHN_OK) {
@@ -426,7 +426,7 @@ int r_jwt_add_sign_keys_pem_der(jwt_t * jwt, int format, const unsigned char * p
   int ret = RHN_OK;
   jwa_alg alg;
   jwk_t * j_privkey = NULL, * j_pubkey = NULL;
-  
+
   if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
     if (privkey != NULL) {
       if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_pem_der(j_privkey, R_X509_TYPE_PRIVKEY, format, privkey, privkey_len) == RHN_OK) {
@@ -465,7 +465,7 @@ int r_jwt_add_sign_keys_gnutls(jwt_t * jwt, gnutls_privkey_t privkey, gnutls_pub
   int ret = RHN_OK;
   jwa_alg alg;
   jwk_t * j_privkey = NULL, * j_pubkey = NULL;
-  
+
   if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
     if (privkey != NULL) {
       if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_gnutls_privkey(j_privkey, privkey) == RHN_OK) {
@@ -504,7 +504,7 @@ int r_jwt_add_sign_key_symmetric(jwt_t * jwt, const unsigned char * key, size_t 
   int ret = RHN_OK;
   jwa_alg alg;
   jwk_t * j_key = NULL;
-  
+
   if (jwt != NULL && key != NULL && key_len) {
     if (r_jwk_init(&j_key) == RHN_OK && r_jwk_import_from_symmetric_key(j_key, key, key_len) == RHN_OK) {
       if (r_jwks_append_jwk(jwt->jwks_privkey_sign, j_key) != RHN_OK || r_jwks_append_jwk(jwt->jwks_pubkey_sign, j_key) != RHN_OK) {
@@ -544,7 +544,7 @@ jwks_t * r_jwt_get_sign_jwks_pubkey(jwt_t * jwt) {
 int r_jwt_add_enc_keys(jwt_t * jwt, jwk_t * privkey, jwk_t * pubkey) {
   int ret = RHN_OK;
   jwa_alg alg;
-  
+
   if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
     if (privkey != NULL) {
       if (r_jwks_append_jwk(jwt->jwks_privkey_enc, privkey) != RHN_OK) {
@@ -571,7 +571,7 @@ int r_jwt_add_enc_jwks(jwt_t * jwt, jwks_t * jwks_privkey, jwks_t * jwks_pubkey)
   size_t i;
   int ret, res;
   jwk_t * jwk;
-  
+
   if (jwt != NULL && (jwks_privkey != NULL || jwks_pubkey != NULL)) {
     ret = RHN_OK;
     if (jwks_privkey != NULL) {
@@ -604,7 +604,7 @@ int r_jwt_add_enc_keys_json_str(jwt_t * jwt, const char * privkey, const char * 
   int ret = RHN_OK;
   jwa_alg alg;
   jwk_t * j_privkey = NULL, * j_pubkey = NULL;
-  
+
   if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
     if (privkey != NULL) {
       if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_json_str(j_privkey, privkey) == RHN_OK) {
@@ -643,7 +643,7 @@ int r_jwt_add_enc_keys_json_t(jwt_t * jwt, json_t * privkey, json_t * pubkey) {
   int ret = RHN_OK;
   jwa_alg alg;
   jwk_t * j_privkey = NULL, * j_pubkey = NULL;
-  
+
   if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
     if (privkey != NULL) {
       if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_json_t(j_privkey, privkey) == RHN_OK) {
@@ -682,7 +682,7 @@ int r_jwt_add_enc_keys_pem_der(jwt_t * jwt, int format, const unsigned char * pr
   int ret = RHN_OK;
   jwa_alg alg;
   jwk_t * j_privkey = NULL, * j_pubkey = NULL;
-  
+
   if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
     if (privkey != NULL) {
       if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_pem_der(j_privkey, R_X509_TYPE_PRIVKEY, format, privkey, privkey_len) == RHN_OK) {
@@ -721,7 +721,7 @@ int r_jwt_add_enc_keys_gnutls(jwt_t * jwt, gnutls_privkey_t privkey, gnutls_pubk
   int ret = RHN_OK;
   jwa_alg alg;
   jwk_t * j_privkey = NULL, * j_pubkey = NULL;
-  
+
   if (jwt != NULL && (privkey != NULL || pubkey != NULL)) {
     if (privkey != NULL) {
       if (r_jwk_init(&j_privkey) == RHN_OK && r_jwk_import_from_gnutls_privkey(j_privkey, privkey) == RHN_OK) {
@@ -760,7 +760,7 @@ int r_jwt_add_enc_key_symmetric(jwt_t * jwt, const unsigned char * key, size_t k
   int ret = RHN_OK;
   jwa_alg alg;
   jwk_t * j_key = NULL;
-  
+
   if (jwt != NULL && key != NULL && key_len) {
     if (r_jwk_init(&j_key) == RHN_OK && r_jwk_import_from_symmetric_key(j_key, key, key_len) == RHN_OK) {
       if (r_jwks_append_jwk(jwt->jwks_privkey_enc, j_key) != RHN_OK || r_jwks_append_jwk(jwt->jwks_pubkey_enc, j_key) != RHN_OK) {
@@ -799,7 +799,7 @@ jwks_t * r_jwt_get_enc_jwks_pubkey(jwt_t * jwt) {
 
 int r_jwt_set_sign_alg(jwt_t * jwt, jwa_alg alg) {
   int ret;
-  
+
   if (jwt != NULL) {
     jwt->sign_alg = alg;
     ret = RHN_OK;
@@ -819,7 +819,7 @@ jwa_alg r_jwt_get_sign_alg(jwt_t * jwt) {
 
 int r_jwt_set_enc_alg(jwt_t * jwt, jwa_alg alg) {
   int ret;
-  
+
   if (jwt != NULL) {
     jwt->enc_alg = alg;
     ret = RHN_OK;
@@ -839,7 +839,7 @@ jwa_alg r_jwt_get_enc_alg(jwt_t * jwt) {
 
 int r_jwt_set_enc(jwt_t * jwt, jwa_enc enc) {
   int ret;
-  
+
   if (jwt != NULL) {
     jwt->enc = enc;
     ret = RHN_OK;
@@ -863,7 +863,7 @@ char * r_jwt_serialize_signed(jwt_t * jwt, jwk_t * privkey, int x5u_flags) {
   jwa_alg alg;
   json_t * j_header, * j_value = NULL;
   const char * key = NULL;
-  
+
   if (jwt != NULL && (alg = r_jwt_get_sign_alg(jwt)) != R_JWA_ALG_UNKNOWN) {
     if (r_jws_init(&jws) == RHN_OK) {
       if (r_jwt_get_header_str_value(jwt, "typ") == NULL) {
@@ -905,7 +905,7 @@ char * r_jwt_serialize_encrypted(jwt_t * jwt, jwk_t * pubkey, int x5u_flags) {
   jwa_enc enc;
   json_t * j_header, * j_value = NULL;
   const char * key = NULL;
-  
+
   if (jwt != NULL && (alg = r_jwt_get_enc_alg(jwt)) != R_JWA_ALG_UNKNOWN && (enc = r_jwt_get_enc(jwt)) != R_JWA_ENC_UNKNOWN) {
     if (r_jwe_init(&jwe) == RHN_OK) {
       if (r_jwt_get_header_str_value(jwt, "typ") == NULL) {
@@ -948,7 +948,7 @@ char * r_jwt_serialize_nested(jwt_t * jwt, unsigned int type, jwk_t * sign_key, 
   jwa_enc enc;
   json_t * j_header, * j_value = NULL;
   const char * key = NULL;
-  
+
   if (jwt != NULL && (sign_alg = r_jwt_get_sign_alg(jwt)) != R_JWA_ALG_UNKNOWN && (enc_alg = r_jwt_get_enc_alg(jwt)) != R_JWA_ALG_UNKNOWN && (enc = r_jwt_get_enc(jwt)) != R_JWA_ENC_UNKNOWN) {
     if (type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT) {
       if ((token_intermediate = r_jwt_serialize_signed(jwt, sign_key, sign_key_x5u_flags)) != NULL) {
@@ -1020,7 +1020,7 @@ int r_jwt_parsen(jwt_t * jwt, const char * token, size_t token_len, int x5u_flag
   int ret, res;
   const unsigned char * payload = NULL;
   char * payload_str = NULL, * token_dup = NULL, * tmp;
-  
+
   if (jwt != NULL && token != NULL && token_len) {
     token_dup = o_strndup(token, token_len);
     // Remove whitespaces and newlines
@@ -1157,7 +1157,7 @@ int r_jwt_get_type(jwt_t * jwt) {
 int r_jwt_verify_signature(jwt_t * jwt, jwk_t * pubkey, int x5u_flags) {
   size_t jwks_size, i;
   jwk_t * jwk;
-  
+
   if (jwt != NULL && jwt->jws != NULL) {
     r_jwks_empty(jwt->jws->jwks_privkey);
     r_jwks_empty(jwt->jws->jwks_pubkey);
@@ -1186,7 +1186,7 @@ int r_jwt_decrypt(jwt_t * jwt, jwk_t * privkey, int x5u_flags) {
   int res, ret;
   jwk_t * jwk;
   char * str_payload;
-  
+
   if (jwt != NULL && jwt->jwe != NULL) {
     r_jwks_empty(jwt->jwe->jwks_privkey);
     r_jwks_empty(jwt->jwe->jwks_pubkey);
@@ -1240,7 +1240,7 @@ int r_jwt_decrypt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int v
   json_t * j_payload = NULL;
   int res, ret;
   jwk_t * jwk;
-  
+
   if (jwt != NULL && 0 == o_strcmp("JWT", r_jwt_get_header_str_value(jwt, "cty"))) {
     if (jwt->type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN && jwt->jwe != NULL) {
       jwks_size = r_jwks_size(jwt->jwks_privkey_sign);
@@ -1384,7 +1384,7 @@ int r_jwt_decrypt_nested(jwt_t * jwt, jwk_t * decrypt_key, int decrypt_key_x5u_f
   size_t jwks_size, payload_len = 0, i;
   const unsigned char * payload = NULL;
   char * str_payload;
-  
+
   if (jwt != NULL && jwt->jwe != NULL && (jwt->type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || jwt->type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT)) {
     jwks_size = r_jwks_size(jwt->jwks_privkey_enc);
     for (i=0; i<jwks_size; i++) {
@@ -1478,7 +1478,7 @@ int r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_ke
   int ret, res;
   jwk_t * jwk;
   size_t jwks_size, i;
-  
+
   if (jwt != NULL && jwt->jws != NULL && (jwt->type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT || jwt->type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN)) {
     jwks_size = r_jwks_size(jwt->jwks_privkey_sign);
     for (i=0; i<jwks_size; i++) {
@@ -1513,7 +1513,7 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
   json_t * j_value, * j_expected_value;
   va_list vl;
   time_t now, t_value;
-  
+
   if (jwt != NULL) {
     time(&now);
     va_start(vl, jwt);

@@ -26,6 +26,16 @@ const char jwk_privkey_ecdsa_pem[] = "-----BEGIN EC PRIVATE KEY-----\n"\
                                       "2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM=\n"\
                                       "-----END EC PRIVATE KEY-----\n";
 
+const char jwk_privkey_eddsa_str[] = "{\"kty\":\"OKP\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"x\":\"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo\","\
+                                     "\"d\":\"nWGxne_9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A\",\"kid\":\"moimeme\"}";
+const char jwk_privkey_eddsa_pem[] = "-----BEGIN UNKNOWN-----\n"
+                                     "MFECAQEEIJ1hsZ3v/VpguoRK9JLsLMREScVpezJpGXA7rAMcrn9goAUGAytlcKEj\n"
+                                     "AyEA11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=\n"
+                                     "-----END UNKNOWN-----\n";
+
+const char jwk_privkey_ecdh_str[] = "{\"kty\":\"OKP\",\"crv\":\"X25519\",\"x\":\"hSDwCYkwp1R0i33ctD73Wg2_Og0mOBr066SpjqqbTmo\","
+                                    "\"d\":\"RVqkt2ZmEiUY-OGyag9rXe7vsDm2BQ_XykdxhLv9pd4\"}";
+
 const char jwk_pubkey_rsa_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
                                    "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
                                    "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\""\
@@ -261,6 +271,18 @@ START_TEST(test_rhonabwy_export_to_str)
   ck_assert_ptr_ne(o_strstr(export_str, "\"d\":\"870MB6gfuTJ4HtUnUvYMyJpr5eUZNP4Bk43bVdj3eAE\""), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"use\":\"enc\""), NULL);
   ck_assert_ptr_ne(o_strstr(export_str, "\"kid\":\"1\""), NULL);
+  o_free(export_str);
+  r_jwk_free(jwk);
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_eddsa_str), RHN_OK);
+  ck_assert_ptr_ne((export_str = r_jwk_export_to_json_str(jwk, 0)), NULL);
+  ck_assert_ptr_ne(o_strstr(export_str, "\"kty\":\"OKP\""), NULL);
+  ck_assert_ptr_ne(o_strstr(export_str, "\"crv\":\"Ed25519\""), NULL);
+  ck_assert_ptr_ne(o_strstr(export_str, "\"x\":\"11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo\""), NULL);
+  ck_assert_ptr_ne(o_strstr(export_str, "\"d\":\"nWGxne_9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A\""), NULL);
+  ck_assert_ptr_ne(o_strstr(export_str, "\"use\":\"sig\""), NULL);
+  ck_assert_ptr_ne(o_strstr(export_str, "\"kid\":\"moimeme\""), NULL);
   o_free(export_str);
   r_jwk_free(jwk);
 
@@ -599,6 +621,22 @@ START_TEST(test_rhonabwy_export_to_pem)
   ck_assert_int_eq(r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, 0), RHN_OK);
   ck_assert_int_eq(o_strncmp(jwk_pubkey_ecdsa_pem, (const char *)data, data_len), 0);
   r_jwk_free(jwk);
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_eddsa_str), RHN_OK);
+  data_len = 4096;
+  ck_assert_int_eq(r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, 0), RHN_OK);
+  ck_assert_int_eq(o_strncmp(jwk_privkey_eddsa_pem, (const char *)data, data_len), 0);
+  r_jwk_free(jwk);
+
+#if 0 // Disabled for now
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdh_str), RHN_OK);
+  data_len = 4096;
+  ck_assert_int_eq(r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, 0), RHN_OK);
+  ck_assert_int_eq(o_strncmp(jwk_privkey_eddsa_pem, (const char *)data, data_len), 0);
+  r_jwk_free(jwk);
+#endif
 #endif
 
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);

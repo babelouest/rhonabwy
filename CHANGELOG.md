@@ -9,6 +9,7 @@
 - Implement CEK `RSA-OAEP`, `RSA-OAEP-256`
 - Implement CEK `ECDH-ES`, `ECDH-ES+A128KW`, `ECDH-ES+A192KW`, `ECDH-ES+A256KW`
 - Implement signature algorithm `ES256K`
+- Add `r_jwk_import_from_password`
 
 ## 0.9.13
 

@@ -64,7 +64,7 @@ extern "C"
 #define R_KEY_TYPE_ECDSA     0x00010000
 #define R_KEY_TYPE_HMAC      0x00100000
 #define R_KEY_TYPE_EDDSA     0x01000000
-#define R_KEY_TYPE_X25519    0x10000000
+#define R_KEY_TYPE_ECDH      0x10000000
 
 #define R_FLAG_IGNORE_SERVER_CERTIFICATE 0x00000001
 #define R_FLAG_FOLLOW_REDIRECT           0x00000010
@@ -603,6 +603,15 @@ int r_jwk_import_from_x5u(jwk_t * jwk, int x5u_flags, const char * x5u);
  * @return RHN_OK on success, an error value on error
  */
 int r_jwk_import_from_symmetric_key(jwk_t * jwk, const unsigned char * key, size_t key_len);
+
+/**
+ * Import a password into a jwk
+ * The password will be converted to base64url format
+ * @param jwk: the jwk_t * to import to
+ * @param password: the password to import
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwk_import_from_password(jwk_t * jwk, const char * password);
 
 /**
  * Extract the public key from the private key jwk_privkey and set it into jwk_pubkey

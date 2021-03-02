@@ -40,10 +40,10 @@
 #define _R_PBES_DEFAULT_SALT_LENGTH 8
 
 #include <nettle/hmac.h>
-#include <nettle/pbkdf2.h>
 #include <nettle/aes.h>
 #include <nettle/memops.h>
 #include <nettle/bignum.h>
+
 #if NETTLE_VERSION_NUMBER >= 0x030400
 #include <nettle/pss-mgf1.h>
 #include <nettle/rsa.h>
@@ -525,35 +525,6 @@ static void rnd_nonce_func(void *_ctx, size_t length, uint8_t * data)
 }
 #endif
 
-// Available in Nettle 3.7.1
-#ifndef pbkdf2_hmac_sha384
-static void
-pbkdf2_hmac_sha384 (size_t key_length, const uint8_t *key,
-		    unsigned iterations,
-		    size_t salt_length, const uint8_t *salt,
-		    size_t length, uint8_t *dst)
-{
-  struct hmac_sha384_ctx sha384ctx;
-
-  hmac_sha384_set_key (&sha384ctx, key_length, key);
-  PBKDF2 (&sha384ctx, hmac_sha384_update, hmac_sha384_digest,
-	  SHA384_DIGEST_SIZE, iterations, salt_length, salt, length, dst);
-}
-
-static void
-pbkdf2_hmac_sha512 (size_t key_length, const uint8_t *key,
-		    unsigned iterations,
-		    size_t salt_length, const uint8_t *salt,
-		    size_t length, uint8_t *dst)
-{
-  struct hmac_sha512_ctx sha512ctx;
-
-  hmac_sha512_set_key (&sha512ctx, key_length, key);
-  PBKDF2 (&sha512ctx, hmac_sha512_update, hmac_sha512_digest,
-	  SHA512_DIGEST_SIZE, iterations, salt_length, salt, length, dst);
-}
-#endif
-
 // https://git.lysator.liu.se/nettle/nettle/-/merge_requests/19
 #ifndef nist_keywrap16
 static void
@@ -690,9 +661,7 @@ static int _r_rsa_oaep_encrypt(gnutls_pubkey_t g_pub, jwa_alg alg, uint8_t * cle
 
   return ret;
 }
-#endif
 
-#if NETTLE_VERSION_NUMBER >= 0x030400
 static int _r_rsa_oaep_decrypt(gnutls_privkey_t g_priv, jwa_alg alg, uint8_t * ciphertext, size_t cyphertext_len, uint8_t * cleartext, size_t * cleartext_len) {
   struct rsa_private_key priv;
   gnutls_datum_t m = {NULL, 0}, e = {NULL, 0}, d = {NULL, 0}, p = {NULL, 0}, q = {NULL, 0}, u = {NULL, 0}, e1 = {NULL, 0}, e2 = {NULL, 0};
@@ -1196,12 +1165,15 @@ static int r_jwe_aes_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
   return ret;
 }
 
+#if GNUTLS_VERSION_NUMBER >= 0x03060d
 static int r_jwe_pbes2_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
   unsigned char salt_seed[_R_PBES_DEFAULT_SALT_LENGTH] = {0}, salt_seed_b64[_R_PBES_DEFAULT_SALT_LENGTH*2], * salt = NULL, kek[64] = {0}, * key = NULL, wrapped_key[72] = {0}, cipherkey_b64url[256] = {0}, * p2s_dec = NULL;
   size_t alg_len, salt_len, key_len = 0, cipherkey_b64url_len = 0, salt_seed_b64_len = 0, p2s_dec_len = 0, kek_len = 0;
   int ret;
   const char * p2s;
   unsigned int p2c = 0;
+  gnutls_datum_t password = {NULL, 0}, g_salt = {NULL, 0};
+  gnutls_mac_algorithm_t mac = GNUTLS_MAC_UNKNOWN;
 
   if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
     ret = RHN_OK;
@@ -1285,15 +1257,24 @@ static int r_jwe_pbes2_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
         ret = RHN_ERROR;
         break;
       }
+      password.data = key;
+      password.size = key_len;
+      g_salt.data = salt;
+      g_salt.size = salt_len;
       if (jwe->alg == R_JWA_ALG_PBES2_H256) {
         kek_len = 16;
-        pbkdf2_hmac_sha256(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+        mac = GNUTLS_MAC_SHA256;
       } else if (jwe->alg == R_JWA_ALG_PBES2_H384) {
         kek_len = 24;
-        pbkdf2_hmac_sha384(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+        mac = GNUTLS_MAC_SHA384;
       } else if (jwe->alg == R_JWA_ALG_PBES2_H512) {
         kek_len = 32;
-        pbkdf2_hmac_sha512(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+        mac = GNUTLS_MAC_SHA512;
+      }
+      if (gnutls_pbkdf2(mac, &password, &g_salt, p2c, kek, kek_len) != GNUTLS_E_SUCCESS) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error gnutls_pbkdf2");
+        ret = RHN_ERROR;
+        break;
       }
       _r_aes_key_wrap(kek, kek_len, jwe->key, jwe->key_len, wrapped_key);
       if (!o_base64url_encode(wrapped_key, jwe->key_len+8, cipherkey_b64url, &cipherkey_b64url_len)) {
@@ -1320,6 +1301,8 @@ static int r_jwe_pbes2_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
   int ret;
   const char * p2s;
   unsigned int p2c;
+  gnutls_datum_t password = {NULL, 0}, g_salt = {NULL, 0};
+  gnutls_mac_algorithm_t mac = GNUTLS_MAC_UNKNOWN;
 
   if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
     ret = RHN_OK;
@@ -1373,15 +1356,24 @@ static int r_jwe_pbes2_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
         ret = RHN_ERROR;
         break;
       }
+      password.data = key;
+      password.size = key_len;
+      g_salt.data = salt;
+      g_salt.size = salt_len;
       if (jwe->alg == R_JWA_ALG_PBES2_H256) {
         kek_len = 16;
-        pbkdf2_hmac_sha256(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+        mac = GNUTLS_MAC_SHA256;
       } else if (jwe->alg == R_JWA_ALG_PBES2_H384) {
         kek_len = 24;
-        pbkdf2_hmac_sha384(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+        mac = GNUTLS_MAC_SHA384;
       } else if (jwe->alg == R_JWA_ALG_PBES2_H512) {
         kek_len = 32;
-        pbkdf2_hmac_sha512(key_len, (const uint8_t *)key, p2c, salt_len, salt, kek_len, kek);
+        mac = GNUTLS_MAC_SHA512;
+      }
+      if (gnutls_pbkdf2(mac, &password, &g_salt, p2c, kek, kek_len) != GNUTLS_E_SUCCESS) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error gnutls_pbkdf2");
+        ret = RHN_ERROR;
+        break;
       }
       if (!o_base64url_decode(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), cipherkey, &cipherkey_len)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error o_base64url_decode cipherkey");
@@ -1406,6 +1398,7 @@ static int r_jwe_pbes2_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
   }
   return ret;
 }
+#endif
 
 static gnutls_cipher_algorithm_t r_jwe_get_alg_from_enc(jwa_enc enc) {
   gnutls_cipher_algorithm_t alg = GNUTLS_CIPHER_UNKNOWN;
@@ -3042,6 +3035,7 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
           ret = res;
         }
         break;
+#if GNUTLS_VERSION_NUMBER >= 0x03060d
       case R_JWA_ALG_PBES2_H256:
       case R_JWA_ALG_PBES2_H384:
       case R_JWA_ALG_PBES2_H512:
@@ -3052,6 +3046,7 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
           ret = res;
         }
         break;
+#endif
 #if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
       case R_JWA_ALG_ECDH_ES:
       case R_JWA_ALG_ECDH_ES_A128KW:
@@ -3257,6 +3252,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
             ret = res;
           }
           break;
+#if GNUTLS_VERSION_NUMBER >= 0x03060d
         case R_JWA_ALG_PBES2_H256:
         case R_JWA_ALG_PBES2_H384:
         case R_JWA_ALG_PBES2_H512:
@@ -3267,6 +3263,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
             ret = res;
           }
           break;
+#endif
 #if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
         case R_JWA_ALG_ECDH_ES:
         case R_JWA_ALG_ECDH_ES_A128KW:

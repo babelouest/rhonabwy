@@ -39,6 +39,7 @@ const char jwk_key_128_2[] = "{\"kty\":\"oct\",\"k\":\"CAkKCwwNDg8QERITFBUWFw\"}
 const char jwk_key_192_1[] = "{\"kty\":\"oct\",\"k\":\"AAECAwQFBgcICQoLDA0ODxAREhMUFRYX\"}";
 const char jwk_key_256_1[] = "{\"kty\":\"oct\",\"k\":\"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8\"}";
 
+#if GNUTLS_VERSION_NUMBER >= 0x03060d
 START_TEST(test_rhonabwy_parse_token_invalid)
 {
   jwe_t * jwe_decrypt;
@@ -284,6 +285,7 @@ START_TEST(test_rhonabwy_rfc_example)
   r_jwe_free(jwe);
 }
 END_TEST
+#endif
 
 static Suite *rhonabwy_suite(void)
 {
@@ -292,6 +294,7 @@ static Suite *rhonabwy_suite(void)
 
   s = suite_create("Rhonabwy JWE PBES2 encryption tests");
   tc_core = tcase_create("test_rhonabwy_pbes");
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
   tcase_add_test(tc_core, test_rhonabwy_parse_token_invalid);
   tcase_add_test(tc_core, test_rhonabwy_decrypt_token_invalid);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_invalid_privkey);
@@ -300,6 +303,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_pbes2_hs512_ok);
   tcase_add_test(tc_core, test_rhonabwy_flood_ok);
   tcase_add_test(tc_core, test_rhonabwy_rfc_example);
+#endif
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

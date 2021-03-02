@@ -584,11 +584,7 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
         ret |= R_KEY_TYPE_PUBLIC;
       }
     } else if (0 == o_strcmp(json_string_value(json_object_get(jwk, "kty")), "EC")) {
-      if (json_object_get(jwk, "y") != NULL) {
-        ret = R_KEY_TYPE_ECDSA;
-      } else {
-        ret = R_KEY_TYPE_EDDSA;
-      }
+      ret = R_KEY_TYPE_ECDSA;
       if (json_object_get(jwk, "d") != NULL) {
         ret |= R_KEY_TYPE_PRIVATE;
       } else {
@@ -597,7 +593,7 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
     } else if (0 == o_strcmp(json_string_value(json_object_get(jwk, "kty")), "OKP")) {
       if (0 == o_strcmp("X25519", json_string_value(json_object_get(jwk, "crv"))) || 0 == o_strcmp("X448", json_string_value(json_object_get(jwk, "crv")))) {
         ret = R_KEY_TYPE_ECDH;
-      } else {
+      } else if (0 == o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv"))) || 0 == o_strcmp("Ed448", json_string_value(json_object_get(jwk, "crv")))) {
         ret = R_KEY_TYPE_EDDSA;
       }
       if (json_object_get(jwk, "d") != NULL) {

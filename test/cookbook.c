@@ -254,15 +254,19 @@ START_TEST(test_rhonabwy_cookbook_jwe)
 #if NETTLE_VERSION_NUMBER >= 0x030400
   jwe_test(JSON_JWE_5_2_RSA_OAEP_AES_GCM);
 #endif
+#if GNUTLS_VERSION_NUMBER >= 0x03060d
   jwe_test(JSON_JWE_5_3_PBES2_AES_CBC);
+#endif
 #if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
   jwe_test(JSON_JWE_5_4_ECDH_ES_AES_GCM);
   jwe_test(JSON_JWE_5_5_ECDH_ES_AES_CBC);
 #endif
   jwe_test(JSON_JWE_5_6_DIR_AES_GCM);
+#if NETTLE_VERSION_NUMBER >= 0x030400
   jwe_test(JSON_JWE_5_7_AES_GCM_KEYWRAP_AES_CBC);
   jwe_test(JSON_JWE_5_8_AES_KEYWRAP_AES_GCM);
   jwe_test(JSON_JWE_5_9_COMPRESSED);
+#endif
 #if 0 && defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600 // Disabled for now
   jwe_test(JSON_JWE_CURVE25519);
 #endif

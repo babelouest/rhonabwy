@@ -447,10 +447,11 @@ int r_jwk_is_valid_x5u(jwk_t * jwk, int x5u_flags) {
 }
 
 int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, unsigned int bits, const char * kid) {
-  int ret, res;
+  int ret;
   gnutls_privkey_t privkey;
   gnutls_pubkey_t pubkey;
 #if GNUTLS_VERSION_NUMBER >= 0x030600
+  int res;
   unsigned int ec_bits = 0;
   gnutls_pk_algorithm_t alg = GNUTLS_PK_UNKNOWN;
 #endif
@@ -500,9 +501,11 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
           if (bits == 256) {
             ec_bits = GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_ED25519);
             alg = GNUTLS_PK_EDDSA_ED25519;
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
           } else if (bits == 448) {
             ec_bits = GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_ED448);
             alg = GNUTLS_PK_EDDSA_ED448;
+#endif
           }
 #if 0 // Disabled for now
         } else if (type == R_KEY_TYPE_ECDH) {
@@ -1268,7 +1271,9 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
         }
         break;
       case GNUTLS_PK_EDDSA_ED25519:
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
       case GNUTLS_PK_EDDSA_ED448:
+#endif
         if ((res = gnutls_privkey_export_ecc_raw(key, &curve, &x, NULL, &k)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("OKP"));
           ret = RHN_OK;
@@ -1338,7 +1343,9 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
         }
         break;
       case GNUTLS_PK_ECDH_X25519:
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
       case GNUTLS_PK_ECDH_X448:
+#endif
         if ((res = gnutls_privkey_export_ecc_raw(key, &curve, &x, NULL, &k)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("OKP"));
           ret = RHN_OK;
@@ -1567,7 +1574,9 @@ int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
         }
         break;
       case GNUTLS_PK_EDDSA_ED25519:
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
       case GNUTLS_PK_EDDSA_ED448:
+#endif
         if ((res = gnutls_pubkey_export_ecc_raw(pub, &curve, &x, NULL)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("OKP"));
           ret = RHN_OK;
@@ -1617,7 +1626,9 @@ int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
         }
         break;
       case GNUTLS_PK_ECDH_X25519:
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
       case GNUTLS_PK_ECDH_X448:
+#endif
         if ((res = gnutls_pubkey_export_ecc_raw(pub, &curve, &x, NULL)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("OKP"));
           ret = RHN_OK;
@@ -2092,8 +2103,10 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk) {
 
         if (0 == o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_ED25519;
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
         } else if (0 == o_strcmp("Ed448", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_ED448;
+#endif
 #if 0 // Disabled for now
         } else if (0 == o_strcmp("X25519", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_X25519;
@@ -2403,8 +2416,10 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
 
         if (0 == o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_ED25519;
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
         } else if (0 == o_strcmp("Ed448", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_ED448;
+#endif
 #if 0 // Disabled for now
         } else if (0 == o_strcmp("X25519", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_X25519;

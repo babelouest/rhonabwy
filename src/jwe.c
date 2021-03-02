@@ -272,7 +272,7 @@ static int _r_dh_compute(gnutls_privkey_t priv, gnutls_pubkey_t pub, gnutls_datu
 #endif
 
 // https://git.lysator.liu.se/nettle/nettle/-/merge_requests/20
-#if !defined(pkcs1_oaep_decrypt) && NETTLE_VERSION_NUMBER >= 0x030400
+#if NETTLE_VERSION_NUMBER >= 0x030400
 int
 pkcs1_oaep_decrypt (size_t key_size,
 	       const mpz_t m,
@@ -529,7 +529,7 @@ static void rnd_nonce_func(void *_ctx, size_t length, uint8_t * data)
 #endif
 
 // https://git.lysator.liu.se/nettle/nettle/-/merge_requests/19
-#ifndef nist_keywrap16
+#if NETTLE_VERSION_NUMBER >= 0x030400
 static void
 nist_keywrap16(const void *ctx, nettle_cipher_func *encrypt,
                const uint8_t *iv, size_t ciphertext_length,
@@ -717,6 +717,7 @@ static int _r_rsa_oaep_decrypt(gnutls_privkey_t g_priv, jwa_alg alg, uint8_t * c
 }
 #endif
 
+#if NETTLE_VERSION_NUMBER >= 0x030400
 static void _r_aes_key_wrap(uint8_t * kek, size_t kek_len, uint8_t * key, size_t key_len, uint8_t * wrapped_key) {
   struct aes128_ctx ctx_128;
   struct aes192_ctx ctx_192;
@@ -768,6 +769,7 @@ static int _r_aes_key_unwrap(uint8_t * kek, size_t kek_len, uint8_t * key, size_
   }
   return nist_keyunwrap16(ctx, decrypt, default_iv, key_len, key, wrapped_key);
 }
+#endif
 
 #if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
 static int r_jwe_ecdh_encrypt(jwe_t * jwe, jwk_t * jwk_pub, jwk_t * jwk_priv, int type, unsigned int bits, int x5u_flags) {
@@ -1060,6 +1062,7 @@ static int r_jwe_ecdh_decrypt(jwe_t * jwe, jwk_t * jwk, int type, unsigned int b
 }
 #endif
 
+#if NETTLE_VERSION_NUMBER >= 0x030400
 static int r_jwe_aes_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
   int ret;
   uint8_t kek[32] = {0}, wrapped_key[72] = {0};
@@ -1167,6 +1170,7 @@ static int r_jwe_aes_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
   }
   return ret;
 }
+#endif
 
 #if GNUTLS_VERSION_NUMBER >= 0x03060d
 static int r_jwe_pbes2_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
@@ -3028,6 +3032,7 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
           ret = res;
         }
         break;
+#if NETTLE_VERSION_NUMBER >= 0x030400
       case R_JWA_ALG_A128KW:
       case R_JWA_ALG_A192KW:
       case R_JWA_ALG_A256KW:
@@ -3038,6 +3043,7 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
           ret = res;
         }
         break;
+#endif
 #if GNUTLS_VERSION_NUMBER >= 0x03060d
       case R_JWA_ALG_PBES2_H256:
       case R_JWA_ALG_PBES2_H384:
@@ -3245,6 +3251,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
             ret = res;
           }
           break;
+#if NETTLE_VERSION_NUMBER >= 0x030400
         case R_JWA_ALG_A128KW:
         case R_JWA_ALG_A192KW:
         case R_JWA_ALG_A256KW:
@@ -3255,6 +3262,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
             ret = res;
           }
           break;
+#endif
 #if GNUTLS_VERSION_NUMBER >= 0x03060d
         case R_JWA_ALG_PBES2_H256:
         case R_JWA_ALG_PBES2_H384:

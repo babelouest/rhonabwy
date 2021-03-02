@@ -892,6 +892,24 @@ START_TEST(test_rhonabwy_import_from_json_str)
   ck_assert_str_eq((const char *)symmetric_key_b64url, r_jwk_get_property_str(jwk, "k"));
   r_jwk_free(jwk);
   
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_password(NULL, (const char *)symmetric_key), RHN_ERROR_PARAM);
+  r_jwk_free(jwk);
+  
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_password(jwk, NULL), RHN_ERROR_PARAM);
+  r_jwk_free(jwk);
+  
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_password(jwk, ""), RHN_ERROR_PARAM);
+  r_jwk_free(jwk);
+  
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_password(jwk, (const char *)symmetric_key), RHN_OK);
+  ck_assert_str_eq("oct", r_jwk_get_property_str(jwk, "kty"));
+  ck_assert_str_eq((const char *)symmetric_key_b64url, r_jwk_get_property_str(jwk, "k"));
+  r_jwk_free(jwk);
+  
   ulfius_stop_framework(&instance);
   ulfius_clean_instance(&instance);
 }

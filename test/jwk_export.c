@@ -516,6 +516,7 @@ START_TEST(test_rhonabwy_export_to_gnutls_pubkey)
   gnutls_pubkey_deinit(pubkey);
   r_jwk_free(jwk);
   
+#ifdef R_WITH_ULFIUS
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_rsa_pub_7465), RHN_OK);
   ck_assert_ptr_ne((pubkey = r_jwk_export_to_gnutls_pubkey(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE)), NULL);
@@ -529,6 +530,7 @@ START_TEST(test_rhonabwy_export_to_gnutls_pubkey)
   ck_assert_ptr_eq(r_jwk_export_to_gnutls_pubkey(jwk, R_FLAG_IGNORE_REMOTE), NULL);
   gnutls_pubkey_deinit(pubkey);
   r_jwk_free(jwk);
+#endif
 
   ulfius_stop_framework(&instance);
   ulfius_clean_instance(&instance);
@@ -575,6 +577,7 @@ START_TEST(test_rhonabwy_export_to_gnutls_crt)
   gnutls_x509_crt_deinit(crt);
   r_jwk_free(jwk);
 
+#ifdef R_WITH_ULFIUS
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_rsa_pub_7466), RHN_OK);
   ck_assert_ptr_ne((crt = r_jwk_export_to_gnutls_crt(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE)), NULL);
@@ -588,6 +591,7 @@ START_TEST(test_rhonabwy_export_to_gnutls_crt)
   ck_assert_ptr_eq(r_jwk_export_to_gnutls_crt(jwk, R_FLAG_IGNORE_REMOTE), NULL);
   gnutls_x509_crt_deinit(crt);
   r_jwk_free(jwk);
+#endif
 
   ulfius_stop_framework(&instance);
   ulfius_clean_instance(&instance);
@@ -653,6 +657,7 @@ START_TEST(test_rhonabwy_export_to_pem)
   ck_assert_int_eq(o_strncmp(jwk_pubkey_rsa_pem, (const char *)data, data_len), 0);
   r_jwk_free(jwk);
 
+#ifdef R_WITH_ULFIUS
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_rsa_pub_7467), RHN_OK);
   data_len = 4096;
@@ -668,6 +673,7 @@ START_TEST(test_rhonabwy_export_to_pem)
   ck_assert_int_eq(r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, data, &data_len, R_FLAG_IGNORE_REMOTE), RHN_ERROR);
   ck_assert_int_eq(o_strncmp(jwk_pubkey_ecdsa_x5u_export, (const char *)data, data_len), 0);
   r_jwk_free(jwk);
+#endif
 
   ulfius_stop_framework(&instance);
   ulfius_clean_instance(&instance);

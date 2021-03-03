@@ -848,6 +848,7 @@ START_TEST(test_rhonabwy_import_from_json_str)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_str_invalid_x5c_content), RHN_ERROR_PARAM);
   r_jwk_free(jwk);
   
+#ifdef R_WITH_ULFIUS
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
   ck_assert_int_eq(r_jwk_is_valid_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
@@ -860,6 +861,7 @@ START_TEST(test_rhonabwy_import_from_json_str)
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str_invalid_x5u_protocol), RHN_ERROR_PARAM);
   r_jwk_free(jwk);
+#endif
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_invalid_json), RHN_ERROR_PARAM);
@@ -869,10 +871,12 @@ START_TEST(test_rhonabwy_import_from_json_str)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_invalid_json_container), RHN_ERROR_PARAM);
   r_jwk_free(jwk);
   
+#ifdef R_WITH_ULFIUS
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_rsa_pub), RHN_OK);
   ck_assert_int_eq(r_jwk_is_valid_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
   r_jwk_free(jwk);
+#endif
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_symmetric_key(NULL, symmetric_key, o_strlen((const char *)symmetric_key)), RHN_ERROR_PARAM);
@@ -1251,10 +1255,12 @@ END_TEST
 
 START_TEST(test_rhonabwy_import_from_x5u)
 {
+#ifdef R_WITH_ULFIUS
   jwk_t * jwk;
   int type;
-  struct _u_instance instance;
   unsigned int bits = 0;
+#endif
+  struct _u_instance instance;
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7463, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);
@@ -1262,6 +1268,7 @@ START_TEST(test_rhonabwy_import_from_x5u)
   
   ck_assert_int_eq(ulfius_start_secure_framework(&instance, HTTPS_CERT_KEY, HTTPS_CERT_PEM), U_OK);
   
+#ifdef R_WITH_ULFIUS
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7463/x5u_rsa_crt"), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
@@ -1288,6 +1295,7 @@ START_TEST(test_rhonabwy_import_from_x5u)
   ck_assert_int_ne(type & R_KEY_TYPE_ECDSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
+#endif
 #endif
   
   ulfius_stop_framework(&instance);
@@ -1388,6 +1396,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
+#ifdef R_WITH_ULFIUS
   bits = 0;
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
@@ -1402,6 +1411,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
+#endif
   
   bits = 0;
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
@@ -1417,6 +1427,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
+#ifdef R_WITH_ULFIUS
   bits = 0;
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_rsa_pub), RHN_OK);
@@ -1445,6 +1456,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_ne(type & R_KEY_TYPE_ECDSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
+#endif
 #endif
   
   ulfius_stop_framework(&instance);
@@ -1597,7 +1609,9 @@ END_TEST
 
 START_TEST(test_rhonabwy_validate_x5u_chain)
 {
+#ifdef R_WITH_ULFIUS
   jwk_t * jwk;
+#endif
   struct _u_instance instance;
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7465, NULL, NULL), U_OK);
@@ -1608,6 +1622,7 @@ START_TEST(test_rhonabwy_validate_x5u_chain)
   
   ck_assert_int_eq(ulfius_start_secure_framework(&instance, HTTPS_CERT_KEY, HTTPS_CERT_PEM), U_OK);
 
+#ifdef R_WITH_ULFIUS
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_ptr_eq(r_jwk_get_property_str(jwk, "x5u"), NULL);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, x5u_fullchain1_crt), RHN_OK);
@@ -1635,6 +1650,7 @@ START_TEST(test_rhonabwy_validate_x5u_chain)
   ck_assert_ptr_ne(r_jwk_get_property_str(jwk, "x5u"), NULL);
   ck_assert_int_eq(r_jwk_validate_x5c_chain(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_ERROR_INVALID);
   r_jwk_free(jwk);
+#endif
 
   ulfius_stop_framework(&instance);
   ulfius_clean_instance(&instance);

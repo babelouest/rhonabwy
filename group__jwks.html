@@ -53,8 +53,8 @@ Functions</h2></td></tr>
 <tr class="separator:ga3779f3432ca378e4db6fd338a86eaa21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6c32c46305421cf0eed3c6f3ea91a798"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga6c32c46305421cf0eed3c6f3ea91a798">r_jwks_import_from_json_t</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, json_t *j_input)</td></tr>
 <tr class="separator:ga6c32c46305421cf0eed3c6f3ea91a798"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga0788a318f26b8c9a252916747c27898a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga0788a318f26b8c9a252916747c27898a">r_jwks_import_from_uri</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, const char *uri, int flags)</td></tr>
-<tr class="separator:ga0788a318f26b8c9a252916747c27898a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga37b2cc95af08528b2d80f590f69a9280"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga37b2cc95af08528b2d80f590f69a9280">r_jwks_import_from_uri</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, const char *uri, int x5u_flags)</td></tr>
+<tr class="separator:ga37b2cc95af08528b2d80f590f69a9280"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga39a3c880b62eb0bb1f718bec976ca0a7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga39a3c880b62eb0bb1f718bec976ca0a7">r_jwks_copy</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
 <tr class="separator:ga39a3c880b62eb0bb1f718bec976ca0a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1370763ce4d4ed8009ae87ca8e08e2db"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga1370763ce4d4ed8009ae87ca8e08e2db">r_jwks_size</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
@@ -184,8 +184,8 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="ga0788a318f26b8c9a252916747c27898a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga0788a318f26b8c9a252916747c27898a">&#9670;&nbsp;</a></span>r_jwks_import_from_uri()</h2>
+<a id="ga37b2cc95af08528b2d80f590f69a9280"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga37b2cc95af08528b2d80f590f69a9280">&#9670;&nbsp;</a></span>r_jwks_import_from_uri()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -206,7 +206,7 @@ Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>flags</em>&#160;</td>
+          <td class="paramname"><em>x5u_flags</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -219,7 +219,7 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">jwks</td><td>the jwk_t * to import to </td></tr>
     <tr><td class="paramname">uri</td><td>an uri pointing to a JWKS If jwks is set, JWK will be appended </td></tr>
-    <tr><td class="paramname">flags</td><td>Flags to retrieve x5u certificates Flags available are<ul>
+    <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve x5u certificates Flags available are<ul>
 <li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
 <li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary </li>
 </ul>

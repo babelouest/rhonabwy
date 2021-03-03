@@ -50,11 +50,12 @@ $(function() {
 <div class="contents">
 <div class="textblock"><code>#include &lt;orcania.h&gt;</code><br />
 <code>#include &lt;yder.h&gt;</code><br />
-<code>#include &lt;ulfius.h&gt;</code><br />
 <code>#include &lt;<a class="el" href="rhonabwy_8h_source.html">rhonabwy.h</a>&gt;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a4da44469083f9e6bb8e69159d9bc00e1"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwks_8c.html#a4da44469083f9e6bb8e69159d9bc00e1">_r_get_http_content</a> (const char *url, int x5u_flags, const char *expected_content_type)</td></tr>
+<tr class="separator:a4da44469083f9e6bb8e69159d9bc00e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6d62f61c18adafd2faec28c3e76bfc7b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga6d62f61c18adafd2faec28c3e76bfc7b">r_jwks_init</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> **jwks)</td></tr>
 <tr class="separator:ga6d62f61c18adafd2faec28c3e76bfc7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6035f53cdffed4076b5d085e8172025f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga6035f53cdffed4076b5d085e8172025f">r_jwks_free</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
@@ -93,9 +94,56 @@ Functions</h2></td></tr>
 <tr class="separator:ga3779f3432ca378e4db6fd338a86eaa21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6c32c46305421cf0eed3c6f3ea91a798"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga6c32c46305421cf0eed3c6f3ea91a798">r_jwks_import_from_json_t</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, json_t *j_input)</td></tr>
 <tr class="separator:ga6c32c46305421cf0eed3c6f3ea91a798"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga0788a318f26b8c9a252916747c27898a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga0788a318f26b8c9a252916747c27898a">r_jwks_import_from_uri</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, const char *uri, int flags)</td></tr>
-<tr class="separator:ga0788a318f26b8c9a252916747c27898a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga37b2cc95af08528b2d80f590f69a9280"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga37b2cc95af08528b2d80f590f69a9280">r_jwks_import_from_uri</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, const char *uri, int x5u_flags)</td></tr>
+<tr class="separator:ga37b2cc95af08528b2d80f590f69a9280"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a4da44469083f9e6bb8e69159d9bc00e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4da44469083f9e6bb8e69159d9bc00e1">&#9670;&nbsp;</a></span>_r_get_http_content()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* _r_get_http_content </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>url</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x5u_flags</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>expected_content_type</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Rhonabwy JSON Web Key Set (JWKS) library</p>
+<p><a class="el" href="jwks_8c.html">jwks.c</a>: functions definitions</p>
+<p>Copyright 2020-2021 Nicolas Mora <a href="#" onclick="location.href='mai'+'lto:'+'mai'+'l@'+'bab'+'el'+'oue'+'st'+'.or'+'g'; return false;">mail@<span style="display: none;">.nosp@m.</span>babe<span style="display: none;">.nosp@m.</span>loues<span style="display: none;">.nosp@m.</span>t.or<span style="display: none;">.nosp@m.</span>g</a></p>
+<p>This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; version 2.1 of the License.</p>
+<p>This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU GENERAL PUBLIC LICENSE for more details.</p>
+<p>You should have received a copy of the GNU General Public License along with this library. If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p>
+<p>Rhonabwy JSON Web Key (JWK) library</p>
+<p><a class="el" href="jwk_8c.html">jwk.c</a>: functions definitions</p>
+<p>Copyright 2020-2021 Nicolas Mora <a href="#" onclick="location.href='mai'+'lto:'+'mai'+'l@'+'bab'+'el'+'oue'+'st'+'.or'+'g'; return false;">mail@<span style="display: none;">.nosp@m.</span>babe<span style="display: none;">.nosp@m.</span>loues<span style="display: none;">.nosp@m.</span>t.or<span style="display: none;">.nosp@m.</span>g</a></p>
+<p>This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; version 2.1 of the License.</p>
+<p>This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU GENERAL PUBLIC LICENSE for more details.</p>
+<p>You should have received a copy of the GNU General Public License along with this library. If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>. </p>
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

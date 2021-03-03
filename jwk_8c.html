@@ -43,7 +43,6 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">jwk.c File Reference</div>  </div>
@@ -55,16 +54,12 @@ $(function() {
 <code>#include &lt;gnutls/crypto.h&gt;</code><br />
 <code>#include &lt;orcania.h&gt;</code><br />
 <code>#include &lt;yder.h&gt;</code><br />
-<code>#include &lt;ulfius.h&gt;</code><br />
 <code>#include &lt;<a class="el" href="rhonabwy_8h_source.html">rhonabwy.h</a>&gt;</code><br />
 </div><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
-Macros</h2></td></tr>
-<tr class="memitem:a976ac3323bf3732db3cff6a2ca79a416"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwk_8c.html#a976ac3323bf3732db3cff6a2ca79a416">RHN_BEGIN_CERT_TAG</a>&#160;&#160;&#160;&quot;-----BEGIN CERTIFICATE-----&quot;</td></tr>
-<tr class="separator:a976ac3323bf3732db3cff6a2ca79a416"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a4da44469083f9e6bb8e69159d9bc00e1"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwk_8c.html#a4da44469083f9e6bb8e69159d9bc00e1">_r_get_http_content</a> (const char *url, int x5u_flags, const char *expected_content_type)</td></tr>
+<tr class="separator:a4da44469083f9e6bb8e69159d9bc00e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf6734cc4f9ab69d875ff86d60aee3c06"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gaf6734cc4f9ab69d875ff86d60aee3c06">r_jwk_init</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> **jwk)</td></tr>
 <tr class="separator:gaf6734cc4f9ab69d875ff86d60aee3c06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5132358e821050897ea7e65b0a6e324b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga5132358e821050897ea7e65b0a6e324b">r_jwk_free</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk)</td></tr>
@@ -138,15 +133,35 @@ Functions</h2></td></tr>
 <tr class="memitem:gabd247e4915ed326c35435ac1611e1c0f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__export.html#gabd247e4915ed326c35435ac1611e1c0f">r_jwk_validate_x5c_chain</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, int x5u_flags)</td></tr>
 <tr class="separator:gabd247e4915ed326c35435ac1611e1c0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="a976ac3323bf3732db3cff6a2ca79a416"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a976ac3323bf3732db3cff6a2ca79a416">&#9670;&nbsp;</a></span>RHN_BEGIN_CERT_TAG</h2>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a4da44469083f9e6bb8e69159d9bc00e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4da44469083f9e6bb8e69159d9bc00e1">&#9670;&nbsp;</a></span>_r_get_http_content()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define RHN_BEGIN_CERT_TAG&#160;&#160;&#160;&quot;-----BEGIN CERTIFICATE-----&quot;</td>
+          <td class="memname">char* _r_get_http_content </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>url</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x5u_flags</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>expected_content_type</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">

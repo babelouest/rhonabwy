@@ -50,7 +50,6 @@ $(function() {
 <div class="contents">
 <div class="textblock"><code>#include &lt;orcania.h&gt;</code><br />
 <code>#include &lt;yder.h&gt;</code><br />
-<code>#include &lt;ulfius.h&gt;</code><br />
 <code>#include &lt;<a class="el" href="rhonabwy_8h_source.html">rhonabwy.h</a>&gt;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
@@ -59,6 +58,8 @@ Functions</h2></td></tr>
 <tr class="separator:gadb3e47b28040a79fb4b10474ef59320d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga3327a2851a63b2277777d61103ae4bb0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga3327a2851a63b2277777d61103ae4bb0">r_global_close</a> ()</td></tr>
 <tr class="separator:ga3327a2851a63b2277777d61103ae4bb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4da44469083f9e6bb8e69159d9bc00e1"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="misc_8c.html#a4da44469083f9e6bb8e69159d9bc00e1">_r_get_http_content</a> (const char *url, int x5u_flags, const char *expected_content_type)</td></tr>
+<tr class="separator:a4da44469083f9e6bb8e69159d9bc00e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac3f783c995d96f50a19cfdcc1cdf917a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="misc_8c.html#ac3f783c995d96f50a19cfdcc1cdf917a">_r_json_set_str_value</a> (json_t *j_json, const char *key, const char *str_value)</td></tr>
 <tr class="separator:ac3f783c995d96f50a19cfdcc1cdf917a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a64149fd7248238bd1d60e2fc1e407a5f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="misc_8c.html#a64149fd7248238bd1d60e2fc1e407a5f">_r_json_set_int_value</a> (json_t *j_json, const char *key, int i_value)</td></tr>
@@ -89,6 +90,46 @@ Functions</h2></td></tr>
 <tr class="separator:gab04b1ac2dfe5a33b0aae918f9d17b359"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="a4da44469083f9e6bb8e69159d9bc00e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4da44469083f9e6bb8e69159d9bc00e1">&#9670;&nbsp;</a></span>_r_get_http_content()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* _r_get_http_content </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>url</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x5u_flags</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>expected_content_type</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Rhonabwy JSON Web Key (JWK) library</p>
+<p><a class="el" href="jwk_8c.html">jwk.c</a>: functions definitions</p>
+<p>Copyright 2020-2021 Nicolas Mora <a href="#" onclick="location.href='mai'+'lto:'+'mai'+'l@'+'bab'+'el'+'oue'+'st'+'.or'+'g'; return false;">mail@<span style="display: none;">.nosp@m.</span>babe<span style="display: none;">.nosp@m.</span>loues<span style="display: none;">.nosp@m.</span>t.or<span style="display: none;">.nosp@m.</span>g</a></p>
+<p>This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; version 2.1 of the License.</p>
+<p>This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU GENERAL PUBLIC LICENSE for more details.</p>
+<p>You should have received a copy of the GNU General Public License along with this library. If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>. </p>
+
+</div>
+</div>
 <a id="ac3f783c995d96f50a19cfdcc1cdf917a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac3f783c995d96f50a19cfdcc1cdf917a">&#9670;&nbsp;</a></span>_r_json_set_str_value()</h2>
 

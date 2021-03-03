@@ -73,6 +73,8 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
+<tr class="memitem:a976ac3323bf3732db3cff6a2ca79a416"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rhonabwy_8h.html#a976ac3323bf3732db3cff6a2ca79a416">RHN_BEGIN_CERT_TAG</a>&#160;&#160;&#160;&quot;-----BEGIN CERTIFICATE-----&quot;</td></tr>
+<tr class="separator:a976ac3323bf3732db3cff6a2ca79a416"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga3fc690cb1d601c13fce959aff60de0d7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga3fc690cb1d601c13fce959aff60de0d7">RHN_OK</a>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:ga3fc690cb1d601c13fce959aff60de0d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa583716ce2823841223d71ab19c3e44d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gaa583716ce2823841223d71ab19c3e44d">RHN_ERROR</a>&#160;&#160;&#160;1</td></tr>
@@ -347,8 +349,8 @@ Functions</h2></td></tr>
 <tr class="separator:ga3779f3432ca378e4db6fd338a86eaa21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6c32c46305421cf0eed3c6f3ea91a798"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga6c32c46305421cf0eed3c6f3ea91a798">r_jwks_import_from_json_t</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, json_t *j_input)</td></tr>
 <tr class="separator:ga6c32c46305421cf0eed3c6f3ea91a798"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga0788a318f26b8c9a252916747c27898a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga0788a318f26b8c9a252916747c27898a">r_jwks_import_from_uri</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, const char *uri, int flags)</td></tr>
-<tr class="separator:ga0788a318f26b8c9a252916747c27898a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga37b2cc95af08528b2d80f590f69a9280"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga37b2cc95af08528b2d80f590f69a9280">r_jwks_import_from_uri</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, const char *uri, int x5u_flags)</td></tr>
+<tr class="separator:ga37b2cc95af08528b2d80f590f69a9280"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga39a3c880b62eb0bb1f718bec976ca0a7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga39a3c880b62eb0bb1f718bec976ca0a7">r_jwks_copy</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
 <tr class="separator:ga39a3c880b62eb0bb1f718bec976ca0a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1370763ce4d4ed8009ae87ca8e08e2db"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga1370763ce4d4ed8009ae87ca8e08e2db">r_jwks_size</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
@@ -621,7 +623,22 @@ Functions</h2></td></tr>
 <p>This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; version 2.1 of the License.</p>
 <p>This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU GENERAL PUBLIC LICENSE for more details.</p>
 <p>You should have received a copy of the GNU General Public License along with this library. If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>. </p>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a976ac3323bf3732db3cff6a2ca79a416"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a976ac3323bf3732db3cff6a2ca79a416">&#9670;&nbsp;</a></span>RHN_BEGIN_CERT_TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RHN_BEGIN_CERT_TAG&#160;&#160;&#160;&quot;-----BEGIN CERTIFICATE-----&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+</div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

@@ -440,17 +440,17 @@ const unsigned char ed448_priv_der[] =
 "9NeuVKd9K0YVM9biq3X7WW1kDOdPK0nBog==";
 
 const unsigned char x25519_priv[] = "-----BEGIN PRIVATE KEY-----\n"
-"MC4CAQAwBQYDK2VuBCIEILC1USjD0HOuI1yiUF+PDok8xqFRhxPo17tLke50WcNR\n"
+"MC4CAQAwBQYDK2VuBCIEIHgz5JhbrOOKkJIqxQnnSpKGC1ncvqPBwCGIFJtsVeVT\n"
 "-----END PRIVATE KEY-----";
-const unsigned char x25519_priv_der[] = "MC4CAQAwBQYDK2VuBCIEILC1USjD0HOuI1yiUF+PDok8xqFRhxPo17tLke50WcNR";
+const unsigned char x25519_priv_der[] = "MC4CAQAwBQYDK2VuBCIEIHgz5JhbrOOKkJIqxQnnSpKGC1ncvqPBwCGIFJtsVeVT";
 
 const unsigned char x448_priv[] = "-----BEGIN PRIVATE KEY-----\n"
-"MEYCAQAwBQYDK2VvBDoEOKQnkFLlYvnvWTnaRHD+lS0+QlHU1aOLsOy+4s1+c2n4\n"
-"RudDIPJfLe03WLYaOzLXwN8LlWfMOSCY\n"
+"MEYCAQAwBQYDK2VvBDoEOKBu7PIoYBVNeVQ8erUnN7B6M+Jtmvdjl/GMmoxZ00DA\n"
+"OicTWxiiQZCn0bzut2UqtQ6ay/oN0y75\n"
 "-----END PRIVATE KEY-----";
 const unsigned char x448_priv_der[] = 
-"MEYCAQAwBQYDK2VvBDoEOKQnkFLlYvnvWTnaRHD+lS0+QlHU1aOLsOy+4s1+c2n4"
-"RudDIPJfLe03WLYaOzLXwN8LlWfMOSCY";
+"MEYCAQAwBQYDK2VvBDoEOKBu7PIoYBVNeVQ8erUnN7B6M+Jtmvdjl/GMmoxZ00DA"
+"OicTWxiiQZCn0bzut2UqtQ6ay/oN0y75";
 
 const unsigned char x509_cert[] = "-----BEGIN CERTIFICATE-----\n"
 "MIIBejCCASGgAwIBAgIUUmwvBcKwJSWZMLC9xtUYQhh/YicwCgYIKoZIzj0EAwIw\n"
@@ -1163,12 +1163,12 @@ START_TEST(test_rhonabwy_import_from_pem)
 
 #if 0 // Disabled for now
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_pem_der(jwk, R_X509_TYPE_PRIVKEY, R_FORMAT_PEM, x25519_priv, o_strlen((const char *)ecdsa_521_priv)), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_pem_der(jwk, R_X509_TYPE_PRIVKEY, R_FORMAT_PEM, x25519_priv, o_strlen((const char *)x25519_priv)), RHN_OK);
   ck_assert_int_eq(r_jwk_is_valid(jwk), RHN_OK);
   r_jwk_free(jwk);
 
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_pem_der(jwk, R_X509_TYPE_PRIVKEY, R_FORMAT_PEM, x448_priv, o_strlen((const char *)ecdsa_521_priv)), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_pem_der(jwk, R_X509_TYPE_PRIVKEY, R_FORMAT_PEM, x448_priv, o_strlen((const char *)x448_priv)), RHN_OK);
   ck_assert_int_eq(r_jwk_is_valid(jwk), RHN_OK);
   r_jwk_free(jwk);
 #endif

@@ -66,13 +66,13 @@ Macros</h2></td></tr>
 <tr class="separator:a1e47d965fa74f343ff285d9a4e9f18fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb944e890e1765535d6e4d5b7c41f545"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwe_8c.html#abb944e890e1765535d6e4d5b7c41f545">_R_BLOCK_SIZE</a>&#160;&#160;&#160;256</td></tr>
 <tr class="separator:abb944e890e1765535d6e4d5b7c41f545"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef48dc72d4d3ee6570c56e50046da045"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwe_8c.html#aef48dc72d4d3ee6570c56e50046da045">_R_PBES_DEFAULT_ITERATION</a>&#160;&#160;&#160;4096</td></tr>
+<tr class="separator:aef48dc72d4d3ee6570c56e50046da045"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0dbcd45a21ad73755356ced0144ab58d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwe_8c.html#a0dbcd45a21ad73755356ced0144ab58d">_R_PBES_DEFAULT_SALT_LENGTH</a>&#160;&#160;&#160;8</td></tr>
+<tr class="separator:a0dbcd45a21ad73755356ced0144ab58d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a38e4ae71f3e81c3a902fe19030094ab6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwe_8c.html#a38e4ae71f3e81c3a902fe19030094ab6">r_jwe_aesgcm_key_wrap</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, int x5u_flags)</td></tr>
-<tr class="separator:a38e4ae71f3e81c3a902fe19030094ab6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89619e77bb9878da31d833615a6f4c1a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwe_8c.html#a89619e77bb9878da31d833615a6f4c1a">r_jwe_aesgcm_key_unwrap</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, int x5u_flags)</td></tr>
-<tr class="separator:a89619e77bb9878da31d833615a6f4c1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9fe136eb9a9a8c256f4cdb091c14da52"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga9fe136eb9a9a8c256f4cdb091c14da52">r_jwe_init</a> (<a class="el" href="structjwe__t.html">jwe_t</a> **jwe)</td></tr>
 <tr class="separator:ga9fe136eb9a9a8c256f4cdb091c14da52"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga14172c6cf13d0e96abf27d660d87037b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga14172c6cf13d0e96abf27d660d87037b">r_jwe_free</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe)</td></tr>
@@ -166,7 +166,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Rhonabwy JSON Web Encryption (JWE) library</p>
 <p><a class="el" href="jwe_8c.html">jwe.c</a>: functions definitions</p>
-<p>Copyright 2020 Nicolas Mora <a href="#" onclick="location.href='mai'+'lto:'+'mai'+'l@'+'bab'+'el'+'oue'+'st'+'.or'+'g'; return false;">mail@<span style="display: none;">.nosp@m.</span>babe<span style="display: none;">.nosp@m.</span>loues<span style="display: none;">.nosp@m.</span>t.or<span style="display: none;">.nosp@m.</span>g</a></p>
+<p>Copyright 2020-2021 Nicolas Mora <a href="#" onclick="location.href='mai'+'lto:'+'mai'+'l@'+'bab'+'el'+'oue'+'st'+'.or'+'g'; return false;">mail@<span style="display: none;">.nosp@m.</span>babe<span style="display: none;">.nosp@m.</span>loues<span style="display: none;">.nosp@m.</span>t.or<span style="display: none;">.nosp@m.</span>g</a></p>
 <p>This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; version 2.1 of the License.</p>
 <p>This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU GENERAL PUBLIC LICENSE for more details.</p>
 <p>You should have received a copy of the GNU General Public License along with this library. If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>. </p>
@@ -187,69 +187,28 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<h2 class="groupheader">Function Documentation</h2>
-<a id="a38e4ae71f3e81c3a902fe19030094ab6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a38e4ae71f3e81c3a902fe19030094ab6">&#9670;&nbsp;</a></span>r_jwe_aesgcm_key_wrap()</h2>
+<a id="aef48dc72d4d3ee6570c56e50046da045"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aef48dc72d4d3ee6570c56e50046da045">&#9670;&nbsp;</a></span>_R_PBES_DEFAULT_ITERATION</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int r_jwe_aesgcm_key_wrap </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structjwe__t.html">jwe_t</a> *&#160;</td>
-          <td class="paramname"><em>jwe</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
-          <td class="paramname"><em>jwk</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>x5u_flags</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
+          <td class="memname">#define _R_PBES_DEFAULT_ITERATION&#160;&#160;&#160;4096</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a89619e77bb9878da31d833615a6f4c1a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a89619e77bb9878da31d833615a6f4c1a">&#9670;&nbsp;</a></span>r_jwe_aesgcm_key_unwrap()</h2>
+<a id="a0dbcd45a21ad73755356ced0144ab58d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0dbcd45a21ad73755356ced0144ab58d">&#9670;&nbsp;</a></span>_R_PBES_DEFAULT_SALT_LENGTH</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int r_jwe_aesgcm_key_unwrap </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structjwe__t.html">jwe_t</a> *&#160;</td>
-          <td class="paramname"><em>jwe</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
-          <td class="paramname"><em>jwk</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>x5u_flags</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
+          <td class="memname">#define _R_PBES_DEFAULT_SALT_LENGTH&#160;&#160;&#160;8</td>
         </tr>
       </table>
 </div><div class="memdoc">

@@ -63,6 +63,8 @@ Functions</h2></td></tr>
 <tr class="separator:gaea7fb56daaac4f67e26c9a3fa29e73e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7c1d69c5db756215249054a7a659f612"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__import.html#ga7c1d69c5db756215249054a7a659f612">r_jwk_import_from_symmetric_key</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, const unsigned char *key, size_t key_len)</td></tr>
 <tr class="separator:ga7c1d69c5db756215249054a7a659f612"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga09d060c7cd4cbdbd81d4e8ddf2f02e1a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__import.html#ga09d060c7cd4cbdbd81d4e8ddf2f02e1a">r_jwk_import_from_password</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, const char *password)</td></tr>
+<tr class="separator:ga09d060c7cd4cbdbd81d4e8ddf2f02e1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac76ba127a4eadcb2122abeb0d49814c3"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__import.html#gac76ba127a4eadcb2122abeb0d49814c3">r_jwk_extract_pubkey</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_privkey, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk_pubkey, int x5u_flags)</td></tr>
 <tr class="separator:gac76ba127a4eadcb2122abeb0d49814c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa883365c50b00e028b96442f70af84df"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__import.html#gaa883365c50b00e028b96442f70af84df">r_jwk_copy</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk)</td></tr>
@@ -393,6 +395,42 @@ Functions</h2></td></tr>
     <tr><td class="paramname">jwk</td><td>the jwk_t * to import to </td></tr>
     <tr><td class="paramname">key</td><td>the key to import </td></tr>
     <tr><td class="paramname">key_len</td><td>the size of the key </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="ga09d060c7cd4cbdbd81d4e8ddf2f02e1a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga09d060c7cd4cbdbd81d4e8ddf2f02e1a">&#9670;&nbsp;</a></span>r_jwk_import_from_password()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwk_import_from_password </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
+          <td class="paramname"><em>jwk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>password</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Import a password into a jwk The password will be converted to base64url format </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwk</td><td>the jwk_t * to import to </td></tr>
+    <tr><td class="paramname">password</td><td>the password to import </td></tr>
   </table>
   </dd>
 </dl>

@@ -36,6 +36,8 @@ extern "C"
 #include <gnutls/gnutls.h>
 #include <nettle/version.h>
 
+#define RHN_BEGIN_CERT_TAG "-----BEGIN CERTIFICATE-----"
+
 /**
  * @defgroup const Constants and properties
  * Constant values used as input or output
@@ -807,7 +809,7 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input);
  * @param jwks: the jwk_t * to import to
  * @param uri: an uri pointing to a JWKS
  * If jwks is set, JWK will be appended
- * @param flags: Flags to retrieve x5u certificates
+ * @param x5u_flags: Flags to retrieve x5u certificates
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
@@ -815,7 +817,7 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input);
  * may return RHN_ERROR_PARAM if at least one JWK 
  * is invalid, but the will import the others
  */
-int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int flags);
+int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int x5u_flags);
 
 /**
  * Return a copy of the JWKS

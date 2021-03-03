@@ -23,20 +23,79 @@
 
 #include <orcania.h>
 #include <yder.h>
-#include <ulfius.h>
 #include <rhonabwy.h>
 
+#ifdef R_WITH_ULFIUS
+  #include <ulfius.h>
+#endif
+
 int r_global_init() {
+#ifdef R_WITH_ULFIUS
   if (ulfius_global_init() == U_OK) {
     return RHN_OK;
   } else {
     y_log_message(Y_LOG_LEVEL_ERROR, "r_global_init - Error ulfius_global_init");
     return RHN_ERROR;
   }
+#else
+  o_malloc_t malloc_fn;
+  o_realloc_t realloc_fn;
+  o_free_t free_fn;
+
+  o_get_alloc_funcs(&malloc_fn, &realloc_fn, &free_fn);
+  json_set_alloc_funcs((json_malloc_t)malloc_fn, (json_free_t)free_fn);
+  return RHN_OK;
+#endif
 }
 
 void r_global_close() {
+#ifdef R_WITH_ULFIUS
   ulfius_global_close();
+#endif
+}
+
+char * _r_get_http_content(const char * url, int x5u_flags, const char * expected_content_type) {
+  char * to_return = NULL;
+#ifdef R_WITH_ULFIUS
+  struct _u_request request;
+  struct _u_response response;
+  
+  if (ulfius_init_request(&request) == U_OK) {
+    if (ulfius_init_response(&response) == U_OK) {
+      y_log_message(Y_LOG_LEVEL_DEBUG, "get %s", url);
+      ulfius_set_request_properties(&request, U_OPT_HTTP_VERB, "GET",
+                                              U_OPT_HTTP_URL, url,
+                                              U_OPT_CHECK_SERVER_CERTIFICATE, !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE),
+                                              U_OPT_FOLLOW_REDIRECT, (x5u_flags & R_FLAG_FOLLOW_REDIRECT),
+                                              U_OPT_HEADER_PARAMETER, "User-Agent", "Rhonabwy/" RHONABWY_VERSION_STR,
+                                              U_OPT_NONE);
+      if (ulfius_send_http_request(&request, &response) == U_OK && response.status >= 200 && response.status < 300) {
+        if (!o_strlen(expected_content_type)) {
+          to_return = o_strndup(response.binary_body, response.binary_body_length);
+        } else {
+          if (NULL != o_strstr(u_map_get_case(response.map_header, ULFIUS_HTTP_HEADER_CONTENT), ULFIUS_HTTP_ENCODING_JSON)) {
+            to_return = o_strndup(response.binary_body, response.binary_body_length);
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "_r_get_http_content - Error invalid content-type");
+          }
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_get_http_content - Error ulfius_send_http_request");
+      }
+      ulfius_clean_request(&request);
+      ulfius_clean_response(&response);
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_get_http_content - Error ulfius_init_response");
+    }
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "_r_get_http_content - Error ulfius_init_request");
+  }
+#else
+  (void)url;
+  (void)x5u_flags;
+  (void)expected_content_type;
+#endif
+  return to_return;
 }
 
 int _r_json_set_str_value(json_t * j_json, const char * key, const char * str_value) {

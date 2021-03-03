@@ -31,7 +31,7 @@ CONFIG_FILE=$(RHONABWY_INCLUDE)/rhonabwy-cfg.h
 CONFIG_TEMPLATE=$(RHONABWY_INCLUDE)/rhonabwy-cfg.h.in
 CC=gcc
 CFLAGS+=-c -pedantic -std=gnu99 -fPIC -Wall -Werror -Wextra -D_REENTRANT -I$(RHONABWY_INCLUDE) $(ADDITIONALFLAGS) $(CPPFLAGS)
-LIBS=-L$(DESTDIR)/lib -lc -lorcania -lyder -lulfius -ljansson -lgnutls -lz $(LDFLAGS)
+LIBS=-L$(DESTDIR)/lib -lc -lorcania -lyder $(LULFIUS) -ljansson -lgnutls -lz $(LDFLAGS)
 SONAME=-soname
 OBJECTS=jwk.o jwks.o jws.o jwe.o jwt.o misc.o
 OUTPUT=librhonabwy.so
@@ -43,6 +43,13 @@ ifdef ECDHFLAG
 ENABLE_ECDH=1
 else
 ENABLE_ECDH=0
+endif
+
+ifdef DISABLE_ULFIUS
+R_WITH_ULFIUS=0
+else
+R_WITH_ULFIUS=1
+LULFIUS=-lulfius
 endif
 
 .PHONY: all clean
@@ -63,6 +70,13 @@ $(CONFIG_FILE):
 	else \
 		sed -i -e 's/\#cmakedefine R_ECDH_ENABLED/\/* #undef R_ECDH_ENABLED *\//g' $(CONFIG_FILE); \
 		echo "ECDH SUPPORT    DISABLED"; \
+	fi
+	@if [ "$(R_WITH_ULFIUS)" = "1" ]; then \
+		sed -i -e 's/\#cmakedefine R_WITH_ULFIUS/\#define R_WITH_ULFIUS/g' $(CONFIG_FILE); \
+		echo "USE ULFIUS      ENABLED"; \
+	else \
+		sed -i -e 's/\#cmakedefine R_WITH_ULFIUS/\/* #undef R_WITH_ULFIUS *\//g' $(CONFIG_FILE); \
+		echo "USE ULFIUS      DISABLED"; \
 	fi
 
 $(PKGCONFIG_FILE):

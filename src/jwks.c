@@ -23,8 +23,9 @@
 
 #include <orcania.h>
 #include <yder.h>
-#include <ulfius.h>
 #include <rhonabwy.h>
+
+char * _r_get_http_content(const char * url, int x5u_flags, const char * expected_content_type);
 
 int r_jwks_init(jwks_t ** jwks) {
   int ret;
@@ -296,45 +297,24 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input) {
   return ret;
 }
 
-int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int flags) {
-  struct _u_request request;
-  struct _u_response response;
+int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int x5u_flags) {
   int ret;
-  json_t * j_result;
+  json_t * j_result = NULL;
+  char * x5u_content = NULL;
 
   if (jwks != NULL && uri != NULL) {
-    if (ulfius_init_request(&request) == U_OK && ulfius_init_response(&response) == U_OK) {
-      ulfius_set_request_properties(&request, U_OPT_HTTP_VERB, "GET",
-                                              U_OPT_HTTP_URL, uri,
-                                              U_OPT_CHECK_SERVER_CERTIFICATE, !(flags & R_FLAG_IGNORE_SERVER_CERTIFICATE),
-                                              U_OPT_FOLLOW_REDIRECT, flags & R_FLAG_FOLLOW_REDIRECT,
-                                              U_OPT_HEADER_PARAMETER, "User-Agent", "Rhonabwy/" RHONABWY_VERSION_STR,
-                                              U_OPT_NONE);
-      if (ulfius_send_http_request(&request, &response) == U_OK) {
-        if (response.status >= 200 && response.status < 300) {
-          j_result = ulfius_get_json_body_response(&response, NULL);
-          if (j_result != NULL) {
-            if (r_jwks_import_from_json_t(jwks, j_result) == RHN_OK) {
-              ret = RHN_OK;
-            } else {
-              ret = RHN_ERROR;
-            }
-          } else {
-            y_log_message(Y_LOG_LEVEL_DEBUG, "jwks import uri - Error ulfius_get_json_body_response");
-            ret = RHN_ERROR;
-          }
-          json_decref(j_result);
-        } else {
-          ret = RHN_ERROR;
-        }
+    if ((x5u_content = _r_get_http_content(uri, x5u_flags, "application/json")) != NULL) {
+      j_result = json_loads(x5u_content, JSON_DECODE_ANY, NULL);
+      if (j_result != NULL) {
+        ret = r_jwks_import_from_json_t(jwks, j_result);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "jwks import uri - Error ulfius_send_http_request");
+        y_log_message(Y_LOG_LEVEL_DEBUG, "jwks import uri - Error ulfius_get_json_body_response");
         ret = RHN_ERROR;
       }
-      ulfius_clean_request(&request);
-      ulfius_clean_response(&response);
+      json_decref(j_result);
+      o_free(x5u_content);
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "jwks import uri - Error ulfius_init_request or ulfius_init_response");
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5u - Error getting x5u content");
       ret = RHN_ERROR;
     }
   } else {

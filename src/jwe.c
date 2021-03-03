@@ -32,6 +32,10 @@
 #include <yder.h>
 #include <rhonabwy.h>
 
+#include <nettle/curve25519.h>
+#include <nettle/curve448.h>
+#include <nettle/eddsa.h>
+
 #define R_TAG_MAX_SIZE 16
 
 #define _R_BLOCK_SIZE 256
@@ -218,54 +222,24 @@ static int _r_concat_kdf(jwe_t * jwe, const gnutls_datum_t * Z, gnutls_datum_t *
   return ret;
 }
 
-static int _r_dh_compute(gnutls_privkey_t priv, gnutls_pubkey_t pub, gnutls_datum_t * Z) {
-  gnutls_datum_t priv_x = {NULL, 0}, priv_k = {NULL, 0}, pub_x = {NULL, 0};//, peer_x = { (void *)"\x02", 1 };
-  gnutls_dh_params_t dh_params = NULL;
-  gnutls_ecc_curve_t curve;
-  int ret = RHN_OK;
-  uint8_t q[CURVE25519_SIZE] = {0};
+static int _r_dh_compute(uint8_t * priv_k, uint8_t * pub_x, size_t crv_size, gnutls_datum_t * Z) {
+  int ret;
+  uint8_t q[CURVE448_SIZE] = {0};
 
-  do {
-    if (gnutls_dh_params_init(&dh_params) != GNUTLS_E_SUCCESS) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "_r_dh_compute - Error gnutls_dh_params_init");
-      ret = RHN_ERROR;
-      break;
-    }
+  if (crv_size == CURVE25519_SIZE) {
+    curve25519_mul(q, priv_k, pub_x);
+  } else {
+    curve448_mul(q, priv_k, pub_x);
+  }
 
-    if (gnutls_dh_params_import_raw3(dh_params, &gnutls_ffdhe_2048_group_prime, &gnutls_ffdhe_2048_group_q, &gnutls_ffdhe_2048_group_generator) != GNUTLS_E_SUCCESS) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "_r_dh_compute - Error gnutls_dh_params_import_raw3");
-      ret = RHN_ERROR;
-      break;
-    }
-
-    if (gnutls_privkey_export_ecc_raw(priv, &curve, &priv_x, NULL, &priv_k) != GNUTLS_E_SUCCESS) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "_r_dh_compute - Error gnutls_privkey_export_ecc_raw");
-      ret = RHN_ERROR;
-      break;
-    }
-
-    if (gnutls_pubkey_export_ecc_raw(pub, &curve, &pub_x, NULL) != GNUTLS_E_SUCCESS) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "_r_dh_compute - Error gnutls_pubkey_export_ecc_raw");
-      ret = RHN_ERROR;
-      break;
-    }
-
-    curve25519_mul(q, priv_k.data, pub_x.data);
-
-    if ((Z->data = gnutls_malloc(CURVE25519_SIZE)) == NULL) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "_r_dh_compute - Error gnutls_malloc");
-      ret = RHN_ERROR_MEMORY;
-      break;
-    }
-
-    memcpy(Z->data, q, CURVE25519_SIZE);
-    Z->size = CURVE25519_SIZE;
-  } while(0);
-
-  gnutls_dh_params_deinit(dh_params);
-  gnutls_free(priv_x.data);
-  gnutls_free(priv_k.data);
-  gnutls_free(pub_x.data);
+  if ((Z->data = gnutls_malloc(crv_size)) != NULL) {
+    memcpy(Z->data, q, crv_size);
+    Z->size = crv_size;
+    ret = RHN_OK;
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "_r_dh_compute - Error gnutls_malloc");
+    ret = RHN_ERROR_MEMORY;
+  }
 
   return ret;
 }
@@ -781,8 +755,9 @@ static int r_jwe_ecdh_encrypt(jwe_t * jwe, jwk_t * jwk_pub, jwk_t * jwk_priv, in
   gnutls_ecc_curve_t curve;
   gnutls_datum_t x = {NULL, 0}, y = {NULL, 0}, k = {NULL, 0}, peer_x = {NULL, 0}, peer_y = {NULL, 0}, Z = {NULL, 0}, kdf = {NULL, 0};
   unsigned char cipherkey_b64url[256] = {0};
-  uint8_t derived_key[64] = {0}, wrapped_key[72] = {0};
-  size_t derived_key_len = 0, cipherkey_b64url_len = 0;
+  uint8_t derived_key[64] = {0}, wrapped_key[72] = {0}, priv_k[CURVE448_SIZE] = {0}, pub_x[CURVE448_SIZE] = {0};
+  size_t derived_key_len = 0, cipherkey_b64url_len = 0, key_size = ED448_KEY_SIZE, crv_size = 0, d_size = 0;
+  const char * key = NULL;
   json_t * j_epk = NULL;
 
   do {
@@ -795,7 +770,7 @@ static int r_jwe_ecdh_encrypt(jwe_t * jwe, jwk_t * jwk_pub, jwk_t * jwk_priv, in
     if (jwk_priv != NULL) {
       type_priv = r_jwk_key_type(jwk_priv, &bits_priv, x5u_flags);
 
-      if ((type_priv & R_KEY_TYPE_EDDSA && type & R_KEY_TYPE_ECDSA) || (type_priv & R_KEY_TYPE_ECDSA && type & R_KEY_TYPE_EDDSA) || (!(type_priv & R_KEY_TYPE_ECDSA) && !(type_priv & R_KEY_TYPE_EDDSA))) {
+      if ((type_priv & 0xffffff00) != (type & 0xffffff00)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error invalid ephemeral key");
         ret = RHN_ERROR_PARAM;
         break;
@@ -807,10 +782,12 @@ static int r_jwe_ecdh_encrypt(jwe_t * jwe, jwk_t * jwk_pub, jwk_t * jwk_priv, in
         break;
       }
 
-      if ((priv = r_jwk_export_to_gnutls_privkey(jwk_priv)) == NULL) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error r_jwk_export_to_gnutls_privkey");
-        ret = RHN_ERROR_PARAM;
-        break;
+      if (type & R_KEY_TYPE_ECDSA) {
+        if ((priv = r_jwk_export_to_gnutls_privkey(jwk_priv)) == NULL) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error r_jwk_export_to_gnutls_privkey");
+          ret = RHN_ERROR_PARAM;
+          break;
+        }
       }
 
       if (r_jwk_extract_pubkey(jwk_priv, jwk_ephemeral_pub, x5u_flags) != RHN_OK) {
@@ -825,43 +802,93 @@ static int r_jwe_ecdh_encrypt(jwe_t * jwe, jwk_t * jwk_pub, jwk_t * jwk_priv, in
         break;
       }
 
-      if (r_jwk_generate_key_pair(jwk_ephemeral, jwk_ephemeral_pub, type&R_KEY_TYPE_ECDSA?R_KEY_TYPE_ECDSA:R_KEY_TYPE_EDDSA, bits, NULL) != RHN_OK) {
+      if (r_jwk_generate_key_pair(jwk_ephemeral, jwk_ephemeral_pub, type&R_KEY_TYPE_ECDSA?R_KEY_TYPE_ECDSA:R_KEY_TYPE_ECDH, bits, NULL) != RHN_OK) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error r_jwk_generate_key_pair");
         ret = RHN_ERROR;
         break;
       }
 
-      if ((priv = r_jwk_export_to_gnutls_privkey(jwk_ephemeral)) == NULL) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error r_jwk_export_to_gnutls_privkey");
-        ret = RHN_ERROR;
-        break;
+      if (type & R_KEY_TYPE_ECDSA) {
+        if ((priv = r_jwk_export_to_gnutls_privkey(jwk_ephemeral)) == NULL) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error r_jwk_export_to_gnutls_privkey");
+          ret = RHN_ERROR;
+          break;
+        }
       }
       r_jwk_delete_property_str(jwk_ephemeral_pub, "kid");
     }
+    
+    if (type & R_KEY_TYPE_ECDSA) {
+      if ((pub = r_jwk_export_to_gnutls_pubkey(jwk_pub, x5u_flags)) == NULL) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error r_jwk_export_to_gnutls_pubkey");
+        ret = RHN_ERROR;
+        break;
+      }
 
-    if ((pub = r_jwk_export_to_gnutls_pubkey(jwk_pub, x5u_flags)) == NULL) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error r_jwk_export_to_gnutls_pubkey");
-      ret = RHN_ERROR;
-      break;
+      if (gnutls_privkey_export_ecc_raw(priv, &curve, &x, &y, &k) != GNUTLS_E_SUCCESS) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error gnutls_privkey_export_ecc_raw (ecc)");
+        ret = RHN_ERROR;
+        break;
+      }
+
+      if (gnutls_pubkey_export_ecc_raw(pub, &curve, &peer_x, &peer_y) != GNUTLS_E_SUCCESS) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error gnutls_pubkey_export_ecc_raw (ecc)");
+        ret = RHN_ERROR;
+        break;
+      }
+
+      if (_gnutls_ecdh_compute_key(curve, &x, &y, &k, &peer_x, &peer_y, &Z) != GNUTLS_E_SUCCESS) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error _gnutls_ecdh_compute_key");
+        ret = RHN_ERROR;
+        break;
+      }
+    } else {
+      if (bits == 256) {
+        crv_size = CURVE25519_SIZE;
+        d_size = ED25519_KEY_SIZE;
+      } else {
+        crv_size = CURVE448_SIZE;
+        d_size = ED448_KEY_SIZE;
+      }
+      
+      if (jwk_priv != NULL) {
+        key = r_jwk_get_property_str(jwk_priv, "d");
+      } else {
+        key = r_jwk_get_property_str(jwk_ephemeral, "d");
+      }
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), priv_k, &key_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error o_base64url_decode d");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+      
+      if (key_size != d_size) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error key size d");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+      
+      key_size = CURVE448_SIZE;
+      key = r_jwk_get_property_str(jwk_pub, "x");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_x, &key_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error o_base64url_decode x");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+      
+      if (key_size != crv_size) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error key size x");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+      
+      if (_r_dh_compute(priv_k, pub_x, crv_size, &Z) != GNUTLS_E_SUCCESS) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error _r_dh_compute");
+        ret = RHN_ERROR;
+        break;
+      }
     }
 
-    if (gnutls_privkey_export_ecc_raw(priv, &curve, &x, &y, &k) != GNUTLS_E_SUCCESS) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error gnutls_privkey_export_ecc_raw (ecc)");
-      ret = RHN_ERROR;
-      break;
-    }
-
-    if (gnutls_pubkey_export_ecc_raw(pub, &curve, &peer_x, &peer_y) != GNUTLS_E_SUCCESS) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error gnutls_pubkey_export_ecc_raw (ecc)");
-      ret = RHN_ERROR;
-      break;
-    }
-
-    if (_gnutls_ecdh_compute_key(curve, &x, &y, &k, &peer_x, &peer_y, &Z) != GNUTLS_E_SUCCESS) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error _gnutls_ecdh_compute_key");
-      ret = RHN_ERROR;
-      break;
-    }
 
     if (_r_concat_kdf(jwe, &Z, &kdf) != RHN_OK) {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error _r_concat_kdf");
@@ -930,8 +957,9 @@ static int r_jwe_ecdh_decrypt(jwe_t * jwe, jwk_t * jwk, int type, unsigned int b
   gnutls_pubkey_t pub = NULL;
   gnutls_ecc_curve_t curve;
   gnutls_datum_t x = {NULL, 0}, y = {NULL, 0}, k = {NULL, 0}, peer_x = {NULL, 0}, peer_y = {NULL, 0}, Z = {NULL, 0}, kdf = {NULL, 0};
-  uint8_t derived_key[64] = {0}, key_data[64] = {0}, cipherkey[128] = {0};
-  size_t derived_key_len = 0, cipherkey_len = 0;
+  uint8_t derived_key[64] = {0}, key_data[64] = {0}, cipherkey[128] = {0}, priv_k[CURVE448_SIZE] = {0}, pub_x[CURVE448_SIZE] = {0};
+  size_t derived_key_len = 0, cipherkey_len = 0, key_size = CURVE448_SIZE, crv_size = 0;
+  const char * key = NULL;
 
   do {
     if ((j_epk = r_jwe_get_header_json_t_value(jwe, "epk")) == NULL) {
@@ -958,27 +986,19 @@ static int r_jwe_ecdh_decrypt(jwe_t * jwe, jwk_t * jwk, int type, unsigned int b
         ret = RHN_ERROR_PARAM;
         break;
       }
-    } else {
-      if (!(r_jwk_key_type(jwk_ephemeral_pub, &epk_bits, x5u_flags) & (R_KEY_TYPE_ECDH|R_KEY_TYPE_PUBLIC)) || epk_bits != bits) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error invalid private key type (eddsa)");
-        ret = RHN_ERROR_PARAM;
+      
+      if ((priv = r_jwk_export_to_gnutls_privkey(jwk)) == NULL) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error r_jwk_export_to_gnutls_privkey");
+        ret = RHN_ERROR;
         break;
       }
-    }
 
-    if ((priv = r_jwk_export_to_gnutls_privkey(jwk)) == NULL) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error r_jwk_export_to_gnutls_privkey");
-      ret = RHN_ERROR;
-      break;
-    }
+      if ((pub = r_jwk_export_to_gnutls_pubkey(jwk_ephemeral_pub, x5u_flags)) == NULL) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error r_jwk_export_to_gnutls_pubkey");
+        ret = RHN_ERROR;
+        break;
+      }
 
-    if ((pub = r_jwk_export_to_gnutls_pubkey(jwk_ephemeral_pub, x5u_flags)) == NULL) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error r_jwk_export_to_gnutls_pubkey");
-      ret = RHN_ERROR;
-      break;
-    }
-
-    if (type & R_KEY_TYPE_ECDSA) {
       if (gnutls_privkey_export_ecc_raw(priv, &curve, &x, &y, &k) != GNUTLS_E_SUCCESS) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error gnutls_privkey_export_ecc_raw (ecc)");
         ret = RHN_ERROR;
@@ -997,7 +1017,46 @@ static int r_jwe_ecdh_decrypt(jwe_t * jwe, jwk_t * jwk, int type, unsigned int b
         break;
       }
     } else {
-      if (_r_dh_compute(priv, pub, &Z) != GNUTLS_E_SUCCESS) {
+      if (!(r_jwk_key_type(jwk_ephemeral_pub, &epk_bits, x5u_flags) & (R_KEY_TYPE_ECDH|R_KEY_TYPE_PUBLIC)) || epk_bits != bits) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error invalid private key type (eddsa)");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+      
+      if (bits == 256) {
+        crv_size = CURVE25519_SIZE;
+      } else {
+        crv_size = CURVE448_SIZE;
+      }
+      
+      key = r_jwk_get_property_str(jwk, "d");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), priv_k, &key_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error o_base64url_decode d");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+      
+      if (key_size != crv_size) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error key size");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+      
+      key_size = CURVE448_SIZE;
+      key = r_jwk_get_property_str(jwk_ephemeral_pub, "x");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_x, &key_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error o_base64url_decode x");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+      
+      if (key_size != crv_size) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error key size");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+      
+      if (_r_dh_compute(priv_k, pub_x, crv_size, &Z) != GNUTLS_E_SUCCESS) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error _r_dh_compute");
         ret = RHN_ERROR;
         break;

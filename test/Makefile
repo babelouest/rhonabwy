@@ -32,7 +32,7 @@ $(RHONABWY_LIBRARY): $(RHONABWY_LOCATION)/misc.c $(RHONABWY_LOCATION)/jwk.c $(RH
 %: %.c
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-test_%: $(RHONABWY_LIBRARY) %
+test_%: % $(RHONABWY_LIBRARY)
 	@if [ "$(VERBOSE)" = "0" ] && [ "$(MEMCHECK)" = "0" ]; then \
 		LD_LIBRARY_PATH=$(RHONABWY_LOCATION):${LD_LIBRARY_PATH} ./run_test.sh ./$^; \
 	elif [ "$(MEMCHECK)" = "0" ]; then \

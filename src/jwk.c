@@ -726,34 +726,29 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
       if (!(x5u_flags & R_FLAG_IGNORE_REMOTE)) {
         // Get first x5u
         if ((x5u_content = _r_get_http_content(json_string_value(json_object_get(jwk, "x5u")), x5u_flags, NULL)) != NULL) {
+          data.data = (unsigned char *)x5u_content;
+          data.size = o_strlen(x5u_content);
           if (!gnutls_x509_crt_init(&crt)) {
-            data.data = (unsigned char *)x5u_content;
-            data.size = o_strlen(x5u_content);
-            if (!gnutls_x509_crt_init(&crt)) {
-              if (!gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_PEM)) {
-                pk_alg = gnutls_x509_crt_get_pk_algorithm(crt, bits);
-                bits_set = 1;
-                if (pk_alg == GNUTLS_PK_RSA) {
-                  ret = R_KEY_TYPE_RSA;
+            if (!gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_PEM)) {
+              pk_alg = gnutls_x509_crt_get_pk_algorithm(crt, bits);
+              bits_set = 1;
+              if (pk_alg == GNUTLS_PK_RSA) {
+                ret = R_KEY_TYPE_RSA;
 #if GNUTLS_VERSION_NUMBER >= 0x030600
-                } else if (pk_alg == GNUTLS_PK_ECDSA) {
-                  ret = R_KEY_TYPE_ECDSA;
-                } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
-                  ret = R_KEY_TYPE_EDDSA;
+              } else if (pk_alg == GNUTLS_PK_ECDSA) {
+                ret = R_KEY_TYPE_ECDSA;
+              } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
+                ret = R_KEY_TYPE_EDDSA;
 #endif
-                } else {
-                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Error unsupported algorithm %s", gnutls_pk_algorithm_get_name(pk_alg));
-                }
-                ret |= R_KEY_TYPE_PUBLIC;
               } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Error gnutls_x509_crt_import");
-                ret = R_KEY_TYPE_NONE;
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Error unsupported algorithm %s", gnutls_pk_algorithm_get_name(pk_alg));
               }
-              gnutls_x509_crt_deinit(crt);
+              ret |= R_KEY_TYPE_PUBLIC;
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Error gnutls_x509_crt_init");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Error gnutls_x509_crt_import");
               ret = R_KEY_TYPE_NONE;
             }
+            gnutls_x509_crt_deinit(crt);
           } else {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type - Error gnutls_x509_crt_init");
           }
@@ -2240,6 +2235,7 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
                   y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey x5u - Error gnutls_pubkey_import");
                   res = RHN_ERROR;
                 }
+                gnutls_x509_crt_deinit(crt);
               } else {
                 y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey x5u - Error gnutls_x509_crt_init");
               }

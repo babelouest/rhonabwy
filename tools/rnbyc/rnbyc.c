@@ -79,10 +79,14 @@ static void print_help(FILE * output) {
   fprintf(output, "-g --generate <type>\n");
   fprintf(output, "\tGenerate a key pair or a symmetric key\n");
   fprintf(output, "\t<type> - values available:\n");
-#if 0 // Disabled for now
+#if NETTLE_VERSION_NUMBER >= 0x03060e
   fprintf(output, "\tRSA[key size] (default key size: 4096), ECDSA256, ECDSA384, ECDSA521, Ed25519, Ed448, X25519, X448, oct[key size] (default key size: 128 bits)\n");
 #else
-  fprintf(output, "\tRSA[key size] (default key size: 4096), ECDSA256, ECDSA384, ECDSA521, Ed25519, Ed448, oct[key size] (default key size: 128 bits)\n");
+  #if NETTLE_VERSION_NUMBER >= 0x030600
+  fprintf(output, "\tRSA[key size] (default key size: 4096), ECDSA256, ECDSA384, ECDSA521, Ed25519, X25519, oct[key size] (default key size: 128 bits)\n");
+  #else
+  fprintf(output, "\tRSA[key size] (default key size: 4096), ECDSA256, ECDSA384, ECDSA521, oct[key size] (default key size: 128 bits)\n");
+  #endif
 #endif
   fprintf(output, "-i --stdin\n");
   fprintf(output, "\tReads key to parse from stdin\n");
@@ -261,6 +265,7 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
       } else {
         r_jwks_append_jwk(jwks_privkey, jwk_pub);
       }
+#if NETTLE_VERSION_NUMBER >= 0x030600
     } else if (0 == o_strcasecmp("Ed25519", type)) {
       r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_EDDSA, 256, json_string_value(json_object_get(j_element, "kid")));
       if (json_string_length(json_object_get(j_element, "alg"))) {
@@ -276,22 +281,6 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
       } else {
         r_jwks_append_jwk(jwks_privkey, jwk_pub);
       }
-    } else if (0 == o_strcasecmp("Ed448", type)) {
-      r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_EDDSA, 448, json_string_value(json_object_get(j_element, "kid")));
-      if (json_string_length(json_object_get(j_element, "alg"))) {
-        r_jwk_set_property_str(jwk_priv, "alg", json_string_value(json_object_get(j_element, "alg")));
-        r_jwk_set_property_str(jwk_pub, "alg", json_string_value(json_object_get(j_element, "alg")));
-      } else {
-        r_jwk_set_property_str(jwk_priv, "alg", "EdDSA");
-        r_jwk_set_property_str(jwk_pub, "alg", "EdDSA");
-      }
-      r_jwks_append_jwk(jwks_privkey, jwk_priv);
-      if (jwks_pubkey != NULL) {
-        r_jwks_append_jwk(jwks_pubkey, jwk_pub);
-      } else {
-        r_jwks_append_jwk(jwks_privkey, jwk_pub);
-      }
-#if 0 // Disabled for now
     } else if (0 == o_strcasecmp("X25519", type)) {
       r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_ECDH, 256, json_string_value(json_object_get(j_element, "kid")));
       if (json_string_length(json_object_get(j_element, "alg"))) {
@@ -300,6 +289,23 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
       } else {
         r_jwk_set_property_str(jwk_priv, "alg", "X25519");
         r_jwk_set_property_str(jwk_pub, "alg", "X25519");
+      }
+      r_jwks_append_jwk(jwks_privkey, jwk_priv);
+      if (jwks_pubkey != NULL) {
+        r_jwks_append_jwk(jwks_pubkey, jwk_pub);
+      } else {
+        r_jwks_append_jwk(jwks_privkey, jwk_pub);
+      }
+#endif
+#if NETTLE_VERSION_NUMBER >= 0x03060e
+    } else if (0 == o_strcasecmp("Ed448", type)) {
+      r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_EDDSA, 448, json_string_value(json_object_get(j_element, "kid")));
+      if (json_string_length(json_object_get(j_element, "alg"))) {
+        r_jwk_set_property_str(jwk_priv, "alg", json_string_value(json_object_get(j_element, "alg")));
+        r_jwk_set_property_str(jwk_pub, "alg", json_string_value(json_object_get(j_element, "alg")));
+      } else {
+        r_jwk_set_property_str(jwk_priv, "alg", "EdDSA");
+        r_jwk_set_property_str(jwk_pub, "alg", "EdDSA");
       }
       r_jwks_append_jwk(jwks_privkey, jwk_priv);
       if (jwks_pubkey != NULL) {

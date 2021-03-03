@@ -207,6 +207,7 @@ The available options for CMake are:
 - `-DBUILD_STATIC=[on|off]` (default `off`): Compile static library
 - `-DBUILD_RHONABWY_DOCUMENTATION=[on|off]` (default `off`): Build documentation with doxygen
 - `-DWITH_ECDH=[on|off]` (default `off`): Allow ECDH-ES for JWE key exchange management
+- `-DWITH_ULFIUS=[on|off]` (default `on`): Use Ulfius to download remote content
 
 ### Good ol' Makefile
 
@@ -224,6 +225,14 @@ To enable ECDH-ES key exchange management, you can pass the option `ECDHFLAG=1` 
 ```shell
 $ cd rhonabwy/src
 $ make ECDHFLAG=1
+$ sudo make install
+```
+
+To disable Ulfius library on build (to avoid its dependencies), you can pass the option `DISABLE_ULFIUS=1` to the make command.
+
+```shell
+$ cd rhonabwy/src
+$ make DISABLE_ULFIUS=1
 $ sudo make install
 ```
 

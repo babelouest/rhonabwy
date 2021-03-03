@@ -32,10 +32,6 @@
 #include <yder.h>
 #include <rhonabwy.h>
 
-#include <nettle/curve25519.h>
-#include <nettle/curve448.h>
-#include <nettle/eddsa.h>
-
 #define R_TAG_MAX_SIZE 16
 
 #define _R_BLOCK_SIZE 256
@@ -53,7 +49,12 @@
 #if NETTLE_VERSION_NUMBER >= 0x030400
 #include <nettle/pss-mgf1.h>
 #include <nettle/rsa.h>
+#endif
+
+#if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
 #include <nettle/curve25519.h>
+#include <nettle/curve448.h>
+#include <nettle/eddsa.h>
 #endif
 
 static size_t r_jwe_get_key_size(jwa_enc enc) {

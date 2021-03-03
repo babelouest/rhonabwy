@@ -30,8 +30,10 @@
 #include <ulfius.h>
 #include <rhonabwy.h>
 
+#if NETTLE_VERSION_NUMBER >= 0x030600
 #include <nettle/curve25519.h>
 #include <nettle/curve448.h>
+#endif
 
 #define RHN_BEGIN_CERT_TAG "-----BEGIN CERTIFICATE-----"
 
@@ -457,6 +459,8 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
   int res;
   unsigned int ec_bits = 0;
   gnutls_pk_algorithm_t alg = GNUTLS_PK_UNKNOWN;
+#endif
+#if NETTLE_VERSION_NUMBER >= 0x030600
   unsigned char x_ecdh[CURVE448_SIZE] = {0}, d_ecdh[CURVE448_SIZE] = {0}, x_ecdh_b64[CURVE448_SIZE*2];
   const unsigned char * d_b64 = NULL;
   size_t d_ecdh_size = CURVE448_SIZE, x_ecdh_b64_size = 0;
@@ -490,7 +494,7 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_generate_key_pair - Error gnutls_privkey_generate RSA");
           ret = RHN_ERROR;
         }
-#if GNUTLS_VERSION_NUMBER >= 0x030600
+#if GNUTLS_VERSION_NUMBER >= 0x030400
       } else if (type == R_KEY_TYPE_ECDSA || type == R_KEY_TYPE_EDDSA || type == R_KEY_TYPE_ECDH) {
         if (type == R_KEY_TYPE_ECDSA) {
           if (bits == 256) {
@@ -523,6 +527,7 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
                     r_jwk_set_property_str(jwk_privkey, "kid", kid);
                     r_jwk_set_property_str(jwk_pubkey, "kid", kid);
                   }
+#if NETTLE_VERSION_NUMBER >= 0x030600
                   if (type == R_KEY_TYPE_ECDH) {
                     d_b64 = (const unsigned char *)r_jwk_get_property_str(jwk_privkey, "d");
                     if (o_base64url_decode(d_b64, o_strlen((const char *)d_b64), d_ecdh, &d_ecdh_size)) {
@@ -550,6 +555,9 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
                   } else {
                     ret = RHN_OK;
                   }
+#else
+                  ret = RHN_OK;
+#endif
                 } else {
                   y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_generate_key_pair - Error r_jwk_import_from_gnutls_pubkey ECC");
                   ret = RHN_ERROR;

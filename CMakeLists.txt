@@ -116,6 +116,12 @@ else ()
     set(R_ECDH_ENABLED OFF)
 endif ()
 
+if (WITH_ULFIUS)
+    set(R_WITH_ULFIUS ON)
+else ()
+    set(R_WITH_ULFIUS OFF)
+endif ()
+
 # directories and source
 
 set(INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)

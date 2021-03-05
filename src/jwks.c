@@ -308,13 +308,13 @@ int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int x5u_flags) {
       if (j_result != NULL) {
         ret = r_jwks_import_from_json_t(jwks, j_result);
       } else {
-        y_log_message(Y_LOG_LEVEL_DEBUG, "jwks import uri - Error ulfius_get_json_body_response");
+        y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwks_import_from_uri - Error ulfius_get_json_body_response");
         ret = RHN_ERROR;
       }
       json_decref(j_result);
       o_free(x5u_content);
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5u - Error getting x5u content");
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwks_import_from_uri x5u - Error getting x5u content");
       ret = RHN_ERROR;
     }
   } else {

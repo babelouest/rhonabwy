@@ -21,6 +21,9 @@ jobs:
         mkdir build
         # build ulfius, run tests, build package
         cd build
+        cmake -DBUILD_RHONABWY_TESTING=on -DBUILD_RHONABWY_DOCUMENTATION=on -DWITH_ULFIUS=OFF ..
+        make
+        rm -rf *
         cmake -DBUILD_RHONABWY_TESTING=on -DBUILD_RHONABWY_DOCUMENTATION=on ..
         ../test/cert/create-cert.sh || (cat ../test/cert/certtool.log && false)
         ln -s ../test/cert/ .

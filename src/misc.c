@@ -72,7 +72,7 @@ char * _r_get_http_content(const char * url, int x5u_flags, const char * expecte
         if (!o_strlen(expected_content_type)) {
           to_return = o_strndup(response.binary_body, response.binary_body_length);
         } else {
-          if (NULL != o_strstr(u_map_get_case(response.map_header, ULFIUS_HTTP_HEADER_CONTENT), ULFIUS_HTTP_ENCODING_JSON)) {
+          if (NULL != o_strstr(u_map_get_case(response.map_header, ULFIUS_HTTP_HEADER_CONTENT), expected_content_type)) {
             to_return = o_strndup(response.binary_body, response.binary_body_length);
           } else {
             y_log_message(Y_LOG_LEVEL_ERROR, "_r_get_http_content - Error invalid content-type");

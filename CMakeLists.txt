@@ -256,8 +256,6 @@ if (WITH_ULFIUS)
   else ()
       set(LIBS ${LIBS} ulfius)
   endif ()
-else ()
-    set(LIBS ${LIBS} ulfius)
 endif ()
 
 # build rnbyc

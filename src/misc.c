@@ -62,7 +62,6 @@ char * _r_get_http_content(const char * url, int x5u_flags, const char * expecte
   
   if (ulfius_init_request(&request) == U_OK) {
     if (ulfius_init_response(&response) == U_OK) {
-      y_log_message(Y_LOG_LEVEL_DEBUG, "get %s", url);
       ulfius_set_request_properties(&request, U_OPT_HTTP_VERB, "GET",
                                               U_OPT_HTTP_URL, url,
                                               U_OPT_CHECK_SERVER_CERTIFICATE, !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE),

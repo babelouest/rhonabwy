@@ -509,10 +509,13 @@ static void
 nist_keywrap16(const void *ctx, nettle_cipher_func *encrypt,
                const uint8_t *iv, size_t ciphertext_length,
                uint8_t *ciphertext, const uint8_t *cleartext) {
-  uint8_t R[64] = {0}, A[8] = {0}, I[16] = {0}, B[16] = {0};
+  uint8_t * R = NULL, A[8] = {0}, I[16] = {0}, B[16] = {0};
   uint64_t A64;
   size_t i, j, n;
 
+  if ((R = o_malloc(ciphertext_length-8)) == NULL)
+    return;
+  
   n = (ciphertext_length-8)/8;
   memcpy(R, cleartext, (ciphertext_length-8));
   memcpy(A, iv, 8);
@@ -546,17 +549,21 @@ nist_keywrap16(const void *ctx, nettle_cipher_func *encrypt,
 
   memcpy(ciphertext, A, 8);
   memcpy(ciphertext+8, R, (ciphertext_length-8));
+  o_free(R);
 }
 
 static int
 nist_keyunwrap16(const void *ctx, nettle_cipher_func *decrypt,
                  const uint8_t *iv, size_t cleartext_length,
                  uint8_t *cleartext, const uint8_t *ciphertext) {
-  uint8_t R[64] = {0}, A[8] = {0}, I[16] = {0}, B[16] = {0};
+  uint8_t * R = NULL, A[8] = {0}, I[16] = {0}, B[16] = {0};
   uint64_t A64;
-  int i, j;
+  int i, j, ret;
   size_t n;
 
+  if ((R = o_malloc(cleartext_length)) == NULL)
+    return 0;
+  
   n = (cleartext_length/8);
   memcpy(A, ciphertext, 8);
   memcpy(R, ciphertext+8, cleartext_length);
@@ -588,10 +595,12 @@ nist_keyunwrap16(const void *ctx, nettle_cipher_func *decrypt,
 
   if (memeql_sec(A, iv, 8)) {
     memcpy(cleartext, R, cleartext_length);
-    return 1;
+    ret = 1;
   } else {
-    return 0;
+    ret = 0;
   }
+  o_free(R);
+  return ret;
 }
 #endif
 

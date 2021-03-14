@@ -1,5 +1,9 @@
 # Rhonabwy Changelog
 
+## 0.9.99-1
+
+- Remove `ES256K` signature algorithm support
+
 ## 0.9.99
 
 - Fix get symmetric key length

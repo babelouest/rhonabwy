@@ -28,7 +28,7 @@ JWT Relies on JWS and JWE functions, so it supports the same functionalities as 
 | PS512 | RSASSA-PSS using SHA-512 and MGF1 with SHA-512 |**YES**(1)|
 | none | No digital signature or MAC performed |**YES**|
 | EdDSA | Digital Signature with Ed25519 Elliptic Curve |**YES**(1)|
-| ES256K | Digital Signature with secp256k1 Curve Key |**YES**(1)|
+| ES256K | Digital Signature with secp256k1 Curve Key |*NO*|
 
 (1) GnuTLS 3.6 minimum is required for ECDSA, Ed25519 (EDDSA), ES256K and RSA-PSS signatures.
 

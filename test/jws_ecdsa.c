@@ -349,6 +349,7 @@ START_TEST(test_rhonabwy_eddsa_serialize_verify_ok)
 }
 END_TEST
 
+#if 0
 START_TEST(test_rhonabwy_es256k_serialize_verify_ok)
 {
   jws_t * jws_sign, * jws_verify;
@@ -376,6 +377,7 @@ START_TEST(test_rhonabwy_es256k_serialize_verify_ok)
   r_jwk_free(jwk_pubkey);
 }
 END_TEST
+#endif
 
 #endif
 
@@ -401,7 +403,9 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_verify_token_multiple_keys_valid);
   tcase_add_test(tc_core, test_rhonabwy_set_alg_serialize_verify_ok);
   tcase_add_test(tc_core, test_rhonabwy_eddsa_serialize_verify_ok);
+#if 0
   tcase_add_test(tc_core, test_rhonabwy_es256k_serialize_verify_ok);
+#endif
 #endif
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);

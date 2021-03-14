@@ -2046,8 +2046,10 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk) {
           curve = GNUTLS_ECC_CURVE_SECP521R1;
         } else if (0 == o_strcmp("P-384", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_SECP384R1;
-        } else if (0 == o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv"))) || 0 == o_strcmp("secp256k1", json_string_value(json_object_get(jwk, "crv")))) {
+        } else if (0 == o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_SECP256R1;
+        //} else if (0 == o_strcmp("secp256k1", json_string_value(json_object_get(jwk, "crv")))) {
+        //  curve = GNUTLS_ECC_CURVE_SECP256K1;
         } else {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_privkey - Error crv data");
           res = RHN_ERROR;
@@ -2351,8 +2353,10 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
           curve = GNUTLS_ECC_CURVE_SECP521R1;
         } else if (0 == o_strcmp("P-384", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_SECP384R1;
-        } else if (0 == o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv"))) || 0 == o_strcmp("secp256k1", json_string_value(json_object_get(jwk, "crv")))) {
+        } else if (0 == o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_SECP256R1;
+        //} else if (0 == o_strcmp("secp256k1", json_string_value(json_object_get(jwk, "crv")))) {
+        //  curve = GNUTLS_ECC_CURVE_SECP256K1;
         } else {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey - Error crv data");
           res = RHN_ERROR;

@@ -434,7 +434,7 @@ json_t * r_library_info_json_t() {
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES384"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES512"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("EdDSA"));
-  json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES256K"));
+  //json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("ES256K"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS256"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS384"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jws"), "alg"), json_string("PS512"));

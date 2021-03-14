@@ -384,6 +384,7 @@ static unsigned char * r_jws_sign_eddsa(jws_t * jws, jwk_t * jwk) {
 #endif
 }
 
+#if 0
 static unsigned char * r_jws_sign_es256k(jws_t * jws, jwk_t * jwk) {
 #if GNUTLS_VERSION_NUMBER >= 0x030600
   gnutls_privkey_t privkey = r_jwk_export_to_gnutls_privkey(jwk);
@@ -424,6 +425,7 @@ static unsigned char * r_jws_sign_es256k(jws_t * jws, jwk_t * jwk) {
   return NULL;
 #endif
 }
+#endif
 
 static int r_jws_verify_sig_hmac(jws_t * jws, jwk_t * jwk) {
   unsigned char * sig = r_jws_sign_hmac(jws, jwk);
@@ -636,6 +638,7 @@ static int r_jws_verify_sig_eddsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 #endif
 }
 
+#if 0
 static int r_jws_verify_sig_es256k(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 #if GNUTLS_VERSION_NUMBER >= 0x030600
   int ret = RHN_OK;
@@ -680,6 +683,7 @@ static int r_jws_verify_sig_es256k(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   return RHN_ERROR_INVALID;
 #endif
 }
+#endif
 
 int r_jws_init(jws_t ** jws) {
   int ret;
@@ -1354,6 +1358,7 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags) {
             ret = RHN_ERROR_INVALID;
           }
           break;
+#if 0
         case R_JWA_ALG_ES256K:
           if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_ECDSA) {
             ret = r_jws_verify_sig_es256k(jws, jwk, x5u_flags);
@@ -1361,6 +1366,7 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags) {
             ret = RHN_ERROR_INVALID;
           }
           break;
+#endif
         case R_JWA_ALG_NONE:
           ret = RHN_OK;
           break;
@@ -1441,12 +1447,14 @@ char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags) {
         o_free(jws->signature_b64url);
         jws->signature_b64url = (unsigned char *)o_strdup("");
         break;
+#if 0
       case R_JWA_ALG_ES256K:
         if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_ECDSA) {
           o_free(jws->signature_b64url);
           jws->signature_b64url = r_jws_sign_es256k(jws, jwk);
         }
         break;
+#endif
       default:
         o_free(jws->signature_b64url);
         jws->signature_b64url = NULL;

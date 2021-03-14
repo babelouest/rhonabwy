@@ -20,15 +20,15 @@ JWT Relies on JWS and JWE functions, so it supports the same functionalities as 
 | RS256 | RSASSA-PKCS1-v1_5 using SHA-256 |**YES**|
 | RS384 | RSASSA-PKCS1-v1_5 using SHA-384 |**YES**|
 | RS512 | RSASSA-PKCS1-v1_5 using SHA-512 |**YES**|
-| ES256 | ECDSA using P-256 and SHA-256 |**YES** (1)|
-| ES384 | ECDSA using P-384 and SHA-384 |**YES** (1)|
-| ES512 | ECDSA using P-521 and SHA-512 |**YES** (1)|
-| PS256 | RSASSA-PSS using SHA-256 and MGF1 with SHA-256 |**YES** (1)|
-| PS384 | RSASSA-PSS using SHA-384 and MGF1 with SHA-384 |**YES** (1)|
-| PS512 | RSASSA-PSS using SHA-512 and MGF1 with SHA-512 |**YES** (1)|
+| ES256 | ECDSA using P-256 and SHA-256 |**YES**(1)|
+| ES384 | ECDSA using P-384 and SHA-384 |**YES**(1)|
+| ES512 | ECDSA using P-521 and SHA-512 |**YES**(1)|
+| PS256 | RSASSA-PSS using SHA-256 and MGF1 with SHA-256 |**YES**(1)|
+| PS384 | RSASSA-PSS using SHA-384 and MGF1 with SHA-384 |**YES**(1)|
+| PS512 | RSASSA-PSS using SHA-512 and MGF1 with SHA-512 |**YES**(1)|
 | none | No digital signature or MAC performed |**YES**|
-| EdDSA | Digital Signature with Ed25519 Elliptic Curve |**YES** (1)|
-| ES256K | Digital Signature with secp256k1 Curve Key |**YES** (1)|
+| EdDSA | Digital Signature with Ed25519 Elliptic Curve |**YES**(1)|
+| ES256K | Digital Signature with secp256k1 Curve Key |**YES**(1)|
 
 (1) GnuTLS 3.6 minimum is required for ECDSA, Ed25519 (EDDSA), ES256K and RSA-PSS signatures.
 

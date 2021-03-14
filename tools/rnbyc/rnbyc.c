@@ -81,12 +81,10 @@ static void print_help(FILE * output) {
   fprintf(output, "\t<type> - values available:\n");
 #if NETTLE_VERSION_NUMBER >= 0x03060e
   fprintf(output, "\tRSA[key size] (default key size: 4096), ECDSA256, ECDSA384, ECDSA521, Ed25519, Ed448, X25519, X448, oct[key size] (default key size: 128 bits)\n");
-#else
-  #if NETTLE_VERSION_NUMBER >= 0x030600
+#elif NETTLE_VERSION_NUMBER >= 0x030600
   fprintf(output, "\tRSA[key size] (default key size: 4096), ECDSA256, ECDSA384, ECDSA521, Ed25519, X25519, oct[key size] (default key size: 128 bits)\n");
-  #else
+#else
   fprintf(output, "\tRSA[key size] (default key size: 4096), ECDSA256, ECDSA384, ECDSA521, oct[key size] (default key size: 128 bits)\n");
-  #endif
 #endif
   fprintf(output, "-i --stdin\n");
   fprintf(output, "\tReads key to parse from stdin\n");

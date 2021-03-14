@@ -39,7 +39,7 @@ const char jwk_key_128_2[] = "{\"kty\":\"oct\",\"k\":\"CAkKCwwNDg8QERITFBUWFw\"}
 const char jwk_key_192_1[] = "{\"kty\":\"oct\",\"k\":\"AAECAwQFBgcICQoLDA0ODxAREhMUFRYX\"}";
 const char jwk_key_256_1[] = "{\"kty\":\"oct\",\"k\":\"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8\"}";
 
-#if GNUTLS_VERSION_NUMBER >= 0x03060d
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
 START_TEST(test_rhonabwy_parse_token_invalid)
 {
   jwe_t * jwe_decrypt;

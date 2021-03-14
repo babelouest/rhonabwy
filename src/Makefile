@@ -37,7 +37,7 @@ OBJECTS=jwk.o jwks.o jws.o jwe.o jwt.o misc.o
 OUTPUT=librhonabwy.so
 VERSION_MAJOR=0
 VERSION_MINOR=9
-VERSION_PATCH=99
+VERSION_PATCH=99-1
 
 ifdef ECDHFLAG
 ENABLE_ECDH=1

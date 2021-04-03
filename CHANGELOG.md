@@ -1,8 +1,9 @@
 # Rhonabwy Changelog
 
-## 0.9.99-1
+## 0.9.999
 
 - Remove `ES256K` signature algorithm support
+- Implement `r_jwt_get_sig_kid`, `r_jwt_get_enc_kid`, `r_jwe_get_kid`, `r_jws_get_kid`
 
 ## 0.9.99
 

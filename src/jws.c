@@ -872,6 +872,10 @@ jwa_alg r_jws_get_alg(jws_t * jws) {
   }
 }
 
+const char * r_jws_get_kid(jws_t * jws) {
+  return r_jws_get_header_str_value(jws, "kid");
+}
+
 int r_jws_set_header_str_value(jws_t * jws, const char * key, const char * str_value) {
   int ret;
 

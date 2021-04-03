@@ -122,14 +122,12 @@ int r_jwk_is_valid(jwk_t * jwk) {
                           if ((n = r_jwk_get_property_str(jwk, "n")) != NULL && (e = r_jwk_get_property_str(jwk, "e")) != NULL) {
                             if (0 != o_strcmp(n, r_jwk_get_property_str(jwk_x5c, "n")) || 0 != o_strcmp(e, r_jwk_get_property_str(jwk_x5c, "e"))) {
                               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x5c leaf rsa parameters");
-                              ret = RHN_ERROR_PARAM;
                             }
                           }
                         } else if (type_x5c & R_KEY_TYPE_ECDSA || type_x5c & R_KEY_TYPE_EDDSA) {
                           if ((crv = r_jwk_get_property_str(jwk, "crv")) != NULL && (x = r_jwk_get_property_str(jwk, "x")) != NULL && (y = r_jwk_get_property_str(jwk, "y")) != NULL) {
                             if (0 != o_strcmp(crv, r_jwk_get_property_str(jwk_x5c, "crv")) || 0 != o_strcmp(x, r_jwk_get_property_str(jwk_x5c, "x")) || 0 != o_strcmp(y, r_jwk_get_property_str(jwk_x5c, "y"))) {
                               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x5c leaf ec parameters");
-                              ret = RHN_ERROR_PARAM;
                             }
                           }
                         }

@@ -857,6 +857,14 @@ jwa_enc r_jwt_get_enc(jwt_t * jwt) {
   }
 }
 
+const char * r_jwt_get_enc_kid(jwt_t * jwt) {
+  return r_jwe_get_kid(jwt->jwe);
+}
+
+const char * r_jwt_get_sig_kid(jwt_t * jwt) {
+  return r_jws_get_kid(jwt->jws);
+}
+
 char * r_jwt_serialize_signed(jwt_t * jwt, jwk_t * privkey, int x5u_flags) {
   jws_t * jws = NULL;
   char * token = NULL, * payload = NULL;

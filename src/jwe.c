@@ -2299,6 +2299,10 @@ jwa_enc r_jwe_get_enc(jwe_t * jwe) {
   }
 }
 
+const char * r_jwe_get_kid(jwe_t * jwe) {
+  return r_jwe_get_header_str_value(jwe, "kid");
+}
+
 int r_jwe_set_header_str_value(jwe_t * jwe, const char * key, const char * str_value) {
   int ret;
 

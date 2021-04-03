@@ -997,6 +997,14 @@ int r_jws_set_alg(jws_t * jws, jwa_alg alg);
 jwa_alg r_jws_get_alg(jws_t * jws);
 
 /**
+ * Get the KID specified in the header
+ * used for signature
+ * @param jws: the jws_t to update
+ * @return the KID
+ */
+const char * r_jws_get_kid(jws_t * jws);
+
+/**
  * Adds a string value to the JWS header
  * @param jws: the jws_t to update
  * @param key: the key to set to the JWS header
@@ -1262,6 +1270,14 @@ int r_jwe_set_enc(jwe_t * jwe, jwa_enc enc);
  * @return the encorithm used
  */
 jwa_enc r_jwe_get_enc(jwe_t * jwe);
+
+/**
+ * Get the KID specified in the header
+ * for payload encryption
+ * @param jwe: the jwe_t to update
+ * @return the KID
+ */
+const char * r_jwe_get_kid(jwe_t * jwe);
 
 /**
  * Adds a string value to the JWE header
@@ -1906,14 +1922,14 @@ int r_jwt_set_sign_alg(jwt_t * jwt, jwa_alg alg);
 
 /**
  * Get the JWT alg used for signature
- * @param jwt: the jwt_t to update
+ * @param jwt: the jwt_t
  * @return the algorithm used for signature
  */
 jwa_alg r_jwt_get_sign_alg(jwt_t * jwt);
 
 /**
  * Set the JWT alg to use for key encryption
- * @param jwt: the jwt_t to update
+ * @param jwt: the jwt_t
  * @param alg: the algorithm to use for key encryption
  * @return RHN_OK on success, an error value on error
  */
@@ -1921,14 +1937,14 @@ int r_jwt_set_enc_alg(jwt_t * jwt, jwa_alg alg);
 
 /**
  * Get the JWT alg used for key encryption
- * @param jwt: the jwt_t to update
+ * @param jwt: the jwt_t
  * @return the algorithm used for key encryption
  */
 jwa_alg r_jwt_get_enc_alg(jwt_t * jwt);
 
 /**
  * Set the JWT enc to use for payload encryption
- * @param jwt: the jwt_t to update
+ * @param jwt: the jwt_t
  * @param enc: the encorithm to use for payload encryption
  * @return RHN_OK on success, an error value on error
  */
@@ -1936,10 +1952,26 @@ int r_jwt_set_enc(jwt_t * jwt, jwa_enc enc);
 
 /**
  * Get the JWT enc used for payload encryption
- * @param jwt: the jwt_t to update
+ * @param jwt: the jwt_t
  * @return the encorithm used for payload encryption
  */
 jwa_enc r_jwt_get_enc(jwt_t * jwt);
+
+/**
+ * Get the KID specified in the header
+ * for payload encryption
+ * @param jwt: the jwt_t
+ * @return the KID
+ */
+const char * r_jwt_get_enc_kid(jwt_t * jwt);
+
+/**
+ * Get the KID specified in the header
+ * for signature
+ * @param jwt: the jwt_t
+ * @return the KID
+ */
+const char * r_jwt_get_sig_kid(jwt_t * jwt);
 
 /**
  * Return a signed JWT in serialized format (xxx.yyy.zzz)

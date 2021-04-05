@@ -169,7 +169,7 @@ Rhonabwy is available in the following distributions.
 
 ## Dependencies
 
-Rhonabwy is based on [GnuTLS](https://www.gnutls.org/), [Jansson](http://www.digip.org/jansson/), [zlib](https://www.zlib.net/), [libmicrohttpd](https://www.gnu.org/software/libmicrohttpd/), [libcurl](https://curl.haxx.se/libcurl/) and libsystemd (if possible), you must install those libraries first before building Rhonabwy.
+Rhonabwy is based on [Nettle](https://www.lysator.liu.se/~nisse/nettle/), [GnuTLS](https://www.gnutls.org/), [Jansson](http://www.digip.org/jansson/), [zlib](https://www.zlib.net/), [libmicrohttpd](https://www.gnu.org/software/libmicrohttpd/), [libcurl](https://curl.haxx.se/libcurl/) and libsystemd (if possible), you must install those libraries first before building Rhonabwy.
 
 ## Prerequisites
 

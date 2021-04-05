@@ -61,6 +61,8 @@ Functions</h2></td></tr>
 <tr class="separator:ga326f844d28010d3e7396f913a34e26fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga43315dee7d6c7de1725532929c4d0728"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#ga34a92d88d5befd0170a6b82ec53ef020">jwa_enc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga43315dee7d6c7de1725532929c4d0728">r_jwe_get_enc</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe)</td></tr>
 <tr class="separator:ga43315dee7d6c7de1725532929c4d0728"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafe4f50709560a4a8e5864d7776ed3c31"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gafe4f50709560a4a8e5864d7776ed3c31">r_jwe_get_kid</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe)</td></tr>
+<tr class="separator:gafe4f50709560a4a8e5864d7776ed3c31"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae9c4c9802a7b8ff6712de7031cb6872d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#gae9c4c9802a7b8ff6712de7031cb6872d">r_jwe_set_header_str_value</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, const char *key, const char *str_value)</td></tr>
 <tr class="separator:gae9c4c9802a7b8ff6712de7031cb6872d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga165dbff3172ee12ccb0a9f09590dd3a6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwe.html#ga165dbff3172ee12ccb0a9f09590dd3a6">r_jwe_set_header_int_value</a> (<a class="el" href="structjwe__t.html">jwe_t</a> *jwe, const char *key, int i_value)</td></tr>
@@ -348,6 +350,31 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the encorithm used </dd></dl>
+
+</div>
+</div>
+<a id="gafe4f50709560a4a8e5864d7776ed3c31"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafe4f50709560a4a8e5864d7776ed3c31">&#9670;&nbsp;</a></span>r_jwe_get_kid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* r_jwe_get_kid </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwe__t.html">jwe_t</a> *&#160;</td>
+          <td class="paramname"><em>jwe</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get the KID specified in the header for payload encryption </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the KID </dd></dl>
 
 </div>
 </div>

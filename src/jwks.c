@@ -273,6 +273,7 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input) {
   size_t index = 0;
   json_t * j_jwk = NULL;
   jwk_t * jwk = NULL;
+  char * tmp;
 
   if (jwks != NULL && j_input != NULL && json_is_array(json_object_get(j_input, "keys"))) {
     json_array_foreach(json_object_get(j_input, "keys"), index, j_jwk) {
@@ -280,6 +281,10 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input) {
         if ((res = r_jwk_import_from_json_t(jwk, j_jwk)) == RHN_OK) {
           r_jwks_append_jwk(jwks, jwk);
         } else if (res == RHN_ERROR_PARAM) {
+          y_log_message(Y_LOG_LEVEL_DEBUG, "jwks import json_t - Invalid jwk format");
+          tmp = json_dumps(j_jwk, JSON_INDENT(2));
+          y_log_message(Y_LOG_LEVEL_DEBUG, "%s", tmp);
+          o_free(tmp);
           ret = RHN_ERROR_PARAM;
         } else {
           y_log_message(Y_LOG_LEVEL_ERROR, "jwks import json_t - Error r_jwk_import_from_json_t");
@@ -287,11 +292,16 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input) {
         }
         r_jwk_free(jwk);
       } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "jwks import json_t - Error memory");
         ret = RHN_ERROR_MEMORY;
         break;
       }
     }
   } else {
+    y_log_message(Y_LOG_LEVEL_DEBUG, "jwks import json_t - Invalid jwks format");
+    tmp = json_dumps(j_input, JSON_INDENT(2));
+    y_log_message(Y_LOG_LEVEL_DEBUG, "%s", tmp);
+    o_free(tmp);
     ret = RHN_ERROR_PARAM;
   }
   return ret;

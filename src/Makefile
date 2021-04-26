@@ -19,7 +19,7 @@
 # License along with this library.	If not, see <http://www.gnu.org/licenses/>.
 #
 PROJECT_NAME=rhonabwy
-PROJECT_DESCRIPTION=OAuth2 client library
+PROJECT_DESCRIPTION=JWK, JWKS, JWS, JWE and JWT library
 PROJECT_BUGREPORT_PATH=https://github.com/babelouest/rhonabwy/issues
 PKGCONF_REQ=
 PKGCONF_REQ_PRIVATE=

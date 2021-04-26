@@ -25,7 +25,7 @@ endif()
 
 # library info
 
-set(PROJECT_DESCRIPTION "Create, modify, parse or export Json Web Keys as defined in the RFC 7517")
+set(PROJECT_DESCRIPTION "JWK, JWKS, JWS, JWE and JWT library")
 set(PROJECT_HOMEPAGE_URL "https://github.com/babelouest/rhonabwy/")
 set(PROJECT_BUGREPORT_PATH "https://github.com/babelouest/rhonabwy/issues")
 set(LIBRARY_VERSION_MAJOR "0")

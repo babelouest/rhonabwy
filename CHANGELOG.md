@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 0.9.9999
+
+- Improve jwks import
+- Improve `r_jwk_extract_pubkey` by adding properties `x5c`, `x5u`, `x5t` and `x5t#S256`
+
 ## 0.9.999
 
 - Remove `ES256K` signature algorithm support

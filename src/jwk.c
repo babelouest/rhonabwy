@@ -820,6 +820,18 @@ int r_jwk_extract_pubkey(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int x5u_flags)
     if (json_string_length(json_object_get(jwk_privkey, "crv"))) {
       json_object_set_new(jwk_pubkey, "crv", json_string(json_string_value(json_object_get(jwk_privkey, "crv"))));
     }
+    if (json_object_get(jwk_privkey, "x5c") != NULL) {
+      json_object_set_new(jwk_pubkey, "x5c", json_deep_copy(json_object_get(jwk_privkey, "x5c")));
+    }
+    if (json_string_length(json_object_get(jwk_privkey, "x5u"))) {
+      json_object_set_new(jwk_pubkey, "x5u", json_string(json_string_value(json_object_get(jwk_privkey, "x5u"))));
+    }
+    if (json_string_length(json_object_get(jwk_privkey, "x5t"))) {
+      json_object_set_new(jwk_pubkey, "x5t", json_string(json_string_value(json_object_get(jwk_privkey, "x5t"))));
+    }
+    if (json_string_length(json_object_get(jwk_privkey, "x5t#S256"))) {
+      json_object_set_new(jwk_pubkey, "x5t#S256", json_string(json_string_value(json_object_get(jwk_privkey, "x5t#S256"))));
+    }
     ret = RHN_OK;
     if (type & R_KEY_TYPE_RSA) {
       json_object_set_new(jwk_pubkey, "e", json_string(json_string_value(json_object_get(jwk_privkey, "e"))));

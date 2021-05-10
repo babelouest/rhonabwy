@@ -168,11 +168,13 @@ typedef struct {
   jwks_t        * jwks_pubkey;
   unsigned char * payload;
   size_t          payload_len;
+  json_t        * j_flattened;
 } jws_t;
 
 typedef struct {
   unsigned char * header_b64url;
   unsigned char * encrypted_key_b64url;
+  unsigned char * aad_b64url;
   unsigned char * iv_b64url;
   unsigned char * ciphertext_b64url;
   unsigned char * auth_tag_b64url;
@@ -181,12 +183,15 @@ typedef struct {
   jwa_enc         enc;
   jwks_t        * jwks_privkey;
   jwks_t        * jwks_pubkey;
+  unsigned char * aad;
+  size_t          aad_len;
   unsigned char * key;
   size_t          key_len;
   unsigned char * iv;
   size_t          iv_len;
   unsigned char * payload;
   size_t          payload_len;
+  json_t        * j_flattened;
 } jwe_t;
 
 typedef struct {
@@ -1175,6 +1180,12 @@ int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags);
  */
 int r_jws_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_flags);
 
+// TODO
+int r_jws_parse_flattened_json_str(jws_t * jws, const char * jws_str_flattened, int x5u_flags);
+
+// TODO
+int r_jws_parse_flattened_json_t(jws_t * jws, json_t * jws_flattened, int x5u_flags);
+
 /**
  * Verifies the signature of the JWS
  * The JWS must contain a signature
@@ -1192,6 +1203,9 @@ int r_jws_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_
  */
 int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags);
 
+// TODO
+int r_jws_verify_signature_flattened(jws_t * jws, jwks_t * jwks_pubkey, int x5u_flags);
+
 /**
  * Serialize a JWS into its string format (xxx.yyy.zzz)
  * @param jws: the JWS to serialize
@@ -1206,6 +1220,12 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags);
  * @return the JWS in serialized format, returned value must be r_free'd after use
  */
 char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags);
+
+// TODO
+char * r_jws_serialize_flattened_str(jws_t * jws, jwks_t * jwks_privkey, int x5u_flags);
+
+// TODO
+json_t * r_jws_serialize_flattened_json_t(jws_t * jws, jwks_t * jwks_privkey, int x5u_flags);
 
 /**
  * @}
@@ -1540,6 +1560,12 @@ int r_jwe_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags);
  */
 int r_jwe_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_str_len, int x5u_flags);
 
+// TODO
+int r_jwe_parse_flattened_json_str(jwe_t * jwe, const char * jwe_str_flattened, int x5u_flags);
+
+// TODO
+int r_jwe_parse_flattened_json_t(jwe_t * jwe, json_t * jwe_flattened, int x5u_flags);
+
 /**
  * Decrypts the payload of the JWE
  * @param jwe: the jwe_t to update
@@ -1555,6 +1581,9 @@ int r_jwe_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_str_len, int x5u_
  */
 int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
 
+// TODO
+int r_jwe_decrypt_flattened(jwe_t * jwe, jwks_t * jwks_privkey, int x5u_flags);
+
 /**
  * Serialize a JWE into its string format (aaa.bbb.ccc.xxx.yyy.zzz)
  * @param jwe: the JWE to serialize
@@ -1569,6 +1598,12 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
  * @return the JWE in serialized format, returned value must be r_free'd after use
  */
 char * r_jwe_serialize(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags);
+
+// TODO
+char * r_jwe_serialize_flattened_str(jwe_t * jwe, jwks_t * jwks_pubkey, int x5u_flags);
+
+// TODO
+json_t * r_jwe_serialize_flattened_json_t(jwe_t * jwe, jwks_t * jwks_pubkey, int x5u_flags);
 
 /**
  * @}

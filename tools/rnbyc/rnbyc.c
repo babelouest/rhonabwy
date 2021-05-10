@@ -593,7 +593,7 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
           } else if (o_strlen(str_jwks_pubkey)) {
             content = get_file_content(str_jwks_pubkey);
             if (r_jwks_import_from_str(jwks_pubkey, content) != RHN_OK) {
-              fprintf(stderr, "Invalid jwks_pubkey path\n");
+              fprintf(stderr, "Invalid jwks_pubkey path or content\n");
             }
             o_free(content);
           }
@@ -608,7 +608,7 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
           } else if (o_strlen(str_jwks_privkey)) {
             content = get_file_content(str_jwks_privkey);
             if (r_jwks_import_from_str(jwks_privkey, content) != RHN_OK) {
-              fprintf(stderr, "Invalid jwks_privkey path\n");
+              fprintf(stderr, "Invalid jwks_privkey path or content\n");
             }
             o_free(content);
           }
@@ -695,7 +695,7 @@ static int serialize_token(const char * claims, int x5u_flags, const char * str_
         } else if (o_strlen(str_jwks_pubkey)) {
           content = get_file_content(str_jwks_pubkey);
           if (r_jwks_import_from_str(jwks_pubkey, content) != RHN_OK) {
-            fprintf(stderr, "Invalid jwks_pubkey path\n");
+            fprintf(stderr, "Invalid jwks_pubkey path or content\n");
             ret = EAGAIN;
           }
           o_free(content);
@@ -710,7 +710,7 @@ static int serialize_token(const char * claims, int x5u_flags, const char * str_
         } else if (o_strlen(str_jwks_privkey)) {
           content = get_file_content(str_jwks_privkey);
           if (r_jwks_import_from_str(jwks_privkey, content) != RHN_OK) {
-            fprintf(stderr, "Invalid jwks_privkey path\n");
+            fprintf(stderr, "Invalid jwks_privkey path or content\n");
             ret = EAGAIN;
           }
           o_free(content);

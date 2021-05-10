@@ -872,7 +872,7 @@ char * r_jwt_serialize_signed(jwt_t * jwt, jwk_t * privkey, int x5u_flags) {
   json_t * j_header, * j_value = NULL;
   const char * key = NULL;
 
-  if (jwt != NULL && (alg = r_jwt_get_sign_alg(jwt)) != R_JWA_ALG_UNKNOWN) {
+  if (jwt != NULL && ((alg = r_jwt_get_sign_alg(jwt)) != R_JWA_ALG_UNKNOWN || (alg = r_str_to_jwa_alg(r_jwk_get_property_str(privkey, "alg"))) != R_JWA_ALG_NONE)) {
     if (r_jws_init(&jws) == RHN_OK) {
       if (r_jwt_get_header_str_value(jwt, "typ") == NULL) {
         r_jwt_set_header_str_value(jwt, "typ", "JWT");
@@ -914,7 +914,7 @@ char * r_jwt_serialize_encrypted(jwt_t * jwt, jwk_t * pubkey, int x5u_flags) {
   json_t * j_header, * j_value = NULL;
   const char * key = NULL;
 
-  if (jwt != NULL && (alg = r_jwt_get_enc_alg(jwt)) != R_JWA_ALG_UNKNOWN && (enc = r_jwt_get_enc(jwt)) != R_JWA_ENC_UNKNOWN) {
+  if (jwt != NULL && ((alg = r_jwt_get_enc_alg(jwt)) != R_JWA_ALG_UNKNOWN || (alg = r_str_to_jwa_alg(r_jwk_get_property_str(pubkey, "alg"))) != R_JWA_ALG_NONE) && (enc = r_jwt_get_enc(jwt)) != R_JWA_ENC_UNKNOWN) {
     if (r_jwe_init(&jwe) == RHN_OK) {
       if (r_jwt_get_header_str_value(jwt, "typ") == NULL) {
         r_jwt_set_header_str_value(jwt, "typ", "JWT");
@@ -957,7 +957,7 @@ char * r_jwt_serialize_nested(jwt_t * jwt, unsigned int type, jwk_t * sign_key, 
   json_t * j_header, * j_value = NULL;
   const char * key = NULL;
 
-  if (jwt != NULL && (sign_alg = r_jwt_get_sign_alg(jwt)) != R_JWA_ALG_UNKNOWN && (enc_alg = r_jwt_get_enc_alg(jwt)) != R_JWA_ALG_UNKNOWN && (enc = r_jwt_get_enc(jwt)) != R_JWA_ENC_UNKNOWN) {
+  if (jwt != NULL && ((sign_alg = r_jwt_get_sign_alg(jwt)) != R_JWA_ALG_UNKNOWN || (sign_alg = r_str_to_jwa_alg(r_jwk_get_property_str(sign_key, "alg"))) != R_JWA_ALG_NONE) && ((enc_alg = r_jwt_get_enc_alg(jwt)) != R_JWA_ALG_UNKNOWN || (enc_alg = r_str_to_jwa_alg(r_jwk_get_property_str(encrypt_key, "alg"))) != R_JWA_ALG_NONE) && (enc = r_jwt_get_enc(jwt)) != R_JWA_ENC_UNKNOWN) {
     if (type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT) {
       if ((token_intermediate = r_jwt_serialize_signed(jwt, sign_key, sign_key_x5u_flags)) != NULL) {
         if (r_jwe_init(&jwe) == RHN_OK) {

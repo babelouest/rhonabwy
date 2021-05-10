@@ -515,7 +515,7 @@ nist_keywrap16(const void *ctx, nettle_cipher_func *encrypt,
 
   if ((R = o_malloc(ciphertext_length-8)) == NULL)
     return;
-  
+
   n = (ciphertext_length-8)/8;
   memcpy(R, cleartext, (ciphertext_length-8));
   memcpy(A, iv, 8);
@@ -563,7 +563,7 @@ nist_keyunwrap16(const void *ctx, nettle_cipher_func *decrypt,
 
   if ((R = o_malloc(cleartext_length)) == NULL)
     return 0;
-  
+
   n = (cleartext_length/8);
   memcpy(A, ciphertext, 8);
   memcpy(R, ciphertext+8, cleartext_length);
@@ -827,7 +827,7 @@ static int r_jwe_ecdh_encrypt(jwe_t * jwe, jwk_t * jwk_pub, jwk_t * jwk_priv, in
       }
       r_jwk_delete_property_str(jwk_ephemeral_pub, "kid");
     }
-    
+
     if (type & R_KEY_TYPE_ECDSA) {
       if ((pub = r_jwk_export_to_gnutls_pubkey(jwk_pub, x5u_flags)) == NULL) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error r_jwk_export_to_gnutls_pubkey");
@@ -860,7 +860,7 @@ static int r_jwe_ecdh_encrypt(jwe_t * jwe, jwk_t * jwk_pub, jwk_t * jwk_priv, in
         crv_size = CURVE448_SIZE;
         d_size = ED448_KEY_SIZE;
       }
-      
+
       if (jwk_priv != NULL) {
         key = r_jwk_get_property_str(jwk_priv, "d");
       } else {
@@ -871,13 +871,13 @@ static int r_jwe_ecdh_encrypt(jwe_t * jwe, jwk_t * jwk_pub, jwk_t * jwk_priv, in
         ret = RHN_ERROR_PARAM;
         break;
       }
-      
+
       if (key_size != d_size) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error key size d");
         ret = RHN_ERROR_PARAM;
         break;
       }
-      
+
       key_size = CURVE448_SIZE;
       key = r_jwk_get_property_str(jwk_pub, "x");
       if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_x, &key_size)) {
@@ -885,13 +885,13 @@ static int r_jwe_ecdh_encrypt(jwe_t * jwe, jwk_t * jwk_pub, jwk_t * jwk_priv, in
         ret = RHN_ERROR_PARAM;
         break;
       }
-      
+
       if (key_size != crv_size) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error key size x");
         ret = RHN_ERROR_PARAM;
         break;
       }
-      
+
       if (_r_dh_compute(priv_k, pub_x, crv_size, &Z) != GNUTLS_E_SUCCESS) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error _r_dh_compute");
         ret = RHN_ERROR;
@@ -996,7 +996,7 @@ static int r_jwe_ecdh_decrypt(jwe_t * jwe, jwk_t * jwk, int type, unsigned int b
         ret = RHN_ERROR_PARAM;
         break;
       }
-      
+
       if ((priv = r_jwk_export_to_gnutls_privkey(jwk)) == NULL) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error r_jwk_export_to_gnutls_privkey");
         ret = RHN_ERROR;
@@ -1032,26 +1032,26 @@ static int r_jwe_ecdh_decrypt(jwe_t * jwe, jwk_t * jwk, int type, unsigned int b
         ret = RHN_ERROR_PARAM;
         break;
       }
-      
+
       if (bits == 256) {
         crv_size = CURVE25519_SIZE;
       } else {
         crv_size = CURVE448_SIZE;
       }
-      
+
       key = r_jwk_get_property_str(jwk, "d");
       if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), priv_k, &key_size)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error o_base64url_decode d");
         ret = RHN_ERROR_PARAM;
         break;
       }
-      
+
       if (key_size != crv_size) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error key size");
         ret = RHN_ERROR_PARAM;
         break;
       }
-      
+
       key_size = CURVE448_SIZE;
       key = r_jwk_get_property_str(jwk_ephemeral_pub, "x");
       if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_x, &key_size)) {
@@ -1059,13 +1059,13 @@ static int r_jwe_ecdh_decrypt(jwe_t * jwe, jwk_t * jwk, int type, unsigned int b
         ret = RHN_ERROR_PARAM;
         break;
       }
-      
+
       if (key_size != crv_size) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error key size");
         ret = RHN_ERROR_PARAM;
         break;
       }
-      
+
       if (_r_dh_compute(priv_k, pub_x, crv_size, &Z) != GNUTLS_E_SUCCESS) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error _r_dh_compute");
         ret = RHN_ERROR;
@@ -1585,15 +1585,28 @@ static int r_jwe_aesgcm_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
         ret = RHN_ERROR;
         break;
       }
-      if (gnutls_rnd(GNUTLS_RND_NONCE, iv, iv_size)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error gnutls_rnd");
-        ret = RHN_ERROR;
-        break;
-      }
-      if (!o_base64url_encode(iv, iv_size, iv_b64url, &iv_b64url_len)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error o_base64url_encode iv");
-        ret = RHN_ERROR;
-        break;
+      if (r_jwe_get_header_str_value(jwe, "iv") == NULL) {
+        if (gnutls_rnd(GNUTLS_RND_NONCE, iv, iv_size)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error gnutls_rnd");
+          ret = RHN_ERROR;
+          break;
+        }
+        if (!o_base64url_encode(iv, iv_size, iv_b64url, &iv_b64url_len)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error o_base64url_encode iv");
+          ret = RHN_ERROR;
+          break;
+        }
+      } else {
+        if (!o_base64url_decode((const unsigned char *)r_jwe_get_header_str_value(jwe, "iv"), o_strlen(r_jwe_get_header_str_value(jwe, "iv")), iv, &iv_size)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error o_base64url_decode iv");
+          ret = RHN_ERROR;
+          break;
+        }
+        if (iv_size != gnutls_cipher_get_iv_size(r_jwe_get_alg_from_alg(jwe->alg))) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error invalid iv size");
+          ret = RHN_ERROR;
+          break;
+        }
       }
       iv_b64url[iv_b64url_len] = '\0';
       key_g.data = key;
@@ -1626,7 +1639,9 @@ static int r_jwe_aesgcm_key_wrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
         break;
       }
       tag_b64url[tag_b64url_len] = '\0';
-      r_jwe_set_header_str_value(jwe, "iv", (const char *)iv_b64url);
+      if (r_jwe_get_header_str_value(jwe, "iv") == NULL) {
+        r_jwe_set_header_str_value(jwe, "iv", (const char *)iv_b64url);
+      }
       r_jwe_set_header_str_value(jwe, "tag", (const char *)tag_b64url);
       o_free(jwe->encrypted_key_b64url);
       jwe->encrypted_key_b64url = (unsigned char *)o_strndup((const char *)cipherkey_b64url, cipherkey_b64url_len);
@@ -1725,24 +1740,40 @@ static int r_jwe_aesgcm_key_unwrap(jwe_t * jwe, jwk_t * jwk, int x5u_flags) {
   return ret;
 }
 
-static unsigned char * r_jwe_set_ptext_with_block(const unsigned char * data, size_t data_len, size_t * ptext_len, gnutls_cipher_algorithm_t alg) {
+static int r_jwe_set_ptext_with_block(unsigned char * data, size_t data_len, unsigned char ** ptext, size_t * ptext_len, gnutls_cipher_algorithm_t alg, int cipher_cbc) {
   size_t b_size = (size_t)gnutls_cipher_get_block_size(alg);
-  unsigned char * ptext = NULL;
+  int ret;
 
-  if (data_len % b_size) {
-    *ptext_len = ((data_len/b_size)+1)*b_size;
+  *ptext = NULL;
+  if (cipher_cbc) {
+    if (data_len % b_size) {
+      *ptext_len = ((data_len/b_size)+1)*b_size;
+    } else {
+      *ptext_len = data_len;
+    }
+    if (*ptext_len) {
+      if ((*ptext = o_malloc(*ptext_len)) != NULL) {
+        memcpy(*ptext, data, data_len);
+        memset(*ptext+data_len, (*ptext_len)-data_len, (*ptext_len)-data_len);
+        ret = RHN_OK;
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_set_ptext_with_block - Error allocating resources for ptext (1)");
+        ret = RHN_ERROR_MEMORY;
+      }
+    } else {
+      ret = RHN_ERROR;
+    }
   } else {
     *ptext_len = data_len;
-  }
-  if (*ptext_len) {
-    if ((ptext = o_malloc(*ptext_len)) != NULL) {
-      memcpy(ptext, data, data_len);
-      memset(ptext+data_len, (*ptext_len)-data_len, (*ptext_len)-data_len);
+    if ((*ptext = o_malloc(data_len)) != NULL) {
+      memcpy(*ptext, data, data_len);
+      ret = RHN_OK;
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_set_ptext_with_block - Error allocating resources for ptext");
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_set_ptext_with_block - Error allocating resources for ptext (2)");
+      ret = RHN_ERROR_MEMORY;
     }
   }
-  return ptext;
+  return ret;
 }
 
 static int r_jwe_extract_header(jwe_t * jwe, json_t * j_header, int x5u_flags) {
@@ -1900,6 +1931,7 @@ int r_jwe_init(jwe_t ** jwe) {
             (*jwe)->iv_len = 0;
             (*jwe)->payload = NULL;
             (*jwe)->payload_len = 0;
+            (*jwe)->j_flattened = NULL;
             ret = RHN_OK;
           } else {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_init - Error allocating resources for jwks_privkey");
@@ -1937,6 +1969,7 @@ void r_jwe_free(jwe_t * jwe) {
     o_free(jwe->ciphertext_b64url);
     o_free(jwe->auth_tag_b64url);
     json_decref(jwe->j_header);
+    json_decref(jwe->j_flattened);
     o_free(jwe->key);
     o_free(jwe->iv);
     o_free(jwe->payload);
@@ -1965,6 +1998,7 @@ jwe_t * r_jwe_copy(jwe_t * jwe) {
         jwe_copy->jwks_pubkey = r_jwks_copy(jwe->jwks_pubkey);
         json_decref(jwe_copy->j_header);
         jwe_copy->j_header = json_deep_copy(jwe->j_header);
+        jwe_copy->j_flattened = json_deep_copy(jwe->j_flattened);
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_copy - Error setting values");
         r_jwe_free(jwe_copy);
@@ -2641,6 +2675,8 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
   int cipher_cbc;
 
   if (jwe != NULL && jwe->payload != NULL && jwe->payload_len && jwe->enc != R_JWA_ENC_UNKNOWN && jwe->key != NULL && jwe->key_len && jwe->iv != NULL && jwe->iv_len && jwe->key_len == r_jwe_get_key_size(jwe->enc)) {
+    cipher_cbc = (jwe->enc == R_JWA_ENC_A128CBC || jwe->enc == R_JWA_ENC_A192CBC || jwe->enc == R_JWA_ENC_A256CBC);
+
     if ((str_header = json_dumps(jwe->j_header, JSON_COMPACT)) != NULL) {
       if ((str_header_b64 = o_malloc(o_strlen(str_header)*2)) != NULL) {
         if (o_base64url_encode((const unsigned char *)str_header, o_strlen(str_header), str_header_b64, &str_header_b64_len)) {
@@ -2693,7 +2729,7 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
         } while (RHN_OK == ret && defstream.avail_out == 0);
 
         if (RHN_OK == ret) {
-          if ((ptext = r_jwe_set_ptext_with_block(text_zip, text_zip_len, &ptext_len, r_jwe_get_alg_from_enc(jwe->enc))) == NULL) {
+          if (r_jwe_set_ptext_with_block(text_zip, text_zip_len, &ptext, &ptext_len, r_jwe_get_alg_from_enc(jwe->enc), cipher_cbc) != RHN_OK) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error r_jwe_set_ptext_with_block");
             ret = RHN_ERROR;
           }
@@ -2705,21 +2741,19 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
         ret = RHN_ERROR;
       }
     } else {
-      if ((ptext = r_jwe_set_ptext_with_block(jwe->payload, jwe->payload_len, &ptext_len, r_jwe_get_alg_from_enc(jwe->enc))) == NULL) {
+      if (r_jwe_set_ptext_with_block(jwe->payload, jwe->payload_len, &ptext, &ptext_len, r_jwe_get_alg_from_enc(jwe->enc), cipher_cbc) != RHN_OK) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error r_jwe_set_ptext_with_block");
         ret = RHN_ERROR;
       }
     }
 
     if (ret == RHN_OK) {
-      if (jwe->enc == R_JWA_ENC_A128CBC || jwe->enc == R_JWA_ENC_A192CBC || jwe->enc == R_JWA_ENC_A256CBC) {
+      if (cipher_cbc) {
         key.data = jwe->key+(jwe->key_len/2);
         key.size = jwe->key_len/2;
-        cipher_cbc = 1;
       } else {
         key.data = jwe->key;
         key.size = jwe->key_len;
-        cipher_cbc = 0;
       }
       iv.data = jwe->iv;
       iv.size = jwe->iv_len;
@@ -2842,7 +2876,9 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
       if (!(res = gnutls_cipher_init(&handle, r_jwe_get_alg_from_enc(jwe->enc), &key, &iv))) {
         if (cipher_cbc || !(res = gnutls_cipher_add_auth(handle, jwe->header_b64url, o_strlen((const char *)jwe->header_b64url)))) {
           if (!(res = gnutls_cipher_decrypt2(handle, ciphertext, ciphertext_len, payload_enc, payload_enc_len))) {
-            r_jwe_remove_padding(payload_enc, &payload_enc_len, gnutls_cipher_get_block_size(r_jwe_get_alg_from_enc(jwe->enc)));
+            if (cipher_cbc) {
+              r_jwe_remove_padding(payload_enc, &payload_enc_len, gnutls_cipher_get_block_size(r_jwe_get_alg_from_enc(jwe->enc)));
+            }
             if (0 == o_strcmp("DEF", json_string_value(json_object_get(jwe->j_header, "zip")))) {
               infstream.zalloc = Z_NULL;
               infstream.zfree = Z_NULL;
@@ -2919,7 +2955,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
             if ((tag_b64url = o_malloc(tag_len*2)) != NULL) {
               if (o_base64url_encode(tag, tag_len, tag_b64url, &tag_b64url_len)) {
                 if (tag_b64url_len != o_strlen((const char *)jwe->auth_tag_b64url) || 0 != memcmp(tag_b64url, jwe->auth_tag_b64url, tag_b64url_len)) {
-                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Invalid tag");
+                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Invalid ta");
                   ret = RHN_ERROR_INVALID;
                 }
               } else {
@@ -3274,7 +3310,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
                 ret = RHN_ERROR_MEMORY;
               }
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error invalid RSA1_5 input parameters");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_key - Error invalid RSA1-OAEP input parameters");
               ret = RHN_ERROR_PARAM;
             }
           } else {

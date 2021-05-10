@@ -699,6 +699,7 @@ int r_jws_init(jws_t ** jws) {
             (*jws)->signature_b64url = NULL;
             (*jws)->payload = NULL;
             (*jws)->payload_len = 0;
+            (*jws)->j_flattened = NULL;
             ret = RHN_OK;
           } else {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_init - Error allocating resources for jwks_privkey");
@@ -735,6 +736,7 @@ void r_jws_free(jws_t * jws) {
     o_free(jws->signature_b64url);
     json_decref(jws->j_header);
     o_free(jws->payload);
+    json_decref(jws->j_flattened);
     o_free(jws);
   }
 }
@@ -754,6 +756,7 @@ jws_t * r_jws_copy(jws_t * jws) {
         jws_copy->jwks_pubkey = r_jwks_copy(jws->jwks_pubkey);
         json_decref(jws_copy->j_header);
         jws_copy->j_header = json_deep_copy(jws->j_header);
+        jws_copy->j_flattened = json_deep_copy(jws->j_flattened);
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_copy - Error allocating resources for jws_copy->payload");
         r_jws_free(jws_copy);

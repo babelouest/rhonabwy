@@ -85,6 +85,20 @@ const unsigned char rsa_2048_priv[] = "-----BEGIN PRIVATE KEY-----\n"
 #define JWT_CLAIM_TYP "jwt+rhnabwy"
 #define JWT_CLAIM_CTY "application/mater"
 
+#define CLAIM_STR "grut"
+#define CLAIM_INT 42
+unsigned char cypher_key[] = {4, 211, 31, 197, 84, 157, 252, 254, 11, 100, 157, 250, 63, 170, 106, 206, 107, 124, 212, 45, 111, 107, 9, 219, 200, 177, 0, 240, 143, 156, 44, 207};
+unsigned char iv[] = {3, 22, 60, 12, 43, 67, 104, 105, 108, 108, 105, 99, 111, 116, 104, 101};
+const char pubkey[] = "{\"kty\":\"RSA\","\
+    "\"n\":\"sXchDaQebHnPiGvyDOAT4saGEUetSyo9MKLOoWFsueri23bOdgWp4Dy1Wl"\
+    "UzewbgBHod5pcM9H95GQRV3JDXboIRROSBigeC5yjU1hGzHHyXss8UDpre"\
+    "cbAYxknTcQkhslANGRUZmdTOQ5qTRsLAt6BTYuyvVRdhS8exSZEy_c4gs_"\
+    "7svlJJQ4H9_NxsiIoLwAEk7-Q3UXERGYw_75IDrGA84-lA_-Ct4eTlXHBI"\
+    "Y2EaV7t7LjJaynVJCpkv4LKjTTAumiGUIuQhrNhZLuF_RJLqHpM2kgWFLU"\
+    "7-VTdL1VbC2tejvcI2BlMkEpk1BzBZI0KQB0GaDWFLN-aEAw3vRw\","\
+    "\"e\":\"AQAB\"}";
+#define PAYLOAD "The true sign of intelligence is not knowledge but imagination."
+
 START_TEST(test_rhonabwy_init)
 {
   jwt_t * jwt;
@@ -180,6 +194,91 @@ START_TEST(test_rhonabwy_get_header)
   json_decref(j_value);
   json_decref(j_result);
   r_jwt_free(jwt);
+}
+END_TEST
+
+START_TEST(test_rhonabwy_set_full_header_error)
+{
+  jwt_t * jwt;
+  json_t * j_header;
+  
+  j_header = json_pack("{ssss}", "alg", r_jwa_alg_to_str(R_JWA_ALG_RSA_OAEP_256), "enc", "error");
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_full_header_json_t(jwt, j_header), RHN_ERROR_PARAM);
+  r_jwt_free(jwt);
+  json_decref(j_header);
+  
+  j_header = json_pack("{ssss}", "alg", "error", "enc", r_jwa_enc_to_str(R_JWA_ENC_A256GCM));
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_full_header_json_t(jwt, j_header), RHN_ERROR_PARAM);
+  r_jwt_free(jwt);
+  json_decref(j_header);
+  
+  j_header = json_pack("{ss}", "alg", "error");
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_full_header_json_t(jwt, j_header), RHN_ERROR_PARAM);
+  r_jwt_free(jwt);
+  json_decref(j_header);
+  
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_full_header_json_t(jwt, NULL), RHN_ERROR_PARAM);
+  r_jwt_free(jwt);
+  
+  j_header = json_pack("{ssss}", "alg", r_jwa_alg_to_str(R_JWA_ALG_RSA_OAEP_256), "enc", r_jwa_enc_to_str(R_JWA_ENC_A256GCM));
+  ck_assert_int_eq(r_jwt_set_full_header_json_t(NULL, j_header), RHN_ERROR_PARAM);
+  json_decref(j_header);
+  
+}
+END_TEST
+
+START_TEST(test_rhonabwy_set_full_header)
+{
+  jwt_t * jwt;
+  json_t * j_header = json_pack("{sssisossss}", "str", JWT_CLAIM_AUD, "int", JWT_CLAIM_AGE, "obj", json_true(), "alg", r_jwa_alg_to_str(R_JWA_ALG_RSA_OAEP_256), "enc", r_jwa_enc_to_str(R_JWA_ENC_A256GCM));
+  char * str_header = json_dumps(j_header, JSON_COMPACT);
+  
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_full_header_json_t(jwt, j_header), RHN_OK);
+  ck_assert_str_eq(r_jwt_get_header_str_value(jwt, "str"), JWT_CLAIM_AUD);
+  ck_assert_int_eq(r_jwt_get_header_int_value(jwt, "int"), JWT_CLAIM_AGE);
+  ck_assert_ptr_eq(r_jwt_get_header_json_t_value(jwt, "obj"), json_true());
+  ck_assert_int_eq(r_jwt_get_enc_alg(jwt), R_JWA_ALG_RSA_OAEP_256);
+  ck_assert_int_eq(r_jwt_get_enc(jwt), R_JWA_ENC_A256GCM);
+  r_jwt_free(jwt);
+  
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_full_header_json_str(jwt, str_header), RHN_OK);
+  ck_assert_str_eq(r_jwt_get_header_str_value(jwt, "str"), JWT_CLAIM_AUD);
+  ck_assert_int_eq(r_jwt_get_header_int_value(jwt, "int"), JWT_CLAIM_AGE);
+  ck_assert_ptr_eq(r_jwt_get_header_json_t_value(jwt, "obj"), json_true());
+  ck_assert_int_eq(r_jwt_get_enc_alg(jwt), R_JWA_ALG_RSA_OAEP_256);
+  ck_assert_int_eq(r_jwt_get_enc(jwt), R_JWA_ENC_A256GCM);
+  r_jwt_free(jwt);
+  
+  o_free(str_header);
+  json_decref(j_header);
+  
+  j_header = json_pack("{sssisoss}", "str", JWT_CLAIM_AUD, "int", JWT_CLAIM_AGE, "obj", json_true(), "alg", r_jwa_alg_to_str(R_JWA_ALG_RS256));
+  str_header = json_dumps(j_header, JSON_COMPACT);
+  
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_full_header_json_t(jwt, j_header), RHN_OK);
+  ck_assert_str_eq(r_jwt_get_header_str_value(jwt, "str"), JWT_CLAIM_AUD);
+  ck_assert_int_eq(r_jwt_get_header_int_value(jwt, "int"), JWT_CLAIM_AGE);
+  ck_assert_ptr_eq(r_jwt_get_header_json_t_value(jwt, "obj"), json_true());
+  ck_assert_int_eq(r_jwt_get_sign_alg(jwt), R_JWA_ALG_RS256);
+  r_jwt_free(jwt);
+  
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_full_header_json_str(jwt, str_header), RHN_OK);
+  ck_assert_str_eq(r_jwt_get_header_str_value(jwt, "str"), JWT_CLAIM_AUD);
+  ck_assert_int_eq(r_jwt_get_header_int_value(jwt, "int"), JWT_CLAIM_AGE);
+  ck_assert_ptr_eq(r_jwt_get_header_json_t_value(jwt, "obj"), json_true());
+  ck_assert_int_eq(r_jwt_get_sign_alg(jwt), R_JWA_ALG_RS256);
+  r_jwt_free(jwt);
+  
+  o_free(str_header);
+  json_decref(j_header);
 }
 END_TEST
 
@@ -722,6 +821,47 @@ START_TEST(test_rhonabwy_add_enc_keys_by_content)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_set_claims)
+{
+  jwt_t * jwt;
+  time_t exp;
+
+  time(&exp);
+  exp+=JWT_CLAIM_EXP;
+  
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claims(jwt, R_JWT_CLAIM_ISS, JWT_CLAIM_ISS,
+                                         R_JWT_CLAIM_SUB, JWT_CLAIM_SUB,
+                                         R_JWT_CLAIM_AUD, JWT_CLAIM_AUD,
+                                         R_JWT_CLAIM_JTI, JWT_CLAIM_JTI,
+                                         R_JWT_CLAIM_EXP, exp,
+                                         R_JWT_CLAIM_NBF, R_JWT_CLAIM_NOW,
+                                         R_JWT_CLAIM_IAT, R_JWT_CLAIM_NOW,
+                                         R_JWT_CLAIM_STR, "scope", JWT_CLAIM_SCOPE,
+                                         R_JWT_CLAIM_INT, "age", JWT_CLAIM_AGE,
+                                         R_JWT_CLAIM_JSN, "verified", JWT_CLAIM_VERIFIED,
+                                         R_JWT_CLAIM_TYP, JWT_CLAIM_TYP,
+                                         R_JWT_CLAIM_CTY, JWT_CLAIM_CTY,
+                                         R_JWT_CLAIM_NOP), RHN_OK);
+
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_ISS, JWT_CLAIM_ISS,
+                                              R_JWT_CLAIM_SUB, JWT_CLAIM_SUB,
+                                              R_JWT_CLAIM_AUD, JWT_CLAIM_AUD,
+                                              R_JWT_CLAIM_JTI, JWT_CLAIM_JTI,
+                                              R_JWT_CLAIM_EXP, R_JWT_CLAIM_NOW,
+                                              R_JWT_CLAIM_NBF, R_JWT_CLAIM_NOW,
+                                              R_JWT_CLAIM_IAT, R_JWT_CLAIM_NOW,
+                                              R_JWT_CLAIM_STR, "scope", JWT_CLAIM_SCOPE,
+                                              R_JWT_CLAIM_INT, "age", JWT_CLAIM_AGE,
+                                              R_JWT_CLAIM_JSN, "verified", JWT_CLAIM_VERIFIED,
+                                              R_JWT_CLAIM_TYP, JWT_CLAIM_TYP,
+                                              R_JWT_CLAIM_CTY, JWT_CLAIM_CTY,
+                                              R_JWT_CLAIM_NOP), RHN_OK);
+  
+  r_jwt_free(jwt);
+}
+END_TEST
+
 START_TEST(test_rhonabwy_validate_claims)
 {
   jwt_t * jwt;
@@ -858,6 +998,76 @@ START_TEST(test_rhonabwy_validate_claims)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_set_properties_error)
+{
+  jwt_t * jwt;
+  jwk_t * jwk;
+
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
+  
+  ck_assert_int_eq(r_jwt_set_properties(jwt, RHN_OPT_PAYLOAD, PAYLOAD, o_strlen(PAYLOAD),
+                                             RHN_OPT_NONE), RHN_ERROR_PARAM);
+
+  r_jwt_free(jwt);
+  r_jwk_free(jwk);
+}
+END_TEST
+
+START_TEST(test_rhonabwy_set_properties)
+{
+  jwt_t * jwt;
+  jwk_t * jwk;
+  const unsigned char * key_iv;
+  size_t key_iv_len;
+
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
+  
+  ck_assert_int_eq(r_jwt_set_properties(jwt, RHN_OPT_HEADER_INT_VALUE, "int", CLAIM_INT,
+                                             RHN_OPT_HEADER_STR_VALUE, "str", CLAIM_STR,
+                                             RHN_OPT_HEADER_JSON_T_VALUE, "json", json_true(),
+                                             RHN_OPT_CLAIM_INT_VALUE, "int", CLAIM_INT,
+                                             RHN_OPT_CLAIM_STR_VALUE, "str", CLAIM_STR,
+                                             RHN_OPT_CLAIM_JSON_T_VALUE, "json", json_true(),
+                                             RHN_OPT_ENC_ALG, R_JWA_ALG_RSA1_5,
+                                             RHN_OPT_ENC, R_JWA_ENC_A256GCM,
+                                             RHN_OPT_SIG_ALG, R_JWA_ALG_RS256,
+                                             RHN_OPT_CIPHER_KEY, cypher_key, sizeof(cypher_key),
+                                             RHN_OPT_IV, iv, sizeof(iv),
+                                             RHN_OPT_ENCRYPT_KEY_JWK, jwk,
+                                             RHN_OPT_DECRYPT_KEY_JWK, jwk,
+                                             RHN_OPT_SIGN_KEY_JWK, jwk,
+                                             RHN_OPT_VERIFY_KEY_JWK, jwk,
+                                             RHN_OPT_NONE), RHN_OK);
+
+  ck_assert_int_eq(CLAIM_INT, r_jwt_get_header_int_value(jwt, "int"));
+  ck_assert_str_eq(CLAIM_STR, r_jwt_get_header_str_value(jwt, "str"));
+  ck_assert_ptr_eq(json_true(), r_jwt_get_header_json_t_value(jwt, "json"));
+  ck_assert_int_eq(CLAIM_INT, r_jwt_get_claim_int_value(jwt, "int"));
+  ck_assert_str_eq(CLAIM_STR, r_jwt_get_claim_str_value(jwt, "str"));
+  ck_assert_ptr_eq(json_true(), r_jwt_get_claim_json_t_value(jwt, "json"));
+  ck_assert_int_eq(R_JWA_ALG_RSA1_5, r_jwt_get_enc_alg(jwt));
+  ck_assert_int_eq(R_JWA_ENC_A256GCM, r_jwt_get_enc(jwt));
+  ck_assert_int_eq(R_JWA_ALG_RS256, r_jwt_get_sign_alg(jwt));
+  ck_assert_ptr_ne(NULL, key_iv = r_jwt_get_enc_cypher_key(jwt, &key_iv_len));
+  ck_assert_int_eq(sizeof(cypher_key), key_iv_len);
+  ck_assert_int_eq(0, memcmp(key_iv, cypher_key, key_iv_len));
+  ck_assert_ptr_ne(NULL, key_iv = r_jwt_get_enc_iv(jwt, &key_iv_len));
+  ck_assert_int_eq(sizeof(iv), key_iv_len);
+  ck_assert_int_eq(0, memcmp(key_iv, iv, key_iv_len));
+  ck_assert_int_eq(1, r_jwks_size(jwt->jwks_privkey_sign));
+  ck_assert_int_eq(1, r_jwks_size(jwt->jwks_pubkey_sign));
+  ck_assert_int_eq(1, r_jwks_size(jwt->jwks_privkey_enc));
+  ck_assert_int_eq(1, r_jwks_size(jwt->jwks_pubkey_enc));
+  
+  r_jwt_free(jwt);
+  r_jwk_free(jwk);
+}
+END_TEST
+
 START_TEST(test_rhonabwy_copy)
 {
   jwt_t * jwt, * jwt_copy;
@@ -897,6 +1107,29 @@ START_TEST(test_rhonabwy_copy)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_set_enc_cypher_key_iv)
+{
+  jwt_t * jwt;
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  char * token, ** token_split;
+  
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "iss", JWT_CLAIM_ISS), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_enc_alg(jwt, R_JWA_ALG_RSA1_5), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_enc(jwt, R_JWA_ENC_A128CBC), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_enc_cypher_key(jwt, cypher_key, sizeof(cypher_key)), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_enc_iv(jwt, iv, sizeof(iv)), RHN_OK);
+  ck_assert_int_eq(r_jwt_add_enc_keys_json_str(jwt, NULL, pubkey), RHN_OK);
+  ck_assert_ptr_ne((token = r_jwt_serialize_encrypted(jwt, NULL, 0)), NULL);
+  ck_assert_int_eq(split_string(token, ".", &token_split), 5);
+  ck_assert_str_eq("AxY8DCtDaGlsbGljb3RoZQ", token_split[2]);
+  ck_assert_str_eq("FgA-dGeGpV_KbHo21rm9i0cLuAKdqhEm6nXaPSrRdAw", token_split[3]);
+  
+  free_string_array(token_split);
+  o_free(token);
+  r_jwt_free(jwt);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -909,6 +1142,8 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_enc_alg);
   tcase_add_test(tc_core, test_rhonabwy_set_header);
   tcase_add_test(tc_core, test_rhonabwy_get_header);
+  tcase_add_test(tc_core, test_rhonabwy_set_full_header_error);
+  tcase_add_test(tc_core, test_rhonabwy_set_full_header);
   tcase_add_test(tc_core, test_rhonabwy_get_full_header);
   tcase_add_test(tc_core, test_rhonabwy_set_claim);
   tcase_add_test(tc_core, test_rhonabwy_get_claim);
@@ -922,8 +1157,12 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_set_enc_keys);
   tcase_add_test(tc_core, test_rhonabwy_set_enc_jwks);
   tcase_add_test(tc_core, test_rhonabwy_add_enc_keys_by_content);
+  tcase_add_test(tc_core, test_rhonabwy_set_claims);
   tcase_add_test(tc_core, test_rhonabwy_validate_claims);
+  tcase_add_test(tc_core, test_rhonabwy_set_properties_error);
+  tcase_add_test(tc_core, test_rhonabwy_set_properties);
   tcase_add_test(tc_core, test_rhonabwy_copy);
+  tcase_add_test(tc_core, test_rhonabwy_set_enc_cypher_key_iv);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

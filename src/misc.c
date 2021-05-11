@@ -185,6 +185,64 @@ json_t * _r_json_get_full_json_t(json_t * j_json) {
   return NULL;
 }
 
+size_t _r_get_key_size(jwa_enc enc) {
+  size_t size = 0;
+  switch (enc) {
+    case R_JWA_ENC_A128GCM:
+      size = 16;
+      break;
+    case R_JWA_ENC_A192GCM:
+      size = 24;
+      break;
+    case R_JWA_ENC_A128CBC:
+    case R_JWA_ENC_A256GCM:
+      size = 32;
+      break;
+    case R_JWA_ENC_A192CBC:
+      size = 48;
+      break;
+    case R_JWA_ENC_A256CBC:
+      size = 64;
+      break;
+    default:
+      break;
+  }
+  return size;
+}
+
+gnutls_cipher_algorithm_t _r_get_alg_from_enc(jwa_enc enc) {
+  gnutls_cipher_algorithm_t alg = GNUTLS_CIPHER_UNKNOWN;
+
+  switch (enc) {
+    case R_JWA_ENC_A128CBC:
+      alg = GNUTLS_CIPHER_AES_128_CBC;
+      break;
+    case R_JWA_ENC_A192CBC:
+      alg = GNUTLS_CIPHER_AES_192_CBC;
+      break;
+    case R_JWA_ENC_A256CBC:
+      alg = GNUTLS_CIPHER_AES_256_CBC;
+      break;
+    case R_JWA_ENC_A128GCM:
+      alg = GNUTLS_CIPHER_AES_128_GCM;
+      break;
+    case R_JWA_ENC_A192GCM:
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
+      alg = GNUTLS_CIPHER_AES_192_GCM;
+#else
+      alg = GNUTLS_CIPHER_UNKNOWN; // Unsupported until GnuTLS 3.6.14
+#endif
+      break;
+    case R_JWA_ENC_A256GCM:
+      alg = GNUTLS_CIPHER_AES_256_GCM;
+      break;
+    default:
+      alg = GNUTLS_CIPHER_UNKNOWN;
+      break;
+  }
+  return alg;
+}
+
 jwa_alg r_str_to_jwa_alg(const char * alg) {
   if (0 == o_strcmp("none", alg)) {
     return R_JWA_ALG_NONE;

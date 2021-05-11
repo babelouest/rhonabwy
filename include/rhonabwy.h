@@ -78,20 +78,6 @@ extern "C"
 #define R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT 3
 #define R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN 4
 
-#define R_JWT_CLAIM_NOP 0
-#define R_JWT_CLAIM_ISS 1
-#define R_JWT_CLAIM_SUB 2
-#define R_JWT_CLAIM_AUD 3
-#define R_JWT_CLAIM_EXP 4
-#define R_JWT_CLAIM_NBF 5
-#define R_JWT_CLAIM_IAT 6
-#define R_JWT_CLAIM_JTI 7
-#define R_JWT_CLAIM_STR 8
-#define R_JWT_CLAIM_INT 9
-#define R_JWT_CLAIM_JSN 10
-#define R_JWT_CLAIM_TYP 11
-#define R_JWT_CLAIM_CTY 12
-
 #define R_JWT_CLAIM_NOW -1
 #define R_JWT_CLAIM_PRESENT -2
 
@@ -149,6 +135,22 @@ typedef enum {
 } jwa_alg;
 
 typedef enum {
+  R_JWT_CLAIM_NOP = 0,
+  R_JWT_CLAIM_ISS = 1,
+  R_JWT_CLAIM_SUB = 2,
+  R_JWT_CLAIM_AUD = 3,
+  R_JWT_CLAIM_EXP = 4,
+  R_JWT_CLAIM_NBF = 5,
+  R_JWT_CLAIM_IAT = 6,
+  R_JWT_CLAIM_JTI = 7,
+  R_JWT_CLAIM_STR = 8,
+  R_JWT_CLAIM_INT = 9,
+  R_JWT_CLAIM_JSN = 10,
+  R_JWT_CLAIM_TYP = 11,
+  R_JWT_CLAIM_CTY = 12,
+} rhn_claim_opt;
+
+typedef enum {
   R_JWA_ENC_UNKNOWN = 0,
   R_JWA_ENC_A128CBC = 1,
   R_JWA_ENC_A192CBC = 2,
@@ -157,6 +159,50 @@ typedef enum {
   R_JWA_ENC_A192GCM = 5,
   R_JWA_ENC_A256GCM = 6
 } jwa_enc;
+
+typedef enum {
+  RHN_OPT_NONE                 = 0,
+  RHN_OPT_HEADER_INT_VALUE     = 1,
+  RHN_OPT_HEADER_STR_VALUE     = 2,
+  RHN_OPT_HEADER_JSON_T_VALUE  = 3,
+  RHN_OPT_HEADER_FULL_JSON_T   = 4,
+  RHN_OPT_HEADER_FULL_JSON_STR = 5,
+  RHN_OPT_PAYLOAD              = 6,
+  RHN_OPT_CLAIM_INT_VALUE      = 7,
+  RHN_OPT_CLAIM_STR_VALUE      = 8,
+  RHN_OPT_CLAIM_JSON_T_VALUE   = 9,
+  RHN_OPT_CLAIM_FULL_JSON_T    = 10,
+  RHN_OPT_CLAIM_FULL_JSON_STR  = 11,
+  RHN_OPT_ENC_ALG              = 12,
+  RHN_OPT_ENC                  = 13,
+  RHN_OPT_SIG_ALG              = 14,
+  RHN_OPT_CIPHER_KEY           = 15,
+  RHN_OPT_IV                   = 16,
+  RHN_OPT_SIGN_KEY_JWK         = 17,
+  RHN_OPT_SIGN_KEY_JWKS        = 18,
+  RHN_OPT_SIGN_KEY_GNUTLS      = 19,
+  RHN_OPT_SIGN_KEY_JSON_T      = 20,
+  RHN_OPT_SIGN_KEY_JSON_STR    = 21,
+  RHN_OPT_SIGN_KEY_PEM_DER     = 22,
+  RHN_OPT_VERIFY_KEY_JWK       = 23,
+  RHN_OPT_VERIFY_KEY_JWKS      = 24,
+  RHN_OPT_VERIFY_KEY_GNUTLS    = 25,
+  RHN_OPT_VERIFY_KEY_JSON_T    = 26,
+  RHN_OPT_VERIFY_KEY_JSON_STR  = 27,
+  RHN_OPT_VERIFY_KEY_PEM_DER   = 28,
+  RHN_OPT_ENCRYPT_KEY_JWK      = 29,
+  RHN_OPT_ENCRYPT_KEY_JWKS     = 30,
+  RHN_OPT_ENCRYPT_KEY_GNUTLS   = 31,
+  RHN_OPT_ENCRYPT_KEY_JSON_T   = 32,
+  RHN_OPT_ENCRYPT_KEY_JSON_STR = 33,
+  RHN_OPT_ENCRYPT_KEY_PEM_DER  = 34,
+  RHN_OPT_DECRYPT_KEY_JWK      = 35,
+  RHN_OPT_DECRYPT_KEY_JWKS     = 36,
+  RHN_OPT_DECRYPT_KEY_GNUTLS   = 37,
+  RHN_OPT_DECRYPT_KEY_JSON_T   = 38,
+  RHN_OPT_DECRYPT_KEY_JSON_STR = 39,
+  RHN_OPT_DECRYPT_KEY_PEM_DER  = 40
+} rhn_opt;
 
 typedef struct {
   unsigned char * header_b64url;
@@ -195,18 +241,22 @@ typedef struct {
 } jwe_t;
 
 typedef struct {
-  int      type;
-  json_t * j_header;
-  json_t * j_claims;
-  jws_t  * jws;
-  jwe_t  * jwe;
-  jwa_alg  sign_alg;
-  jwa_alg  enc_alg;
-  jwa_enc  enc;
-  jwks_t * jwks_privkey_sign;
-  jwks_t * jwks_pubkey_sign;
-  jwks_t * jwks_privkey_enc;
-  jwks_t * jwks_pubkey_enc;
+  int             type;
+  json_t        * j_header;
+  json_t        * j_claims;
+  jws_t         * jws;
+  jwe_t         * jwe;
+  jwa_alg         sign_alg;
+  jwa_alg         enc_alg;
+  jwa_enc         enc;
+  unsigned char * key;
+  size_t          key_len;
+  unsigned char * iv;
+  size_t          iv_len;
+  jwks_t        * jwks_privkey_sign;
+  jwks_t        * jwks_pubkey_sign;
+  jwks_t        * jwks_privkey_enc;
+  jwks_t        * jwks_pubkey_enc;
 } jwt_t;
 
 /**
@@ -963,6 +1013,11 @@ int r_jwks_export_to_pem_der(jwks_t * jwks, int format, unsigned char * output, 
  */
 
 /**
+ * Add multiple properties to the jws_t *
+ */
+int r_jws_set_properties(jws_t * jws, ...);
+
+/**
  * Return a copy of the JWS
  * @param jws: the jws_t to duplicate
  * @return a copy of jws
@@ -1035,6 +1090,9 @@ int r_jws_set_header_int_value(jws_t * jws, const char * key, int i_value);
  * @return RHN_OK on success, an error value on error
  */
 int r_jws_set_header_json_t_value(jws_t * jws, const char * key, json_t * j_value);
+
+int r_jws_set_full_header_json_t(jws_t * jws, json_t * j_value);
+int r_jws_set_full_header_json_str(jws_t * jws, const char * str_value);
 
 /**
  * Gets a string value from the JWS header
@@ -1180,11 +1238,9 @@ int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags);
  */
 int r_jws_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_flags);
 
-// TODO
-int r_jws_parse_flattened_json_str(jws_t * jws, const char * jws_str_flattened, int x5u_flags);
+int r_jws_parse_flattened_json_str(jws_t * jws, const char * jws_str_flattened, int x5u_flags); // TODO
 
-// TODO
-int r_jws_parse_flattened_json_t(jws_t * jws, json_t * jws_flattened, int x5u_flags);
+int r_jws_parse_flattened_json_t(jws_t * jws, json_t * jws_flattened, int x5u_flags); // TODO
 
 /**
  * Verifies the signature of the JWS
@@ -1203,8 +1259,7 @@ int r_jws_parse_flattened_json_t(jws_t * jws, json_t * jws_flattened, int x5u_fl
  */
 int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags);
 
-// TODO
-int r_jws_verify_signature_flattened(jws_t * jws, jwks_t * jwks_pubkey, int x5u_flags);
+int r_jws_verify_signature_flattened(jws_t * jws, jwks_t * jwks_pubkey, int x5u_flags); // TODO
 
 /**
  * Serialize a JWS into its string format (xxx.yyy.zzz)
@@ -1221,11 +1276,9 @@ int r_jws_verify_signature_flattened(jws_t * jws, jwks_t * jwks_pubkey, int x5u_
  */
 char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags);
 
-// TODO
-char * r_jws_serialize_flattened_str(jws_t * jws, jwks_t * jwks_privkey, int x5u_flags);
+char * r_jws_serialize_flattened_str(jws_t * jws, jwks_t * jwks_privkey, int x5u_flags); // TODO
 
-// TODO
-json_t * r_jws_serialize_flattened_json_t(jws_t * jws, jwks_t * jwks_privkey, int x5u_flags);
+json_t * r_jws_serialize_flattened_json_t(jws_t * jws, jwks_t * jwks_privkey, int x5u_flags); // TODO
 
 /**
  * @}
@@ -1236,6 +1289,11 @@ json_t * r_jws_serialize_flattened_json_t(jws_t * jws, jwks_t * jwks_privkey, in
  * Manage JSON Web Encryption
  * @{
  */
+
+/**
+ * Add multiple properties to the jwe_t *
+ */
+int r_jwe_set_properties(jwe_t * jwe, ...);
 
 /**
  * Return a copy of the JWE
@@ -1325,6 +1383,9 @@ int r_jwe_set_header_int_value(jwe_t * jwe, const char * key, int i_value);
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_set_header_json_t_value(jwe_t * jwe, const char * key, json_t * j_value);
+
+int r_jwe_set_full_header_json_t(jwe_t * jwe, json_t * j_header);
+int r_jwe_set_full_header_json_str(jwe_t * jwe, const char * str_header);
 
 /**
  * Gets a string value from the JWE header
@@ -1560,11 +1621,9 @@ int r_jwe_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags);
  */
 int r_jwe_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_str_len, int x5u_flags);
 
-// TODO
-int r_jwe_parse_flattened_json_str(jwe_t * jwe, const char * jwe_str_flattened, int x5u_flags);
+int r_jwe_parse_flattened_json_str(jwe_t * jwe, const char * jwe_str_flattened, int x5u_flags); // TODO
 
-// TODO
-int r_jwe_parse_flattened_json_t(jwe_t * jwe, json_t * jwe_flattened, int x5u_flags);
+int r_jwe_parse_flattened_json_t(jwe_t * jwe, json_t * jwe_flattened, int x5u_flags); // TODO
 
 /**
  * Decrypts the payload of the JWE
@@ -1581,8 +1640,7 @@ int r_jwe_parse_flattened_json_t(jwe_t * jwe, json_t * jwe_flattened, int x5u_fl
  */
 int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
 
-// TODO
-int r_jwe_decrypt_flattened(jwe_t * jwe, jwks_t * jwks_privkey, int x5u_flags);
+int r_jwe_decrypt_flattened(jwe_t * jwe, jwks_t * jwks_privkey, int x5u_flags); // TODO
 
 /**
  * Serialize a JWE into its string format (aaa.bbb.ccc.xxx.yyy.zzz)
@@ -1599,11 +1657,9 @@ int r_jwe_decrypt_flattened(jwe_t * jwe, jwks_t * jwks_privkey, int x5u_flags);
  */
 char * r_jwe_serialize(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags);
 
-// TODO
-char * r_jwe_serialize_flattened_str(jwe_t * jwe, jwks_t * jwks_pubkey, int x5u_flags);
+char * r_jwe_serialize_flattened_str(jwe_t * jwe, jwks_t * jwks_pubkey, int x5u_flags); // TODO
 
-// TODO
-json_t * r_jwe_serialize_flattened_json_t(jwe_t * jwe, jwks_t * jwks_pubkey, int x5u_flags);
+json_t * r_jwe_serialize_flattened_json_t(jwe_t * jwe, jwks_t * jwks_pubkey, int x5u_flags); // TODO
 
 /**
  * @}
@@ -1614,6 +1670,11 @@ json_t * r_jwe_serialize_flattened_json_t(jwe_t * jwe, jwks_t * jwks_pubkey, int
  * Manage JSON Web Token
  * @{
  */
+
+/**
+ * Add multiple properties to the jwt_t *
+ */
+int r_jwt_set_properties(jwt_t * jwt, ...);
 
 /**
  * Return a copy of the JWT
@@ -1648,6 +1709,9 @@ int r_jwt_set_header_int_value(jwt_t * jwt, const char * key, int i_value);
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_set_header_json_t_value(jwt_t * jwt, const char * key, json_t * j_value);
+
+int r_jwt_set_full_header_json_t(jwt_t * jwt, json_t * j_header);
+int r_jwt_set_full_header_json_str(jwt_t * jwt, const char * str_header);
 
 /**
  * Gets a string value from the JWT header
@@ -2009,6 +2073,54 @@ const char * r_jwt_get_enc_kid(jwt_t * jwt);
 const char * r_jwt_get_sig_kid(jwt_t * jwt);
 
 /**
+ * Sets the cypher key to encrypt or decrypt the payload
+ * @param jwt: the jwt_t to update
+ * @param key: the key to encrypt or decrypt the payload
+ * @param key_len: the size of the key
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_set_enc_cypher_key(jwt_t * jwt, const unsigned char * key, size_t key_len);
+
+/**
+ * Gets the cypher key to encrypt or decrypt the payload
+ * @param jwt: the jwt_t to get the value
+ * @param key_len: set the size of the key, may be NULL
+ * @return the key to encrypt or decrypt the payload
+ */
+const unsigned char * r_jwt_get_enc_cypher_key(jwt_t * jwt, size_t * key_len);
+
+/**
+ * Generates a random cypher key
+ * @param jwt: the jwt_t to update
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_generate_enc_cypher_key(jwt_t * jwt);
+
+/**
+ * Sets the Initialization Vector (iv)
+ * @param jwt: the jwt_t to update
+ * @param iv: the iv to set
+ * @param iv_len: the size of the iv
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_set_enc_iv(jwt_t * jwt, const unsigned char * iv, size_t iv_len);
+
+/**
+ * Gets the Initialization Vector (iv)
+ * @param jwt: the jwt_t to get the value
+ * @param iv_len: set the size of the iv, may be NULL
+ * @return the iv
+ */
+const unsigned char * r_jwt_get_enc_iv(jwt_t * jwt, size_t * iv_len);
+
+/**
+ * Generates a random Initialization Vector (iv)
+ * @param jwt: the jwt_t to update
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_generate_iv(jwt_t * jwt);
+
+/**
  * Return a signed JWT in serialized format (xxx.yyy.zzz)
  * @param jwt: the jwt_t to sign
  * @param privkey: the private key to sign the JWT, may be NULL
@@ -2224,6 +2336,8 @@ int r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_ke
  */
 int r_jwt_validate_claims(jwt_t * jwt, ...);
 
+int r_jwt_set_claims(jwt_t * jwt, ...);
+
 /**
  * @}
  */
@@ -2246,6 +2360,10 @@ int _r_json_get_int_value(json_t * j_json, const char * key);
 json_t * _r_json_get_json_t_value(json_t * j_json, const char * key);
 
 json_t * _r_json_get_full_json_t(json_t * j_json);
+
+size_t _r_get_key_size(jwa_enc enc);
+
+gnutls_cipher_algorithm_t _r_get_alg_from_enc(jwa_enc enc);
 
 #endif
 

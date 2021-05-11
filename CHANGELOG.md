@@ -4,6 +4,14 @@
 
 - Improve jwks import
 - Improve `r_jwk_extract_pubkey` by adding properties `x5c`, `x5u`, `x5t` and `x5t#S256`
+- Fix `AES-GCM` encryption by removing padding
+- Add `r_jws_set_properties`, `r_jwe_set_properties`, `r_jwt_set_properties`
+- Add `r_jws_set_full_header_json_t`, `r_jws_set_full_header_json_str`
+- Add `r_jwe_set_full_header_json_t`, `r_jwe_set_full_header_json_str`
+- Add `r_jwt_set_full_header_json_t`, `r_jwt_set_full_header_json_str`
+- Add `r_jwt_set_enc_cypher_key`, `r_jwt_get_enc_cypher_key`, `r_jwt_generate_enc_cypher_key`
+- Add `r_jwt_set_enc_iv`, `r_jwt_get_enc_iv`
+- Add `r_jwt_set_claims`
 
 ## 0.9.999
 

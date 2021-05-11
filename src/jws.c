@@ -1479,3 +1479,155 @@ char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags) {
   r_jwk_free(jwk);
   return jws_str;
 }
+
+int r_jws_set_full_header_json_t(jws_t * jws, json_t * j_header) {
+  int ret = RHN_OK;
+  jwa_alg alg;
+  
+  if (jws != NULL && json_is_object(j_header)) {
+    if (json_object_get(j_header, "alg") != NULL) {
+      if ((alg = r_str_to_jwa_alg(json_string_value(json_object_get(j_header, "alg")))) != R_JWA_ALG_UNKNOWN) {
+        jws->alg = alg;
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_full_header_json_t - Error invalid alg parameter");
+        ret = RHN_ERROR_PARAM;
+      }
+    }
+    if (ret == RHN_OK) {
+      json_decref(jws->j_header);
+      if ((jws->j_header = json_deep_copy(j_header)) != NULL) {
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_full_header_json_t - Error setting header");
+        ret = RHN_ERROR_MEMORY;
+      }
+    }
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_full_header_json_t - Error input parameters");
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+int r_jws_set_full_header_json_str(jws_t * jws, const char * str_header) {
+  int ret;
+  json_t * j_header = json_loads(str_header, JSON_DECODE_ANY, NULL);
+  
+  ret = r_jws_set_full_header_json_t(jws, j_header);
+  json_decref(j_header);
+  
+  return ret;
+}
+
+int r_jws_set_properties(jws_t * jws, ...) {
+  rhn_opt option;
+  uint i_value, ret = RHN_OK;
+  const char * str_key, * str_value;
+  json_t * j_value;
+  const unsigned char * ustr_value;
+  size_t size_value;
+  jwk_t * jwk;
+  jwks_t * jwks;
+  gnutls_privkey_t privkey;
+  gnutls_pubkey_t pubkey;
+  va_list vl;
+
+  if (jws != NULL) {
+    va_start(vl, jws);
+    for (option = va_arg(vl, rhn_opt); option != RHN_OPT_NONE && ret == RHN_OK; option = va_arg(vl, rhn_opt)) {
+      switch (option) {
+        case RHN_OPT_HEADER_INT_VALUE:
+          str_key = va_arg(vl, const char *);
+          i_value = va_arg(vl, uint);
+          ret = r_jws_set_header_int_value(jws, str_key, i_value);
+          break;
+        case RHN_OPT_HEADER_STR_VALUE:
+          str_key = va_arg(vl, const char *);
+          str_value = va_arg(vl, const char *);
+          ret = r_jws_set_header_str_value(jws, str_key, str_value);
+          break;
+        case RHN_OPT_HEADER_JSON_T_VALUE:
+          str_key = va_arg(vl, const char *);
+          j_value = va_arg(vl, json_t *);
+          ret = r_jws_set_header_json_t_value(jws, str_key, j_value);
+          break;
+        case RHN_OPT_HEADER_FULL_JSON_T:
+          j_value = va_arg(vl, json_t *);
+          ret = r_jws_set_full_header_json_t(jws, j_value);
+          break;
+        case RHN_OPT_HEADER_FULL_JSON_STR:
+          str_value = va_arg(vl, const char *);
+          ret = r_jws_set_full_header_json_str(jws, str_value);
+          break;
+        case RHN_OPT_PAYLOAD:
+          ustr_value = va_arg(vl, const unsigned char *);
+          size_value = va_arg(vl, size_t);
+          ret = r_jws_set_payload(jws, ustr_value, size_value);
+          break;
+        case RHN_OPT_SIG_ALG:
+          i_value = va_arg(vl, uint);
+          ret = r_jws_set_alg(jws, (jwa_alg)i_value);
+          break;
+        case RHN_OPT_VERIFY_KEY_JWK:
+          jwk = va_arg(vl, jwk_t *);
+          ret = r_jws_add_keys(jws, NULL, jwk);
+          break;
+        case RHN_OPT_VERIFY_KEY_JWKS:
+          jwks = va_arg(vl, jwks_t *);
+          ret = r_jws_add_jwks(jws, NULL, jwks);
+          break;
+        case RHN_OPT_VERIFY_KEY_GNUTLS:
+          pubkey = va_arg(vl, gnutls_pubkey_t);
+          ret = r_jws_add_keys_gnutls(jws, NULL, pubkey);
+          break;
+        case RHN_OPT_VERIFY_KEY_JSON_T:
+          j_value = va_arg(vl, json_t *);
+          ret = r_jws_add_keys_json_t(jws, NULL, j_value);
+          break;
+        case RHN_OPT_VERIFY_KEY_JSON_STR:
+          str_value = va_arg(vl, const char *);
+          ret = r_jws_add_keys_json_str(jws, NULL, str_value);
+          break;
+        case RHN_OPT_VERIFY_KEY_PEM_DER:
+          i_value = va_arg(vl, uint);
+          ustr_value = va_arg(vl, const unsigned char *);
+          size_value = va_arg(vl, size_t);
+          ret = r_jws_add_keys_pem_der(jws, i_value, NULL, 0, ustr_value, size_value);
+          break;
+        case RHN_OPT_SIGN_KEY_JWK:
+          jwk = va_arg(vl, jwk_t *);
+          ret = r_jws_add_keys(jws, jwk, NULL);
+          break;
+        case RHN_OPT_SIGN_KEY_JWKS:
+          jwks = va_arg(vl, jwks_t *);
+          ret = r_jws_add_jwks(jws, jwks, NULL);
+          break;
+        case RHN_OPT_SIGN_KEY_GNUTLS:
+          privkey = va_arg(vl, gnutls_privkey_t);
+          ret = r_jws_add_keys_gnutls(jws, privkey, NULL);
+          break;
+        case RHN_OPT_SIGN_KEY_JSON_T:
+          j_value = va_arg(vl, json_t *);
+          ret = r_jws_add_keys_json_t(jws, j_value, NULL);
+          break;
+        case RHN_OPT_SIGN_KEY_JSON_STR:
+          str_value = va_arg(vl, const char *);
+          ret = r_jws_add_keys_json_str(jws, str_value, NULL);
+          break;
+        case RHN_OPT_SIGN_KEY_PEM_DER:
+          i_value = va_arg(vl, uint);
+          ustr_value = va_arg(vl, const unsigned char *);
+          size_value = va_arg(vl, size_t);
+          ret = r_jws_add_keys_pem_der(jws, i_value, ustr_value, size_value, NULL, 0);
+          break;
+        default:
+          ret = RHN_ERROR_PARAM;
+          break;
+      }
+    }
+    va_end(vl);
+  } else {
+    y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_set_properties - Error input parameter");
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}

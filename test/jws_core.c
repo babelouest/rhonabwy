@@ -12,6 +12,12 @@
 
 #define PAYLOAD "The true sign of intelligence is not knowledge but imagination."
 
+#define HUGE_PAYLOAD "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis efficitur lectus sit amet libero gravida eleifend. Nulla aliquam accumsan erat, quis tincidunt purus ultricies eu. Aenean eu dui ac diam placerat mollis. Duis eget tempor ipsum, vel ullamcorper purus. Ut eget quam vehicula, congue urna vel, dictum risus. Duis tristique est sed diam lobortis commodo. Proin et urna in odio malesuada sagittis. Donec lectus ligula, porttitor sed lorem ut, malesuada posuere neque. Nullam et nisl a felis congue mattis id non lectus.\
+Quisque viverra hendrerit malesuada. Integer sollicitudin magna purus, in dignissim eros ullamcorper et. Praesent dignissim metus neque, eget tempor dolor tincidunt egestas. Nulla odio risus, tincidunt et egestas aliquet, pellentesque et eros. Etiam mattis orci a dui efficitur pharetra. Donec fermentum sem sed lacus finibus, nec luctus nisl vulputate. Donec sodales, nisi sed posuere maximus, lectus elit fermentum sapien, quis volutpat risus nisl vel dui. In vitae ante diam.\
+Vivamus a nisl quam. Proin in lectus nunc. Aliquam condimentum tellus non feugiat aliquam. Nulla eu mi ligula. Proin auctor varius massa sed consectetur. Nulla et ligula pellentesque, egestas dui eu, gravida arcu. Maecenas vehicula feugiat tincidunt. Aenean sed sollicitudin ex. Cras luctus facilisis erat eu pharetra. Vestibulum interdum consequat tellus nec sagittis. Aliquam tincidunt eget lectus non bibendum. Mauris ut consectetur diam.\
+Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed lorem lectus, ullamcorper consectetur quam ut, pharetra consectetur diam. Suspendisse eu erat quis nunc imperdiet lacinia vitae id arcu. Fusce non euismod urna. Aenean lacinia porta tellus nec rutrum. Aliquam est magna, aliquam non hendrerit eget, scelerisque quis sapien. Quisque consectetur et lacus non dapibus. Duis diam purus, vulputate convallis faucibus in, rutrum quis mi. Sed sed magna eget tellus semper suscipit a in augue.\
+Aenean vitae tortor quam. Praesent pulvinar nulla a nisi egestas, laoreet tempus mauris ullamcorper. Nam vulputate molestie velit, quis laoreet felis suscipit euismod. Pellentesque a enim dapibus, tincidunt lorem vel, suscipit turpis. Phasellus id metus vehicula, luctus sem nec, maximus purus. Duis dictum elit quam, quis rhoncus ex ullamcorper ut. Donec fringilla augue vitae vestibulum maximus. Mauris vel arcu eget arcu bibendum ornare."
+
 #define HS256_TOKEN "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.PdtqfpescIy_55JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
 #define HS256_TOKEN_UNSECURE "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u."
 #define HS256_TOKEN_INVALID_HEADER "eyJhbGciOiJIUzI1NiIsImtpZCI6Ij.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.PdtqfpescIy_55JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
@@ -663,6 +669,51 @@ START_TEST(test_rhonabwy_set_properties)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_zip_payload)
+{
+  jws_t * jws, * jws_parse, * jws_parse_def;
+  jwk_t * jwk_key_symmetric;
+  char * token = NULL, * token_def = NULL;
+  const unsigned char * payload, * payload_def;
+  size_t payload_len = 0, payload_def_len = 0;
+  
+  ck_assert_int_eq(r_jwk_init(&jwk_key_symmetric), RHN_OK);
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_key_symmetric, jwk_key_symmetric_str), RHN_OK);
+  ck_assert_int_eq(r_jws_set_payload(jws, (const unsigned char *)HUGE_PAYLOAD, o_strlen(HUGE_PAYLOAD)), RHN_OK);
+  ck_assert_int_eq(r_jws_add_keys(jws, jwk_key_symmetric, NULL), RHN_OK);
+
+  ck_assert_ptr_ne((token = r_jws_serialize(jws, NULL, 0)), NULL);
+
+  ck_assert_int_eq(r_jws_set_header_str_value(jws, "zip", "DEF"), RHN_OK);
+  ck_assert_ptr_ne((token_def = r_jws_serialize(jws, NULL, 0)), NULL);
+  
+  ck_assert_int_gt(o_strlen(token), o_strlen(token_def));
+  
+  ck_assert_int_eq(r_jws_init(&jws_parse), RHN_OK);
+  ck_assert_int_eq(r_jws_init(&jws_parse_def), RHN_OK);
+  
+  ck_assert_int_eq(r_jws_parse(jws_parse, token, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_verify_signature(jws_parse, jwk_key_symmetric, 0), RHN_OK);
+  ck_assert_ptr_ne(NULL, payload = r_jws_get_payload(jws_parse, &payload_len));
+  
+  ck_assert_int_eq(r_jws_parse(jws_parse_def, token_def, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_verify_signature(jws_parse_def, jwk_key_symmetric, 0), RHN_OK);
+  ck_assert_ptr_ne(NULL, payload_def = r_jws_get_payload(jws_parse_def, &payload_def_len));
+  
+  ck_assert_int_eq(payload_len, payload_def_len);
+  ck_assert_int_eq(0, memcmp(payload, payload_def, payload_def_len));
+  
+  r_jws_free(jws_parse);
+  r_jws_free(jws_parse_def);
+  
+  o_free(token);
+  o_free(token_def);
+  r_jws_free(jws);
+  r_jwk_free(jwk_key_symmetric);
+}
+END_TEST
+
 #if GNUTLS_VERSION_NUMBER >= 0x030600
 START_TEST(test_rhonabwy_jwk_in_header)
 {
@@ -701,6 +752,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_copy);
   tcase_add_test(tc_core, test_rhonabwy_set_properties_error);
   tcase_add_test(tc_core, test_rhonabwy_set_properties);
+  tcase_add_test(tc_core, test_rhonabwy_zip_payload);
 #if GNUTLS_VERSION_NUMBER >= 0x030600
   tcase_add_test(tc_core, test_rhonabwy_jwk_in_header);
 #endif

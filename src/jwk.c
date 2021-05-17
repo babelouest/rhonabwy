@@ -1762,6 +1762,7 @@ int r_jwk_import_from_x5u(jwk_t * jwk, int x5u_flags, const char * x5u) {
       o_free(x5u_content);
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_x5u - Error getting x5u content");
+      ret = RHN_ERROR;
     }
   } else {
     ret = RHN_ERROR_PARAM;
@@ -2971,7 +2972,7 @@ int r_jwk_validate_x5c_chain(jwk_t * jwk, int x5u_flags) {
         if (gnutls_x509_trust_list_add_cas(tlist, &root_x509, 1, 0) >= 0) {
           if (gnutls_x509_trust_list_verify_crt(tlist, cert_x509, cert_x509_len, 0, &result, NULL) >= 0) {
             if (result) {
-              y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwk_validate_x5c_chain - certificate chain invalid");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_validate_x5c_chain - certificate chain invalid");
               scm_gnutls_certificate_status_to_c_string(result);
               ret = RHN_ERROR_INVALID;
             }

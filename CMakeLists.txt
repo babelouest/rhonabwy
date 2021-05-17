@@ -329,6 +329,7 @@ if (BUILD_RHONABWY_TESTING)
           jws_ecdsa
           jws_rsa
           jws_rsapss
+          jws_json
           jwe_core
           jwe_rsa
           jwe_aesgcm
@@ -337,6 +338,7 @@ if (BUILD_RHONABWY_TESTING)
           jwe_rsa_oaep
           jwe_ecdh
           jwe_pbes2
+          jwe_json
           jwt_core
           jwt_encrypt
           jwt_sign

@@ -48,7 +48,13 @@ $(function() {
 <div class="title">jwt.c File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;orcania.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;stdint.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+<code>#include &lt;gnutls/gnutls.h&gt;</code><br />
+<code>#include &lt;gnutls/crypto.h&gt;</code><br />
+<code>#include &lt;gnutls/abstract.h&gt;</code><br />
+<code>#include &lt;gnutls/x509.h&gt;</code><br />
+<code>#include &lt;orcania.h&gt;</code><br />
 <code>#include &lt;yder.h&gt;</code><br />
 <code>#include &lt;<a class="el" href="rhonabwy_8h_source.html">rhonabwy.h</a>&gt;</code><br />
 </div><table class="memberdecls">
@@ -144,6 +150,18 @@ Functions</h2></td></tr>
 <tr class="separator:ga3e88ee41b78c2e2a0c97f56b83b7baac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac4ceb3eb242f1382a596622ce3dd8362"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gac4ceb3eb242f1382a596622ce3dd8362">r_jwt_set_enc</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, <a class="el" href="group__type.html#ga34a92d88d5befd0170a6b82ec53ef020">jwa_enc</a> enc)</td></tr>
 <tr class="separator:gac4ceb3eb242f1382a596622ce3dd8362"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga73d5d88edb0a9dd5b3a89bab753a7c16"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga73d5d88edb0a9dd5b3a89bab753a7c16">r_jwt_set_enc_cypher_key</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, const unsigned char *key, size_t key_len)</td></tr>
+<tr class="separator:ga73d5d88edb0a9dd5b3a89bab753a7c16"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad526328f11a9e53a05da40ccbbc743c8"><td class="memItemLeft" align="right" valign="top">const unsigned char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gad526328f11a9e53a05da40ccbbc743c8">r_jwt_get_enc_cypher_key</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, size_t *key_len)</td></tr>
+<tr class="separator:gad526328f11a9e53a05da40ccbbc743c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaeca92468f939b1847bbe1fbe85cc7a80"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gaeca92468f939b1847bbe1fbe85cc7a80">r_jwt_generate_enc_cypher_key</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt)</td></tr>
+<tr class="separator:gaeca92468f939b1847bbe1fbe85cc7a80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga40b2731325e5abac4e615c0cf3b5aff0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga40b2731325e5abac4e615c0cf3b5aff0">r_jwt_set_enc_iv</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, const unsigned char *iv, size_t iv_len)</td></tr>
+<tr class="separator:ga40b2731325e5abac4e615c0cf3b5aff0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga74a7f5ed5e703980fe54980aa62ddc93"><td class="memItemLeft" align="right" valign="top">const unsigned char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga74a7f5ed5e703980fe54980aa62ddc93">r_jwt_get_enc_iv</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, size_t *iv_len)</td></tr>
+<tr class="separator:ga74a7f5ed5e703980fe54980aa62ddc93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a027cc3e4a8517b8a61bcc32f470d814c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwt_8c.html#a027cc3e4a8517b8a61bcc32f470d814c">r_jwt_generate_enc_iv</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt)</td></tr>
+<tr class="separator:a027cc3e4a8517b8a61bcc32f470d814c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga51e58ef55d8c5ae1a0536ca672d46fcf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#ga34a92d88d5befd0170a6b82ec53ef020">jwa_enc</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga51e58ef55d8c5ae1a0536ca672d46fcf">r_jwt_get_enc</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt)</td></tr>
 <tr class="separator:ga51e58ef55d8c5ae1a0536ca672d46fcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gabb4e96fd5fb7c7a18dd010e256dbfc47"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gabb4e96fd5fb7c7a18dd010e256dbfc47">r_jwt_get_enc_kid</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt)</td></tr>
@@ -174,7 +192,34 @@ Functions</h2></td></tr>
 <tr class="separator:ga93a6452c0f103e81296ef50844e92996"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa0445e80af0bc65f787ed2205780feb8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gaa0445e80af0bc65f787ed2205780feb8">r_jwt_validate_claims</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt,...)</td></tr>
 <tr class="separator:gaa0445e80af0bc65f787ed2205780feb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0ad0191aa5cf621a2cf061c417acb06b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga0ad0191aa5cf621a2cf061c417acb06b">r_jwt_set_claims</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt,...)</td></tr>
+<tr class="separator:ga0ad0191aa5cf621a2cf061c417acb06b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga67418ca3312b82eb79ebccd65ad5ea14"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga67418ca3312b82eb79ebccd65ad5ea14">r_jwt_set_full_header_json_t</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, json_t *j_header)</td></tr>
+<tr class="separator:ga67418ca3312b82eb79ebccd65ad5ea14"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad6669307e10f96a7cc4c7513802ba46b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gad6669307e10f96a7cc4c7513802ba46b">r_jwt_set_full_header_json_str</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, const char *str_header)</td></tr>
+<tr class="separator:gad6669307e10f96a7cc4c7513802ba46b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga93ff40881d89998eaa2cefe4385bb175"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga93ff40881d89998eaa2cefe4385bb175">r_jwt_set_properties</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt,...)</td></tr>
+<tr class="separator:ga93ff40881d89998eaa2cefe4385bb175"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a027cc3e4a8517b8a61bcc32f470d814c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a027cc3e4a8517b8a61bcc32f470d814c">&#9670;&nbsp;</a></span>r_jwt_generate_enc_iv()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwt_generate_enc_iv </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

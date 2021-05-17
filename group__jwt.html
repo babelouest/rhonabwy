@@ -47,6 +47,8 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ga93ff40881d89998eaa2cefe4385bb175"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga93ff40881d89998eaa2cefe4385bb175">r_jwt_set_properties</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt,...)</td></tr>
+<tr class="separator:ga93ff40881d89998eaa2cefe4385bb175"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga3d37a5c7b0f98d6af58cda4c8ddbd668"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga3d37a5c7b0f98d6af58cda4c8ddbd668">r_jwt_copy</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt)</td></tr>
 <tr class="separator:ga3d37a5c7b0f98d6af58cda4c8ddbd668"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaab391ef380fcc16a7ead89fde787a200"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gaab391ef380fcc16a7ead89fde787a200">r_jwt_set_header_str_value</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, const char *key, const char *str_value)</td></tr>
@@ -55,6 +57,10 @@ Functions</h2></td></tr>
 <tr class="separator:ga11cef0b4cfa5976b639b07385132d744"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga264893c3e28956c3f6317067c918304a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga264893c3e28956c3f6317067c918304a">r_jwt_set_header_json_t_value</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, const char *key, json_t *j_value)</td></tr>
 <tr class="separator:ga264893c3e28956c3f6317067c918304a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga67418ca3312b82eb79ebccd65ad5ea14"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga67418ca3312b82eb79ebccd65ad5ea14">r_jwt_set_full_header_json_t</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, json_t *j_header)</td></tr>
+<tr class="separator:ga67418ca3312b82eb79ebccd65ad5ea14"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad6669307e10f96a7cc4c7513802ba46b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gad6669307e10f96a7cc4c7513802ba46b">r_jwt_set_full_header_json_str</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, const char *str_header)</td></tr>
+<tr class="separator:gad6669307e10f96a7cc4c7513802ba46b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae4bb0a110abedcc006cdbc7a345dee50"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gae4bb0a110abedcc006cdbc7a345dee50">r_jwt_get_header_str_value</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, const char *key)</td></tr>
 <tr class="separator:gae4bb0a110abedcc006cdbc7a345dee50"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa344d687f1ab5cc36a77e68478b8790f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gaa344d687f1ab5cc36a77e68478b8790f">r_jwt_get_header_int_value</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, const char *key)</td></tr>
@@ -139,6 +145,18 @@ Functions</h2></td></tr>
 <tr class="separator:gabb4e96fd5fb7c7a18dd010e256dbfc47"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga4862642a697f01d40cd1e48fd9c8c5aa"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga4862642a697f01d40cd1e48fd9c8c5aa">r_jwt_get_sig_kid</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt)</td></tr>
 <tr class="separator:ga4862642a697f01d40cd1e48fd9c8c5aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga73d5d88edb0a9dd5b3a89bab753a7c16"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga73d5d88edb0a9dd5b3a89bab753a7c16">r_jwt_set_enc_cypher_key</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, const unsigned char *key, size_t key_len)</td></tr>
+<tr class="separator:ga73d5d88edb0a9dd5b3a89bab753a7c16"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad526328f11a9e53a05da40ccbbc743c8"><td class="memItemLeft" align="right" valign="top">const unsigned char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gad526328f11a9e53a05da40ccbbc743c8">r_jwt_get_enc_cypher_key</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, size_t *key_len)</td></tr>
+<tr class="separator:gad526328f11a9e53a05da40ccbbc743c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaeca92468f939b1847bbe1fbe85cc7a80"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gaeca92468f939b1847bbe1fbe85cc7a80">r_jwt_generate_enc_cypher_key</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt)</td></tr>
+<tr class="separator:gaeca92468f939b1847bbe1fbe85cc7a80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga40b2731325e5abac4e615c0cf3b5aff0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga40b2731325e5abac4e615c0cf3b5aff0">r_jwt_set_enc_iv</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, const unsigned char *iv, size_t iv_len)</td></tr>
+<tr class="separator:ga40b2731325e5abac4e615c0cf3b5aff0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga74a7f5ed5e703980fe54980aa62ddc93"><td class="memItemLeft" align="right" valign="top">const unsigned char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga74a7f5ed5e703980fe54980aa62ddc93">r_jwt_get_enc_iv</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, size_t *iv_len)</td></tr>
+<tr class="separator:ga74a7f5ed5e703980fe54980aa62ddc93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae7756b44bc4a48f20297c9262ea41dcf"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gae7756b44bc4a48f20297c9262ea41dcf">r_jwt_generate_iv</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt)</td></tr>
+<tr class="separator:gae7756b44bc4a48f20297c9262ea41dcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0258ed4e9756ca3ecc318a54ca85b05f"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga0258ed4e9756ca3ecc318a54ca85b05f">r_jwt_serialize_signed</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *privkey, int x5u_flags)</td></tr>
 <tr class="separator:ga0258ed4e9756ca3ecc318a54ca85b05f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gadbe8205e986358d27a84259af201e458"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gadbe8205e986358d27a84259af201e458">r_jwt_serialize_encrypted</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *pubkey, int x5u_flags)</td></tr>
@@ -163,10 +181,41 @@ Functions</h2></td></tr>
 <tr class="separator:ga93a6452c0f103e81296ef50844e92996"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa0445e80af0bc65f787ed2205780feb8"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gaa0445e80af0bc65f787ed2205780feb8">r_jwt_validate_claims</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt,...)</td></tr>
 <tr class="separator:gaa0445e80af0bc65f787ed2205780feb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0ad0191aa5cf621a2cf061c417acb06b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga0ad0191aa5cf621a2cf061c417acb06b">r_jwt_set_claims</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt,...)</td></tr>
+<tr class="separator:ga0ad0191aa5cf621a2cf061c417acb06b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Manage JSON Web Token </p>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="ga93ff40881d89998eaa2cefe4385bb175"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga93ff40881d89998eaa2cefe4385bb175">&#9670;&nbsp;</a></span>r_jwt_set_properties()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwt_set_properties </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Add multiple properties to the <a class="el" href="structjwt__t.html">jwt_t</a> * </p>
+
+</div>
+</div>
 <a id="ga3d37a5c7b0f98d6af58cda4c8ddbd668"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga3d37a5c7b0f98d6af58cda4c8ddbd668">&#9670;&nbsp;</a></span>r_jwt_copy()</h2>
 
@@ -314,6 +363,78 @@ Functions</h2></td></tr>
     <tr><td class="paramname">jwt</td><td>the <a class="el" href="structjwt__t.html">jwt_t</a> to update </td></tr>
     <tr><td class="paramname">key</td><td>the key to set to the JWT header </td></tr>
     <tr><td class="paramname">j_value</td><td>the value to set </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="ga67418ca3312b82eb79ebccd65ad5ea14"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga67418ca3312b82eb79ebccd65ad5ea14">&#9670;&nbsp;</a></span>r_jwt_set_full_header_json_t()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwt_set_full_header_json_t </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">json_t *&#160;</td>
+          <td class="paramname"><em>j_header</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Sets the entire header with the JSON value specified </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwt</td><td>the <a class="el" href="structjwt__t.html">jwt_t</a> to update </td></tr>
+    <tr><td class="paramname">j_value</td><td>the header to set, must be a JSON object </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="gad6669307e10f96a7cc4c7513802ba46b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad6669307e10f96a7cc4c7513802ba46b">&#9670;&nbsp;</a></span>r_jwt_set_full_header_json_str()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwt_set_full_header_json_str </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>str_header</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Sets the entire header with the stringified JSON value specified </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwt</td><td>the <a class="el" href="structjwt__t.html">jwt_t</a> to update </td></tr>
+    <tr><td class="paramname">j_value</td><td>the header to set, must be a JSON object </td></tr>
   </table>
   </dd>
 </dl>
@@ -1851,6 +1972,214 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga73d5d88edb0a9dd5b3a89bab753a7c16"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga73d5d88edb0a9dd5b3a89bab753a7c16">&#9670;&nbsp;</a></span>r_jwt_set_enc_cypher_key()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwt_set_enc_cypher_key </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const unsigned char *&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>key_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Sets the cypher key to encrypt or decrypt the payload </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwt</td><td>the <a class="el" href="structjwt__t.html">jwt_t</a> to update </td></tr>
+    <tr><td class="paramname">key</td><td>the key to encrypt or decrypt the payload </td></tr>
+    <tr><td class="paramname">key_len</td><td>the size of the key </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="gad526328f11a9e53a05da40ccbbc743c8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad526328f11a9e53a05da40ccbbc743c8">&#9670;&nbsp;</a></span>r_jwt_get_enc_cypher_key()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const unsigned char* r_jwt_get_enc_cypher_key </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>key_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Gets the cypher key to encrypt or decrypt the payload </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwt</td><td>the <a class="el" href="structjwt__t.html">jwt_t</a> to get the value </td></tr>
+    <tr><td class="paramname">key_len</td><td>set the size of the key, may be NULL </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the key to encrypt or decrypt the payload </dd></dl>
+
+</div>
+</div>
+<a id="gaeca92468f939b1847bbe1fbe85cc7a80"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaeca92468f939b1847bbe1fbe85cc7a80">&#9670;&nbsp;</a></span>r_jwt_generate_enc_cypher_key()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwt_generate_enc_cypher_key </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Generates a random cypher key </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwt</td><td>the <a class="el" href="structjwt__t.html">jwt_t</a> to update </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="ga40b2731325e5abac4e615c0cf3b5aff0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga40b2731325e5abac4e615c0cf3b5aff0">&#9670;&nbsp;</a></span>r_jwt_set_enc_iv()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwt_set_enc_iv </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const unsigned char *&#160;</td>
+          <td class="paramname"><em>iv</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>iv_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Sets the Initialization Vector (iv) </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwt</td><td>the <a class="el" href="structjwt__t.html">jwt_t</a> to update </td></tr>
+    <tr><td class="paramname">iv</td><td>the iv to set </td></tr>
+    <tr><td class="paramname">iv_len</td><td>the size of the iv </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="ga74a7f5ed5e703980fe54980aa62ddc93"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga74a7f5ed5e703980fe54980aa62ddc93">&#9670;&nbsp;</a></span>r_jwt_get_enc_iv()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const unsigned char* r_jwt_get_enc_iv </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>iv_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Gets the Initialization Vector (iv) </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwt</td><td>the <a class="el" href="structjwt__t.html">jwt_t</a> to get the value </td></tr>
+    <tr><td class="paramname">iv_len</td><td>set the size of the iv, may be NULL </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the iv </dd></dl>
+
+</div>
+</div>
+<a id="gae7756b44bc4a48f20297c9262ea41dcf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae7756b44bc4a48f20297c9262ea41dcf">&#9670;&nbsp;</a></span>r_jwt_generate_iv()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwt_generate_iv </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Generates a random Initialization Vector (iv) </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwt</td><td>the <a class="el" href="structjwt__t.html">jwt_t</a> to update </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
 <a id="ga0258ed4e9756ca3ecc318a54ca85b05f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga0258ed4e9756ca3ecc318a54ca85b05f">&#9670;&nbsp;</a></span>r_jwt_serialize_signed()</h2>
 
@@ -2449,6 +2778,34 @@ Functions</h2></td></tr>
 <li>R_JWT_CLAIM_INT: the claim name specified must have the integer value expected</li>
 <li>R_JWT_CLAIM_JSN: the claim name specified must have the json_t * value expected or NULL to validate the presence of the claim Example The following code will check the jwt agains the iss value "https://example.com", the sub value "client_1", the presence of the claim aud and that the claim exp is after now and the claim <code>nbf</code> is before now: if (r_jwt_validate_claims(jwt, R_JWT_CLAIM_ISS, "https://example.com", R_JWT_CLAIM_SUB, "client_1", R_JWT_CLAIM_AUD, NULL, R_JWT_CLAIM_EXP, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NBF, R_JWT_CLAIM_NOW, R_JWT_CLAIM_STR, "scope", "scope1", R_JWT_CLAIM_INT, "age", 42, R_JWT_CLAIM_JSN, "verified", json_true(), R_JWT_CLAIM_NOP) == RHN_OK) </li>
 </ul>
+
+</div>
+</div>
+<a id="ga0ad0191aa5cf621a2cf061c417acb06b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0ad0191aa5cf621a2cf061c417acb06b">&#9670;&nbsp;</a></span>r_jwt_set_claims()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwt_set_claims </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>

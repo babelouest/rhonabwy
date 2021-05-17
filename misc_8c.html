@@ -74,6 +74,10 @@ Functions</h2></td></tr>
 <tr class="separator:acaa80cd33fd0ca668263258b2c0cb55a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab7c3e1f7ae30a5dc91fd10991166a79d"><td class="memItemLeft" align="right" valign="top">json_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="misc_8c.html#ab7c3e1f7ae30a5dc91fd10991166a79d">_r_json_get_full_json_t</a> (json_t *j_json)</td></tr>
 <tr class="separator:ab7c3e1f7ae30a5dc91fd10991166a79d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82ce71e62fa0e84c3396f552e262e922"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="misc_8c.html#a82ce71e62fa0e84c3396f552e262e922">_r_get_key_size</a> (<a class="el" href="group__type.html#ga34a92d88d5befd0170a6b82ec53ef020">jwa_enc</a> enc)</td></tr>
+<tr class="separator:a82ce71e62fa0e84c3396f552e262e922"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4bb57b044f9cfeff6a364d7f515140c"><td class="memItemLeft" align="right" valign="top">gnutls_cipher_algorithm_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="misc_8c.html#ac4bb57b044f9cfeff6a364d7f515140c">_r_get_alg_from_enc</a> (<a class="el" href="group__type.html#ga34a92d88d5befd0170a6b82ec53ef020">jwa_enc</a> enc)</td></tr>
+<tr class="separator:ac4bb57b044f9cfeff6a364d7f515140c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9c1ba3ddb02c6e9a31756ab40ca5e89c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gaaf028013558b5ff9aa99ff4afc3ae2ea">jwa_alg</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga9c1ba3ddb02c6e9a31756ab40ca5e89c">r_str_to_jwa_alg</a> (const char *alg)</td></tr>
 <tr class="separator:ga9c1ba3ddb02c6e9a31756ab40ca5e89c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2579e408e5f91803c4b2648da61c0788"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga2579e408e5f91803c4b2648da61c0788">r_jwa_alg_to_str</a> (<a class="el" href="group__type.html#gaaf028013558b5ff9aa99ff4afc3ae2ea">jwa_alg</a> alg)</td></tr>
@@ -327,6 +331,42 @@ Functions</h2></td></tr>
           <td>(</td>
           <td class="paramtype">json_t *&#160;</td>
           <td class="paramname"><em>j_json</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a82ce71e62fa0e84c3396f552e262e922"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a82ce71e62fa0e84c3396f552e262e922">&#9670;&nbsp;</a></span>_r_get_key_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t _r_get_key_size </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#ga34a92d88d5befd0170a6b82ec53ef020">jwa_enc</a>&#160;</td>
+          <td class="paramname"><em>enc</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac4bb57b044f9cfeff6a364d7f515140c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4bb57b044f9cfeff6a364d7f515140c">&#9670;&nbsp;</a></span>_r_get_alg_from_enc()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">gnutls_cipher_algorithm_t _r_get_alg_from_enc </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#ga34a92d88d5befd0170a6b82ec53ef020">jwa_enc</a>&#160;</td>
+          <td class="paramname"><em>enc</em></td><td>)</td>
           <td></td>
         </tr>
       </table>

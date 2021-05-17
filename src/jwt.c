@@ -976,6 +976,8 @@ int r_jwt_generate_enc_iv(jwt_t * jwt) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_generate_enc_iv - Error allocating resources for iv");
         ret = RHN_ERROR_MEMORY;
       }
+    } else {
+      ret = RHN_ERROR;
     }
   } else {
     ret = RHN_ERROR_PARAM;
@@ -1893,7 +1895,7 @@ int r_jwt_set_claims(jwt_t * jwt, ...) {
           if (i_value == R_JWT_CLAIM_NOW) {
             ret = r_jwt_set_claim_int_value(jwt, "nbf", time(NULL));
           } else if (i_value >= 0) {
-            ret = r_jwt_set_claim_int_value(jwt, "nbf", t_value);
+            ret = r_jwt_set_claim_int_value(jwt, "nbf", i_value);
           } else {
             ret = RHN_ERROR_PARAM;
           }
@@ -1903,7 +1905,7 @@ int r_jwt_set_claims(jwt_t * jwt, ...) {
           if (i_value == R_JWT_CLAIM_NOW) {
             ret = r_jwt_set_claim_int_value(jwt, "iat", time(NULL));
           } else if (i_value >= 0) {
-            ret = r_jwt_set_claim_int_value(jwt, "iat", t_value);
+            ret = r_jwt_set_claim_int_value(jwt, "iat", i_value);
           } else {
             ret = RHN_ERROR_PARAM;
           }
@@ -2214,7 +2216,7 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
     }
     va_end(vl);
   } else {
-    y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwt_set_properties - Error input parameter");
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_set_properties - Error input parameter");
     ret = RHN_ERROR_PARAM;
   }
   return ret;

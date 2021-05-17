@@ -2,8 +2,9 @@
 
 ## 0.9.9999
 
-- Improve jwks import
-- Improve `r_jwk_extract_pubkey` by adding properties `x5c`, `x5u`, `x5t` and `x5t#S256`
+- Support JSON format for JWE and JWS
+- Improve JWKS import
+- Improve `r_jwk_extract_pubkey` by copying properties `x5c`, `x5u`, `x5t` and `x5t#S256` to the public keys
 - Fix `AES-GCM` encryption by removing padding
 - Add `r_jws_set_properties`, `r_jwe_set_properties`, `r_jwt_set_properties`
 - Add `r_jws_set_full_header_json_t`, `r_jws_set_full_header_json_str`
@@ -12,6 +13,14 @@
 - Add `r_jwt_set_enc_cypher_key`, `r_jwt_get_enc_cypher_key`, `r_jwt_generate_enc_cypher_key`
 - Add `r_jwt_set_enc_iv`, `r_jwt_get_enc_iv`
 - Add `r_jwt_set_claims`
+- Add `r_jwe_serialize_json_str`, `r_jwe_serialize_json_t`, `r_jwe_parse_json_str`, `r_jwe_parse_json_t`
+- Add `r_jwe_compact_parsen`, `r_jwe_compact_parse` to parse JWE in compact mode
+- Add `r_jwe_parse_json_str`, `r_jwe_parsen_json_str`, `r_jwe_parse_json_t` to parse JWE in JSON mode
+- Improve `r_jwe_decrypt` and `r_jwe_decrypt_key` to support JWE serialized in General JSON format with multiple recipients
+- Add `r_jws_serialize_json_str`, `r_jws_serialize_json_t`, `r_jws_parse_json_str`, `r_jws_parse_json_t`
+- Add `r_jws_compact_parsen`, `r_jws_compact_parse` to parse JWS in compact mode
+- Add `r_jws_parse_json_str`, `r_jws_parsen_json_str`, `r_jws_parse_json_t` to parse JWS in JSON mode
+- Improve `r_jws_verify_signature` to support JWS serialized in General JSON format with multiple signatures
 
 ## 0.9.999
 

@@ -21,6 +21,7 @@
 - Add `r_jws_compact_parsen`, `r_jws_compact_parse` to parse JWS in compact mode
 - Add `r_jws_parse_json_str`, `r_jws_parsen_json_str`, `r_jws_parse_json_t` to parse JWS in JSON mode
 - Improve `r_jws_verify_signature` to support JWS serialized in General JSON format with multiple signatures
+- Allow deflate payload in JWS with header property `{zip:"DEF"}`
 
 ## 0.9.999
 

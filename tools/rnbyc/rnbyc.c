@@ -847,7 +847,7 @@ int main (int argc, char ** argv) {
               fprintf(stderr, "--generate: Invalid argument\n");
               ret = EINVAL;
             }
-          } else if (0 == o_strcasecmp("ECDSA256", optarg) || 0 == o_strcasecmp("ECDSA384", optarg) || 0 == o_strcasecmp("ECDSA521", optarg) || 0 == o_strcasecmp("EDDSA", optarg) || 0 == o_strcasecmp("X25519", optarg)) {
+          } else if (0 == o_strcasecmp("ECDSA256", optarg) || 0 == o_strcasecmp("ECDSA384", optarg) || 0 == o_strcasecmp("ECDSA521", optarg) || 0 == o_strcasecmp("EDDSA", optarg) || 0 == o_strcasecmp("X25519", optarg) || 0 == o_strcasecmp("X448", optarg)) {
             json_array_append_new(j_arguments, json_pack("{ssss}", "source", "generate", "type", optarg));
           } else if (0 == o_strncasecmp(optarg, "oct", o_strlen("oct"))) {
             if (o_strlen(optarg) == o_strlen("oct")) {

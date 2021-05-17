@@ -85,6 +85,7 @@ const unsigned char rsa_2048_priv[] = "-----BEGIN PRIVATE KEY-----\n"
 #define CLAIM_INT 42
 unsigned char cypher_key[] = {4, 211, 31, 197, 84, 157, 252, 254, 11, 100, 157, 250, 63, 170, 106, 206, 107, 124, 212, 45, 111, 107, 9, 219, 200, 177, 0, 240, 143, 156, 44, 207};
 unsigned char iv[] = {3, 22, 60, 12, 43, 67, 104, 105, 108, 108, 105, 99, 111, 116, 104, 101};
+unsigned char aad[] = {82, 110, 74, 112, 90, 87, 53, 107, 99, 50, 104, 112, 99, 67, 66, 112, 99, 121, 66, 116, 89, 87, 100, 112, 89, 119, 111};
 
 START_TEST(test_rhonabwy_init)
 {
@@ -241,7 +242,7 @@ END_TEST
 START_TEST(test_rhonabwy_get_full_header)
 {
   jwe_t * jwe;
-  json_t * j_value = json_pack("{sssiso}", "str", "grut", "int", 42, "obj", json_true()), * j_header = json_pack("{sssssisO}", "alg", "RSA1_5", "keystr", "value", "keyint", 42, "keyjson", j_value), * j_result;
+  json_t * j_value = json_pack("{sssiso}", "str", "grut", "int", 42, "obj", json_true()), * j_header = json_pack("{sssisO}", "keystr", "value", "keyint", 42, "keyjson", j_value), * j_result;
   
   ck_assert_ptr_ne(j_header, NULL);
   ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
@@ -254,6 +255,55 @@ START_TEST(test_rhonabwy_get_full_header)
   json_decref(j_value);
   json_decref(j_header);
   json_decref(j_result);
+  r_jwe_free(jwe);
+}
+END_TEST
+
+START_TEST(test_rhonabwy_set_full_unprotected_header)
+{
+  jwe_t * jwe;
+  json_t * j_header = json_pack("{sssiso}", "str", CLAIM_STR, "int", CLAIM_INT, "obj", json_true());
+  char * str_header = json_dumps(j_header, JSON_COMPACT);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_full_unprotected_header_json_t(jwe, json_null()), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_set_full_unprotected_header_json_t(jwe,  NULL), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_set_full_unprotected_header_json_t(NULL,  j_header), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_set_full_unprotected_header_json_t(jwe, j_header), RHN_OK);
+  r_jwe_free(jwe);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_full_unprotected_header_json_str(jwe, "[4, 8, 15, 16, 23, 42]"), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_set_full_unprotected_header_json_str(jwe, NULL), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_set_full_unprotected_header_json_str(NULL, str_header), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_set_full_unprotected_header_json_str(jwe, str_header), RHN_OK);
+  r_jwe_free(jwe);
+  
+  o_free(str_header);
+  json_decref(j_header);
+}
+END_TEST
+
+START_TEST(test_rhonabwy_get_full_unprotected_header)
+{
+  jwe_t * jwe;
+  json_t * j_header = json_pack("{sssiso}", "str", CLAIM_STR, "int", CLAIM_INT, "obj", json_true()), * j_header_get;
+  char * str_header_get;
+  
+  ck_assert_ptr_ne(j_header, NULL);
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  
+  ck_assert_int_eq(r_jwe_set_full_unprotected_header_json_t(jwe, j_header), RHN_OK);
+  ck_assert_ptr_ne(NULL, j_header_get = r_jwe_get_full_unprotected_header_json_t(jwe));
+  ck_assert_int_eq(1, json_equal(j_header_get, j_header));
+  json_decref(j_header_get);
+  ck_assert_ptr_ne(NULL, str_header_get = r_jwe_get_full_unprotected_header_str(jwe));
+  ck_assert_ptr_ne(NULL, j_header_get = json_loads(str_header_get, JSON_DECODE_ANY, NULL));
+  ck_assert_int_eq(1, json_equal(j_header_get, j_header));
+  
+  o_free(str_header_get);
+  json_decref(j_header);
+  json_decref(j_header_get);
   r_jwe_free(jwe);
 }
 END_TEST
@@ -475,8 +525,9 @@ START_TEST(test_rhonabwy_set_properties)
 {
   jwe_t * jwe;
   jwk_t * jwk;
-  const unsigned char * key_iv;
-  size_t key_iv_len;
+  const unsigned char * key_iv_aad;
+  size_t key_iv_aad_len;
+  json_t * j_un_header = json_pack("{ss ss ss ss ss ss}", "Twilight Sparkle", "six-pointed star", "Applejack", "trio of apples", "Rainbow Dash", "rainbow-colored lightning bolt with a cloud", "Pinkie Pie", "trio of balloons", "Rarity", "trio of diamonds", "Fluttershy", "trio of butterflies"), * j_un_header_resp;
 
   ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
@@ -485,11 +536,13 @@ START_TEST(test_rhonabwy_set_properties)
   ck_assert_int_eq(r_jwe_set_properties(jwe, RHN_OPT_HEADER_INT_VALUE, "int", CLAIM_INT,
                                              RHN_OPT_HEADER_STR_VALUE, "str", CLAIM_STR,
                                              RHN_OPT_HEADER_JSON_T_VALUE, "json", json_true(),
+                                             RHN_OPT_UN_HEADER_FULL_JSON_T, j_un_header,
                                              RHN_OPT_PAYLOAD, PAYLOAD, o_strlen(PAYLOAD),
                                              RHN_OPT_ENC_ALG, R_JWA_ALG_RSA1_5,
                                              RHN_OPT_ENC, R_JWA_ENC_A256GCM,
                                              RHN_OPT_CIPHER_KEY, cypher_key, sizeof(cypher_key),
                                              RHN_OPT_IV, iv, sizeof(iv),
+                                             RHN_OPT_AAD, aad, sizeof(aad),
                                              RHN_OPT_ENCRYPT_KEY_JWK, jwk,
                                              RHN_OPT_DECRYPT_KEY_JWK, jwk,
                                              RHN_OPT_NONE), RHN_OK);
@@ -497,20 +550,27 @@ START_TEST(test_rhonabwy_set_properties)
   ck_assert_int_eq(CLAIM_INT, r_jwe_get_header_int_value(jwe, "int"));
   ck_assert_str_eq(CLAIM_STR, r_jwe_get_header_str_value(jwe, "str"));
   ck_assert_ptr_eq(json_true(), r_jwe_get_header_json_t_value(jwe, "json"));
-  ck_assert_ptr_ne(NULL, key_iv = r_jwe_get_payload(jwe, &key_iv_len));
-  ck_assert_int_eq(o_strlen(PAYLOAD), key_iv_len);
-  ck_assert_int_eq(0, memcmp(key_iv, PAYLOAD, key_iv_len));
+  ck_assert_ptr_ne(NULL, j_un_header_resp = r_jwe_get_full_unprotected_header_json_t(jwe));
+  ck_assert_int_eq(1, json_equal(j_un_header_resp, j_un_header));
+  ck_assert_ptr_ne(NULL, key_iv_aad = r_jwe_get_payload(jwe, &key_iv_aad_len));
+  ck_assert_int_eq(o_strlen(PAYLOAD), key_iv_aad_len);
+  ck_assert_int_eq(0, memcmp(key_iv_aad, PAYLOAD, key_iv_aad_len));
   ck_assert_int_eq(R_JWA_ALG_RSA1_5, r_jwe_get_alg(jwe));
   ck_assert_int_eq(R_JWA_ENC_A256GCM, r_jwe_get_enc(jwe));
-  ck_assert_ptr_ne(NULL, key_iv = r_jwe_get_cypher_key(jwe, &key_iv_len));
-  ck_assert_int_eq(sizeof(cypher_key), key_iv_len);
-  ck_assert_int_eq(0, memcmp(key_iv, cypher_key, key_iv_len));
-  ck_assert_ptr_ne(NULL, key_iv = r_jwe_get_iv(jwe, &key_iv_len));
-  ck_assert_int_eq(sizeof(iv), key_iv_len);
-  ck_assert_int_eq(0, memcmp(key_iv, iv, key_iv_len));
+  ck_assert_ptr_ne(NULL, key_iv_aad = r_jwe_get_cypher_key(jwe, &key_iv_aad_len));
+  ck_assert_int_eq(sizeof(cypher_key), key_iv_aad_len);
+  ck_assert_int_eq(0, memcmp(key_iv_aad, cypher_key, key_iv_aad_len));
+  ck_assert_ptr_ne(NULL, key_iv_aad = r_jwe_get_iv(jwe, &key_iv_aad_len));
+  ck_assert_int_eq(sizeof(iv), key_iv_aad_len);
+  ck_assert_int_eq(0, memcmp(key_iv_aad, iv, key_iv_aad_len));
+  ck_assert_ptr_ne(NULL, key_iv_aad = r_jwe_get_aad(jwe, &key_iv_aad_len));
+  ck_assert_int_eq(sizeof(aad), key_iv_aad_len);
+  ck_assert_int_eq(0, memcmp(key_iv_aad, aad, key_iv_aad_len));
   ck_assert_int_eq(1, r_jwks_size(jwe->jwks_privkey));
   ck_assert_int_eq(1, r_jwks_size(jwe->jwks_pubkey));
   
+  json_decref(j_un_header);
+  json_decref(j_un_header_resp);
   r_jwe_free(jwe);
   r_jwk_free(jwk);
 }
@@ -580,6 +640,28 @@ START_TEST(test_rhonabwy_generate_iv)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_get_set_key_iv_aad)
+{
+  jwe_t * jwe;
+  const unsigned char * key_iv_aad;
+  size_t key_iv_aad_len;
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_cypher_key(jwe, cypher_key, sizeof(cypher_key)), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_iv(jwe, iv, sizeof(iv)), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_aad(jwe, aad, sizeof(aad)), RHN_OK);
+  ck_assert_ptr_ne(NULL, key_iv_aad = r_jwe_get_cypher_key(jwe, &key_iv_aad_len));
+  ck_assert_int_eq(sizeof(cypher_key), key_iv_aad_len);
+  ck_assert_int_eq(0, memcmp(key_iv_aad, cypher_key, key_iv_aad_len));
+  ck_assert_ptr_ne(NULL, key_iv_aad = r_jwe_get_iv(jwe, &key_iv_aad_len));
+  ck_assert_int_eq(sizeof(iv), key_iv_aad_len);
+  ck_assert_int_eq(0, memcmp(key_iv_aad, iv, key_iv_aad_len));
+  ck_assert_ptr_ne(NULL, key_iv_aad = r_jwe_get_aad(jwe, &key_iv_aad_len));
+  ck_assert_int_eq(sizeof(aad), key_iv_aad_len);
+  ck_assert_int_eq(0, memcmp(key_iv_aad, aad, key_iv_aad_len));
+  r_jwe_free(jwe);
+}
+END_TEST
+
 START_TEST(test_rhonabwy_encrypt_payload_invalid)
 {
   jwe_t * jwe;
@@ -619,8 +701,8 @@ END_TEST
 START_TEST(test_rhonabwy_encrypt_payload_all_format)
 {
   jwe_t * jwe;
-  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
 
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
@@ -630,7 +712,9 @@ START_TEST(test_rhonabwy_encrypt_payload_all_format)
   ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
   ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
   ck_assert_int_eq(0, o_strncmp(PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(PAYLOAD)));
+  r_jwe_free(jwe);
   
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A192CBC), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
@@ -640,7 +724,9 @@ START_TEST(test_rhonabwy_encrypt_payload_all_format)
   ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
   ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
   ck_assert_int_eq(0, o_strncmp(PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(PAYLOAD)));
+  r_jwe_free(jwe);
   
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A256CBC), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
@@ -650,7 +736,9 @@ START_TEST(test_rhonabwy_encrypt_payload_all_format)
   ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
   ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
   ck_assert_int_eq(0, o_strncmp(PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(PAYLOAD)));
+  r_jwe_free(jwe);
   
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128GCM), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
@@ -660,17 +748,21 @@ START_TEST(test_rhonabwy_encrypt_payload_all_format)
   ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
   ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
   ck_assert_int_eq(0, o_strncmp(PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(PAYLOAD)));
+  r_jwe_free(jwe);
   
   // R_JWA_ENC_A192GCM not supported by GnuTLS until 3.6.14
 #if GNUTLS_VERSION_NUMBER >= 0x03060e
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A192GCM), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
   ck_assert_ptr_eq(jwe->ciphertext_b64url, NULL);
   ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_OK);
+  r_jwe_free(jwe);
 #endif
   
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A256GCM), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
@@ -680,7 +772,6 @@ START_TEST(test_rhonabwy_encrypt_payload_all_format)
   ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
   ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
   ck_assert_int_eq(0, o_strncmp(PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(PAYLOAD)));
-  
   r_jwe_free(jwe);
 }
 END_TEST
@@ -951,6 +1042,8 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_set_full_header_error);
   tcase_add_test(tc_core, test_rhonabwy_set_full_header);
   tcase_add_test(tc_core, test_rhonabwy_get_full_header);
+  tcase_add_test(tc_core, test_rhonabwy_set_full_unprotected_header);
+  tcase_add_test(tc_core, test_rhonabwy_get_full_unprotected_header);
   tcase_add_test(tc_core, test_rhonabwy_set_keys);
   tcase_add_test(tc_core, test_rhonabwy_set_jwks);
   tcase_add_test(tc_core, test_rhonabwy_add_keys_by_content);
@@ -959,6 +1052,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_copy);
   tcase_add_test(tc_core, test_rhonabwy_generate_cypher_key);
   tcase_add_test(tc_core, test_rhonabwy_generate_iv);
+  tcase_add_test(tc_core, test_rhonabwy_get_set_key_iv_aad);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_payload_invalid);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_payload);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_payload_all_format);

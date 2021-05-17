@@ -21,9 +21,12 @@
  *
  */
 
+#include <zlib.h>
 #include <orcania.h>
 #include <yder.h>
 #include <rhonabwy.h>
+
+#define _R_BLOCK_SIZE 256
 
 #ifdef R_WITH_ULFIUS
   #include <ulfius.h>
@@ -242,6 +245,91 @@ gnutls_cipher_algorithm_t _r_get_alg_from_enc(jwa_enc enc) {
       break;
   }
   return alg;
+}
+
+int _r_deflate_payload(const unsigned char * uncompressed, size_t uncompressed_len, unsigned char ** compressed, size_t * compressed_len) {
+  int ret = RHN_OK, res;
+  z_stream defstream;
+  
+  *compressed_len = 0;
+  *compressed = NULL;
+  
+  defstream.zalloc = Z_NULL;
+  defstream.zfree = Z_NULL;
+  defstream.opaque = Z_NULL;
+  defstream.avail_in = (uInt)uncompressed_len;
+  defstream.next_in = (Bytef *)uncompressed;
+
+  if (deflateInit2(&defstream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, -9, 8, Z_DEFAULT_STRATEGY) == Z_OK) {
+    do {
+      if ((*compressed = o_realloc(*compressed, (*compressed_len)+_R_BLOCK_SIZE)) != NULL) {
+        defstream.avail_out = _R_BLOCK_SIZE;
+        defstream.next_out = ((Bytef *)*compressed)+(*compressed_len);
+        switch ((res = deflate(&defstream, Z_FINISH))) {
+          case Z_OK:
+          case Z_STREAM_END:
+          case Z_BUF_ERROR:
+            break;
+          default:
+            y_log_message(Y_LOG_LEVEL_ERROR, "_r_deflate_payload - Error deflate %d", res);
+            ret = RHN_ERROR;
+            break;
+        }
+        (*compressed_len) += _R_BLOCK_SIZE - defstream.avail_out;
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_deflate_payload - Error allocating resources for *compressed");
+        ret = RHN_ERROR;
+      }
+    } while (RHN_OK == ret && defstream.avail_out == 0);
+
+    deflateEnd(&defstream);
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "_r_deflate_payload - Error deflateInit");
+    ret = RHN_ERROR;
+  }
+  return ret;
+}
+
+int _r_inflate_payload(const unsigned char * compressed, size_t compressed_len, unsigned char ** uncompressed, size_t * uncompressed_len) {
+  int ret = RHN_OK, res;
+  z_stream infstream;
+  
+  *uncompressed = NULL;
+  *uncompressed_len = 0;
+  infstream.zalloc = Z_NULL;
+  infstream.zfree = Z_NULL;
+  infstream.opaque = Z_NULL;
+  infstream.avail_in = (uInt)compressed_len;
+  infstream.next_in = (Bytef *)compressed;
+
+  if (inflateInit2(&infstream, -8) == Z_OK) {
+    do {
+      if (((*uncompressed) = o_realloc((*uncompressed), (*uncompressed_len)+_R_BLOCK_SIZE)) != NULL) {
+        infstream.avail_out = _R_BLOCK_SIZE;
+        infstream.next_out = ((Bytef *)(*uncompressed))+(*uncompressed_len);
+        switch ((res = inflate(&infstream, Z_FINISH))) {
+          case Z_OK:
+          case Z_STREAM_END:
+          case Z_BUF_ERROR:
+            break;
+          default:
+            y_log_message(Y_LOG_LEVEL_ERROR, "_r_inflate_payload - Error inflate %d", res);
+            ret = RHN_ERROR;
+            break;
+        }
+        (*uncompressed_len) += _R_BLOCK_SIZE - infstream.avail_out;
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_inflate_payload - Error allocating resources for data_in_suffix");
+        ret = RHN_ERROR;
+      }
+    } while (RHN_OK == ret && infstream.avail_out == 0);
+
+    inflateEnd(&infstream);
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "_r_inflate_payload - Error inflateInit");
+    ret = RHN_ERROR;
+  }
+  return ret;
 }
 
 jwa_alg r_str_to_jwa_alg(const char * alg) {

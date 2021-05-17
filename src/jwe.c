@@ -27,7 +27,6 @@
 #include <gnutls/crypto.h>
 #include <gnutls/abstract.h>
 #include <gnutls/x509.h>
-#include <zlib.h>
 #include <orcania.h>
 #include <yder.h>
 #include <rhonabwy.h>
@@ -3069,7 +3068,6 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
   int ret = RHN_OK, res;
   gnutls_cipher_hd_t handle;
   gnutls_datum_t key, iv;
-  z_stream defstream;
   unsigned char * ptext = NULL, * text_zip = NULL, * ciphertext_b64url = NULL, tag[128] = {0}, * tag_b64url = NULL, * str_header_b64 = NULL;
   size_t ptext_len = 0, ciphertext_b64url_len = 0, tag_len = 0, tag_b64url_len = 0, str_header_b64_len = 0, text_zip_len = 0;
   char * str_header = NULL;
@@ -3111,48 +3109,17 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
     }
 
     ptext_len = gnutls_cipher_get_block_size(_r_get_alg_from_enc(jwe->enc));
-    if (0 == o_strcmp("DEF", json_string_value(json_object_get(jwe->j_header, "zip")))) {
-      defstream.zalloc = Z_NULL;
-      defstream.zfree = Z_NULL;
-      defstream.opaque = Z_NULL;
-      defstream.avail_in = (uInt)jwe->payload_len;
-      defstream.next_in = (Bytef *)jwe->payload;
-
-      if (deflateInit2(&defstream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, -9, 8, Z_DEFAULT_STRATEGY) == Z_OK) {
-        do {
-          if ((text_zip = o_realloc(text_zip, text_zip_len+_R_BLOCK_SIZE)) != NULL) {
-            defstream.avail_out = _R_BLOCK_SIZE;
-            defstream.next_out = ((Bytef *)text_zip)+text_zip_len;
-            int res;
-            switch ((res = deflate(&defstream, Z_FINISH))) {
-              case Z_OK:
-              case Z_STREAM_END:
-              case Z_BUF_ERROR:
-                break;
-              default:
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error deflate %d", res);
-                ret = RHN_ERROR;
-                break;
-            }
-            text_zip_len += _R_BLOCK_SIZE - defstream.avail_out;
-          } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error allocating resources for text_zip");
-            ret = RHN_ERROR;
-          }
-        } while (RHN_OK == ret && defstream.avail_out == 0);
-
-        if (RHN_OK == ret) {
-          if (r_jwe_set_ptext_with_block(text_zip, text_zip_len, &ptext, &ptext_len, _r_get_alg_from_enc(jwe->enc), cipher_cbc) != RHN_OK) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error r_jwe_set_ptext_with_block");
-            ret = RHN_ERROR;
-          }
+    if (0 == o_strcmp("DEF", r_jwe_get_header_str_value(jwe, "zip"))) {
+      if (_r_deflate_payload(jwe->payload, jwe->payload_len, &text_zip, &text_zip_len) == RHN_OK) {
+        if (r_jwe_set_ptext_with_block(text_zip, text_zip_len, &ptext, &ptext_len, _r_get_alg_from_enc(jwe->enc), cipher_cbc) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error r_jwe_set_ptext_with_block");
+          ret = RHN_ERROR;
         }
-        deflateEnd(&defstream);
-        o_free(text_zip);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error deflateInit");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error _r_deflate_payload");
         ret = RHN_ERROR;
       }
+      o_free(text_zip);
     } else {
       if (r_jwe_set_ptext_with_block(jwe->payload, jwe->payload_len, &ptext, &ptext_len, _r_get_alg_from_enc(jwe->enc), cipher_cbc) != RHN_OK) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error r_jwe_set_ptext_with_block");
@@ -3244,7 +3211,6 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
   gnutls_datum_t key, iv;
   unsigned char * payload_enc = NULL, * ciphertext = NULL, * unzip = NULL;
   size_t payload_enc_len = 0, ciphertext_len = 0, unzip_len = 0;
-  z_stream infstream;
   unsigned char tag[128], * tag_b64url = NULL;
   size_t tag_len = 0, tag_b64url_len = 0;
   int cipher_cbc;
@@ -3292,47 +3258,17 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
             if (cipher_cbc) {
               r_jwe_remove_padding(payload_enc, &payload_enc_len, gnutls_cipher_get_block_size(_r_get_alg_from_enc(jwe->enc)));
             }
-            if (0 == o_strcmp("DEF", json_string_value(json_object_get(jwe->j_header, "zip")))) {
-              infstream.zalloc = Z_NULL;
-              infstream.zfree = Z_NULL;
-              infstream.opaque = Z_NULL;
-              infstream.avail_in = (uInt)payload_enc_len;
-              infstream.next_in = (Bytef *)payload_enc;
-
-              if (inflateInit2(&infstream, -8) == Z_OK) {
-                do {
-                  if ((unzip = o_realloc(unzip, unzip_len+_R_BLOCK_SIZE)) != NULL) {
-                    infstream.avail_out = _R_BLOCK_SIZE;
-                    infstream.next_out = ((Bytef *)unzip)+unzip_len;
-                    switch ((res = inflate(&infstream, Z_FINISH))) {
-                      case Z_OK:
-                      case Z_STREAM_END:
-                      case Z_BUF_ERROR:
-                        break;
-                      default:
-                        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error inflate %d", res);
-                        ret = RHN_ERROR;
-                        break;
-                    }
-                    unzip_len += _R_BLOCK_SIZE - infstream.avail_out;
-                  } else {
-                    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error allocating resources for data_in_suffix");
-                    ret = RHN_ERROR;
-                  }
-                } while (RHN_OK == ret && infstream.avail_out == 0);
-
-                if (RHN_OK == ret) {
-                  if (r_jwe_set_payload(jwe, unzip, unzip_len) != RHN_OK) {
-                    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_jwe_set_payload");
-                    ret = RHN_ERROR;
-                  }
+            if (0 == o_strcmp("DEF", r_jwe_get_header_str_value(jwe, "zip"))) {
+              if (_r_inflate_payload(payload_enc, payload_enc_len, &unzip, &unzip_len) == RHN_OK) {
+                if (r_jwe_set_payload(jwe, unzip, unzip_len) != RHN_OK) {
+                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_jwe_set_payload");
+                  ret = RHN_ERROR;
                 }
-                o_free(unzip);
-                inflateEnd(&infstream);
               } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error inflateInit");
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error _r_inflate_payload");
                 ret = RHN_ERROR;
               }
+              o_free(unzip);
             } else {
               if (r_jwe_set_payload(jwe, payload_enc, payload_enc_len) != RHN_OK) {
                 y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_jwe_set_payload");

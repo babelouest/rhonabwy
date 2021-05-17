@@ -2703,6 +2703,10 @@ size_t _r_get_key_size(jwa_enc enc);
 
 gnutls_cipher_algorithm_t _r_get_alg_from_enc(jwa_enc enc);
 
+int _r_deflate_payload(const unsigned char * uncompressed, size_t uncompressed_len, unsigned char ** compressed, size_t * compressed_len);
+
+int _r_inflate_payload(const unsigned char * compressed, size_t compressed_len, unsigned char ** uncompressed, size_t * uncompressed_len);
+
 #endif
 
 #ifdef __cplusplus

@@ -149,25 +149,39 @@ static int r_jws_set_header_value(jws_t * jws, int force) {
 }
 
 static int r_jws_set_payload_value(jws_t * jws, int force) {
-  int ret = RHN_OK;
-  unsigned char * token_b64 = NULL;
-  size_t token_b64_len = 0;
+  int ret = RHN_OK, zip = 0;
+  unsigned char * token_b64 = NULL, * payload_to_set = NULL;
+  size_t token_b64_len = 0, payload_to_set_len = 0;
 
   if (jws != NULL) {
     if (jws->payload_b64url == NULL || force) {
       if (jws->payload_len) {
-        if ((token_b64 = o_malloc((2*jws->payload_len)+4)) != NULL) {
-          if (o_base64url_encode(jws->payload, jws->payload_len, token_b64, &token_b64_len)) {
-            o_free(jws->payload_b64url);
-            jws->payload_b64url = (unsigned char *)o_strndup((const char *)token_b64, token_b64_len);
-          } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_payload_value - Error o_base64url_encode payload");
-            ret = RHN_ERROR;
+        if (0 == o_strcmp("DEF", r_jws_get_header_str_value(jws, "zip"))) {
+          zip = 1;
+          if ((ret = _r_deflate_payload(jws->payload, jws->payload_len, &payload_to_set, &payload_to_set_len)) != RHN_OK) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_payload_value - Error _r_deflate_payload");
           }
-          o_free(token_b64);
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_payload_value - Error allocating resources for token_b64 (2)");
-          ret = RHN_ERROR_MEMORY;
+          payload_to_set = jws->payload;
+          payload_to_set_len = jws->payload_len;
+        }
+        if (ret == RHN_OK) {
+          if ((token_b64 = o_malloc((2*payload_to_set_len)+4)) != NULL) {
+            if (o_base64url_encode(payload_to_set, payload_to_set_len, token_b64, &token_b64_len)) {
+              o_free(jws->payload_b64url);
+              jws->payload_b64url = (unsigned char *)o_strndup((const char *)token_b64, token_b64_len);
+            } else {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_payload_value - Error o_base64url_encode payload");
+              ret = RHN_ERROR;
+            }
+            o_free(token_b64);
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_payload_value - Error allocating resources for token_b64 (2)");
+            ret = RHN_ERROR_MEMORY;
+          }
+        }
+        if (zip) {
+          o_free(payload_to_set);
         }
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_payload_value - Error empty payload");
@@ -1415,6 +1429,7 @@ int r_jws_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, 
   int ret;
   char ** str_array = NULL;
   char * str_header = NULL, * token = NULL, * tmp;
+  unsigned char * payload = NULL;
   size_t header_len = 0, payload_len = 0, split_size = 0;
   json_t * j_header = NULL;
 
@@ -1469,17 +1484,37 @@ int r_jws_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, 
           jws->j_header = json_incref(j_header);
 
           // Decode payload
-          o_free(jws->payload);
-          if ((jws->payload = o_malloc(payload_len+4)) == NULL) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_compact_parsen - error allocating resources for payload");
-            ret = RHN_ERROR_MEMORY;
-            break;
-          }
+          if (0 == o_strcmp("DEF", r_jws_get_header_str_value(jws, "zip"))) {
+            if ((payload = o_malloc(payload_len+4)) == NULL) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_compact_parsen - error allocating resources for payload (zip)");
+              ret = RHN_ERROR_MEMORY;
+              break;
+            }
 
-          if (!o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), jws->payload, &jws->payload_len)) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_compact_parsen - error decoding jws->payload");
-            ret = RHN_ERROR_PARAM;
-            break;
+            if (!o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), payload, &payload_len)) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_compact_parsen - error decoding jws->payload (zip)");
+              ret = RHN_ERROR_PARAM;
+              break;
+            }
+            
+            if (_r_inflate_payload(payload, payload_len, &jws->payload, &jws->payload_len) != RHN_OK) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_compact_parsen - error _r_inflate_payload");
+              ret = RHN_ERROR_PARAM;
+              break;
+            }
+          } else {
+            o_free(jws->payload);
+            if ((jws->payload = o_malloc(payload_len+4)) == NULL) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_compact_parsen - error allocating resources for payload");
+              ret = RHN_ERROR_MEMORY;
+              break;
+            }
+
+            if (!o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), jws->payload, &jws->payload_len)) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_compact_parsen - error decoding jws->payload");
+              ret = RHN_ERROR_PARAM;
+              break;
+            }
           }
 
           o_free(jws->header_b64url);
@@ -1493,6 +1528,7 @@ int r_jws_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, 
         } while (0);
         json_decref(j_header);
         o_free(str_header);
+        o_free(payload);
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_compact_parsen - error decoding jws from base64url format");
         ret = RHN_ERROR_PARAM;

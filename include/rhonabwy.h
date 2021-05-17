@@ -85,6 +85,10 @@ extern "C"
 #define R_JWK_THUMB_SHA384 1
 #define R_JWK_THUMB_SHA512 2
 
+#define R_JSON_MODE_COMPACT   0
+#define R_JSON_MODE_GENERAL   1
+#define R_JSON_MODE_FLATTENED 2
+
 /**
  * @}
  */
@@ -161,47 +165,50 @@ typedef enum {
 } jwa_enc;
 
 typedef enum {
-  RHN_OPT_NONE                 = 0,
-  RHN_OPT_HEADER_INT_VALUE     = 1,
-  RHN_OPT_HEADER_STR_VALUE     = 2,
-  RHN_OPT_HEADER_JSON_T_VALUE  = 3,
-  RHN_OPT_HEADER_FULL_JSON_T   = 4,
-  RHN_OPT_HEADER_FULL_JSON_STR = 5,
-  RHN_OPT_PAYLOAD              = 6,
-  RHN_OPT_CLAIM_INT_VALUE      = 7,
-  RHN_OPT_CLAIM_STR_VALUE      = 8,
-  RHN_OPT_CLAIM_JSON_T_VALUE   = 9,
-  RHN_OPT_CLAIM_FULL_JSON_T    = 10,
-  RHN_OPT_CLAIM_FULL_JSON_STR  = 11,
-  RHN_OPT_ENC_ALG              = 12,
-  RHN_OPT_ENC                  = 13,
-  RHN_OPT_SIG_ALG              = 14,
-  RHN_OPT_CIPHER_KEY           = 15,
-  RHN_OPT_IV                   = 16,
-  RHN_OPT_SIGN_KEY_JWK         = 17,
-  RHN_OPT_SIGN_KEY_JWKS        = 18,
-  RHN_OPT_SIGN_KEY_GNUTLS      = 19,
-  RHN_OPT_SIGN_KEY_JSON_T      = 20,
-  RHN_OPT_SIGN_KEY_JSON_STR    = 21,
-  RHN_OPT_SIGN_KEY_PEM_DER     = 22,
-  RHN_OPT_VERIFY_KEY_JWK       = 23,
-  RHN_OPT_VERIFY_KEY_JWKS      = 24,
-  RHN_OPT_VERIFY_KEY_GNUTLS    = 25,
-  RHN_OPT_VERIFY_KEY_JSON_T    = 26,
-  RHN_OPT_VERIFY_KEY_JSON_STR  = 27,
-  RHN_OPT_VERIFY_KEY_PEM_DER   = 28,
-  RHN_OPT_ENCRYPT_KEY_JWK      = 29,
-  RHN_OPT_ENCRYPT_KEY_JWKS     = 30,
-  RHN_OPT_ENCRYPT_KEY_GNUTLS   = 31,
-  RHN_OPT_ENCRYPT_KEY_JSON_T   = 32,
-  RHN_OPT_ENCRYPT_KEY_JSON_STR = 33,
-  RHN_OPT_ENCRYPT_KEY_PEM_DER  = 34,
-  RHN_OPT_DECRYPT_KEY_JWK      = 35,
-  RHN_OPT_DECRYPT_KEY_JWKS     = 36,
-  RHN_OPT_DECRYPT_KEY_GNUTLS   = 37,
-  RHN_OPT_DECRYPT_KEY_JSON_T   = 38,
-  RHN_OPT_DECRYPT_KEY_JSON_STR = 39,
-  RHN_OPT_DECRYPT_KEY_PEM_DER  = 40
+  RHN_OPT_NONE                    = 0,
+  RHN_OPT_HEADER_INT_VALUE        = 1,
+  RHN_OPT_HEADER_STR_VALUE        = 2,
+  RHN_OPT_HEADER_JSON_T_VALUE     = 3,
+  RHN_OPT_HEADER_FULL_JSON_T      = 4,
+  RHN_OPT_HEADER_FULL_JSON_STR    = 5,
+  RHN_OPT_UN_HEADER_FULL_JSON_T   = 6,
+  RHN_OPT_UN_HEADER_FULL_JSON_STR = 7,
+  RHN_OPT_PAYLOAD                 = 8,
+  RHN_OPT_CLAIM_INT_VALUE         = 9,
+  RHN_OPT_CLAIM_STR_VALUE         = 10,
+  RHN_OPT_CLAIM_JSON_T_VALUE      = 11,
+  RHN_OPT_CLAIM_FULL_JSON_T       = 12,
+  RHN_OPT_CLAIM_FULL_JSON_STR     = 13,
+  RHN_OPT_ENC_ALG                 = 14,
+  RHN_OPT_ENC                     = 15,
+  RHN_OPT_SIG_ALG                 = 16,
+  RHN_OPT_CIPHER_KEY              = 17,
+  RHN_OPT_IV                      = 18,
+  RHN_OPT_AAD                     = 19,
+  RHN_OPT_SIGN_KEY_JWK            = 20,
+  RHN_OPT_SIGN_KEY_JWKS           = 21,
+  RHN_OPT_SIGN_KEY_GNUTLS         = 22,
+  RHN_OPT_SIGN_KEY_JSON_T         = 23,
+  RHN_OPT_SIGN_KEY_JSON_STR       = 24,
+  RHN_OPT_SIGN_KEY_PEM_DER        = 25,
+  RHN_OPT_VERIFY_KEY_JWK          = 26,
+  RHN_OPT_VERIFY_KEY_JWKS         = 27,
+  RHN_OPT_VERIFY_KEY_GNUTLS       = 28,
+  RHN_OPT_VERIFY_KEY_JSON_T       = 29,
+  RHN_OPT_VERIFY_KEY_JSON_STR     = 30,
+  RHN_OPT_VERIFY_KEY_PEM_DER      = 31,
+  RHN_OPT_ENCRYPT_KEY_JWK         = 32,
+  RHN_OPT_ENCRYPT_KEY_JWKS        = 33,
+  RHN_OPT_ENCRYPT_KEY_GNUTLS      = 34,
+  RHN_OPT_ENCRYPT_KEY_JSON_T      = 35,
+  RHN_OPT_ENCRYPT_KEY_JSON_STR    = 36,
+  RHN_OPT_ENCRYPT_KEY_PEM_DER     = 37,
+  RHN_OPT_DECRYPT_KEY_JWK         = 38,
+  RHN_OPT_DECRYPT_KEY_JWKS        = 39,
+  RHN_OPT_DECRYPT_KEY_GNUTLS      = 40,
+  RHN_OPT_DECRYPT_KEY_JSON_T      = 41,
+  RHN_OPT_DECRYPT_KEY_JSON_STR    = 42,
+  RHN_OPT_DECRYPT_KEY_PEM_DER     = 43
 } rhn_opt;
 
 typedef struct {
@@ -214,7 +221,8 @@ typedef struct {
   jwks_t        * jwks_pubkey;
   unsigned char * payload;
   size_t          payload_len;
-  json_t        * j_flattened;
+  json_t        * j_json_serialization;
+  int             token_mode;
 } jws_t;
 
 typedef struct {
@@ -225,6 +233,7 @@ typedef struct {
   unsigned char * ciphertext_b64url;
   unsigned char * auth_tag_b64url;
   json_t        * j_header;
+  json_t        * j_unprotected_header;
   jwa_alg         alg;
   jwa_enc         enc;
   jwks_t        * jwks_privkey;
@@ -237,7 +246,8 @@ typedef struct {
   size_t          iv_len;
   unsigned char * payload;
   size_t          payload_len;
-  json_t        * j_flattened;
+  json_t        * j_json_serialization;
+  int             token_mode;
 } jwe_t;
 
 typedef struct {
@@ -1091,7 +1101,20 @@ int r_jws_set_header_int_value(jws_t * jws, const char * key, int i_value);
  */
 int r_jws_set_header_json_t_value(jws_t * jws, const char * key, json_t * j_value);
 
+/**
+ * Sets the entire header with the JSON value specified
+ * @param jws: the jws_t to update
+ * @param j_value: the header to set, must be a JSON object
+ * @return RHN_OK on success, an error value on error
+ */
 int r_jws_set_full_header_json_t(jws_t * jws, json_t * j_value);
+
+/**
+ * Sets the entire header with the stringified JSON value specified
+ * @param jws: the jws_t to update
+ * @param str_value: the header to set, must be a stringified JSON object
+ * @return RHN_OK on success, an error value on error
+ */
 int r_jws_set_full_header_json_str(jws_t * jws, const char * str_value);
 
 /**
@@ -1124,6 +1147,13 @@ json_t * r_jws_get_header_json_t_value(jws_t * jws, const char * key);
  * @return a json_t * value
  */
 json_t * r_jws_get_full_header_json_t(jws_t * jws);
+
+/**
+ * Return the full JWS header in char * 
+ * @param jws: the jws_t to get the value
+ * @return a char * value, must be r_free'd after use
+ */
+char * r_jws_get_full_header_str(jws_t * jws);
 
 /**
  * Sets the private and public keys for the signature and verification
@@ -1210,9 +1240,10 @@ jwks_t * r_jws_get_jwks_privkey(jws_t * jws);
 jwks_t * r_jws_get_jwks_pubkey(jws_t * jws);
 
 /**
- * Parses the JWS, verify the signature if the JWS header contains the public key
+ * Parses the serialized JWS in all modes (compact, flattened or general)
+ * verify the signature if the JWS header contains the public key
  * @param jws: the jws_t to update
- * @param jws_str: the jws serialized to parse, must end with a NULL string terminator
+ * @param jws_str: the serialized JWS to parse, must end with a NULL string terminator
  * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
@@ -1224,9 +1255,10 @@ jwks_t * r_jws_get_jwks_pubkey(jws_t * jws);
 int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags);
 
 /**
- * Parses the JWS, verify the signature if the JWS header contains the public key
+ * Parses the serialized JWS in all modes (compact, flattened or general)
+ * verify the signature if the JWS header contains the public key
  * @param jws: the jws_t to update
- * @param jws_str: the jws serialized to parse
+ * @param jws_str: the serialized JWS to parse
  * @param jws_str_len: the length of jws_str to parse
  * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
@@ -1238,14 +1270,86 @@ int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags);
  */
 int r_jws_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_flags);
 
-int r_jws_parse_flattened_json_str(jws_t * jws, const char * jws_str_flattened, int x5u_flags); // TODO
+/**
+ * Parses the serialized JWS in compact mode (xxx.yyy.zzz)
+ * verify the signature if the JWS header contains the public key
+ * @param jws: the jws_t to update
+ * @param jws_str: the serialized JWS to parse, must end with a NULL string terminator
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_compact_parse(jws_t * jws, const char * jws_str, int x5u_flags);
 
-int r_jws_parse_flattened_json_t(jws_t * jws, json_t * jws_flattened, int x5u_flags); // TODO
+/**
+ * Parses the serialized JWS in compact mode (xxx.yyy.zzz)
+ * verify the signature if the JWS header contains the public key
+ * @param jws: the jws_t to update
+ * @param jws_str: the serialized JWS to parse
+ * @param jws_str_len: the length of jws_str to parse
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_flags);
+
+/**
+ * Parses the serialized JWS in JSON mode, general or flattened
+ * @param jws: the jws_t to update
+ * @param jws_json_str: the serialized JWS to parse in char * format
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_parse_json_str(jws_t * jws, const char * jws_json_str, int x5u_flags);
+
+/**
+ * Parses the serialized JWS in JSON mode, general or flattened
+ * @param jws: the jws_t to update
+ * @param jws_json_str: the serialized JWS to parse in char * format
+ * @param jws_json_str_len: the length of jws_str to parse
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_parsen_json_str(jws_t * jws, const char * jws_json_str, size_t jws_json_str_len, int x5u_flags);
+
+/**
+ * Parses the serialized JWS in JSON mode, general or flattened
+ * @param jws: the jws_t to update
+ * @param jws_json: the serialized JWS to parse in json_t * format
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_parse_json_t(jws_t * jws, json_t * jws_json, int x5u_flags);
 
 /**
  * Verifies the signature of the JWS
  * The JWS must contain a signature
  * or the JWS must have alg: none
+ * If the jws has multiple signatures, it will return RHN_OK if one signature matches
+ * the public key
  * @param jws: the jws_t to update
  * @param jwk_pubkey: the public key to check the signature,
  * can be NULL if jws already contains a public key
@@ -1258,8 +1362,6 @@ int r_jws_parse_flattened_json_t(jws_t * jws, json_t * jws_flattened, int x5u_fl
  * @return RHN_OK on success, an error value on error
  */
 int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags);
-
-int r_jws_verify_signature_flattened(jws_t * jws, jwks_t * jwks_pubkey, int x5u_flags); // TODO
 
 /**
  * Serialize a JWS into its string format (xxx.yyy.zzz)
@@ -1276,9 +1378,53 @@ int r_jws_verify_signature_flattened(jws_t * jws, jwks_t * jwks_pubkey, int x5u_
  */
 char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags);
 
-char * r_jws_serialize_flattened_str(jws_t * jws, jwks_t * jwks_privkey, int x5u_flags); // TODO
+/**
+ * Serialize a JWS into its JSON format (general or flattened)
+ * Mode general: Multiple signatures are generated.
+ * You can use the jws prikeys or specify the private keys
+ * Every jwk used to sign the jws must have a property 'alg' to specify
+ * the signing algorithm
+ * It is recommended, but not mandatory, to use JWKs with kid property
+ * @param jws: the JWS to serialize
+ * @param jwks_privkey: the private keys to use to sign the JWS
+ * can be NULL if jws already contains a private key set
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @param mode: JSON serialization mode
+ * Values available are
+ * - R_JSON_MODE_GENERAL: https://tools.ietf.org/html/rfc7515#section-7.2.1
+ * - R_JSON_MODE_FLATTENED: https://tools.ietf.org/html/rfc7515#section-7.2.2
+ * @return the JWS in json_t * format, returned value must be json_decref'd after use
+ */
+json_t * r_jws_serialize_json_t(jws_t * jws, jwks_t * jwks_privkey, int x5u_flags, int mode);
 
-json_t * r_jws_serialize_flattened_json_t(jws_t * jws, jwks_t * jwks_privkey, int x5u_flags); // TODO
+/**
+ * Serialize a JWS into its JSON format (general or flattened)
+ * Mode general: Multiple signatures are generated.
+ * You can use the jws prikeys or specify the private keys
+ * Every jwk used to sign the jws must have a property 'alg' to specify
+ * the signing algorithm
+ * It is recommended, but not mandatory, to use JWKs with kid property
+ * @param jws: the JWS to serialize
+ * @param jwks_privkey: the private keys to use to sign the JWS
+ * can be NULL if jws already contains a private key set
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @param mode: JSON serialization mode
+ * Values available are
+ * - R_JSON_MODE_GENERAL: https://tools.ietf.org/html/rfc7515#section-7.2.1
+ * - R_JSON_MODE_FLATTENED: https://tools.ietf.org/html/rfc7515#section-7.2.2
+ * @return the JWS in char * format, returned value must be r_free'd after use
+ */
+char * r_jws_serialize_json_str(jws_t * jws, jwks_t * jwks_privkey, int x5u_flags, int mode);
 
 /**
  * @}
@@ -1384,8 +1530,53 @@ int r_jwe_set_header_int_value(jwe_t * jwe, const char * key, int i_value);
  */
 int r_jwe_set_header_json_t_value(jwe_t * jwe, const char * key, json_t * j_value);
 
+/**
+ * Sets the entire header with the JSON value specified
+ * @param jwe: the jwe_t to update
+ * @param j_value: the header to set, must be a JSON object
+ * @return RHN_OK on success, an error value on error
+ */
 int r_jwe_set_full_header_json_t(jwe_t * jwe, json_t * j_header);
+
+/**
+ * Sets the entire header with the stringified JSON value specified
+ * @param jwe: the jwe_t to update
+ * @param str_value: the header to set, must be a stringified JSON object
+ * @return RHN_OK on success, an error value on error
+ */
 int r_jwe_set_full_header_json_str(jwe_t * jwe, const char * str_header);
+
+/**
+ * Sets the entire unprotected header with the JSON value specified
+ * The unprotected header is useful when serializing in JSON format
+ * @param jwe: the jwe_t to update
+ * @param j_value: the unprotected header to set, must be a JSON object
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_set_full_unprotected_header_json_t(jwe_t * jwe, json_t * j_unprotected_header);
+
+/**
+ * Sets the entire unprotected header with the stringified JSON value specified
+ * The unprotected header is useful when serializing in JSON format
+ * @param jwe: the jwe_t to update
+ * @param j_value: the unprotected header to set, must be a stringified JSON object
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_set_full_unprotected_header_json_str(jwe_t * jwe, const char * str_unprotected_header);
+
+/**
+ * Return the full JWS unprotected header in JSON format
+ * @param jwe: the jwe_t to get the value
+ * @return a json_t * value
+ */
+json_t * r_jwe_get_full_unprotected_header_json_t(jwe_t * jwe);
+
+/**
+ * Return the full JWS unprotected header in char * 
+ * @param jwe: the jwe_t to get the value
+ * @return a char * value, must be r_free'd after use
+ */
+char * r_jwe_get_full_unprotected_header_str(jwe_t * jwe);
 
 /**
  * Gets a string value from the JWE header
@@ -1417,6 +1608,13 @@ json_t * r_jwe_get_header_json_t_value(jwe_t * jwe, const char * key);
  * @return a json_t * value
  */
 json_t * r_jwe_get_full_header_json_t(jwe_t * jwe);
+
+/**
+ * Return the full JWE header in char * 
+ * @param jwe: the jwe_t to get the value
+ * @return a char * value, must be r_free'd after use
+ */
+char * r_jwe_get_full_header_str(jwe_t * jwe);
 
 /**
  * Adds private and/or public keys for the cypher key encryption and decryption
@@ -1551,6 +1749,23 @@ const unsigned char * r_jwe_get_iv(jwe_t * jwe, size_t * iv_len);
 int r_jwe_generate_iv(jwe_t * jwe);
 
 /**
+ * Sets the Additional Authenticated Data (aad)
+ * @param jwe: the jwe_t to update
+ * @param aad: the aad to set
+ * @param aad_len: the size of the aad
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_set_aad(jwe_t * jwe, const unsigned char * aad, size_t aad_len);
+
+/**
+ * Gets the Additional Authenticated Data (aad)
+ * @param jwe: the jwe_t to get the value
+ * @param aad_len: set the size of the aad, may be NULL
+ * @return the aad
+ */
+const unsigned char * r_jwe_get_aad(jwe_t * jwe, size_t * aad_len);
+
+/**
  * Encrypts the payload using its key and iv
  * @param jwe: the jwe_t to update
  * @return RHN_OK on success, an error value on error
@@ -1593,7 +1808,7 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags);
 int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
 
 /**
- * Parses the JWE
+ * Parses the JWE in all modes (compact, flattened or general)
  * @param jwe: the jwe_t to update
  * @param jwe_str: the jwe serialized to parse, must end with a NULL string terminator
  * @param x5u_flags: Flags to retrieve x5u certificates
@@ -1607,7 +1822,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
 int r_jwe_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags);
 
 /**
- * Parses the JWE
+ * Parses the JWE in all modes (compact, flattened or general)
  * @param jwe: the jwe_t to update
  * @param jwe_str: the jwe serialized to parse
  * @param jwe_str_len: the length of jwe_str
@@ -1621,9 +1836,77 @@ int r_jwe_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags);
  */
 int r_jwe_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_str_len, int x5u_flags);
 
-int r_jwe_parse_flattened_json_str(jwe_t * jwe, const char * jwe_str_flattened, int x5u_flags); // TODO
+/**
+ * Parses the JWE in compact mode (xxx.yyy.zzz.aaa.bbb)
+ * @param jwe: the jwe_t to update
+ * @param jwe_str: the jwe serialized to parse, must end with a NULL string terminator
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_compact_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags);
 
-int r_jwe_parse_flattened_json_t(jwe_t * jwe, json_t * jwe_flattened, int x5u_flags); // TODO
+/**
+ * Parses the JWE in compact mode (xxx.yyy.zzz.aaa.bbb)
+ * @param jwe: the jwe_t to update
+ * @param jwe_str: the jwe serialized to parse
+ * @param jwe_str_len: the length of jwe_str
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_compact_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_str_len, int x5u_flags);
+
+/**
+ * Parses the serialized JWE in JSON mode, general or flattened
+ * @param jwe: the jwe_t to update
+ * @param jwe_json_str: the serialized JWE to parse in char * format, must end with a NULL string terminator
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_parse_json_str(jwe_t * jwe, const char * jwe_json_str, int x5u_flags);
+
+/**
+ * Parses the serialized JWE in JSON mode, general or flattened
+ * @param jwe: the jwe_t to update
+ * @param jwe_json_str: the serialized JWE to parse in char * format
+ * @param jwe_json_str_len: the length of jwe_json_str
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_parsen_json_str(jwe_t * jwe, const char * jwe_json_str, size_t jwe_json_str_len, int x5u_flags);
+
+/**
+ * Parses the serialized JWE in JSON mode, general or flattened
+ * @param jwe: the jwe_t to update
+ * @param jwe_json_str: the serialized JWE to parse in json_t * format
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_parse_json_t(jwe_t * jwe, json_t * jwe_json, int x5u_flags);
 
 /**
  * Decrypts the payload of the JWE
@@ -1640,8 +1923,6 @@ int r_jwe_parse_flattened_json_t(jwe_t * jwe, json_t * jwe_flattened, int x5u_fl
  */
 int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);
 
-int r_jwe_decrypt_flattened(jwe_t * jwe, jwks_t * jwks_privkey, int x5u_flags); // TODO
-
 /**
  * Serialize a JWE into its string format (aaa.bbb.ccc.xxx.yyy.zzz)
  * @param jwe: the JWE to serialize
@@ -1657,9 +1938,53 @@ int r_jwe_decrypt_flattened(jwe_t * jwe, jwks_t * jwks_privkey, int x5u_flags); 
  */
 char * r_jwe_serialize(jwe_t * jwe, jwk_t * jwk_pubkey, int x5u_flags);
 
-char * r_jwe_serialize_flattened_str(jwe_t * jwe, jwks_t * jwks_pubkey, int x5u_flags); // TODO
+/**
+ * Serialize a JWE into its JSON format (general or flattened)
+ * Mode general: Multiple encryptions are generated.
+ * You can use the jwe pubkeys or specify the public keys
+ * Every jwk used to encrypt the key must have a property 'alg' to specify
+ * the encryption algorithm
+ * It is recommended, but not mandatory, to use JWKs with kid property
+ * @param jwe: the JWE to serialize
+ * @param jwks_pubkey: the public keys to use to sign the JWE
+ * can be NULL if jwe already contains a public key set
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @param mode: JSON serialization mode
+ * Values available are
+ * - R_JSON_MODE_GENERAL: https://tools.ietf.org/html/rfc7516#section-7.2.1
+ * - R_JSON_MODE_FLATTENED: https://tools.ietf.org/html/rfc7516#section-7.2.2
+ * @return the JWE in char * format, returned value must be r_free'd after use
+ */
+char * r_jwe_serialize_json_str(jwe_t * jwe, jwks_t * jwks_pubkey, int x5u_flags, int mode);
 
-json_t * r_jwe_serialize_flattened_json_t(jwe_t * jwe, jwks_t * jwks_pubkey, int x5u_flags); // TODO
+/**
+ * Serialize a JWE into its JSON format (general or flattened)
+ * Mode general: Multiple encryptions are generated.
+ * You can use the jwe pubkeys or specify the public keys
+ * Every jwk used to encrypt the key must have a property 'alg' to specify
+ * the encryption algorithm
+ * It is recommended, but not mandatory, to use JWKs with kid property
+ * @param jwe: the JWE to serialize
+ * @param jwks_pubkey: the public keys to use to sign the JWE
+ * can be NULL if jwe already contains a public key set
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @param mode: JSON serialization mode
+ * Values available are
+ * - R_JSON_MODE_GENERAL: https://tools.ietf.org/html/rfc7516#section-7.2.1
+ * - R_JSON_MODE_FLATTENED: https://tools.ietf.org/html/rfc7516#section-7.2.2
+ * @return the JWE in json_t * format, returned value must be json_decref'd after use
+ */
+json_t * r_jwe_serialize_json_t(jwe_t * jwe, jwks_t * jwks_pubkey, int x5u_flags, int mode);
 
 /**
  * @}
@@ -1710,7 +2035,20 @@ int r_jwt_set_header_int_value(jwt_t * jwt, const char * key, int i_value);
  */
 int r_jwt_set_header_json_t_value(jwt_t * jwt, const char * key, json_t * j_value);
 
+/**
+ * Sets the entire header with the JSON value specified
+ * @param jwt: the jwt_t to update
+ * @param j_value: the header to set, must be a JSON object
+ * @return RHN_OK on success, an error value on error
+ */
 int r_jwt_set_full_header_json_t(jwt_t * jwt, json_t * j_header);
+
+/**
+ * Sets the entire header with the stringified JSON value specified
+ * @param jwt: the jwt_t to update
+ * @param j_value: the header to set, must be a JSON object
+ * @return RHN_OK on success, an error value on error
+ */
 int r_jwt_set_full_header_json_str(jwt_t * jwt, const char * str_header);
 
 /**

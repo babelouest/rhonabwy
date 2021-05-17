@@ -205,6 +205,7 @@ size_t _r_get_key_size(jwa_enc enc) {
       size = 64;
       break;
     default:
+      size = 0;
       break;
   }
   return size;

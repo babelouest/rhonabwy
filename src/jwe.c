@@ -4020,7 +4020,9 @@ json_t * r_jwe_serialize_json_t(jwe_t * jwe, jwks_t * jwks_pubkey, int x5u_flags
       for (i=0; i<r_jwks_size(jwks_pubkey); i++) {
         jwk = r_jwks_get_at(jwks_pubkey, i);
         kid = r_jwk_get_property_str(jwk, "kid");
-        alg = r_str_to_jwa_alg(r_jwk_get_property_str(jwk, "alg"));
+        if ((alg = r_jwe_get_alg(jwe)) == R_JWA_ALG_UNKNOWN || alg == R_JWA_ALG_NONE) {
+          alg = r_str_to_jwa_alg(r_jwk_get_property_str(jwk, "alg"));
+        }
         if (alg != R_JWA_ALG_UNKNOWN && alg != R_JWA_ALG_ECDH_ES) {
           if ((j_result = r_jwe_perform_key_encryption(jwe, alg, jwk, x5u_flags, &res)) != NULL) {
             if (json_object_get(jwe->j_header, "kid") == NULL && json_object_get(jwe->j_unprotected_header, "kid") == NULL) {

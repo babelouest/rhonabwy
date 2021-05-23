@@ -1140,9 +1140,7 @@ static json_t * r_jwe_aes_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5
         *ret = RHN_ERROR;
         break;
       }
-      j_return = json_pack("{ss%s{ss}}", "encrypted_key", cipherkey_b64url, cipherkey_b64url_len,
-                                             "header",
-                                               "alg", r_jwa_alg_to_str(alg));
+      j_return = json_pack("{ss%s{ss}}", "encrypted_key", cipherkey_b64url, cipherkey_b64url_len, "header", "alg", r_jwa_alg_to_str(alg));
       o_free(jwe->encrypted_key_b64url);
       jwe->encrypted_key_b64url = (unsigned char *)o_strndup((const char *)cipherkey_b64url, cipherkey_b64url_len);
     } while (0);
@@ -1576,7 +1574,6 @@ static json_t * r_jwe_aesgcm_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int
                                                "iv", r_jwe_get_header_str_value(jwe, "iv")==NULL?(const char *)iv_b64url:r_jwe_get_header_str_value(jwe, "iv"),
                                                "tag", tag_b64url,
                                                "alg", r_jwa_alg_to_str(alg));
-
     } while (0);
     o_free(key);
     if (handle != NULL) {
@@ -1897,14 +1894,14 @@ static void r_jwe_remove_padding(unsigned char * text, size_t * text_len, unsign
   }
 }
 
-static int r_jwe_compute_hmac_tag(jwe_t * jwe, unsigned char * ciphertext, size_t cyphertext_len, unsigned char * tag, size_t * tag_len) {
+static int r_jwe_compute_hmac_tag(jwe_t * jwe, unsigned char * ciphertext, size_t cyphertext_len, const unsigned char * aad, unsigned char * tag, size_t * tag_len) {
   int ret, res;
   unsigned char al[8], * compute_hmac = NULL;
   uint64_t aad_len;
-  size_t hmac_size = 0, aad_size = o_strlen((const char *)jwe->aad_b64url), i;
+  size_t hmac_size = 0, aad_size = o_strlen((const char *)aad), i;
   gnutls_mac_algorithm_t mac = r_jwe_get_digest_from_enc(jwe->enc);
 
-  aad_len = (uint64_t)(o_strlen((const char *)jwe->aad_b64url)*8);
+  aad_len = (uint64_t)(o_strlen((const char *)aad)*8);
   memset(al, 0, 8);
   for(i = 0; i < 8; i++) {
     al[i] = (uint8_t)((aad_len >> 8*(7 - i)) & 0xFF);
@@ -1912,7 +1909,7 @@ static int r_jwe_compute_hmac_tag(jwe_t * jwe, unsigned char * ciphertext, size_
 
   if ((compute_hmac = o_malloc(aad_size+jwe->iv_len+cyphertext_len+8)) != NULL) {
     if (aad_size) {
-      memcpy(compute_hmac, jwe->aad_b64url, aad_size);
+      memcpy(compute_hmac, aad, aad_size);
       hmac_size += aad_size;
     }
     memcpy(compute_hmac+hmac_size, jwe->iv, jwe->iv_len);
@@ -1943,8 +1940,10 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
   unsigned int bits = 0;
   gnutls_pubkey_t g_pub = NULL;
   gnutls_datum_t plainkey, cypherkey = {NULL, 0};
-  unsigned char * cypherkey_b64 = NULL, * key = NULL;
+  unsigned char * cypherkey_b64 = NULL, key[128] = {0};
   size_t cypherkey_b64_len = 0, key_len = 0;
+  const char * key_ref = NULL;
+  json_t * j_element = NULL, * j_reference;
 #if NETTLE_VERSION_NUMBER >= 0x030400
   uint8_t * cyphertext = NULL;
   size_t cyphertext_len = 0;
@@ -2035,24 +2034,23 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
       if (jwk != NULL) {
         if (r_jwk_key_type(jwk, &bits, x5u_flags) & R_KEY_TYPE_SYMMETRIC && bits == _r_get_key_size(jwe->enc)*8) {
           key_len = bits/8;
-          if ((key = o_malloc(key_len+4)) != NULL) {
-            if (r_jwk_export_to_symmetric_key(jwk, key, &key_len) != RHN_OK) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error r_jwk_export_to_symmetric_key");
+          if (r_jwk_export_to_symmetric_key(jwk, key, &key_len) != RHN_OK) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error r_jwk_export_to_symmetric_key");
+            *ret = RHN_ERROR;
+          } else {
+            if (r_jwe_set_cypher_key(jwe, key, key_len) != RHN_OK) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error r_jwe_set_cypher_key");
               *ret = RHN_ERROR;
             } else {
-              j_return = json_pack("{s{ss}}", "header", "alg", r_jwa_alg_to_str(alg));
+              j_return = json_object();
             }
-            o_free(key);
-          } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error allocating resources for key");
-            *ret = RHN_ERROR_MEMORY;
           }
         } else {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error invalid key type");
           *ret = RHN_ERROR_PARAM;
         }
       } else if (jwe->key != NULL && jwe->key_len > 0) {
-        j_return = json_pack("{s{ss}}", "header", "alg", r_jwa_alg_to_str(alg));
+        j_return = json_object();
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error no key available for alg 'dir'");
         *ret = RHN_ERROR_PARAM;
@@ -2110,6 +2108,18 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
       *ret = RHN_ERROR_PARAM;
       break;
   }
+  json_object_foreach(json_object_get(j_return, "header"), key_ref, j_element) {
+    j_reference = json_object_get(jwe->j_header, key_ref);
+    if (j_reference == NULL) {
+      j_reference = json_object_get(jwe->j_unprotected_header, key_ref);
+    }
+    if (j_reference != NULL && json_equal(j_reference, j_element)) {
+      json_object_del(json_object_get(j_return, "header"), key_ref);
+    }
+  }
+  if (!json_object_size(json_object_get(j_return, "header"))) {
+    json_object_del(j_return, "header");
+  }
   return j_return;
 }
 
@@ -2163,7 +2173,7 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
         }
         gnutls_privkey_deinit(g_priv);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key size");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key size RSA1_5");
         ret = RHN_ERROR_INVALID;
       }
       break;
@@ -2212,7 +2222,7 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
         }
         gnutls_privkey_deinit(g_priv);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key size");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key size RSA_OAEP");
         ret = RHN_ERROR_INVALID;
       }
       break;
@@ -2411,9 +2421,7 @@ jwe_t * r_jwe_copy(jwe_t * jwe) {
         jwe_copy->jwks_pubkey = r_jwks_copy(jwe->jwks_pubkey);
         json_decref(jwe_copy->j_header);
         jwe_copy->j_header = json_deep_copy(jwe->j_header);
-        json_decref(jwe_copy->j_unprotected_header);
         jwe_copy->j_unprotected_header = json_deep_copy(jwe->j_unprotected_header);
-        json_decref(jwe_copy->j_json_serialization);
         jwe_copy->j_json_serialization = json_deep_copy(jwe->j_json_serialization);
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_copy - Error setting values");
@@ -3068,7 +3076,7 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
   int ret = RHN_OK, res;
   gnutls_cipher_hd_t handle;
   gnutls_datum_t key, iv;
-  unsigned char * ptext = NULL, * text_zip = NULL, * ciphertext_b64url = NULL, tag[128] = {0}, * tag_b64url = NULL, * str_header_b64 = NULL;
+  unsigned char * ptext = NULL, * text_zip = NULL, * ciphertext_b64url = NULL, tag[128] = {0}, * tag_b64url = NULL, * str_header_b64 = NULL, * aad = NULL;
   size_t ptext_len = 0, ciphertext_b64url_len = 0, tag_len = 0, tag_b64url_len = 0, str_header_b64_len = 0, text_zip_len = 0;
   char * str_header = NULL;
   int cipher_cbc;
@@ -3089,10 +3097,6 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
         if (o_base64url_encode((const unsigned char *)str_header, o_strlen(str_header), str_header_b64, &str_header_b64_len)) {
           o_free(jwe->header_b64url);
           jwe->header_b64url = (unsigned char *)o_strndup((const char *)str_header_b64, str_header_b64_len);
-          if (jwe->token_mode == R_JSON_MODE_COMPACT) {
-            o_free(jwe->aad_b64url);
-            jwe->aad_b64url = (unsigned char *)o_strndup((const char *)str_header_b64, str_header_b64_len);
-          }
         } else {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error o_base64url_encode str_header");
           ret = RHN_ERROR;
@@ -3138,7 +3142,16 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
       iv.data = jwe->iv;
       iv.size = jwe->iv_len;
       if (!(res = gnutls_cipher_init(&handle, _r_get_alg_from_enc(jwe->enc), &key, &iv))) {
-        if (cipher_cbc || jwe->aad_b64url == NULL || !(res = gnutls_cipher_add_auth(handle, jwe->aad_b64url, o_strlen((const char *)jwe->aad_b64url)))) {
+        if (jwe->aad_b64url == NULL || jwe->token_mode == R_JSON_MODE_COMPACT) {
+          aad = (unsigned char *)o_strdup((const char *)jwe->header_b64url);
+        } else {
+          aad = (unsigned char *)msprintf("%s.%s", jwe->header_b64url, jwe->aad_b64url);
+        }
+        if (!cipher_cbc && (res = gnutls_cipher_add_auth(handle, aad, o_strlen((const char *)aad)))) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error gnutls_cipher_add_auth: '%s'", gnutls_strerror(res));
+          ret = RHN_ERROR;
+        }
+        if (ret == RHN_OK) {
           if (!(res = gnutls_cipher_encrypt(handle, ptext, ptext_len))) {
             if ((ciphertext_b64url = o_malloc(2*ptext_len)) != NULL) {
               if (o_base64url_encode(ptext, ptext_len, ciphertext_b64url, &ciphertext_b64url_len)) {
@@ -3163,7 +3176,7 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
         }
         if (ret == RHN_OK) {
           if (cipher_cbc) {
-            if (r_jwe_compute_hmac_tag(jwe, ptext, ptext_len, tag, &tag_len) != RHN_OK) {
+            if (r_jwe_compute_hmac_tag(jwe, ptext, ptext_len, aad, tag, &tag_len) != RHN_OK) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error r_jwe_compute_hmac_tag");
               ret = RHN_ERROR;
             }
@@ -3191,6 +3204,7 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
             }
           }
         }
+        o_free(aad);
         gnutls_cipher_deinit(handle);
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error gnutls_cipher_init: '%s'", gnutls_strerror(res));
@@ -3209,7 +3223,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
   int ret = RHN_OK, res;
   gnutls_cipher_hd_t handle;
   gnutls_datum_t key, iv;
-  unsigned char * payload_enc = NULL, * ciphertext = NULL, * unzip = NULL;
+  unsigned char * payload_enc = NULL, * ciphertext = NULL, * unzip = NULL, * aad = NULL;
   size_t payload_enc_len = 0, ciphertext_len = 0, unzip_len = 0;
   unsigned char tag[128], * tag_b64url = NULL;
   size_t tag_len = 0, tag_b64url_len = 0;
@@ -3253,42 +3267,46 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
       iv.size = jwe->iv_len;
       payload_enc_len = ciphertext_len;
       if (!(res = gnutls_cipher_init(&handle, _r_get_alg_from_enc(jwe->enc), &key, &iv))) {
-        if (cipher_cbc || jwe->aad_b64url == NULL || !(res = gnutls_cipher_add_auth(handle, jwe->aad_b64url, o_strlen((const char *)jwe->aad_b64url)))) {
-          if (!(res = gnutls_cipher_decrypt2(handle, ciphertext, ciphertext_len, payload_enc, payload_enc_len))) {
-            if (cipher_cbc) {
-              r_jwe_remove_padding(payload_enc, &payload_enc_len, gnutls_cipher_get_block_size(_r_get_alg_from_enc(jwe->enc)));
-            }
-            if (0 == o_strcmp("DEF", r_jwe_get_header_str_value(jwe, "zip"))) {
-              if (_r_inflate_payload(payload_enc, payload_enc_len, &unzip, &unzip_len) == RHN_OK) {
-                if (r_jwe_set_payload(jwe, unzip, unzip_len) != RHN_OK) {
-                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_jwe_set_payload");
-                  ret = RHN_ERROR;
-                }
-              } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error _r_inflate_payload");
-                ret = RHN_ERROR;
-              }
-              o_free(unzip);
-            } else {
-              if (r_jwe_set_payload(jwe, payload_enc, payload_enc_len) != RHN_OK) {
+        if (jwe->aad_b64url == NULL || jwe->token_mode == R_JSON_MODE_COMPACT) {
+          aad = (unsigned char *)o_strdup((const char *)jwe->header_b64url);
+        } else {
+          aad = (unsigned char *)msprintf("%s.%s", jwe->header_b64url, jwe->aad_b64url);
+        }
+        if (!cipher_cbc && (res = gnutls_cipher_add_auth(handle, aad, o_strlen((const char *)aad)))) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_add_auth: '%s'", gnutls_strerror(res));
+          ret = RHN_ERROR;
+        }
+        if (!(res = gnutls_cipher_decrypt2(handle, ciphertext, ciphertext_len, payload_enc, payload_enc_len))) {
+          if (cipher_cbc) {
+            r_jwe_remove_padding(payload_enc, &payload_enc_len, gnutls_cipher_get_block_size(_r_get_alg_from_enc(jwe->enc)));
+          }
+          if (0 == o_strcmp("DEF", r_jwe_get_header_str_value(jwe, "zip"))) {
+            if (_r_inflate_payload(payload_enc, payload_enc_len, &unzip, &unzip_len) == RHN_OK) {
+              if (r_jwe_set_payload(jwe, unzip, unzip_len) != RHN_OK) {
                 y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_jwe_set_payload");
                 ret = RHN_ERROR;
               }
+            } else {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error _r_inflate_payload");
+              ret = RHN_ERROR;
             }
-          } else if (res == GNUTLS_E_DECRYPTION_FAILED) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - decryption failed: '%s'", gnutls_strerror(res));
-            ret = RHN_ERROR_INVALID;
+            o_free(unzip);
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_decrypt: '%s'", gnutls_strerror(res));
-            ret = RHN_ERROR;
+            if (r_jwe_set_payload(jwe, payload_enc, payload_enc_len) != RHN_OK) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_jwe_set_payload");
+              ret = RHN_ERROR;
+            }
           }
-        } else if (!cipher_cbc) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_add_auth: '%s'", gnutls_strerror(res));
+        } else if (res == GNUTLS_E_DECRYPTION_FAILED) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - decryption failed: '%s'", gnutls_strerror(res));
+          ret = RHN_ERROR_INVALID;
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_decrypt: '%s'", gnutls_strerror(res));
           ret = RHN_ERROR;
         }
         if (ret == RHN_OK) {
           if (cipher_cbc) {
-            if (r_jwe_compute_hmac_tag(jwe, ciphertext, ciphertext_len, tag, &tag_len) != RHN_OK) {
+            if (r_jwe_compute_hmac_tag(jwe, ciphertext, ciphertext_len, aad, tag, &tag_len) != RHN_OK) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_jwe_compute_hmac_tag");
               ret = RHN_ERROR;
             }
@@ -3318,6 +3336,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
             }
           }
         }
+        o_free(aad);
         gnutls_cipher_deinit(handle);
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_init: '%s'", gnutls_strerror(res));
@@ -3612,6 +3631,12 @@ int r_jwe_parse_json_t(jwe_t * jwe, json_t * jwe_json, int x5u_flags) {
           break;
         }
         
+        if (json_object_get(jwe_json, "unprotected") != NULL && r_jwe_set_full_unprotected_header_json_t(jwe, json_object_get(jwe_json, "unprotected")) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse_json_t - Error r_jwe_set_full_unprotected_header_json_t");
+          ret = RHN_ERROR_PARAM;
+          break;
+        }
+        
         if (!o_base64url_decode((unsigned char *)json_string_value(json_object_get(jwe_json, "protected")), json_string_length(json_object_get(jwe_json, "protected")), NULL, &header_len)) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse_json_t - Error invalid protected base64");
           ret = RHN_ERROR_PARAM;
@@ -3680,16 +3705,7 @@ int r_jwe_parse_json_t(jwe_t * jwe, json_t * jwe_json, int x5u_flags) {
       o_free(str_header);
       o_free(iv);
       if (ret == RHN_OK) {
-        if (json_string_length(json_object_get(jwe_json, "encrypted_key")) && json_is_object(json_object_get(jwe_json, "header")) && json_string_length(json_object_get(json_object_get(jwe_json, "header"), "alg"))) {
-          jwe->token_mode = R_JSON_MODE_FLATTENED;
-          jwe->encrypted_key_b64url = (unsigned char *)o_strdup(json_string_value(json_object_get(jwe_json, "encrypted_key")));
-          if (r_jwe_extract_header(jwe, json_object_get(jwe_json, "header"), x5u_flags) == RHN_OK) {
-            json_object_update_missing(jwe->j_header, json_object_get(jwe_json, "header"));
-          } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse_json_t - error extracting header params");
-            ret = RHN_ERROR_PARAM;
-          }
-        } else if (json_array_size(json_object_get(jwe_json, "recipients"))) {
+        if (json_array_size(json_object_get(jwe_json, "recipients"))) {
           jwe->token_mode = R_JSON_MODE_GENERAL;
           json_array_foreach(json_object_get(jwe_json, "recipients"), index, j_recipient) {
             if (!json_is_object(j_recipient)) {
@@ -3697,12 +3713,12 @@ int r_jwe_parse_json_t(jwe_t * jwe, json_t * jwe_json, int x5u_flags) {
               ret = RHN_ERROR_PARAM;
               break;
             } else {
-              if (R_JWA_ALG_ECDH_ES != r_str_to_jwa_alg(json_string_value(json_object_get(json_object_get(j_recipient, "header"), "alg"))) && !o_base64url_decode((const unsigned char*)json_string_value(json_object_get(j_recipient, "encrypted_key")), json_string_length(json_object_get(j_recipient, "encrypted_key")), NULL, &cypher_key_len)) {
+              if (!o_base64url_decode((const unsigned char*)json_string_value(json_object_get(j_recipient, "encrypted_key")), json_string_length(json_object_get(j_recipient, "encrypted_key")), NULL, &cypher_key_len)) {
                 y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse_json_t - Error at index %zu, invalid encrypted_key base64 %s", index);
                 ret = RHN_ERROR_PARAM;
                 break;
               }
-              if (!json_is_object(json_object_get(j_recipient, "header"))) {
+              if (json_object_get(j_recipient, "header") != NULL && !json_is_object(json_object_get(j_recipient, "header"))) {
                 y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse_json_t - Invalid header at index %zu, must be a JSON object", index);
                 ret = RHN_ERROR_PARAM;
                 break;
@@ -3710,8 +3726,14 @@ int r_jwe_parse_json_t(jwe_t * jwe, json_t * jwe_json, int x5u_flags) {
             }
           }
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse_json_t - Error invalid content, missing fields");
-          ret = RHN_ERROR_PARAM;
+          jwe->token_mode = R_JSON_MODE_FLATTENED;
+          jwe->encrypted_key_b64url = (unsigned char *)o_strdup(json_string_value(json_object_get(jwe_json, "encrypted_key")));
+          if (json_object_get(jwe_json, "header") == NULL || r_jwe_extract_header(jwe, json_object_get(jwe_json, "header"), x5u_flags) == RHN_OK) {
+            json_object_update_missing(jwe->j_header, json_object_get(jwe_json, "header"));
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse_json_t - error extracting header params");
+            ret = RHN_ERROR_PARAM;
+          }
         }
       }
     } else {
@@ -3755,7 +3777,14 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
         r_jwe_set_full_header_json_t(jwe, j_cur_header);
         json_decref(j_cur_header);
         jwe->encrypted_key_b64url = (unsigned char *)json_string_value(json_object_get(j_recipient, "encrypted_key"));
-        if ((alg = r_str_to_jwa_alg(json_string_value(json_object_get(json_object_get(j_recipient, "header"), "alg")))) != R_JWA_ALG_UNKNOWN && alg != R_JWA_ALG_ECDH_ES) {
+        alg = r_jwe_get_alg(jwe);
+        if (json_object_get(jwe->j_unprotected_header, "alg") != NULL) {
+          alg = r_str_to_jwa_alg(json_string_value(json_object_get(jwe->j_unprotected_header, "alg")));
+        }
+        if (json_object_get(json_object_get(j_recipient, "header"), "alg") != NULL) {
+          alg = r_str_to_jwa_alg(json_string_value(json_object_get(json_object_get(j_recipient, "header"), "alg")));
+        }
+        if (alg != R_JWA_ALG_UNKNOWN && alg != R_JWA_ALG_ECDH_ES) {
           if (jwk_privkey != NULL) {
             if (r_jwk_get_property_str(jwk_privkey, "kid") == NULL || json_object_get(json_object_get(j_recipient, "header"), "kid") == NULL || 0 == o_strcmp(json_string_value(json_object_get(json_object_get(j_recipient, "header"), "kid")), r_jwk_get_property_str(jwk_privkey, "kid"))) {
               if ((res = r_preform_key_decryption(jwe, alg, jwk_privkey, x5u_flags)) != RHN_ERROR_INVALID) {
@@ -3791,7 +3820,7 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
         } else if (alg == R_JWA_ALG_ECDH_ES) {
           y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwe_decrypt - Unsupported algorithm ECDH-ES on general serialization");
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt - Invalid alg value at index %zu: '%s'", index, json_string_value(json_object_get(json_object_get(j_recipient, "header"), "alg")));
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt - Invalid alg value at index %zu: %d", index, (alg));
           ret = RHN_ERROR_PARAM;
         }
       }
@@ -3805,6 +3834,9 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
       j_header = r_jwe_get_full_header_json_t(jwe);
       j_cur_header = json_deep_copy(j_header);
       json_object_update(j_cur_header, json_object_get(j_recipient, "header"));
+      if (jwe->j_unprotected_header != NULL) {
+        json_object_update(j_cur_header, jwe->j_unprotected_header);
+      }
       r_jwe_set_full_header_json_t(jwe, j_cur_header);
       json_decref(j_cur_header);
       if ((res = r_jwe_decrypt_key(jwe, jwk, x5u_flags)) == RHN_OK && (res = r_jwe_decrypt_payload(jwe)) == RHN_OK) {
@@ -3932,12 +3964,12 @@ json_t * r_jwe_serialize_json_t(jwe_t * jwe, jwks_t * jwks_pubkey, int x5u_flags
             if ((kid = r_jwe_get_header_str_value(jwe, "kid")) == NULL) {
               kid = r_jwk_get_property_str(jwk, "kid");
             }
-            j_return = json_pack("{ss sO ss ss ss sO}", "protected", jwe->header_b64url,
-                                                        "encrypted_key", json_object_get(j_result, "encrypted_key"),
-                                                        "iv", jwe->iv_b64url,
-                                                        "ciphertext", jwe->ciphertext_b64url,
-                                                        "tag", jwe->auth_tag_b64url,
-                                                        "header", json_object_get(j_result, "header"));
+            j_return = json_pack("{ss sO* ss ss ss sO*}", "protected", jwe->header_b64url,
+                                                          "encrypted_key", json_object_get(j_result, "encrypted_key"),
+                                                          "iv", jwe->iv_b64url,
+                                                          "ciphertext", jwe->ciphertext_b64url,
+                                                          "tag", jwe->auth_tag_b64url,
+                                                          "header", json_object_get(j_result, "header"));
             if (jwe->aad_b64url != NULL) {
               json_object_set_new(j_return, "aad", json_string((const char *)jwe->aad_b64url));
             }
@@ -3984,14 +4016,16 @@ json_t * r_jwe_serialize_json_t(jwe_t * jwe, jwks_t * jwks_pubkey, int x5u_flags
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_serialize_json_t - Error input parameters");
       }
-      r_jwe_set_header_str_value(jwe, "alg", NULL);
+      //r_jwe_set_header_str_value(jwe, "alg", NULL);
       for (i=0; i<r_jwks_size(jwks_pubkey); i++) {
         jwk = r_jwks_get_at(jwks_pubkey, i);
         kid = r_jwk_get_property_str(jwk, "kid");
         alg = r_str_to_jwa_alg(r_jwk_get_property_str(jwk, "alg"));
         if (alg != R_JWA_ALG_UNKNOWN && alg != R_JWA_ALG_ECDH_ES) {
           if ((j_result = r_jwe_perform_key_encryption(jwe, alg, jwk, x5u_flags, &res)) != NULL) {
-            json_object_set_new(json_object_get(j_result, "header"), "kid", json_string(r_jwk_get_property_str(jwk, "kid")));
+            if (json_object_get(jwe->j_header, "kid") == NULL && json_object_get(jwe->j_unprotected_header, "kid") == NULL) {
+              json_object_set_new(json_object_get(j_result, "header"), "kid", json_string(r_jwk_get_property_str(jwk, "kid")));
+            }
             json_array_append(json_object_get(j_return, "recipients"), j_result);
           } else {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_serialize_json_t - Error invalid encryption key at index %zu", i);

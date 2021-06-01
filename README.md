@@ -30,7 +30,7 @@ JWT Relies on JWS and JWE functions, so it supports the same functionalities as 
 | EdDSA | Digital Signature with Ed25519 Elliptic Curve |**YES**(1)|
 | ES256K | Digital Signature with secp256k1 Curve Key |*NO*|
 
-(1) GnuTLS 3.6 minimum is required for ECDSA, Ed25519 (EDDSA), ES256K and RSA-PSS signatures.
+(1) GnuTLS 3.6 minimum is required for ECDSA, Ed25519 (EdDSA) and RSA-PSS signatures.
 
 - Supported Encryption Algorithm (`enc`) for JWE payload encryption:
 

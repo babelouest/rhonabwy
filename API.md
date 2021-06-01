@@ -106,7 +106,7 @@ Example output:
 
 ```JSON
 {
-  "version": "0.9.99",
+  "version": "0.9.9999",
   "jws": {
     "alg": [
       "none",
@@ -120,7 +120,6 @@ Example output:
       "ES384",
       "ES512",
       "EdDSA",
-      "ES256K",
       "PS256",
       "PS384",
       "PS512"
@@ -136,11 +135,11 @@ Example output:
       "A256KW",
       "dir",
       "A128GCMKW",
+      "A192GCMKW",
       "A256GCMKW",
       "PBES2-HS256+A128KW",
       "PBES2-HS384+A192KW",
       "PBES2-HS512+A256KW",
-      "A192GCMKW",
       "ECDH-ES",
       "ECDH-ES+A128KW",
       "ECDH-ES+A192KW",
@@ -301,8 +300,7 @@ The algorithms supported by Rhonabwy are:
 - Digital Signature with RSASSA-PKCS1-v1_5: `RS256`, `RS384`, `RS512`
 - Digital Signature with ECDSA: `ES256`, `ES384`, `ES512`, `ES256K`
 - Digital Signature with RSASSA-PSS: `PS256`, `PS384`, `PS512`
-- Digital Signature with Ed25519 Elliptic Curve: `EDdSA`
-- Digital Signature with secp256k1 Elliptic Curve: `ES256K`
+- Digital Signature with Ed25519 or Ed448 Elliptic Curve: `EDdSA`
 - Unsecured: `none`
 
 ### JWS example
@@ -336,7 +334,7 @@ Finally, the complete representation of the JWS is the following:
 eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.GKxWqRBFr-6X4HfflzGeGvKVsJ8v1-J39Ho2RslC-5o
 ```
 
-### Serialize a JWS using Rhonabwy
+### Serialize a JWS using Rhonabwy in compact mode
 
 The JWS above can be created with the following sample code:
 
@@ -390,6 +388,10 @@ if (r_jwk_init(&jwk_key_symmetric) == RHN_OK &&
 r_jws_free(jws);
 r_jwk_free(jwk_key_symmetric);
 ```
+
+#### Compressed payload
+
+The header value `"zip":"DEF"` is used to specify if the JWS payload is compressed using [ZIP/Deflate](https://tools.ietf.org/html/rfc7516#section-4.1.3) algorithm. Rhonabwy will automatically compress or decompress the decrypted payload during encryption or decryption process.
 
 ## JWE
 
@@ -554,6 +556,26 @@ r_jwk_free(jwk_eph);
 r_jwk_free(jwk_bob);
 r_jwe_free(jwe);
 ```
+
+## Tokens in JSON format
+
+Rhonabwy supports serializing and parsing tokens in JSON format, see [JWE JSON Serialization](https://datatracker.ietf.org/doc/html/rfc7516#section-7.2) and [JWS JSON Serialization](https://datatracker.ietf.org/doc/html/rfc7515#section-7.2).
+
+### JWS JSON serialization and parsing
+
+To serialize a JWS in JSON format, you must use the functions `r_jws_serialize_json_t` or `r_jws_serialize_json_str`, the parameter `mode` must have the value `R_JSON_MODE_GENERAL` to serialize in general format (allows multiple signatures), or `R_JSON_MODE_FLATTENED` to serialize in flattened format.
+
+To parse a JWS in JSON format, you can either use `r_jws_parse_json_str`, `r_jws_parsen_json_str` or `r_jws_parse_json_t` when you know the token is in JSON format, or you can use `r_jws_parse` or `r_jws_parsen`.
+
+If the token is in general JSON format and has multiple signatures, the function `r_jws_verify_signature` will return `RHN_OK` if one of the signatures is verified by the public key specified or one of the public keys added to its public JWKS.
+
+### JWE JSON serialization and parsing
+
+To serialize a JWE in JSON format, you must use the functions `r_jwe_serialize_json_t` or `r_jwe_serialize_json_str`, the parameter `mode` must have the value `R_JSON_MODE_GENERAL` to serialize in general format (allows multiple key encryption), or `R_JSON_MODE_FLATTENED` to serialize in flattened format.
+
+To parse a JWE in JSON format, you can either use `r_jwe_parse_json_str`, `r_jwe_parsen_json_str` or `r_jwe_parse_json_t` when you know the token is in JSON format, or you can use `r_jwe_parse` or `r_jwe_parsen`.
+
+If the token is in general JSON format and has multiple key encryption, the function `r_jwe_decrypt` will decrypt the payload and return `RHN_OK` if one of the recipients content is correctly decrypted using a specified private key or one of the private key added to its private JWKS.
 
 ## JWT
 

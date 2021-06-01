@@ -43,15 +43,22 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">misc.c File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;orcania.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;zlib.h&gt;</code><br />
+<code>#include &lt;orcania.h&gt;</code><br />
 <code>#include &lt;yder.h&gt;</code><br />
 <code>#include &lt;<a class="el" href="rhonabwy_8h_source.html">rhonabwy.h</a>&gt;</code><br />
 </div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:abb944e890e1765535d6e4d5b7c41f545"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="misc_8c.html#abb944e890e1765535d6e4d5b7c41f545">_R_BLOCK_SIZE</a>&#160;&#160;&#160;256</td></tr>
+<tr class="separator:abb944e890e1765535d6e4d5b7c41f545"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:gadb3e47b28040a79fb4b10474ef59320d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gadb3e47b28040a79fb4b10474ef59320d">r_global_init</a> ()</td></tr>
@@ -78,6 +85,10 @@ Functions</h2></td></tr>
 <tr class="separator:a82ce71e62fa0e84c3396f552e262e922"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac4bb57b044f9cfeff6a364d7f515140c"><td class="memItemLeft" align="right" valign="top">gnutls_cipher_algorithm_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="misc_8c.html#ac4bb57b044f9cfeff6a364d7f515140c">_r_get_alg_from_enc</a> (<a class="el" href="group__type.html#ga34a92d88d5befd0170a6b82ec53ef020">jwa_enc</a> enc)</td></tr>
 <tr class="separator:ac4bb57b044f9cfeff6a364d7f515140c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82ea059a4841e1ca62ee4c41a0dd27e5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="misc_8c.html#a82ea059a4841e1ca62ee4c41a0dd27e5">_r_deflate_payload</a> (const unsigned char *uncompressed, size_t uncompressed_len, unsigned char **compressed, size_t *compressed_len)</td></tr>
+<tr class="separator:a82ea059a4841e1ca62ee4c41a0dd27e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f5c478ba5ca32952482f9ebecb9f671"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="misc_8c.html#a3f5c478ba5ca32952482f9ebecb9f671">_r_inflate_payload</a> (const unsigned char *compressed, size_t compressed_len, unsigned char **uncompressed, size_t *uncompressed_len)</td></tr>
+<tr class="separator:a3f5c478ba5ca32952482f9ebecb9f671"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga9c1ba3ddb02c6e9a31756ab40ca5e89c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gaaf028013558b5ff9aa99ff4afc3ae2ea">jwa_alg</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga9c1ba3ddb02c6e9a31756ab40ca5e89c">r_str_to_jwa_alg</a> (const char *alg)</td></tr>
 <tr class="separator:ga9c1ba3ddb02c6e9a31756ab40ca5e89c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2579e408e5f91803c4b2648da61c0788"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#ga2579e408e5f91803c4b2648da61c0788">r_jwa_alg_to_str</a> (<a class="el" href="group__type.html#gaaf028013558b5ff9aa99ff4afc3ae2ea">jwa_alg</a> alg)</td></tr>
@@ -93,6 +104,27 @@ Functions</h2></td></tr>
 <tr class="memitem:gab04b1ac2dfe5a33b0aae918f9d17b359"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__core.html#gab04b1ac2dfe5a33b0aae918f9d17b359">r_free</a> (void *data)</td></tr>
 <tr class="separator:gab04b1ac2dfe5a33b0aae918f9d17b359"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="abb944e890e1765535d6e4d5b7c41f545"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb944e890e1765535d6e4d5b7c41f545">&#9670;&nbsp;</a></span>_R_BLOCK_SIZE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define _R_BLOCK_SIZE&#160;&#160;&#160;256</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Rhonabwy library</p>
+<p><a class="el" href="misc_8c.html">misc.c</a>: Misc functions definitions</p>
+<p>Copyright 2020-2021 Nicolas Mora <a href="#" onclick="location.href='mai'+'lto:'+'mai'+'l@'+'bab'+'el'+'oue'+'st'+'.or'+'g'; return false;">mail@<span style="display: none;">.nosp@m.</span>babe<span style="display: none;">.nosp@m.</span>loues<span style="display: none;">.nosp@m.</span>t.or<span style="display: none;">.nosp@m.</span>g</a></p>
+<p>This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; version 2.1 of the License.</p>
+<p>This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU GENERAL PUBLIC LICENSE for more details.</p>
+<p>You should have received a copy of the GNU General Public License along with this library. If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>. </p>
+
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a4da44469083f9e6bb8e69159d9bc00e1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4da44469083f9e6bb8e69159d9bc00e1">&#9670;&nbsp;</a></span>_r_get_http_content()</h2>
@@ -368,6 +400,86 @@ Functions</h2></td></tr>
           <td class="paramtype"><a class="el" href="group__type.html#ga34a92d88d5befd0170a6b82ec53ef020">jwa_enc</a>&#160;</td>
           <td class="paramname"><em>enc</em></td><td>)</td>
           <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a82ea059a4841e1ca62ee4c41a0dd27e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a82ea059a4841e1ca62ee4c41a0dd27e5">&#9670;&nbsp;</a></span>_r_deflate_payload()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int _r_deflate_payload </td>
+          <td>(</td>
+          <td class="paramtype">const unsigned char *&#160;</td>
+          <td class="paramname"><em>uncompressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>uncompressed_len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned char **&#160;</td>
+          <td class="paramname"><em>compressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>compressed_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a3f5c478ba5ca32952482f9ebecb9f671"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f5c478ba5ca32952482f9ebecb9f671">&#9670;&nbsp;</a></span>_r_inflate_payload()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int _r_inflate_payload </td>
+          <td>(</td>
+          <td class="paramtype">const unsigned char *&#160;</td>
+          <td class="paramname"><em>compressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>compressed_len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned char **&#160;</td>
+          <td class="paramname"><em>uncompressed</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>uncompressed_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">

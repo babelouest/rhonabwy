@@ -857,7 +857,7 @@ int r_jwks_is_valid(jwks_t * jwks);
  * may return RHN_ERROR_PARAM if at least one JWK 
  * is invalid, but the will import the others
  */
-int r_jwks_import_from_str(jwks_t * jwks, const char * input);
+int r_jwks_import_from_json_str(jwks_t * jwks, const char * input);
 
 /**
  * Import a JWKS in json_t format into a jwk_t

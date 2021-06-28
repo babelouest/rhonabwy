@@ -245,7 +245,7 @@ int r_jwks_export_to_pem_der(jwks_t * jwks, int format, unsigned char * output, 
   return ret;
 }
 
-int r_jwks_import_from_str(jwks_t * jwks, const char * input) {
+int r_jwks_import_from_json_str(jwks_t * jwks, const char * input) {
   json_t * j_input;
   int ret;
   if (jwks != NULL && input != NULL) {

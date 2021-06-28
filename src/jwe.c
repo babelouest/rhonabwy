@@ -1919,7 +1919,7 @@ static int r_jwe_compute_hmac_tag(jwe_t * jwe, unsigned char * ciphertext, size_
     memcpy(compute_hmac+hmac_size, al, 8);
     hmac_size += 8;
 
-    if (!(res = gnutls_hmac_fast(mac, jwe->key, 16, compute_hmac, hmac_size, tag))) {
+    if (!(res = gnutls_hmac_fast(mac, jwe->key, jwe->key_len/2, compute_hmac, hmac_size, tag))) {
       *tag_len = gnutls_hmac_get_len(mac)/2;
       ret = RHN_OK;
     } else {

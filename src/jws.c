@@ -34,7 +34,7 @@
 static json_t * r_jws_parse_protected(const unsigned char * header_b64url) {
   unsigned char * header = NULL;
   size_t header_len = 0;
-  json_t * j_return;
+  json_t * j_return = NULL;
   
   do {
     if (!o_base64url_decode(header_b64url, o_strlen((const char *)header_b64url), NULL, &header_len)) {

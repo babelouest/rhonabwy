@@ -154,8 +154,8 @@ void test_rhonabwy_json_flattened_all_algs(jwa_enc enc) {
   ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
   ck_assert_int_eq(r_jwks_init(&jwks_pub), RHN_OK);
   ck_assert_int_eq(r_jwks_init(&jwks_priv), RHN_OK);
-  ck_assert_int_eq(r_jwks_import_from_str(jwks_priv, jwks_all_privkeys), RHN_OK);
-  ck_assert_int_eq(r_jwks_import_from_str(jwks_pub, jwks_all_pubkeys), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_json_str(jwks_priv, jwks_all_privkeys), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_json_str(jwks_pub, jwks_all_pubkeys), RHN_OK);
   
   ck_assert_int_eq(r_jwe_set_full_unprotected_header_json_t(jwe, j_un_header), RHN_OK);
   ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
@@ -200,8 +200,8 @@ void test_rhonabwy_json_general_all_algs(jwa_enc enc)
   ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
   ck_assert_int_eq(r_jwks_init(&jwks_pub), RHN_OK);
   ck_assert_int_eq(r_jwks_init(&jwks_priv), RHN_OK);
-  ck_assert_int_eq(r_jwks_import_from_str(jwks_priv, jwks_all_privkeys), RHN_OK);
-  ck_assert_int_eq(r_jwks_import_from_str(jwks_pub, jwks_all_pubkeys), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_json_str(jwks_priv, jwks_all_privkeys), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_json_str(jwks_pub, jwks_all_pubkeys), RHN_OK);
   
   ck_assert_int_eq(r_jwe_set_full_unprotected_header_json_t(jwe, j_un_header), RHN_OK);
   ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);

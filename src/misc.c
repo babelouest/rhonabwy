@@ -121,7 +121,7 @@ int _r_json_set_str_value(json_t * j_json, const char * key, const char * str_va
   return ret;
 }
 
-int _r_json_set_int_value(json_t * j_json, const char * key, int i_value) {
+int _r_json_set_int_value(json_t * j_json, const char * key, rhn_int_t i_value) {
   int ret;
 
   if (j_json != NULL && o_strlen(key)) {
@@ -165,7 +165,7 @@ const char * _r_json_get_str_value(json_t * j_json, const char * key) {
   return NULL;
 }
 
-int _r_json_get_int_value(json_t * j_json, const char * key) {
+rhn_int_t _r_json_get_int_value(json_t * j_json, const char * key) {
   if (j_json != NULL && o_strlen(key)) {
     return json_integer_value(json_object_get(j_json, key));
   }

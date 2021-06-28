@@ -1077,7 +1077,7 @@ int r_jws_set_header_str_value(jws_t * jws, const char * key, const char * str_v
   }
 }
 
-int r_jws_set_header_int_value(jws_t * jws, const char * key, int i_value) {
+int r_jws_set_header_int_value(jws_t * jws, const char * key, rhn_int_t i_value) {
   int ret;
 
   if (jws != NULL) {
@@ -1113,7 +1113,7 @@ const char * r_jws_get_header_str_value(jws_t * jws, const char * key) {
   return NULL;
 }
 
-int r_jws_get_header_int_value(jws_t * jws, const char * key) {
+rhn_int_t r_jws_get_header_int_value(jws_t * jws, const char * key) {
   if (jws != NULL) {
     return _r_json_get_int_value(jws->j_header, key);
   }
@@ -2027,7 +2027,9 @@ int r_jws_set_full_header_json_str(jws_t * jws, const char * str_header) {
 
 int r_jws_set_properties(jws_t * jws, ...) {
   rhn_opt option;
-  uint i_value, ret = RHN_OK;
+  uint ui_value;
+  int ret = RHN_OK;
+  rhn_int_t i_value;
   const char * str_key, * str_value;
   json_t * j_value;
   const unsigned char * ustr_value;
@@ -2044,7 +2046,7 @@ int r_jws_set_properties(jws_t * jws, ...) {
       switch (option) {
         case RHN_OPT_HEADER_INT_VALUE:
           str_key = va_arg(vl, const char *);
-          i_value = va_arg(vl, uint);
+          i_value = va_arg(vl, rhn_int_t);
           ret = r_jws_set_header_int_value(jws, str_key, i_value);
           break;
         case RHN_OPT_HEADER_STR_VALUE:
@@ -2071,8 +2073,8 @@ int r_jws_set_properties(jws_t * jws, ...) {
           ret = r_jws_set_payload(jws, ustr_value, size_value);
           break;
         case RHN_OPT_SIG_ALG:
-          i_value = va_arg(vl, uint);
-          ret = r_jws_set_alg(jws, (jwa_alg)i_value);
+          ui_value = va_arg(vl, uint);
+          ret = r_jws_set_alg(jws, (jwa_alg)ui_value);
           break;
         case RHN_OPT_VERIFY_KEY_JWK:
           jwk = va_arg(vl, jwk_t *);
@@ -2095,10 +2097,10 @@ int r_jws_set_properties(jws_t * jws, ...) {
           ret = r_jws_add_keys_json_str(jws, NULL, str_value);
           break;
         case RHN_OPT_VERIFY_KEY_PEM_DER:
-          i_value = va_arg(vl, uint);
+          ui_value = va_arg(vl, uint);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jws_add_keys_pem_der(jws, i_value, NULL, 0, ustr_value, size_value);
+          ret = r_jws_add_keys_pem_der(jws, ui_value, NULL, 0, ustr_value, size_value);
           break;
         case RHN_OPT_SIGN_KEY_JWK:
           jwk = va_arg(vl, jwk_t *);
@@ -2121,10 +2123,10 @@ int r_jws_set_properties(jws_t * jws, ...) {
           ret = r_jws_add_keys_json_str(jws, str_value, NULL);
           break;
         case RHN_OPT_SIGN_KEY_PEM_DER:
-          i_value = va_arg(vl, uint);
+          ui_value = va_arg(vl, uint);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jws_add_keys_pem_der(jws, i_value, ustr_value, size_value, NULL, 0);
+          ret = r_jws_add_keys_pem_der(jws, ui_value, ustr_value, size_value, NULL, 0);
           break;
         default:
           ret = RHN_ERROR_PARAM;

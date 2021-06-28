@@ -2736,7 +2736,7 @@ int r_jwe_set_header_str_value(jwe_t * jwe, const char * key, const char * str_v
   }
 }
 
-int r_jwe_set_header_int_value(jwe_t * jwe, const char * key, int i_value) {
+int r_jwe_set_header_int_value(jwe_t * jwe, const char * key, rhn_int_t i_value) {
   int ret;
 
   if (jwe != NULL) {
@@ -2772,7 +2772,7 @@ const char * r_jwe_get_header_str_value(jwe_t * jwe, const char * key) {
   return NULL;
 }
 
-int r_jwe_get_header_int_value(jwe_t * jwe, const char * key) {
+rhn_int_t r_jwe_get_header_int_value(jwe_t * jwe, const char * key) {
   if (jwe != NULL) {
     return _r_json_get_int_value(jwe->j_header, key);
   }
@@ -4128,7 +4128,9 @@ int r_jwe_set_full_unprotected_header_json_str(jwe_t * jwe, const char * str_unp
 
 int r_jwe_set_properties(jwe_t * jwe, ...) {
   rhn_opt option;
-  uint i_value, ret = RHN_OK;
+  int ret = RHN_OK;
+  rhn_int_t i_value;
+  uint ui_value;
   const char * str_key, * str_value;
   json_t * j_value;
   const unsigned char * ustr_value;
@@ -4145,7 +4147,7 @@ int r_jwe_set_properties(jwe_t * jwe, ...) {
       switch (option) {
         case RHN_OPT_HEADER_INT_VALUE:
           str_key = va_arg(vl, const char *);
-          i_value = va_arg(vl, uint);
+          i_value = va_arg(vl, rhn_int_t);
           ret = r_jwe_set_header_int_value(jwe, str_key, i_value);
           break;
         case RHN_OPT_HEADER_STR_VALUE:
@@ -4180,12 +4182,12 @@ int r_jwe_set_properties(jwe_t * jwe, ...) {
           ret = r_jwe_set_payload(jwe, ustr_value, size_value);
           break;
         case RHN_OPT_ENC_ALG:
-          i_value = va_arg(vl, uint);
-          ret = r_jwe_set_alg(jwe, (jwa_alg)i_value);
+          ui_value = va_arg(vl, uint);
+          ret = r_jwe_set_alg(jwe, (jwa_alg)ui_value);
           break;
         case RHN_OPT_ENC:
-          i_value = va_arg(vl, uint);
-          ret = r_jwe_set_enc(jwe, (jwa_enc)i_value);
+          ui_value = va_arg(vl, uint);
+          ret = r_jwe_set_enc(jwe, (jwa_enc)ui_value);
           break;
         case RHN_OPT_CIPHER_KEY:
           ustr_value = va_arg(vl, const unsigned char *);
@@ -4223,10 +4225,10 @@ int r_jwe_set_properties(jwe_t * jwe, ...) {
           ret = r_jwe_add_keys_json_str(jwe, NULL, str_value);
           break;
         case RHN_OPT_ENCRYPT_KEY_PEM_DER:
-          i_value = va_arg(vl, uint);
+          ui_value = va_arg(vl, uint);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jwe_add_keys_pem_der(jwe, i_value, NULL, 0, ustr_value, size_value);
+          ret = r_jwe_add_keys_pem_der(jwe, ui_value, NULL, 0, ustr_value, size_value);
           break;
         case RHN_OPT_DECRYPT_KEY_JWK:
           jwk = va_arg(vl, jwk_t *);
@@ -4249,10 +4251,10 @@ int r_jwe_set_properties(jwe_t * jwe, ...) {
           ret = r_jwe_add_keys_json_str(jwe, str_value, NULL);
           break;
         case RHN_OPT_DECRYPT_KEY_PEM_DER:
-          i_value = va_arg(vl, uint);
+          ui_value = va_arg(vl, uint);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jwe_add_keys_pem_der(jwe, i_value, ustr_value, size_value, NULL, 0);
+          ret = r_jwe_add_keys_pem_der(jwe, ui_value, ustr_value, size_value, NULL, 0);
           break;
         default:
           ret = RHN_ERROR_PARAM;

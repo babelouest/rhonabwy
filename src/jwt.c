@@ -140,7 +140,7 @@ int r_jwt_set_header_str_value(jwt_t * jwt, const char * key, const char * str_v
   }
 }
 
-int r_jwt_set_header_int_value(jwt_t * jwt, const char * key, int i_value) {
+int r_jwt_set_header_int_value(jwt_t * jwt, const char * key, rhn_int_t i_value) {
   if (jwt != NULL) {
     return _r_json_set_int_value(jwt->j_header, key, i_value);
   } else {
@@ -163,7 +163,7 @@ const char * r_jwt_get_header_str_value(jwt_t * jwt, const char * key) {
   return NULL;
 }
 
-int r_jwt_get_header_int_value(jwt_t * jwt, const char * key) {
+rhn_int_t r_jwt_get_header_int_value(jwt_t * jwt, const char * key) {
   if (jwt != NULL) {
     return _r_json_get_int_value(jwt->j_header, key);
   }
@@ -200,7 +200,7 @@ int r_jwt_set_claim_str_value(jwt_t * jwt, const char * key, const char * str_va
   }
 }
 
-int r_jwt_set_claim_int_value(jwt_t * jwt, const char * key, int i_value) {
+int r_jwt_set_claim_int_value(jwt_t * jwt, const char * key, rhn_int_t i_value) {
   if (jwt != NULL) {
     return _r_json_set_int_value(jwt->j_claims, key, i_value);
   } else {
@@ -223,7 +223,7 @@ const char * r_jwt_get_claim_str_value(jwt_t * jwt, const char * key) {
   return NULL;
 }
 
-int r_jwt_get_claim_int_value(jwt_t * jwt, const char * key) {
+rhn_int_t r_jwt_get_claim_int_value(jwt_t * jwt, const char * key) {
   if (jwt != NULL) {
     return _r_json_get_int_value(jwt->j_claims, key);
   }
@@ -2022,7 +2022,9 @@ int r_jwt_set_full_header_json_str(jwt_t * jwt, const char * str_header) {
 
 int r_jwt_set_properties(jwt_t * jwt, ...) {
   rhn_opt option;
-  uint ret = RHN_OK, i_value;
+  uint ui_value;
+  int ret = RHN_OK;
+  rhn_int_t i_value;
   const char * str_key, * str_value;
   json_t * j_value;
   const unsigned char * ustr_value;
@@ -2039,7 +2041,7 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
       switch (option) {
         case RHN_OPT_HEADER_INT_VALUE:
           str_key = va_arg(vl, const char *);
-          i_value = va_arg(vl, uint);
+          i_value = va_arg(vl, rhn_int_t);
           ret = r_jwt_set_header_int_value(jwt, str_key, i_value);
           break;
         case RHN_OPT_HEADER_STR_VALUE:
@@ -2062,7 +2064,7 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
           break;
         case RHN_OPT_CLAIM_INT_VALUE:
           str_key = va_arg(vl, const char *);
-          i_value = va_arg(vl, uint);
+          i_value = va_arg(vl, rhn_int_t);
           ret = r_jwt_set_claim_int_value(jwt, str_key, i_value);
           break;
         case RHN_OPT_CLAIM_STR_VALUE:
@@ -2084,16 +2086,16 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
           ret = r_jwt_set_full_claims_json_str(jwt, str_value);
           break;
         case RHN_OPT_ENC_ALG:
-          i_value = va_arg(vl, uint);
-          ret = r_jwt_set_enc_alg(jwt, (jwa_alg)i_value);
+          ui_value = va_arg(vl, uint);
+          ret = r_jwt_set_enc_alg(jwt, (jwa_alg)ui_value);
           break;
         case RHN_OPT_ENC:
-          i_value = va_arg(vl, uint);
-          ret = r_jwt_set_enc(jwt, (jwa_enc)i_value);
+          ui_value = va_arg(vl, uint);
+          ret = r_jwt_set_enc(jwt, (jwa_enc)ui_value);
           break;
         case RHN_OPT_SIG_ALG:
-          i_value = va_arg(vl, uint);
-          ret = r_jwt_set_sign_alg(jwt, (jwa_alg)i_value);
+          ui_value = va_arg(vl, uint);
+          ret = r_jwt_set_sign_alg(jwt, (jwa_alg)ui_value);
           break;
         case RHN_OPT_CIPHER_KEY:
           ustr_value = va_arg(vl, const unsigned char *);
@@ -2126,10 +2128,10 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
           ret = r_jwt_add_enc_keys_json_str(jwt, NULL, str_value);
           break;
         case RHN_OPT_ENCRYPT_KEY_PEM_DER:
-          i_value = va_arg(vl, uint);
+          ui_value = va_arg(vl, uint);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jwt_add_enc_keys_pem_der(jwt, i_value, NULL, 0, ustr_value, size_value);
+          ret = r_jwt_add_enc_keys_pem_der(jwt, ui_value, NULL, 0, ustr_value, size_value);
           break;
         case RHN_OPT_DECRYPT_KEY_JWK:
           jwk = va_arg(vl, jwk_t *);
@@ -2152,10 +2154,10 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
           ret = r_jwt_add_enc_keys_json_str(jwt, str_value, NULL);
           break;
         case RHN_OPT_DECRYPT_KEY_PEM_DER:
-          i_value = va_arg(vl, uint);
+          ui_value = va_arg(vl, uint);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jwt_add_enc_keys_pem_der(jwt, i_value, ustr_value, size_value, NULL, 0);
+          ret = r_jwt_add_enc_keys_pem_der(jwt, ui_value, ustr_value, size_value, NULL, 0);
           break;
         case RHN_OPT_VERIFY_KEY_JWK:
           jwk = va_arg(vl, jwk_t *);
@@ -2178,10 +2180,10 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
           ret = r_jwt_add_sign_keys_json_str(jwt, NULL, str_value);
           break;
         case RHN_OPT_VERIFY_KEY_PEM_DER:
-          i_value = va_arg(vl, uint);
+          ui_value = va_arg(vl, uint);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jwt_add_sign_keys_pem_der(jwt, i_value, NULL, 0, ustr_value, size_value);
+          ret = r_jwt_add_sign_keys_pem_der(jwt, ui_value, NULL, 0, ustr_value, size_value);
           break;
         case RHN_OPT_SIGN_KEY_JWK:
           jwk = va_arg(vl, jwk_t *);
@@ -2204,10 +2206,10 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
           ret = r_jwt_add_sign_keys_json_str(jwt, str_value, NULL);
           break;
         case RHN_OPT_SIGN_KEY_PEM_DER:
-          i_value = va_arg(vl, uint);
+          ui_value = va_arg(vl, uint);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jwt_add_sign_keys_pem_der(jwt, i_value, ustr_value, size_value, NULL, 0);
+          ret = r_jwt_add_sign_keys_pem_der(jwt, ui_value, ustr_value, size_value, NULL, 0);
           break;
         default:
           ret = RHN_ERROR_PARAM;

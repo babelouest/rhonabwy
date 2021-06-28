@@ -101,6 +101,7 @@ extern "C"
 
 typedef json_t jwk_t;
 typedef json_t jwks_t;
+typedef json_int_t rhn_int_t;
 
 typedef enum {
   R_JWA_ALG_UNKNOWN        = 0,
@@ -1090,7 +1091,7 @@ int r_jws_set_header_str_value(jws_t * jws, const char * key, const char * str_v
  * @param i_value: the value to set
  * @return RHN_OK on success, an error value on error
  */
-int r_jws_set_header_int_value(jws_t * jws, const char * key, int i_value);
+int r_jws_set_header_int_value(jws_t * jws, const char * key, rhn_int_t i_value);
 
 /**
  * Adds a JSON value to the JWS header
@@ -1129,9 +1130,9 @@ const char * r_jws_get_header_str_value(jws_t * jws, const char * key);
  * Gets an integer value from the JWS header
  * @param jws: the jws_t to get the value
  * @param key: the key to retreive the value
- * @return an int value, 0 if not present
+ * @return an rhn_int_t value, 0 if not present
  */
-int r_jws_get_header_int_value(jws_t * jws, const char * key);
+rhn_int_t r_jws_get_header_int_value(jws_t * jws, const char * key);
 
 /**
  * Gets a JSON value from the JWS header
@@ -1519,7 +1520,7 @@ int r_jwe_set_header_str_value(jwe_t * jwe, const char * key, const char * str_v
  * @param i_value: the value to set
  * @return RHN_OK on success, an error value on error
  */
-int r_jwe_set_header_int_value(jwe_t * jwe, const char * key, int i_value);
+int r_jwe_set_header_int_value(jwe_t * jwe, const char * key, rhn_int_t i_value);
 
 /**
  * Adds a JSON value to the JWE header
@@ -1590,9 +1591,9 @@ const char * r_jwe_get_header_str_value(jwe_t * jwe, const char * key);
  * Gets an integer value from the JWE header
  * @param jwe: the jwe_t to get the value
  * @param key: the key to retreive the value
- * @return an int value, 0 if not present
+ * @return an rhn_int_t value, 0 if not present
  */
-int r_jwe_get_header_int_value(jwe_t * jwe, const char * key);
+rhn_int_t r_jwe_get_header_int_value(jwe_t * jwe, const char * key);
 
 /**
  * Gets a JSON value from the JWE header
@@ -2024,7 +2025,7 @@ int r_jwt_set_header_str_value(jwt_t * jwt, const char * key, const char * str_v
  * @param i_value: the value to set
  * @return RHN_OK on success, an error value on error
  */
-int r_jwt_set_header_int_value(jwt_t * jwt, const char * key, int i_value);
+int r_jwt_set_header_int_value(jwt_t * jwt, const char * key, rhn_int_t i_value);
 
 /**
  * Adds a JSON value to the JWT header
@@ -2063,9 +2064,9 @@ const char * r_jwt_get_header_str_value(jwt_t * jwt, const char * key);
  * Gets an integer value from the JWT header
  * @param jwt: the jwt_t to get the value
  * @param key: the key to retreive the value
- * @return an int value, 0 if not present
+ * @return an rhn_int_t value, 0 if not present
  */
-int r_jwt_get_header_int_value(jwt_t * jwt, const char * key);
+rhn_int_t r_jwt_get_header_int_value(jwt_t * jwt, const char * key);
 
 /**
  * Gets a JSON value from the JWT header
@@ -2105,7 +2106,7 @@ int r_jwt_set_claim_str_value(jwt_t * jwt, const char * key, const char * str_va
  * @param i_value: the value to set
  * @return RHN_OK on success, an error value on error
  */
-int r_jwt_set_claim_int_value(jwt_t * jwt, const char * key, int i_value);
+int r_jwt_set_claim_int_value(jwt_t * jwt, const char * key, rhn_int_t i_value);
 
 /**
  * Adds a JSON value to the JWT claim
@@ -2128,9 +2129,9 @@ const char * r_jwt_get_claim_str_value(jwt_t * jwt, const char * key);
  * Gets an integer value from the JWT claim
  * @param jwt: the jwt_t to get the value
  * @param key: the key to retreive the value
- * @return an int value, 0 if not present
+ * @return an rhn_int_t value, 0 if not present
  */
-int r_jwt_get_claim_int_value(jwt_t * jwt, const char * key);
+rhn_int_t r_jwt_get_claim_int_value(jwt_t * jwt, const char * key);
 
 /**
  * Gets a JSON value from the JWT claim
@@ -2687,13 +2688,13 @@ int r_jwt_set_claims(jwt_t * jwt, ...);
  */
 int _r_json_set_str_value(json_t * j_json, const char * key, const char * str_value);
 
-int _r_json_set_int_value(json_t * j_json, const char * key, int i_value);
+int _r_json_set_int_value(json_t * j_json, const char * key, rhn_int_t i_value);
 
 int _r_json_set_json_t_value(json_t * j_json, const char * key, json_t * j_value);
 
 const char * _r_json_get_str_value(json_t * j_json, const char * key);
 
-int _r_json_get_int_value(json_t * j_json, const char * key);
+rhn_int_t _r_json_get_int_value(json_t * j_json, const char * key);
 
 json_t * _r_json_get_json_t_value(json_t * j_json, const char * key);
 

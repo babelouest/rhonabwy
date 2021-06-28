@@ -365,7 +365,7 @@ static int jwks_parse_str(jwks_t * jwks_priv, jwks_t * jwks_pub, const char * in
   int ret, key_type;
   size_t i;
 
-  if (r_jwks_init(&jwks) == RHN_OK && r_jwks_import_from_str(jwks, in) == RHN_OK) {
+  if (r_jwks_init(&jwks) == RHN_OK && r_jwks_import_from_json_str(jwks, in) == RHN_OK) {
     for (i=0; i<r_jwks_size(jwks); i++) {
       jwk = r_jwks_get_at(jwks, i);
       if ((key_type = r_jwk_key_type(jwk, NULL, x5u_flags)) & R_KEY_TYPE_PUBLIC && jwks_pub != NULL) {
@@ -587,12 +587,12 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
       if (type == R_JWT_TYPE_SIGN || type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT) {
         if (r_jwks_init(&jwks_pubkey) == RHN_OK) {
           if (o_strlen(str_jwks_pubkey) && str_jwks_pubkey[0] == '{') {
-            if (r_jwks_import_from_str(jwks_pubkey, str_jwks_pubkey) != RHN_OK) {
+            if (r_jwks_import_from_json_str(jwks_pubkey, str_jwks_pubkey) != RHN_OK) {
               fprintf(stderr, "Invalid jwks_pubkey\n");
             }
           } else if (o_strlen(str_jwks_pubkey)) {
             content = get_file_content(str_jwks_pubkey);
-            if (r_jwks_import_from_str(jwks_pubkey, content) != RHN_OK) {
+            if (r_jwks_import_from_json_str(jwks_pubkey, content) != RHN_OK) {
               fprintf(stderr, "Invalid jwks_pubkey path or content\n");
             }
             o_free(content);
@@ -602,12 +602,12 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
       if (type == R_JWT_TYPE_ENCRYPT || type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT) {
         if (r_jwks_init(&jwks_privkey) == RHN_OK) {
           if (o_strlen(str_jwks_privkey) && str_jwks_privkey[0] == '{') {
-            if (r_jwks_import_from_str(jwks_privkey, str_jwks_privkey) != RHN_OK) {
+            if (r_jwks_import_from_json_str(jwks_privkey, str_jwks_privkey) != RHN_OK) {
               fprintf(stderr, "Invalid jwks_privkey\n");
             }
           } else if (o_strlen(str_jwks_privkey)) {
             content = get_file_content(str_jwks_privkey);
-            if (r_jwks_import_from_str(jwks_privkey, content) != RHN_OK) {
+            if (r_jwks_import_from_json_str(jwks_privkey, content) != RHN_OK) {
               fprintf(stderr, "Invalid jwks_privkey path or content\n");
             }
             o_free(content);
@@ -688,13 +688,13 @@ static int serialize_token(const char * claims, int x5u_flags, const char * str_
     if (r_jwt_set_full_claims_json_str(jwt, claims) == RHN_OK) {
       if (r_jwks_init(&jwks_pubkey) == RHN_OK) {
         if (o_strlen(str_jwks_pubkey) && str_jwks_pubkey[0] == '{') {
-          if (r_jwks_import_from_str(jwks_pubkey, str_jwks_pubkey) != RHN_OK) {
+          if (r_jwks_import_from_json_str(jwks_pubkey, str_jwks_pubkey) != RHN_OK) {
             fprintf(stderr, "Invalid jwks_pubkey\n");
             ret = EINVAL;
           }
         } else if (o_strlen(str_jwks_pubkey)) {
           content = get_file_content(str_jwks_pubkey);
-          if (r_jwks_import_from_str(jwks_pubkey, content) != RHN_OK) {
+          if (r_jwks_import_from_json_str(jwks_pubkey, content) != RHN_OK) {
             fprintf(stderr, "Invalid jwks_pubkey path or content\n");
             ret = EAGAIN;
           }
@@ -703,13 +703,13 @@ static int serialize_token(const char * claims, int x5u_flags, const char * str_
       }
       if (r_jwks_init(&jwks_privkey) == RHN_OK) {
         if (o_strlen(str_jwks_privkey) && str_jwks_privkey[0] == '{') {
-          if (r_jwks_import_from_str(jwks_privkey, str_jwks_privkey) != RHN_OK) {
+          if (r_jwks_import_from_json_str(jwks_privkey, str_jwks_privkey) != RHN_OK) {
             fprintf(stderr, "Invalid jwks_privkey\n");
             ret = EINVAL;
           }
         } else if (o_strlen(str_jwks_privkey)) {
           content = get_file_content(str_jwks_privkey);
-          if (r_jwks_import_from_str(jwks_privkey, content) != RHN_OK) {
+          if (r_jwks_import_from_json_str(jwks_privkey, content) != RHN_OK) {
             fprintf(stderr, "Invalid jwks_privkey path or content\n");
             ret = EAGAIN;
           }

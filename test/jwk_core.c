@@ -31,10 +31,10 @@ const char jwk_pubkey_rsa_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJX
                                   "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
                                   "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\""\
                                   ",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2020-03-13\"}";
-const char jwk_pubkey_rsa_2_str[] = "{\"kty\":\"RSA\",\"n\":\"ANL8e2oKHmxnEErrj4iyV2abTfZ53a0Jm1xKbNmogBW1oTO_C4VseHG23wALVU_Os8LtUSu2jxRcboQ0dS-rUqHPwSRAj3m1"\
-                                    "ikV4wWQohVeJ96JJ44TLLZ-uLWf9lvuSbBmOB3OZ_cgVwK8Jfd5are_0TecOgn9IeEMkOb_uuWBo0EdPxQ1tkL86mN-vEEDInALWkqs7PCiWYJ2G_XO3dM4HQ"\
-                                    "GR87uqjEL0S-YWo659Z_dQmzqWyEg9PKjS8q3ZLfmxU1oQCOLzEBYelnmbtHzOJRXdjXEcK91z5LCDR2kPhv8QZ4iKm8NC7NYxeOPnLBQrq_pBIFPGsGqScyp"\
-                                    "6gyoM\",\"e\":\"AQAB\",\"kid\":\"rTIyDPbFltiEsFOBulc6uo3dV0m03o9KI6efmondrrI\"}";
+const char jwk_pubkey_rsa_2_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"
+                                    "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"
+                                    "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\""
+                                    ",\"e\":\"AQAB\",\"kid\":\"rTIyDPbFltiEsFOBulc6uo3dV0m03o9KI6efmondrrI\"}";
 const char jwk_pubkey_rsa_2_pem[] = "-----BEGIN PUBLIC KEY-----"\
                                   "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0vx7agoebGcQSuuPiLJX"\
                                   "ZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tS"\
@@ -63,8 +63,8 @@ const char jwk_privkey_rsa_3_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPi
                                      "k\",\"qi\":\"GyM_p6JrXySiz1toFgKbWV-JdI3jQ4ypu9rbMWx3rQJBfmt0FoYzgUIZEVFEcOqwemRN81zoDAaa-Bk0KWNGDjJHZDdDmFhW3AN7lI-puxk_m"\
                                      "HZGJ11rxyR8O55XLSe3SPmRfKwZI6yU24ZxvQKFYItdldUKGzO6Ia6zTKhAVRU\",\"alg\":\"RS256\",\"kid\":\"2011-04-29\"}";
 #if GNUTLS_VERSION_NUMBER >= 0x030600
-const char jwk_pubkey_ecdsa_2_str[] = "{\"kty\":\"EC\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\",\"y\":\"AOBLZekkVtmIi1Kzeb371R7oae8fD8ZbZllpW2zOC"\
-                                      "Bcj\",\"crv\":\"P-256\",\"kid\":\"UblEzfpUTUwyc6pr81BiWn3VO7tqcXIydPU4sZogd2A\"}";
+const char jwk_pubkey_ecdsa_2_str[] = "{\"kty\":\"EC\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\",\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\","
+                                      "\"crv\":\"P-256\",\"kid\":\"UblEzfpUTUwyc6pr81BiWn3VO7tqcXIydPU4sZogd2A\"}";
 const char jwk_pubkey_ecdsa_2_pem[] = "-----BEGIN PUBLIC KEY-----\n"\
                                       "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEMKBCTNIcKUSDii11ySs3526iDZ8A\n"\
                                       "iTo7Tu6KPAqv7D7gS2XpJFbZiItSs3m9+9Ue6GnvHw/GW2ZZaVtszggXIw==\n"\

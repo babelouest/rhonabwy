@@ -253,11 +253,12 @@ char * r_jwt_get_full_claims_str(jwt_t * jwt) {
 }
 
 int r_jwt_set_full_claims_json_t(jwt_t * jwt, json_t * j_claim) {
-  if (jwt != NULL && j_claim != NULL) {
+  if (jwt != NULL && json_is_object(j_claim)) {
     json_decref(jwt->j_claims);
     jwt->j_claims = json_deep_copy(j_claim);
     return RHN_OK;
   } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_set_full_claims_json_t - Error input parameters");
     return RHN_ERROR_PARAM;
   }
 }

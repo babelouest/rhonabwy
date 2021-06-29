@@ -104,9 +104,6 @@ if (ZLIB_FOUND)
   include_directories(${ZLIB_INCLUDE_DIRS})
 endif ()
 
-include(FindMHD)
-find_package(MHD REQUIRED)
-
 option(WITH_ECDH "ECDH-ES key management support" OFF)
 option(WITH_ULFIUS "Use Ulfius library to get HTTP remote content" ON)
 
@@ -118,6 +115,8 @@ endif ()
 
 if (WITH_ULFIUS)
     set(R_WITH_ULFIUS ON)
+    include(FindMHD)
+    find_package(MHD REQUIRED)
 else ()
     set(R_WITH_ULFIUS OFF)
 endif ()

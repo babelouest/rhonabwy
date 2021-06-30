@@ -169,11 +169,13 @@ Rhonabwy is available in the following distributions.
 
 ## Dependencies
 
-Rhonabwy is based on [Nettle](https://www.lysator.liu.se/~nisse/nettle/), [GnuTLS](https://www.gnutls.org/), [Jansson](http://www.digip.org/jansson/), [zlib](https://www.zlib.net/), [libmicrohttpd](https://www.gnu.org/software/libmicrohttpd/), [libcurl](https://curl.haxx.se/libcurl/) and libsystemd (if possible), you must install those libraries first before building Rhonabwy.
+Rhonabwy is based on [Nettle](https://www.lysator.liu.se/~nisse/nettle/), [GnuTLS](https://www.gnutls.org/), [Jansson](http://www.digip.org/jansson/), [zlib](https://www.zlib.net/), [libcurl](https://curl.haxx.se/libcurl/) and libsystemd (if possible), you must install those libraries first before building Rhonabwy.
+
+You also need check and [Ulfius](https://github.com/babelouest/ulfius) to run the tests.
 
 ## Prerequisites
 
-You need [Orcania](https://github.com/babelouest/orcania), [Yder](https://github.com/babelouest/yder), [Ulfius](https://github.com/babelouest/ulfius).
+You need [Orcania](https://github.com/babelouest/orcania) and [Yder](https://github.com/babelouest/yder).
 
 Those libraries are included in the package `rhonabwy-dev-full_{x.x.x}_{OS}_{ARCH}.tar.gz` in the [Latest release](https://github.com/babelouest/rhonabwy/releases/latest) page. If you're building with CMake, they will be automatically downloaded and installed if missing.
 
@@ -207,7 +209,7 @@ The available options for CMake are:
 - `-DBUILD_STATIC=[on|off]` (default `off`): Compile static library
 - `-DBUILD_RHONABWY_DOCUMENTATION=[on|off]` (default `off`): Build documentation with doxygen
 - `-DWITH_ECDH=[on|off]` (default `off`): Allow ECDH-ES for JWE key exchange management
-- `-DWITH_ULFIUS=[on|off]` (default `on`): Use Ulfius to download remote content
+- `-DWITH_CURL=[on|off]` (default `on`): Use libcurl to download remote content
 
 ### Good ol' Makefile
 
@@ -228,11 +230,11 @@ $ make ECDHFLAG=1
 $ sudo make install
 ```
 
-To disable Ulfius library on build (to avoid its dependencies), you can pass the option `DISABLE_ULFIUS=1` to the make command.
+To disable curl library on build (to avoid its dependencies), you can pass the option `DISABLE_CURL=1` to the make command.
 
 ```shell
 $ cd rhonabwy/src
-$ make DISABLE_ULFIUS=1
+$ make DISABLE_CURL=1
 $ sudo make install
 ```
 

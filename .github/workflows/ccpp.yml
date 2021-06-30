@@ -17,14 +17,6 @@ jobs:
       run: cppcheck --force --enable=warning,missingInclude --error-exitcode=1 .
     - name: build
       run: |
-        wget https://github.com/babelouest/ulfius/archive/refs/tags/v2.7.3.tar.gz -O /tmp/ulfius.tar.gz
-        tar xf /tmp/ulfius.tar.gz
-        mkdir ulfius
-        cd ulfius
-        cmake -DINSTALL_HEADER=ON -DWITH_WEBSOCKET=OFF -DBUILD_UWSC=OFF -DCMAKE_INSTALL_PREFIX=/usr ../ulfius-2.7.3
-        make
-        make install
-        cd ..
         # prepare build folders
         mkdir build
         # build rhonabwy, run tests, build package

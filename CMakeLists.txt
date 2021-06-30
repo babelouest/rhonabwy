@@ -33,7 +33,7 @@ set(LIBRARY_VERSION_MINOR "9")
 set(LIBRARY_VERSION_PATCH "999990")
 set(ORCANIA_VERSION_REQUIRED "2.2.1")
 set(YDER_VERSION_REQUIRED "1.4.14")
-set(ULFIUS_VERSION_REQUIRED "2.0.0")
+set(ULFIUS_VERSION_REQUIRED "2.7.3")
 
 set(PROJECT_VERSION "${LIBRARY_VERSION_MAJOR}.${LIBRARY_VERSION_MINOR}.${LIBRARY_VERSION_PATCH}")
 set(PROJECT_VERSION_MAJOR ${LIBRARY_VERSION_MAJOR})
@@ -280,11 +280,25 @@ option(BUILD_RHONABWY_TESTING "Build the testing tree." OFF) # because we do not
 
 if (BUILD_RHONABWY_TESTING)
 
+    set(Ulfius_FIND_QUIETLY ON)
     include(FindUlfius)
-    find_package(Ulfius ${ULFIUS_VERSION_REQUIRED} REQUIRED)
-    set(LIBS ${LIBS} ulfius)
-    include_directories(${ULFIUS_INCLUDE_DIRS})
-
+    find_package(Ulfius ${ULFIUS_VERSION_REQUIRED} QUIET)
+    if (NOT ULFIUS_FOUND)
+        include(DownloadProject)
+        option(CHECK_ORCANIA "specific param" off)
+        option(CHECK_YDER "specific param" off)
+        message(STATUS "Download Ulfius ${ULFIUS_VERSION_REQUIRED}")
+        download_project(PROJ ulfius
+                URL "https://github.com/babelouest/ulfius/archive/v${ULFIUS_VERSION_REQUIRED}.tar.gz"
+                QUIET)
+        add_subdirectory(${ulfius_SOURCE_DIR} ${ulfius_BINARY_DIR})
+        include_directories(${yder_SOURCE_DIR}/include)
+        include_directories(${orcania_SOURCE_DIR}/include)
+        include_directories(${ulfius_SOURCE_DIR}/include)
+        add_dependencies(iddawc ulfius)
+        set(ULFIUS_LIBRARIES ulfius)
+        include_directories(${ulfius_BINARY_DIR})
+    endif ()
     include(FindCheck)
     find_package(Check REQUIRED)
     if (CHECK_FOUND)

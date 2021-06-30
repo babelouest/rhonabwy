@@ -28,69 +28,158 @@
 
 #define _R_BLOCK_SIZE 256
 
-#ifdef R_WITH_ULFIUS
-  #include <ulfius.h>
+#ifdef R_WITH_CURL
+#include <curl/curl.h>
+#include <string.h>
+#define _R_HEADER_CONTENT_TYPE "Content-Type"
 #endif
 
 int r_global_init() {
-#ifdef R_WITH_ULFIUS
-  if (ulfius_global_init() == U_OK) {
-    return RHN_OK;
-  } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "r_global_init - Error ulfius_global_init");
-    return RHN_ERROR;
-  }
-#else
   o_malloc_t malloc_fn;
   o_realloc_t realloc_fn;
   o_free_t free_fn;
+  int ret = RHN_OK;
 
   o_get_alloc_funcs(&malloc_fn, &realloc_fn, &free_fn);
   json_set_alloc_funcs((json_malloc_t)malloc_fn, (json_free_t)free_fn);
-  return RHN_OK;
+#ifdef R_WITH_CURL
+  if (curl_global_init(CURL_GLOBAL_ALL) != CURLE_OK) {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_global_init - Error curl_global_init");
+    ret = RHN_ERROR;
+  } else {
+    if (curl_global_init_mem(CURL_GLOBAL_DEFAULT, malloc_fn, free_fn, realloc_fn, *o_strdup, *calloc) != CURLE_OK) {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_global_init - Error curl_global_init_mem");
+      ret = RHN_ERROR_MEMORY;
+    }
+  }
 #endif
+  return ret;
 }
 
 void r_global_close() {
-#ifdef R_WITH_ULFIUS
-  ulfius_global_close();
+#ifdef R_WITH_CURL
+  curl_global_cleanup();
 #endif
 }
 
+#ifdef R_WITH_CURL
+
+struct _r_response_str {
+  char * ptr;
+  size_t len;
+};
+
+struct _r_expected_content_type {
+  const char * expected;
+  int found;
+};
+
+static size_t write_response(char *ptr, size_t size, size_t nmemb, void * userdata) {
+  struct _r_response_str * resp = (struct _r_response_str *)userdata;
+  size_t len = (size*nmemb);
+  if ((resp->ptr = o_realloc(resp->ptr, (resp->len + len + 1))) != NULL) {
+    memcpy(resp->ptr+resp->len, ptr, len);
+    resp->len += len;
+    resp->ptr[resp->len] = '\0';
+    return len;
+  } else {
+    return 0;
+  }
+}
+
+static size_t write_header(void * buffer, size_t size, size_t nitems, void * user_data) {
+  const char * header = (const char *)buffer;
+  struct _r_expected_content_type * expected_content_type = (struct _r_expected_content_type *)user_data;
+  
+  if (o_strncasecmp(header, _R_HEADER_CONTENT_TYPE, o_strlen(_R_HEADER_CONTENT_TYPE)) == 0 &&
+     o_strstr(header+o_strlen(_R_HEADER_CONTENT_TYPE)+1, expected_content_type->expected)) {
+    expected_content_type->found = 1;
+  }
+  return nitems * size;
+}
+#endif
+
 char * _r_get_http_content(const char * url, int x5u_flags, const char * expected_content_type) {
   char * to_return = NULL;
-#ifdef R_WITH_ULFIUS
-  struct _u_request request;
-  struct _u_response response;
-  
-  if (ulfius_init_request(&request) == U_OK) {
-    if (ulfius_init_response(&response) == U_OK) {
-      ulfius_set_request_properties(&request, U_OPT_HTTP_VERB, "GET",
-                                              U_OPT_HTTP_URL, url,
-                                              U_OPT_CHECK_SERVER_CERTIFICATE, !(x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE),
-                                              U_OPT_FOLLOW_REDIRECT, (x5u_flags & R_FLAG_FOLLOW_REDIRECT),
-                                              U_OPT_HEADER_PARAMETER, "User-Agent", "Rhonabwy/" RHONABWY_VERSION_STR,
-                                              U_OPT_NONE);
-      if (ulfius_send_http_request(&request, &response) == U_OK && response.status >= 200 && response.status < 300) {
-        if (!o_strlen(expected_content_type)) {
-          to_return = o_strndup(response.binary_body, response.binary_body_length);
-        } else {
-          if (NULL != o_strstr(u_map_get_case(response.map_header, ULFIUS_HTTP_HEADER_CONTENT), expected_content_type)) {
-            to_return = o_strndup(response.binary_body, response.binary_body_length);
-          } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "_r_get_http_content - Error invalid content-type");
-          }
-        }
-      } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "_r_get_http_content - Error ulfius_send_http_request");
+#ifdef R_WITH_CURL
+  CURL *curl;
+  struct curl_slist *list = NULL;
+  struct _r_response_str resp;
+  struct _r_expected_content_type ct;
+  int status = 0;
+
+  curl = curl_easy_init();
+  if(curl != NULL) {
+    resp.ptr = NULL;
+    resp.len = 0;
+    ct.expected = expected_content_type;
+    ct.found = 0;
+    
+    do {
+      if (curl_easy_setopt(curl, CURLOPT_URL, url) != CURLE_OK) {
+        break;
       }
-      ulfius_clean_request(&request);
-      ulfius_clean_response(&response);
+      if (curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_response) != CURLE_OK) {
+        break;
+      }
+      if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, &resp) != CURLE_OK) {
+        break;
+      }
+      if ((list = curl_slist_append(list, "User-Agent: Rhonabwy/" RHONABWY_VERSION_STR)) == NULL) {
+        break;
+      }
+      if (curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list) != CURLE_OK) {
+        break;
+      }
+      if (curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L) != CURLE_OK) {
+        break;
+      }
+      if (x5u_flags & R_FLAG_FOLLOW_REDIRECT) {
+        if (curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1) != CURLE_OK) {
+          break;
+        }
+      }
+      if (x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE) {
+        if (curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0) != CURLE_OK) {
+          break;
+        }
+        if (curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0) != CURLE_OK) {
+          break;
+        }
+      }
+      if (o_strlen(expected_content_type)) {
+        if (curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, write_header) != CURLE_OK) {
+          break;
+        }
+        if (curl_easy_setopt(curl, CURLOPT_WRITEHEADER, &ct) != CURLE_OK) {
+          break;
+        }
+      }
+      if (curl_easy_perform(curl) != CURLE_OK) {
+        break;
+      }
+
+      if (curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &status) != CURLE_OK) {
+        break;
+      }
+    } while (0);
+
+    curl_easy_cleanup(curl);
+    curl_slist_free_all(list);
+    
+    if (status >= 200 && status < 300) {
+      if (!o_strlen(expected_content_type)) {
+        to_return = resp.ptr;
+      } else {
+        if (ct.found) {
+          to_return = resp.ptr;
+        } else {
+          o_free(resp.ptr);
+        }
+      }
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "_r_get_http_content - Error ulfius_init_response");
+      o_free(resp.ptr);
     }
-  } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "_r_get_http_content - Error ulfius_init_request");
   }
 #else
   (void)url;

@@ -46,10 +46,10 @@ ENABLE_ECDH=0
 endif
 
 ifdef DISABLE_ULFIUS
-R_WITH_ULFIUS=0
+R_WITH_CURL=0
 else
-R_WITH_ULFIUS=1
-LULFIUS=-lulfius
+R_WITH_CURL=1
+LULFIUS=-lcurl
 endif
 
 .PHONY: all clean
@@ -71,11 +71,11 @@ $(CONFIG_FILE):
 		sed -i -e 's/\#cmakedefine R_ECDH_ENABLED/\/* #undef R_ECDH_ENABLED *\//g' $(CONFIG_FILE); \
 		echo "ECDH SUPPORT    DISABLED"; \
 	fi
-	@if [ "$(R_WITH_ULFIUS)" = "1" ]; then \
-		sed -i -e 's/\#cmakedefine R_WITH_ULFIUS/\#define R_WITH_ULFIUS/g' $(CONFIG_FILE); \
+	@if [ "$(R_WITH_CURL)" = "1" ]; then \
+		sed -i -e 's/\#cmakedefine R_WITH_CURL/\#define R_WITH_CURL/g' $(CONFIG_FILE); \
 		echo "USE ULFIUS      ENABLED"; \
 	else \
-		sed -i -e 's/\#cmakedefine R_WITH_ULFIUS/\/* #undef R_WITH_ULFIUS *\//g' $(CONFIG_FILE); \
+		sed -i -e 's/\#cmakedefine R_WITH_CURL/\/* #undef R_WITH_CURL *\//g' $(CONFIG_FILE); \
 		echo "USE ULFIUS      DISABLED"; \
 	fi
 

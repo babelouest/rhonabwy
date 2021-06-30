@@ -397,7 +397,7 @@ END_TEST
 START_TEST(test_rhonabwy_jwks_import_uri)
 {
   struct _u_instance instance;
-#ifdef R_WITH_ULFIUS
+#ifdef R_WITH_CURL
   jwks_t * jwks = NULL;
 #endif
   
@@ -408,7 +408,7 @@ START_TEST(test_rhonabwy_jwks_import_uri)
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_error_status", NULL, 0, &callback_jwks_error_status, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_redirect", NULL, 0, &callback_jwks_redirect, NULL), U_OK);
   
-#ifdef R_WITH_ULFIUS
+#ifdef R_WITH_CURL
   ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   ck_assert_int_eq(r_jwks_import_from_uri(NULL, "http://localhost:7462/jwks_ok", 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwks_import_from_uri(jwks, NULL, 0), RHN_ERROR_PARAM);

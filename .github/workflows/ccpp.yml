@@ -12,7 +12,14 @@ jobs:
     - name: install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake pkg-config check libsubunit-dev cppcheck libsystemd-dev libgnutls28-dev libjansson-dev libcurl4-gnutls-dev libulfius-dev valgrind doxygen gnutls-bin
+        sudo apt-get install -y cmake pkg-config check libsubunit-dev cppcheck libsystemd-dev libgnutls28-dev libjansson-dev libcurl4-gnutls-dev valgrind doxygen gnutls-bin
+        wget https://github.com/babelouest/ulfius/archive/refs/tags/v2.7.3.tar.gz -O ulfius.tar.gz
+        tar xf ulfius.tar.gz
+        mkdir ulfius
+        cd ulfius
+        cmake -DINSTALL_HEADER=ON ../ulfius-2.7.3
+        make
+        make install
     - name: cppcheck
       run: cppcheck --force --enable=warning,missingInclude --error-exitcode=1 .
     - name: build
@@ -21,13 +28,13 @@ jobs:
         mkdir build
         # build rhonabwy, run tests, build package
         cd build
-        cmake -DBUILD_RHONABWY_TESTING=on -DBUILD_RHONABWY_DOCUMENTATION=on -DWITH_ULFIUS=OFF ..
+        cmake -DBUILD_RHONABWY_TESTING=ON -DBUILD_RHONABWY_DOCUMENTATION=ON -DWITH_ULFIUS=OFF ..
         make
         rm -rf *
-        cmake -DBUILD_RHONABWY_TESTING=on -DBUILD_RHONABWY_DOCUMENTATION=on -DWITH_CURL=OFF ..
+        cmake -DBUILD_RHONABWY_TESTING=ON -DBUILD_RHONABWY_DOCUMENTATION=ON -DWITH_CURL=OFF ..
         make
         rm -rf *
-        cmake -DBUILD_RHONABWY_TESTING=on -DBUILD_RHONABWY_DOCUMENTATION=on ..
+        cmake -DBUILD_RHONABWY_TESTING=ON -DBUILD_RHONABWY_DOCUMENTATION=ON ..
         ../test/cert/create-cert.sh || (cat ../test/cert/certtool.log && false)
         ln -s ../test/cert/ .
         ln -s ../test/cookbook-master .

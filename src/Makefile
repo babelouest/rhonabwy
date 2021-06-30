@@ -45,7 +45,7 @@ else
 ENABLE_ECDH=0
 endif
 
-ifdef DISABLE_ULFIUS
+ifdef DISABLE_CURL
 R_WITH_CURL=0
 else
 R_WITH_CURL=1

@@ -17,7 +17,7 @@ jobs:
         tar xf ulfius.tar.gz
         mkdir ulfius
         cd ulfius
-        cmake -DINSTALL_HEADER=ON -DWITH_WEBSOCKET=OFF -DBUILD_UWSC=OFF ../ulfius-2.7.3
+        cmake -DINSTALL_HEADER=ON -DWITH_WEBSOCKET=OFF -DBUILD_UWSC=OFF -DCMAKE_INSTALL_PREFIX=/usr ../ulfius-2.7.3
         make
         make install
     - name: cppcheck

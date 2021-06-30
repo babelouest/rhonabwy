@@ -12,7 +12,7 @@ jobs:
     - name: install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake pkg-config check libsubunit-dev cppcheck libsystemd-dev libgnutls28-dev libjansson-dev libcurl4-gnutls-dev valgrind doxygen gnutls-bin
+        sudo apt-get install -y cmake pkg-config check libsubunit-dev cppcheck libsystemd-dev libgnutls28-dev libjansson-dev libcurl4-gnutls-dev libmicrohttpd-dev valgrind doxygen gnutls-bin
         wget https://github.com/babelouest/ulfius/archive/refs/tags/v2.7.3.tar.gz -O ulfius.tar.gz
         tar xf ulfius.tar.gz
         mkdir ulfius

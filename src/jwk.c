@@ -54,7 +54,7 @@ void r_jwk_free(jwk_t * jwk) {
 }
 
 int r_jwk_is_valid(jwk_t * jwk) {
-  int ret = RHN_OK, has_pubkey_parameters = 0, has_privkey_parameters = 0, has_kty = 0, has_alg = 0, type_x5c;
+  int ret = RHN_OK, has_privkey_parameters = 0, type_x5c, is_x5_key = 0;
   json_t * j_element = NULL;
   unsigned char * b64dec = NULL;
   const char * n, * e, * crv, * x, * y;
@@ -72,8 +72,10 @@ int r_jwk_is_valid(jwk_t * jwk) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x5u");
           ret = RHN_ERROR_PARAM;
         }
+        is_x5_key = 1;
       }
       if (json_object_get(jwk, "x5c") != NULL) {
+        is_x5_key = 1;
         if (!json_is_array(json_object_get(jwk, "x5c"))) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x5c");
           ret = RHN_ERROR_PARAM;
@@ -146,12 +148,9 @@ int r_jwk_is_valid(jwk_t * jwk) {
           }
         }
       }
-      if (json_object_get(jwk, "kty") != NULL) {
-        if (!json_string_length(json_object_get(jwk, "kty"))) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid kty");
-          ret = RHN_ERROR_PARAM;
-        }
-        has_kty = 1;
+      if (!json_string_length(json_object_get(jwk, "kty"))) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Missing kty");
+        ret = RHN_ERROR_PARAM;
       }
       if (json_object_get(jwk, "use") != NULL && !json_is_string(json_object_get(jwk, "use"))) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid use");
@@ -182,7 +181,6 @@ int r_jwk_is_valid(jwk_t * jwk) {
             ret = RHN_ERROR_PARAM;
           }
         }
-        has_alg = 1;
       }
       if (json_object_get(jwk, "kid") != NULL && !json_is_string(json_object_get(jwk, "kid"))) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid kid");
@@ -207,21 +205,20 @@ int r_jwk_is_valid(jwk_t * jwk) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid EC crv value: '%s'", json_string_value(json_object_get(jwk, "crv")));
             ret = RHN_ERROR_PARAM;
           }
-          has_pubkey_parameters = 1;
         }
-        if (!json_string_length(json_object_get(jwk, "x"))) {
+        if (!is_x5_key && !json_string_length(json_object_get(jwk, "x"))) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x");
           ret = RHN_ERROR_PARAM;
-        } else if (has_pubkey_parameters) {
+        } else if (json_string_length(json_object_get(jwk, "x"))) {
           if (!o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "x")), json_string_length(json_object_get(jwk, "x")), NULL, &b64dec_len) || !b64dec_len) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x format");
             ret = RHN_ERROR_PARAM;
           }
         }
-        if (!json_string_length(json_object_get(jwk, "y"))) {
+        if (!is_x5_key && !json_string_length(json_object_get(jwk, "y"))) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid y");
           ret = RHN_ERROR_PARAM;
-        } else if (has_pubkey_parameters) {
+        } else if (json_string_length(json_object_get(jwk, "y"))) {
           if (!o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "y")), json_string_length(json_object_get(jwk, "y")), NULL, &b64dec_len) || !b64dec_len) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid y format");
             ret = RHN_ERROR_PARAM;
@@ -248,12 +245,11 @@ int r_jwk_is_valid(jwk_t * jwk) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid OKP crv value: '%s'", json_string_value(json_object_get(jwk, "crv")));
             ret = RHN_ERROR_PARAM;
           }
-          has_pubkey_parameters = 1;
         }
-        if (!json_string_length(json_object_get(jwk, "x"))) {
+        if (!is_x5_key && !json_string_length(json_object_get(jwk, "x"))) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x");
           ret = RHN_ERROR_PARAM;
-        } else if (has_pubkey_parameters) {
+        } else if (json_string_length(json_object_get(jwk, "x"))) {
           if (!o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "x")), json_string_length(json_object_get(jwk, "x")), NULL, &b64dec_len) || !b64dec_len) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x format");
             ret = RHN_ERROR_PARAM;
@@ -272,20 +268,19 @@ int r_jwk_is_valid(jwk_t * jwk) {
           }
         }
       } else if (0 == o_strcmp(json_string_value(json_object_get(jwk, "kty")), "RSA")) {
-        if (!json_string_length(json_object_get(jwk, "n"))) {
+        if (!is_x5_key && !json_string_length(json_object_get(jwk, "n"))) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid n");
           ret = RHN_ERROR_PARAM;
-        } else {
+        } else if (json_string_length(json_object_get(jwk, "n"))) {
           if (!o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "n")), json_string_length(json_object_get(jwk, "n")), NULL, &b64dec_len) || !b64dec_len) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid n format");
             ret = RHN_ERROR_PARAM;
           }
-          has_pubkey_parameters = 1;
         }
-        if (!json_string_length(json_object_get(jwk, "e"))) {
+        if (!is_x5_key && !json_string_length(json_object_get(jwk, "e"))) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid e");
           ret = RHN_ERROR_PARAM;
-        } else if (has_pubkey_parameters) {
+        } else if (json_string_length(json_object_get(jwk, "e"))) {
           if (!o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "e")), json_string_length(json_object_get(jwk, "e")), NULL, &b64dec_len) || !b64dec_len) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid e format");
             ret = RHN_ERROR_PARAM;
@@ -370,23 +365,10 @@ int r_jwk_is_valid(jwk_t * jwk) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid k format");
             ret = RHN_ERROR_PARAM;
           }
-          has_pubkey_parameters = 1;
         }
-      }
-
-      // Validate if required parameters are present and consistent
-      if (ret == RHN_OK) {
-        if (!has_kty) {
-          if (!has_alg) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid data");
-            ret = RHN_ERROR_PARAM;
-          }
-        } else {
-          if (has_kty && !has_pubkey_parameters) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - public key parameters missing");
-            ret = RHN_ERROR_PARAM;
-          }
-        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid kty");
+        ret = RHN_ERROR_PARAM;
       }
     } else {
       ret = RHN_ERROR_PARAM;
@@ -424,7 +406,7 @@ int r_jwk_is_valid_x5u(jwk_t * jwk, int x5u_flags) {
     } else if ((type & R_KEY_TYPE_ECDSA || type & R_KEY_TYPE_EDDSA) && json_object_get(jwk, "x") != NULL && json_object_get(jwk, "y") != NULL) {
       if (r_jwk_init(&jwk_x5u) == RHN_OK) {
         if (r_jwk_import_from_x5u(jwk_x5u, x5u_flags, r_jwk_get_property_str(jwk, "x5u")) == RHN_OK) {
-          if (type == r_jwk_key_type(jwk_x5u, NULL, x5u_flags) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "x"), r_jwk_get_property_str(jwk_x5u, "x")) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "y"), r_jwk_get_property_str(jwk_x5u, "y")) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "crb"), r_jwk_get_property_str(jwk_x5u, "crb"))) {
+          if (type == r_jwk_key_type(jwk_x5u, NULL, x5u_flags) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "x"), r_jwk_get_property_str(jwk_x5u, "x")) && (r_jwk_get_property_str(jwk_x5u, "y") == NULL || 0 == o_strcmp(r_jwk_get_property_str(jwk, "y"), r_jwk_get_property_str(jwk_x5u, "y"))) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "crv"), r_jwk_get_property_str(jwk_x5u, "crv"))) {
             ret = RHN_OK;
           } else {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error invalid x5u key parameters (ec)");
@@ -603,25 +585,29 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
 
 int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
   gnutls_x509_crt_t     crt      = NULL;
-  gnutls_x509_privkey_t x509_key = NULL;
-  gnutls_pubkey_t       pubkey   = NULL;
   gnutls_datum_t        data;
   int ret = R_KEY_TYPE_NONE, pk_alg;
   unsigned char * data_dec = NULL;
   size_t data_dec_len = 0, k_len = 0;
-  int bits_set = 0;
+  int bits_set = 0, has_values = 0;
   char * x5u_content = NULL;
 
   if (r_jwk_is_valid(jwk) == RHN_OK) {
     if (0 == o_strcmp(json_string_value(json_object_get(jwk, "kty")), "RSA")) {
       ret = R_KEY_TYPE_RSA;
-      if (json_object_get(jwk, "d") != NULL && json_object_get(jwk, "p") != NULL && json_object_get(jwk, "q") != NULL && json_object_get(jwk, "dp") != NULL && json_object_get(jwk, "dq") != NULL && json_object_get(jwk, "qi") != NULL) {
+      if (json_object_get(jwk, "n")) {
+        has_values = 1;
+      }
+      if (json_object_get(jwk, "d")) {
         ret |= R_KEY_TYPE_PRIVATE;
       } else {
         ret |= R_KEY_TYPE_PUBLIC;
       }
     } else if (0 == o_strcmp(json_string_value(json_object_get(jwk, "kty")), "EC")) {
       ret = R_KEY_TYPE_ECDSA;
+      if (json_object_get(jwk, "x")) {
+        has_values = 1;
+      }
       if (json_object_get(jwk, "d") != NULL) {
         ret |= R_KEY_TYPE_PRIVATE;
       } else {
@@ -633,139 +619,107 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
       } else if (0 == o_strcmp("Ed25519", json_string_value(json_object_get(jwk, "crv"))) || 0 == o_strcmp("Ed448", json_string_value(json_object_get(jwk, "crv")))) {
         ret = R_KEY_TYPE_EDDSA;
       }
+      if (json_object_get(jwk, "x")) {
+        has_values = 1;
+      }
       if (json_object_get(jwk, "d") != NULL) {
         ret |= R_KEY_TYPE_PRIVATE;
       } else {
         ret |= R_KEY_TYPE_PUBLIC;
       }
-    } else if (0 == o_strcmp(json_string_value(json_object_get(jwk, "kty")), "oct") && json_string_length(json_object_get(jwk, "k"))) {
+    } else if (0 == o_strcmp(json_string_value(json_object_get(jwk, "kty")), "oct")) {
       ret = R_KEY_TYPE_HMAC|R_KEY_TYPE_SYMMETRIC;
-    } else if (json_object_get(jwk, "x5c") != NULL) {
-        if (o_base64_decode((unsigned char *)json_string_value(json_array_get(json_object_get(jwk, "x5c"), 0)), json_string_length(json_array_get(json_object_get(jwk, "x5c"), 0)), NULL, &data_dec_len)) {
-          if ((data_dec = o_malloc((data_dec_len+1)*sizeof(char))) != NULL) {
-            if (o_base64_decode((unsigned char *)json_string_value(json_array_get(json_object_get(jwk, "x5c"), 0)), json_string_length(json_array_get(json_object_get(jwk, "x5c"), 0)), data_dec, &data_dec_len)) {
-              data.data = data_dec;
-              data.size = data_dec_len;
-              if (!gnutls_x509_crt_init(&crt)) {
-                if (!gnutls_x509_privkey_init(&x509_key)) {
-                  if (!gnutls_pubkey_init(&pubkey)) {
-                    if (!gnutls_x509_privkey_import(x509_key, &data, GNUTLS_X509_FMT_DER)) {
-                      pk_alg = gnutls_x509_privkey_get_pk_algorithm2(x509_key, bits);
-                      bits_set = 1;
-                      if (pk_alg == GNUTLS_PK_RSA) {
-                        ret = R_KEY_TYPE_RSA;
+      has_values = 1;
+    }
+    if (!has_values) {
+      if (json_object_get(jwk, "x5c") != NULL) {
+          if (o_base64_decode((unsigned char *)json_string_value(json_array_get(json_object_get(jwk, "x5c"), 0)), json_string_length(json_array_get(json_object_get(jwk, "x5c"), 0)), NULL, &data_dec_len)) {
+            if ((data_dec = o_malloc((data_dec_len+1)*sizeof(char))) != NULL) {
+              if (o_base64_decode((unsigned char *)json_string_value(json_array_get(json_object_get(jwk, "x5c"), 0)), json_string_length(json_array_get(json_object_get(jwk, "x5c"), 0)), data_dec, &data_dec_len)) {
+                data.data = data_dec;
+                data.size = data_dec_len;
+                if (!gnutls_x509_crt_init(&crt)) {
+                  if (!gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_DER)) {
+                    pk_alg = gnutls_x509_crt_get_pk_algorithm(crt, bits);
+                    bits_set = 1;
+                    if (pk_alg == GNUTLS_PK_RSA) {
+                      ret = R_KEY_TYPE_RSA;
 #if GNUTLS_VERSION_NUMBER >= 0x030600
-                      } else if (pk_alg == GNUTLS_PK_ECDSA) {
-                        ret = R_KEY_TYPE_ECDSA;
-                      } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
-                        ret = R_KEY_TYPE_EDDSA;
+                    } else if (pk_alg == GNUTLS_PK_ECDSA) {
+                      ret = R_KEY_TYPE_ECDSA;
+                    } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
+                      ret = R_KEY_TYPE_EDDSA;
 #endif
-                      }
-                      ret |= R_KEY_TYPE_PRIVATE;
-                    } else if (!gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_DER)) {
-                      pk_alg = gnutls_x509_crt_get_pk_algorithm(crt, bits);
-                      bits_set = 1;
-                      if (pk_alg == GNUTLS_PK_RSA) {
-                        ret = R_KEY_TYPE_RSA;
-#if GNUTLS_VERSION_NUMBER >= 0x030600
-                      } else if (pk_alg == GNUTLS_PK_ECDSA) {
-                        ret = R_KEY_TYPE_ECDSA;
-                      } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
-                        ret = R_KEY_TYPE_EDDSA;
-#endif
-                      }
-                      ret |= R_KEY_TYPE_PUBLIC;
-                    } else if (!gnutls_pubkey_import(pubkey, &data, GNUTLS_X509_FMT_DER)) {
-                      pk_alg = gnutls_pubkey_get_pk_algorithm(pubkey, bits);
-                      bits_set = 1;
-                      if (pk_alg == GNUTLS_PK_RSA) {
-                        ret = R_KEY_TYPE_RSA;
-#if GNUTLS_VERSION_NUMBER >= 0x030600
-                      } else if (pk_alg == GNUTLS_PK_ECDSA) {
-                        ret = R_KEY_TYPE_ECDSA;
-                      } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
-                        ret = R_KEY_TYPE_EDDSA;
-#endif
-                      }
-                      ret |= R_KEY_TYPE_PUBLIC;
-                    } else {
-                      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Error gnutls import");
-                      ret = RHN_ERROR;
                     }
-                    gnutls_pubkey_deinit(pubkey);
+                    ret |= R_KEY_TYPE_PUBLIC;
                   } else {
-                    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Error gnutls_pubkey_init");
-                    ret = RHN_ERROR;
+                    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Error gnutls import");
+                    ret = R_KEY_TYPE_NONE;
                   }
-                  gnutls_x509_privkey_deinit(x509_key);
+                  gnutls_x509_crt_deinit(crt);
                 } else {
-                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Error gnutls_x509_privkey_init");
-                  ret = RHN_ERROR;
+                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Error gnutls_x509_crt_init");
+                  ret = R_KEY_TYPE_NONE;
                 }
-                gnutls_x509_crt_deinit(crt);
               } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Error gnutls_x509_crt_init");
-                ret = RHN_ERROR;
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Error o_base64_decode (2)");
+                ret = R_KEY_TYPE_NONE;
               }
+              o_free(data_dec);
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Error o_base64_decode (2)");
-              ret = RHN_ERROR;
-            }
-            o_free(data_dec);
-          } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Error o_malloc");
-            ret = RHN_ERROR;
-          }
-        } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Error o_base64_decode (1)");
-          ret = RHN_ERROR;
-        }
-    } else if (json_object_get(jwk, "x5u") != NULL) {
-      if (!(x5u_flags & R_FLAG_IGNORE_REMOTE)) {
-        // Get first x5u
-        if ((x5u_content = _r_get_http_content(json_string_value(json_object_get(jwk, "x5u")), x5u_flags, NULL)) != NULL) {
-          data.data = (unsigned char *)x5u_content;
-          data.size = o_strlen(x5u_content);
-          if (!gnutls_x509_crt_init(&crt)) {
-            if (!gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_PEM)) {
-              pk_alg = gnutls_x509_crt_get_pk_algorithm(crt, bits);
-              bits_set = 1;
-              if (pk_alg == GNUTLS_PK_RSA) {
-                ret = R_KEY_TYPE_RSA;
-#if GNUTLS_VERSION_NUMBER >= 0x030600
-              } else if (pk_alg == GNUTLS_PK_ECDSA) {
-                ret = R_KEY_TYPE_ECDSA;
-              } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
-                ret = R_KEY_TYPE_EDDSA;
-#endif
-              } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Error unsupported algorithm %s", gnutls_pk_algorithm_get_name(pk_alg));
-              }
-              ret |= R_KEY_TYPE_PUBLIC;
-            } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Error gnutls_x509_crt_import");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Error o_malloc");
               ret = R_KEY_TYPE_NONE;
             }
-            gnutls_x509_crt_deinit(crt);
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type - Error gnutls_x509_crt_init");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Error o_base64_decode (1)");
+            ret = R_KEY_TYPE_NONE;
           }
-          o_free(x5u_content);
-        } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type - Error getting x5u content");
+      }
+      if (json_object_get(jwk, "x5u") != NULL) {
+        if (!(x5u_flags & R_FLAG_IGNORE_REMOTE)) {
+          // Get first x5u
+          if ((x5u_content = _r_get_http_content(json_string_value(json_object_get(jwk, "x5u")), x5u_flags, NULL)) != NULL) {
+            data.data = (unsigned char *)x5u_content;
+            data.size = o_strlen(x5u_content);
+            if (!gnutls_x509_crt_init(&crt)) {
+              if (!gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_PEM)) {
+                pk_alg = gnutls_x509_crt_get_pk_algorithm(crt, bits);
+                bits_set = 1;
+                if (pk_alg == GNUTLS_PK_RSA) {
+                  ret = R_KEY_TYPE_RSA;
+  #if GNUTLS_VERSION_NUMBER >= 0x030600
+                } else if (pk_alg == GNUTLS_PK_ECDSA) {
+                  ret = R_KEY_TYPE_ECDSA;
+                } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
+                  ret = R_KEY_TYPE_EDDSA;
+  #endif
+                } else {
+                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Error unsupported algorithm %s", gnutls_pk_algorithm_get_name(pk_alg));
+                }
+                ret |= R_KEY_TYPE_PUBLIC;
+              } else {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Error gnutls_x509_crt_import");
+                ret = R_KEY_TYPE_NONE;
+              }
+              gnutls_x509_crt_deinit(crt);
+            } else {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type - Error gnutls_x509_crt_init");
+            }
+            o_free(x5u_content);
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type - Error getting x5u content");
+          }
         }
-      } else {
-        ret = R_KEY_TYPE_NONE;
       }
     }
   }
   if (bits != NULL && !bits_set) {
     if (ret & R_KEY_TYPE_RSA) {
-      if ((pubkey = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags)) != NULL) {
-        gnutls_pubkey_get_pk_algorithm(pubkey, bits);
-        gnutls_pubkey_deinit(pubkey);
+      if (o_base64url_decode((const unsigned char *)json_string_value(json_object_get(jwk, "n")), json_string_length(json_object_get(jwk, "n")), NULL, &k_len)) {
+        *bits = (unsigned int)k_len*8;
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type - Error r_jwk_export_to_gnutls_pubkey");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type - Error invalid base64url n value");
+        ret = R_KEY_TYPE_NONE;
       }
     } else if (ret & R_KEY_TYPE_ECDSA) {
       if (0 == o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv")))) {
@@ -1764,6 +1718,34 @@ int r_jwk_import_from_x5u(jwk_t * jwk, int x5u_flags, const char * x5u) {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_x5u - Error getting x5u content");
       ret = RHN_ERROR;
     }
+  } else {
+    ret = RHN_ERROR_PARAM;
+  }
+  return ret;
+}
+
+int r_jwk_import_from_x5c(jwk_t * jwk, const char * x5c) {
+  int ret;
+  unsigned char * x5c_dec = NULL;
+  size_t x5c_dec_len = 0;
+
+  if (jwk != NULL && x5c != NULL) {
+    if ((x5c_dec = o_malloc(o_strlen(x5c))) != NULL) {
+      if (o_base64_decode((const unsigned char *)x5c, o_strlen(x5c), x5c_dec, &x5c_dec_len)) {
+        if (r_jwk_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_DER, x5c_dec, x5c_dec_len) == RHN_OK) {
+          ret = RHN_OK;
+        } else {
+          ret = RHN_ERROR;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_x5u - Error o_base64_decode x5c");
+        ret = RHN_ERROR_PARAM;
+      }
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_x5u - Error allocating x5c_dec");
+      ret = RHN_ERROR_MEMORY;
+    }
+    o_free(x5c_dec);
   } else {
     ret = RHN_ERROR_PARAM;
   }

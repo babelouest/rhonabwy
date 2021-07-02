@@ -663,6 +663,15 @@ int r_jwk_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt);
 int r_jwk_import_from_x5u(jwk_t * jwk, int x5u_flags, const char * x5u);
 
 /**
+ * Import a key from an x5c value
+ * @param jwk: the jwk_t * to import to
+ * @param x5c: the x5c value
+ * If jwk is set, values will be overwritten
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwk_import_from_x5c(jwk_t * jwk, const char * x5c);
+
+/**
  * Import a symmetric key into a jwk
  * The key will be converted to base64url format
  * @param jwk: the jwk_t * to import to

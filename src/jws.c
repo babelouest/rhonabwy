@@ -811,9 +811,6 @@ static int _r_verify_signature(jws_t * jws, jwk_t * jwk, jwa_alg alg, int x5u_fl
       }
       break;
 #endif
-    case R_JWA_ALG_NONE:
-      ret = RHN_OK;
-      break;
     default:
       ret = RHN_ERROR_INVALID;
       break;
@@ -1856,7 +1853,7 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags) {
       jws->signature_b64url = NULL;
     } else {
       if (r_jws_set_token_values(jws, 0) == RHN_OK && jws->signature_b64url != NULL) {
-        if (jwk != NULL || jws->alg == R_JWA_ALG_NONE) {
+        if (jwk != NULL) {
           ret = _r_verify_signature(jws, jwk, jws->alg, x5u_flags);
         } else {
           ret = RHN_ERROR_INVALID;

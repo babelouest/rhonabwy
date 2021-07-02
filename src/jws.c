@@ -94,15 +94,28 @@ static int r_jws_extract_header(jws_t * jws, json_t * j_header, int x5u_flags) {
       }
       r_jwk_free(jwk);
     }
-
-    if (json_object_get(j_header, "x5u") != NULL || json_object_get(j_header, "x5c") != NULL) {
+    
+    if (json_object_get(j_header, "x5u") != NULL) {
       r_jwk_init(&jwk);
-      if (r_jwk_import_from_json_t(jwk, j_header) == RHN_OK) {
+      if (r_jwk_import_from_x5u(jwk, x5u_flags, json_string_value(json_object_get(j_header, "x5u"))) == RHN_OK) {
         if (r_jwks_append_jwk(jws->jwks_pubkey, jwk) != RHN_OK) {
           ret = RHN_ERROR;
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_extract_header - Error importing x5c or x5u");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_extract_header - Error importing x5c");
+        ret = RHN_ERROR_PARAM;
+      }
+      r_jwk_free(jwk);
+    }
+
+    if (json_object_get(j_header, "x5c") != NULL) {
+      r_jwk_init(&jwk);
+      if (r_jwk_import_from_x5c(jwk, json_string_value(json_array_get(json_object_get(j_header, "x5c"), 0))) == RHN_OK) {
+        if (r_jwks_append_jwk(jws->jwks_pubkey, jwk) != RHN_OK) {
+          ret = RHN_ERROR;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_extract_header - Error importing x5c");
         ret = RHN_ERROR_PARAM;
       }
       r_jwk_free(jwk);

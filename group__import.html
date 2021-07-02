@@ -61,6 +61,8 @@ Functions</h2></td></tr>
 <tr class="separator:ga79cd34a22fa17847082410e413ff9be8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaea7fb56daaac4f67e26c9a3fa29e73e0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__import.html#gaea7fb56daaac4f67e26c9a3fa29e73e0">r_jwk_import_from_x5u</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, int x5u_flags, const char *x5u)</td></tr>
 <tr class="separator:gaea7fb56daaac4f67e26c9a3fa29e73e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8e3ad1be8235158fb12a1958f63ebbe9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__import.html#ga8e3ad1be8235158fb12a1958f63ebbe9">r_jwk_import_from_x5c</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, const char *x5c)</td></tr>
+<tr class="separator:ga8e3ad1be8235158fb12a1958f63ebbe9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7c1d69c5db756215249054a7a659f612"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__import.html#ga7c1d69c5db756215249054a7a659f612">r_jwk_import_from_symmetric_key</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, const unsigned char *key, size_t key_len)</td></tr>
 <tr class="separator:ga7c1d69c5db756215249054a7a659f612"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga09d060c7cd4cbdbd81d4e8ddf2f02e1a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__import.html#ga09d060c7cd4cbdbd81d4e8ddf2f02e1a">r_jwk_import_from_password</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, const char *password)</td></tr>
@@ -352,6 +354,42 @@ Functions</h2></td></tr>
 </ul>
 </td></tr>
     <tr><td class="paramname">x5u</td><td>the url to retreive the certificate If jwk is set, values will be overwritten </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="ga8e3ad1be8235158fb12a1958f63ebbe9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga8e3ad1be8235158fb12a1958f63ebbe9">&#9670;&nbsp;</a></span>r_jwk_import_from_x5c()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwk_import_from_x5c </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
+          <td class="paramname"><em>jwk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>x5c</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Import a key from an x5c value </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwk</td><td>the jwk_t * to import to </td></tr>
+    <tr><td class="paramname">x5c</td><td>the x5c value If jwk is set, values will be overwritten </td></tr>
   </table>
   </dd>
 </dl>

@@ -556,7 +556,7 @@ START_TEST(test_rhonabwy_token_unsecure)
   ck_assert_ptr_ne((token = r_jws_serialize(jws_sign, NULL, 0)), NULL);
   
   ck_assert_int_eq(r_jws_parse(jws_verify, token, 0), RHN_OK);
-  ck_assert_int_eq(r_jws_verify_signature(jws_verify, NULL, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_verify_signature(jws_verify, NULL, 0), RHN_ERROR_INVALID);
   o_free(token);
   
   r_jws_free(jws_sign);

@@ -16,10 +16,6 @@
 const unsigned char symmetric_key[] = "secret";
 const unsigned char symmetric_key_b64url[] = "c2VjcmV0";
 
-const char jwk_simple_hmac[] = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
-const char jwk_simple_rsa[] = "{\"alg\":\"RS256\",\"typ\":\"JWT\"}";
-const char jwk_simple_ecdsa[] = "{\"alg\":\"ES256\",\"typ\":\"JWT\"}";
-
 const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                     "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\"}";
 const char jwk_pubkey_ecdsa_str_invalid_kty[] = "{\"kty\":\"ECC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
@@ -302,17 +298,18 @@ const char jwk_pubkey_rsa_x5c_only[] = "{\"alg\": \"RS256\",\"x5c\":[\"MIIFkjCCB
                                        "NyMi5jcmwwPwYDVR0gBDgwNjA0BgZngQwBAgIwKjAoBggrBgEFBQcCARYcaHR0cHM6Ly9wa2kuZ29vZy9yZXBvc2l0b3J5LzANBgkqhkiG9w0BAQsFAAOC"\
                                        "AQEAGoA+Nnn78y6pRjd9XlQWNa7HTgiZ/r3RNGkmUmYHPQq6Scti9PEajvwRT2iWTHQr02fesqOqBY2ETUwgZQ+lltoNFvhsO9tvBCOIazpswWC9aJ9xju"\
                                        "4tWDQH8NVU6YZZ/XteDSGU9YzJqPjY8q3MDxrzmqepBCf5o8mw/wJ4a2G6xzUr6Fb6T8McDO22PLRL6u3M4Tzs3A2M1j6bykJYi8wWIRdAvKLWZu/axBVb"\
-                                       "zYmqmwkm5zLSDW5nIAJbELCQCZwMH56t2Dvqofxs6BBcCFIZUSpxu6x6td0V7SvJCCosirSmIatj/9dSSVDQibet8q/7UK4v4ZUN80atnZz1yg==\"]}";
+                                       "zYmqmwkm5zLSDW5nIAJbELCQCZwMH56t2Dvqofxs6BBcCFIZUSpxu6x6td0V7SvJCCosirSmIatj/9dSSVDQibet8q/7UK4v4ZUN80atnZz1yg==\"],\""\
+                                       "kty\":\"RSA\"}";
 
-const char jwk_pubkey_rsa_x5u_str[] = "{\"kty\":\"RSA\",\"n\":\"sUWjL3wK1B_dQbXbhSXaodF0gXMNlZg3ZecjZIJOKgXGDVOnV0ly4evW8xkn8F2gC3TYJXik7efdhGdiaYul9kyzpPBr53ELHMmAeI_I1rnF4pgIwfN1vBsaDwJw9w0R6FQ9f"\
-                                       "xDUIte47WdElEHhtST9V874mMehsSUG4xM2qiBvvbWwX0KCyKk6BY_CdyljUjAPUShcVysKUTyfefew38KUVTVpk2vWLlN-a41iC_gxGvLtH142LDiDx_s-"\
-                                       "Kh37f4paD2zsEw5McF81eiKTAfrraIC1Gj2BxyEj6n2EjqyI-NFRsSUmqfPoFgiMzlEWj4P8AwvfE9jbjXz_E0GOISiXt4L-06U7rLoGHFri5oVI6KUkLAO"\
-                                       "wwwTri-ikeQFx68IKvhytBiX1O-XHh51JZyyC-fcKKN-_ATgGKIiR63M5UWYxO2JkVkPvpzORKJUivePFQbkEcxYZb9VqoVZ04sfpfGb3h2douzBrKbkDP_"\
-                                       "Jf-O0JPKDTltrUJOpZbYhV\",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2011-04-29\",\"x5u\":\"https://localhost:7464/x5u_r"\
-                                       "sa_crt\"}";
+const char jwk_pubkey_rsa_x5u_str[] = "{\"kty\":\"RSA\",\"n\":\"sUWjL3wK1B_dQbXbhSXaodF0gXMNlZg3ZecjZIJOKgXGDVOnV0ly4evW8xkn8F2gC3TYJXik7efdhGdiaYul9kyzpPBr53"\
+                                       "ELHMmAeI_I1rnF4pgIwfN1vBsaDwJw9w0R6FQ9fxDUIte47WdElEHhtST9V874mMehsSUG4xM2qiBvvbWwX0KCyKk6BY_CdyljUjAPUShcVysKUTyfefew"\
+                                       "38KUVTVpk2vWLlN-a41iC_gxGvLtH142LDiDx_s-Kh37f4paD2zsEw5McF81eiKTAfrraIC1Gj2BxyEj6n2EjqyI-NFRsSUmqfPoFgiMzlEWj4P8AwvfE9"\
+                                       "jbjXz_E0GOISiXt4L-06U7rLoGHFri5oVI6KUkLAOwwwTri-ikeQFx68IKvhytBiX1O-XHh51JZyyC-fcKKN-_ATgGKIiR63M5UWYxO2JkVkPvpzORKJUi"\
+                                       "vePFQbkEcxYZb9VqoVZ04sfpfGb3h2douzBrKbkDP_Jf-O0JPKDTltrUJOpZbYhV\",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2011-04-"\
+                                       "29\",\"x5u\":\"https://localhost:7464/x5u_rsa_crt\"}";
 
-const char jwk_pubkey_rsa_x5u_only_rsa_pub[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7464/x5u_rsa_crt\"}";
-const char jwk_pubkey_rsa_x5u_only_ecdsa_pub[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7464/x5u_ecdsa_crt\"}";
+const char jwk_pubkey_rsa_x5u_only_rsa_pub[] = "{\"kty\":\"RSA\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7464/x5u_rsa_crt\"}";
+const char jwk_pubkey_rsa_x5u_only_ecdsa_pub[] = "{\"kty\":\"EC\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7464/x5u_ecdsa_crt\"}";
 
 const char jwk_pubkey_rsa_x5u_str_invalid_x5u[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWK"\
                                                   "RXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZ"\
@@ -599,10 +596,10 @@ const unsigned char ecdsa_crt[] = "-----BEGIN CERTIFICATE-----\n"
 "2Yxh1fFV7ONNjA==\n"
 "-----END CERTIFICATE-----";
 
-const char x5u_fullchain1_crt[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7465/x5u_fullchain1\"}";
-const char x5u_fullchain2_crt[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7465/x5u_fullchain2\"}";
-const char x5u_fullchain_error_crt[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7465/x5u_fullchain_error\"}";
-const char x5u_fullchain1_trucated_crt[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7465/x5u_fullchain1_trucated\"}";
+const char x5u_fullchain1_crt[] = "{\"kty\":\"RSA\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7465/x5u_fullchain1\"}";
+const char x5u_fullchain2_crt[] = "{\"kty\":\"RSA\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7465/x5u_fullchain2\"}";
+const char x5u_fullchain_error_crt[] = "{\"kty\":\"RSA\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7465/x5u_fullchain_error\"}";
+const char x5u_fullchain1_trucated_crt[] = "{\"kty\":\"RSA\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7465/x5u_fullchain1_trucated\"}";
 
 static char * get_file_content(const char * file_path) {
   char * buffer = NULL;
@@ -680,18 +677,6 @@ START_TEST(test_rhonabwy_import_from_json_str)
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_ecdsa_crt", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);
   
   ck_assert_int_eq(ulfius_start_secure_framework(&instance, HTTPS_CERT_KEY, HTTPS_CERT_PEM), U_OK);
-  
-  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_simple_hmac), RHN_OK);
-  r_jwk_free(jwk);
-  
-  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_simple_rsa), RHN_OK);
-  r_jwk_free(jwk);
-  
-  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_simple_ecdsa), RHN_OK);
-  r_jwk_free(jwk);
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
@@ -1419,8 +1404,8 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_str), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_REMOTE)), RHN_ERROR_UNSUPPORTED);
-  ck_assert_int_eq(bits, 2048);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_REMOTE)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 2056);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
@@ -1435,7 +1420,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_str), RHN_OK);
   ck_assert_int_eq(r_jwk_is_valid_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_REMOTE)), RHN_ERROR_UNSUPPORTED);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_REMOTE)), R_KEY_TYPE_NONE);
   ck_assert_int_eq(bits, 3072);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
@@ -1450,7 +1435,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_only), RHN_OK);
   ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
-  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_REMOTE)), RHN_ERROR_UNSUPPORTED);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_REMOTE)), R_KEY_TYPE_NONE);
   ck_assert_int_eq(bits, 2048);
   ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);

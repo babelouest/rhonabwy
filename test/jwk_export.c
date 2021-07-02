@@ -119,14 +119,14 @@ const char jwk_pubkey_rsa_x5u_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuP
                                       "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\""\
                                       ",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2011-04-29\",\"x5u\":\"https://www.example.com/x509\"}";
 
-const char jwk_pubkey_rsa_x5u_only_rsa_pub_7465[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7465/x5u_rsa_crt\"}";
-const char jwk_pubkey_rsa_x5u_only_ecdsa_pub_7465[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7465/x5u_ecdsa_crt\"}";
+const char jwk_pubkey_rsa_x5u_only_rsa_pub_7465[] = "{\"kty\":\"RSA\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7465/x5u_rsa_crt\"}";
+const char jwk_pubkey_rsa_x5u_only_ecdsa_pub_7465[] = "{\"kty\":\"EC\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7465/x5u_ecdsa_crt\"}";
 
-const char jwk_pubkey_rsa_x5u_only_rsa_pub_7466[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7466/x5u_rsa_crt\"}";
-const char jwk_pubkey_rsa_x5u_only_ecdsa_pub_7466[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7466/x5u_ecdsa_crt\"}";
+const char jwk_pubkey_rsa_x5u_only_rsa_pub_7466[] = "{\"kty\":\"RSA\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7466/x5u_rsa_crt\"}";
+const char jwk_pubkey_rsa_x5u_only_ecdsa_pub_7466[] = "{\"kty\":\"EC\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7466/x5u_ecdsa_crt\"}";
 
-const char jwk_pubkey_rsa_x5u_only_rsa_pub_7467[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7467/x5u_rsa_crt\"}";
-const char jwk_pubkey_rsa_x5u_only_ecdsa_pub_7467[] = "{\"alg\": \"RS256\",\"x5u\":\"https://localhost:7467/x5u_ecdsa_crt\"}";
+const char jwk_pubkey_rsa_x5u_only_rsa_pub_7467[] = "{\"kty\":\"RSA\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7467/x5u_rsa_crt\"}";
+const char jwk_pubkey_rsa_x5u_only_ecdsa_pub_7467[] = "{\"kty\":\"EC\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7467/x5u_ecdsa_crt\"}";
 
 const char jwk_pubkey_rsa_x5u_export[] = "-----BEGIN PUBLIC KEY-----\n"\
 "MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAsUWjL3wK1B/dQbXbhSXa\n"\

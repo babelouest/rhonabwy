@@ -43,6 +43,8 @@ JWT Relies on JWS and JWE functions, so it supports the same functionalities as 
 | A192GCM | AES GCM using 192-bit key |**YES** (2)|
 | A256GCM | AES GCM using 256-bit key |**YES**|
 
+(2) Nettle 3.4 minimum is required for RSA-OAEP and AES key Wrap
+
 - Supported Cryptographic Algorithms (`alg`) for Key Management:
 
 | "alg" Param Value | Key Management Algorithm | Supported |
@@ -64,8 +66,6 @@ JWT Relies on JWS and JWE functions, so it supports the same functionalities as 
 | PBES2-HS256+A128KW | PBES2 with HMAC SHA-256 and "A128KW" wrapping |**YES**(4)|
 | PBES2-HS384+A192KW | PBES2 with HMAC SHA-384 and "A192KW" wrapping |**YES**(4)|
 | PBES2-HS512+A256KW | PBES2 with HMAC SHA-512 and "A256KW" wrapping |**YES**(4)|
-
-(2) Nettle 3.4 minimum is required for RSA-OAEP and AES key Wrap
 
 (3) GnuTLS 3.6 minimum with [FIPS140-2 mode enabled](https://www.gnutls.org/manual/html_node/FIPS140_002d2-mode.html)
 

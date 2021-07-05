@@ -1413,6 +1413,23 @@ int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags) {
 }
 
 int r_jws_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_flags) {
+  int ret = r_jws_parsen_unsecure(jws, jws_str, jws_str_len, x5u_flags);
+  if (ret == RHN_OK) {
+    if (r_jws_get_alg(jws) != R_JWA_ALG_NONE) {
+      return RHN_OK;
+    } else {
+      return RHN_ERROR_INVALID;
+    }
+  } else {
+    return ret;
+  }
+}
+
+int r_jws_parse_unsecure(jws_t * jws, const char * jws_str, int x5u_flags) {
+  return r_jws_parsen_unsecure(jws, jws_str, o_strlen(jws_str), x5u_flags);
+}
+
+int r_jws_parsen_unsecure(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_flags) {
   int ret;
   char * str = (char *)jws_str;
   
@@ -1423,7 +1440,7 @@ int r_jws_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_
     }
     
     if (0 == o_strncmp("ey", str, 2)) {
-      ret = r_jws_compact_parsen(jws, jws_str, jws_str_len, x5u_flags);
+      ret = r_jws_compact_parsen_unsecure(jws, jws_str, jws_str_len, x5u_flags);
     } else if (*str == '{') {
       ret = r_jws_parsen_json_str(jws, jws_str, jws_str_len, x5u_flags);
     } else {
@@ -1436,6 +1453,23 @@ int r_jws_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_
 }
 
 int r_jws_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_flags) {
+  int ret = r_jws_compact_parsen_unsecure(jws, jws_str, jws_str_len, x5u_flags);
+  if (ret == RHN_OK) {
+    if (r_jws_get_alg(jws) != R_JWA_ALG_NONE) {
+      return RHN_OK;
+    } else {
+      return RHN_ERROR_INVALID;
+    }
+  } else {
+    return ret;
+  }
+}
+
+int r_jws_compact_parse(jws_t * jws, const char * jws_str, int x5u_flags) {
+  return r_jws_compact_parsen_unsecure(jws, jws_str, o_strlen(jws_str), x5u_flags);
+}
+
+int r_jws_compact_parsen_unsecure(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_flags) {
   int ret;
   char ** str_array = NULL;
   char * str_header = NULL, * token = NULL, * tmp;
@@ -1555,8 +1589,8 @@ int r_jws_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, 
   return ret;
 }
 
-int r_jws_compact_parse(jws_t * jws, const char * jws_str, int x5u_flags) {
-  return r_jws_compact_parsen(jws, jws_str, o_strlen(jws_str), x5u_flags);
+int r_jws_compact_parse_unsecure(jws_t * jws, const char * jws_str, int x5u_flags) {
+  return r_jws_compact_parsen_unsecure(jws, jws_str, o_strlen(jws_str), x5u_flags);
 }
 
 int r_jws_parse_json_t(jws_t * jws, json_t * jws_json, int x5u_flags) {
@@ -1870,6 +1904,14 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags) {
 }
 
 char * r_jws_serialize(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags) {
+  if (r_jws_get_alg(jws) != R_JWA_ALG_NONE) {
+    return r_jws_serialize_unsecure(jws, jwk_privkey, x5u_flags);
+  } else {
+    return NULL;
+  }
+}
+
+char * r_jws_serialize_unsecure(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags) {
   jwk_t * jwk = NULL;
   char * jws_str = NULL;
   jwa_alg alg;

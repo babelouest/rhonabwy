@@ -25,6 +25,8 @@ Aenean vitae tortor quam. Praesent pulvinar nulla a nisi egestas, laoreet tempus
 #define HS256_TOKEN_INVALID_PAYLOAD_B64 "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.;error;.PdtqfpescIy_55JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
 #define HS256_TOKEN_INVALID_DOTS "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQVGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.PdtqfpescIy_55JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
 
+#define UNSECURE_TOKEN "eyJhbGciOiJub25lIn0.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u."
+
 const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                     "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\"}";
 const char jwk_privkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
@@ -553,9 +555,9 @@ START_TEST(test_rhonabwy_token_unsecure)
   ck_assert_int_eq(r_jws_init(&jws_verify), RHN_OK);
   ck_assert_int_eq(r_jws_set_payload(jws_sign, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
   ck_assert_int_eq(r_jws_set_alg(jws_sign, R_JWA_ALG_NONE), RHN_OK);
-  ck_assert_ptr_ne((token = r_jws_serialize(jws_sign, NULL, 0)), NULL);
+  ck_assert_ptr_ne((token = r_jws_serialize_unsecure(jws_sign, NULL, 0)), NULL);
   
-  ck_assert_int_eq(r_jws_parse(jws_verify, token, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_parse_unsecure(jws_verify, token, 0), RHN_OK);
   ck_assert_int_eq(r_jws_verify_signature(jws_verify, NULL, 0), RHN_ERROR_INVALID);
   o_free(token);
   
@@ -564,6 +566,53 @@ START_TEST(test_rhonabwy_token_unsecure)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_token_parse_unsecure)
+{
+  jws_t * jws;
+  
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jws_parse(jws, UNSECURE_TOKEN, 0), RHN_ERROR_INVALID);
+  ck_assert_int_eq(r_jws_parse_unsecure(jws, UNSECURE_TOKEN, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_get_alg(jws), R_JWA_ALG_NONE);
+  r_jws_free(jws);
+  
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_get_alg(jws), R_JWA_ALG_HS256);
+  r_jws_free(jws);
+  
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jws_parse_unsecure(jws, HS256_TOKEN, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_get_alg(jws), R_JWA_ALG_HS256);
+  r_jws_free(jws);
+}
+END_TEST
+
+START_TEST(test_rhonabwy_token_serialize_unsecure)
+{
+  jws_t * jws;
+  jwk_t * jwk_privkey;
+  char * token;
+
+  ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey, jwk_privkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jws_set_payload(jws, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  
+  ck_assert_ptr_ne((token = r_jws_serialize_unsecure(jws, jwk_privkey, 0)), NULL);
+  o_free(token);
+  
+  ck_assert_int_eq(r_jws_set_alg(jws, R_JWA_ALG_NONE), RHN_OK);
+  ck_assert_ptr_ne((token = r_jws_serialize_unsecure(jws, NULL, 0)), NULL);
+  o_free(token);
+  
+  ck_assert_ptr_eq(r_jws_serialize(jws, NULL, 0), NULL);
+  
+  r_jws_free(jws);
+  r_jwk_free(jwk_privkey);
+}
+END_TEST
+  
 START_TEST(test_rhonabwy_copy)
 {
   jws_t * jws, * jws_copy;
@@ -749,6 +798,8 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_parse);
   tcase_add_test(tc_core, test_rhonabwy_parse_android_safetynet_jwt);
   tcase_add_test(tc_core, test_rhonabwy_token_unsecure);
+  tcase_add_test(tc_core, test_rhonabwy_token_parse_unsecure);
+  tcase_add_test(tc_core, test_rhonabwy_token_serialize_unsecure);
   tcase_add_test(tc_core, test_rhonabwy_copy);
   tcase_add_test(tc_core, test_rhonabwy_set_properties_error);
   tcase_add_test(tc_core, test_rhonabwy_set_properties);

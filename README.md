@@ -50,7 +50,7 @@ JWT Relies on JWS and JWE functions, so it supports the same functionalities as 
 | "alg" Param Value | Key Management Algorithm | Supported |
 |---|---|---|
 | RSA1_5 | RSAES-PKCS1-v1_5 |**YES**|
-| RSA-OAEP | RSAES OAEP using default parameters |**YES**(2)|(3)
+| RSA-OAEP | RSAES OAEP using default parameters |**YES**(3)|
 | RSA-OAEP-256 | RSAES OAEP using SHA-256 and MGF1 with SHA-256 |**YES**|
 | A128KW | AES Key Wrap with default initial value using 128-bit key |**YES**(3)|
 | A192KW | AES Key Wrap with default initial value using 192-bit key |**YES**(3)|

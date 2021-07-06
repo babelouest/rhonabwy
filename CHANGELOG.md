@@ -4,7 +4,9 @@
 
 - Use type `rhn_int_t` for integer property values instead of `int`
 - Rename `r_jwks_import_from_str` to `r_jwks_import_from_json_str`
+- Fix `kty` bugs with JWKs
 - Fix bug with `r_jwe_compute_hmac_tag` to work with AES-CBC keys larger than 32 bytes (Thanks wbanga!)
+- Force using `*_unsecure` functions to manage unsecured JWS or JWT with no signature
 
 ## 0.9.9999
 

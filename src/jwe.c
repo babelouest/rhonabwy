@@ -1954,9 +1954,9 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
   gnutls_pubkey_t g_pub = NULL;
   gnutls_datum_t plainkey, cypherkey = {NULL, 0};
   unsigned char * cypherkey_b64 = NULL, key[128] = {0};
-  size_t cypherkey_b64_len = 0, key_len = 0;
+  size_t cypherkey_b64_len = 0, key_len = 0, index = 0;
   const char * key_ref = NULL;
-  json_t * j_element = NULL, * j_reference;
+  json_t * j_element = NULL, * j_reference, * j_key_ref_array;
 #if NETTLE_VERSION_NUMBER >= 0x030400
   uint8_t * cyphertext = NULL;
   size_t cyphertext_len = 0;
@@ -2121,15 +2121,20 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
       *ret = RHN_ERROR_PARAM;
       break;
   }
+  j_key_ref_array = json_array();
   json_object_foreach(json_object_get(j_return, "header"), key_ref, j_element) {
     j_reference = json_object_get(jwe->j_header, key_ref);
     if (j_reference == NULL) {
       j_reference = json_object_get(jwe->j_unprotected_header, key_ref);
     }
     if (j_reference != NULL && json_equal(j_reference, j_element)) {
-      json_object_del(json_object_get(j_return, "header"), key_ref);
+      json_array_append_new(j_key_ref_array, json_string(key_ref));
     }
   }
+  json_array_foreach(j_key_ref_array, index, j_element) {
+    json_object_del(json_object_get(j_return, "header"), json_string_value(j_element));
+  }
+  json_decref(j_key_ref_array);
   if (!json_object_size(json_object_get(j_return, "header"))) {
     json_object_del(j_return, "header");
   }

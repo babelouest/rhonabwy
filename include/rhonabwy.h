@@ -1346,21 +1346,6 @@ int r_jws_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, 
 
 /**
  * Parses the serialized JWS in compact mode (xxx.yyy.zzz)
- * verify the signature if the JWS header contains the public key
- * @param jws: the jws_t to update
- * @param jws_str: the serialized JWS to parse, must end with a NULL string terminator
- * @param x5u_flags: Flags to retrieve x5u certificates
- * pointed by x5u if necessary, could be 0 if not needed
- * Flags available are 
- * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
- * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
- * @return RHN_OK on success, an error value on error
- */
-int r_jws_compact_parse(jws_t * jws, const char * jws_str, int x5u_flags);
-
-/**
- * Parses the serialized JWS in compact mode (xxx.yyy.zzz)
  * Allows to parse unsigned JWS
  * verify the signature if the JWS header contains the public key
  * @param jws: the jws_t to update

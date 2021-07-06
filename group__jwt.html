@@ -159,6 +159,8 @@ Functions</h2></td></tr>
 <tr class="separator:gae7756b44bc4a48f20297c9262ea41dcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0258ed4e9756ca3ecc318a54ca85b05f"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga0258ed4e9756ca3ecc318a54ca85b05f">r_jwt_serialize_signed</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *privkey, int x5u_flags)</td></tr>
 <tr class="separator:ga0258ed4e9756ca3ecc318a54ca85b05f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4027f44b636a2fd88ea08d6280d9d2e1"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga4027f44b636a2fd88ea08d6280d9d2e1">r_jwt_serialize_signed_unsecure</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *privkey, int x5u_flags)</td></tr>
+<tr class="separator:ga4027f44b636a2fd88ea08d6280d9d2e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gadbe8205e986358d27a84259af201e458"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gadbe8205e986358d27a84259af201e458">r_jwt_serialize_encrypted</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *pubkey, int x5u_flags)</td></tr>
 <tr class="separator:gadbe8205e986358d27a84259af201e458"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gade78a3a744664e08ff91b078c92236f1"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gade78a3a744664e08ff91b078c92236f1">r_jwt_serialize_nested</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, unsigned int type, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *sign_key, int sign_key_x5u_flags, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *encrypt_key, int encrypt_key_x5u_flags)</td></tr>
@@ -167,6 +169,10 @@ Functions</h2></td></tr>
 <tr class="separator:gaab6cd5a5b23b79b7213a4918560cfdca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7abf7f17814cd45db85ca073287dd188"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga7abf7f17814cd45db85ca073287dd188">r_jwt_parsen</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, const char *token, size_t token_len, int x5u_flags)</td></tr>
 <tr class="separator:ga7abf7f17814cd45db85ca073287dd188"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga49d15d7b31a7263ae2aca7edeb07778a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga49d15d7b31a7263ae2aca7edeb07778a">r_jwt_parse_unsecure</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, const char *token, int x5u_flags)</td></tr>
+<tr class="separator:ga49d15d7b31a7263ae2aca7edeb07778a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa68d03c39ce6f8a383f86f42bff8e180"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gaa68d03c39ce6f8a383f86f42bff8e180">r_jwt_parsen_unsecure</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, const char *token, size_t token_len, int x5u_flags)</td></tr>
+<tr class="separator:gaa68d03c39ce6f8a383f86f42bff8e180"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf46e1784ac6bf7ef66fadadf78496b7b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gaf46e1784ac6bf7ef66fadadf78496b7b">r_jwt_get_type</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt)</td></tr>
 <tr class="separator:gaf46e1784ac6bf7ef66fadadf78496b7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2ab2ec575660117efec3e576f189fa67"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga2ab2ec575660117efec3e576f189fa67">r_jwt_verify_signature</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *pubkey, int x5u_flags)</td></tr>
@@ -2228,6 +2234,54 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="ga4027f44b636a2fd88ea08d6280d9d2e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4027f44b636a2fd88ea08d6280d9d2e1">&#9670;&nbsp;</a></span>r_jwt_serialize_signed_unsecure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* r_jwt_serialize_signed_unsecure </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
+          <td class="paramname"><em>privkey</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x5u_flags</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Return a signed JWT in serialized format (xxx.yyy.zzz) Allows to serialize unsigned JWT </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwt</td><td>the <a class="el" href="structjwt__t.html">jwt_t</a> to sign </td></tr>
+    <tr><td class="paramname">privkey</td><td>the private key to sign the JWT, may be NULL </td></tr>
+    <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve x5u certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
+<li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>
+<li>R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL </li>
+</ul>
+</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
 <a id="gadbe8205e986358d27a84259af201e458"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gadbe8205e986358d27a84259af201e458">&#9670;&nbsp;</a></span>r_jwt_serialize_encrypted()</h2>
 
@@ -2440,6 +2494,109 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Parse a serialized JWT If the JWT is signed only, the claims will be available If the JWT is encrypted, the claims will not be accessible until r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwt</td><td>the jwt that will contain the parsed token </td></tr>
+    <tr><td class="paramname">token</td><td>the token to parse into a JWT </td></tr>
+    <tr><td class="paramname">token_len</td><td>token length </td></tr>
+    <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve x5u certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
+<li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>
+<li>R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error </li>
+</ul>
+</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="ga49d15d7b31a7263ae2aca7edeb07778a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga49d15d7b31a7263ae2aca7edeb07778a">&#9670;&nbsp;</a></span>r_jwt_parse_unsecure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwt_parse_unsecure </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>token</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x5u_flags</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Parse a serialized JWT Allows to parse unsigned JWT If the JWT is signed only, the claims will be available If the JWT is encrypted, the claims will not be accessible until r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwt</td><td>the jwt that will contain the parsed token </td></tr>
+    <tr><td class="paramname">token</td><td>the token to parse into a JWT, must end with a NULL string terminator </td></tr>
+    <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve x5u certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
+<li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
+<li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>
+<li>R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error </li>
+</ul>
+</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="gaa68d03c39ce6f8a383f86f42bff8e180"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa68d03c39ce6f8a383f86f42bff8e180">&#9670;&nbsp;</a></span>r_jwt_parsen_unsecure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwt_parsen_unsecure </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structjwt__t.html">jwt_t</a> *&#160;</td>
+          <td class="paramname"><em>jwt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>token</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>token_len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>x5u_flags</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Parse a serialized JWT Allows to parse unsigned JWT If the JWT is signed only, the claims will be available If the JWT is encrypted, the claims will not be accessible until r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">jwt</td><td>the jwt that will contain the parsed token </td></tr>
     <tr><td class="paramname">token</td><td>the token to parse into a JWT </td></tr>

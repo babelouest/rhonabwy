@@ -598,7 +598,7 @@ Functions</h2></td></tr>
 <p>Sets the entire header with the JSON value specified </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
-    <tr><td class="paramname">j_value</td><td>the header to set, must be a JSON object </td></tr>
+    <tr><td class="paramname">j_header</td><td>the header to set, must be a JSON object </td></tr>
   </table>
   </dd>
 </dl>
@@ -634,7 +634,7 @@ Functions</h2></td></tr>
 <p>Sets the entire header with the stringified JSON value specified </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
-    <tr><td class="paramname">str_value</td><td>the header to set, must be a stringified JSON object </td></tr>
+    <tr><td class="paramname">str_header</td><td>the header to set, must be a stringified JSON object </td></tr>
   </table>
   </dd>
 </dl>
@@ -670,7 +670,7 @@ Functions</h2></td></tr>
 <p>Sets the entire unprotected header with the JSON value specified The unprotected header is useful when serializing in JSON format </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
-    <tr><td class="paramname">j_value</td><td>the unprotected header to set, must be a JSON object </td></tr>
+    <tr><td class="paramname">j_unprotected_header</td><td>the unprotected header to set, must be a JSON object </td></tr>
   </table>
   </dd>
 </dl>
@@ -706,7 +706,7 @@ Functions</h2></td></tr>
 <p>Sets the entire unprotected header with the stringified JSON value specified The unprotected header is useful when serializing in JSON format </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
-    <tr><td class="paramname">j_value</td><td>the unprotected header to set, must be a stringified JSON object </td></tr>
+    <tr><td class="paramname">str_unprotected_header</td><td>the unprotected header to set, must be a stringified JSON object </td></tr>
   </table>
   </dd>
 </dl>
@@ -2070,7 +2070,7 @@ Functions</h2></td></tr>
 <p>Parses the serialized JWE in JSON mode, general or flattened </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">jwe</td><td>the <a class="el" href="structjwe__t.html">jwe_t</a> to update </td></tr>
-    <tr><td class="paramname">jwe_json_str</td><td>the serialized JWE to parse in json_t * format </td></tr>
+    <tr><td class="paramname">jwe_json</td><td>the serialized JWE to parse in json_t * format </td></tr>
     <tr><td class="paramname">x5u_flags</td><td>Flags to retrieve x5u certificates pointed by x5u if necessary, could be 0 if not needed Flags available are<ul>
 <li>R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid</li>
 <li>R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary</li>

@@ -2597,6 +2597,21 @@ int r_jwt_generate_iv(jwt_t * jwt);
 char * r_jwt_serialize_signed(jwt_t * jwt, jwk_t * privkey, int x5u_flags);
 
 /**
+ * Return a signed JWT in serialized format (xxx.yyy.zzz)
+ * Allows to serialize unsigned JWT
+ * @param jwt: the jwt_t to sign
+ * @param privkey: the private key to sign the JWT, may be NULL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return NULL
+ * @return RHN_OK on success, an error value on error
+ */
+char * r_jwt_serialize_signed_unsecure(jwt_t * jwt, jwk_t * privkey, int x5u_flags);
+
+/**
  * Return an encrypted JWT in serialized format (xxx.yyy.zzz.aaa.bbb)
  * @param jwt: the jwt_t to encrypt
  * @param pubkey: the public key to encrypt the JWT, may be NULL
@@ -2670,6 +2685,43 @@ int r_jwt_parse(jwt_t * jwt, const char * token, int x5u_flags);
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_parsen(jwt_t * jwt, const char * token, size_t token_len, int x5u_flags);
+
+/**
+ * Parse a serialized JWT
+ * Allows to parse unsigned JWT
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
+ * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
+ * @param jwt: the jwt that will contain the parsed token
+ * @param token: the token to parse into a JWT, must end with a NULL string terminator
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_parse_unsecure(jwt_t * jwt, const char * token, int x5u_flags);
+
+/**
+ * Parse a serialized JWT
+ * Allows to parse unsigned JWT
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
+ * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
+ * @param jwt: the jwt that will contain the parsed token
+ * @param token: the token to parse into a JWT
+ * @param token_len: token length
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_parsen_unsecure(jwt_t * jwt, const char * token, size_t token_len, int x5u_flags);
 
 /**
  * Get the type of JWT after a succesfull r_jwt_parse

@@ -762,12 +762,14 @@ static int serialize_token(const char * claims, int x5u_flags, const char * str_
       }
       if (token == NULL) {
         fprintf(stderr, "Error serializing token\n");
+        ret = EINVAL;
       } else {
         printf("%s\n", token);
       }
       o_free(token);
     } else {
       fprintf(stderr, "Error setting JSON claims\n");
+      ret = EINVAL;
     }
   }
   r_jwt_free(jwt);

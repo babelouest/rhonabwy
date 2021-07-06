@@ -1657,7 +1657,7 @@ int r_jwe_set_header_json_t_value(jwe_t * jwe, const char * key, json_t * j_valu
 /**
  * Sets the entire header with the JSON value specified
  * @param jwe: the jwe_t to update
- * @param j_value: the header to set, must be a JSON object
+ * @param j_header: the header to set, must be a JSON object
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_set_full_header_json_t(jwe_t * jwe, json_t * j_header);
@@ -1665,7 +1665,7 @@ int r_jwe_set_full_header_json_t(jwe_t * jwe, json_t * j_header);
 /**
  * Sets the entire header with the stringified JSON value specified
  * @param jwe: the jwe_t to update
- * @param str_value: the header to set, must be a stringified JSON object
+ * @param str_header: the header to set, must be a stringified JSON object
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_set_full_header_json_str(jwe_t * jwe, const char * str_header);
@@ -1674,7 +1674,7 @@ int r_jwe_set_full_header_json_str(jwe_t * jwe, const char * str_header);
  * Sets the entire unprotected header with the JSON value specified
  * The unprotected header is useful when serializing in JSON format
  * @param jwe: the jwe_t to update
- * @param j_value: the unprotected header to set, must be a JSON object
+ * @param j_unprotected_header: the unprotected header to set, must be a JSON object
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_set_full_unprotected_header_json_t(jwe_t * jwe, json_t * j_unprotected_header);
@@ -1683,7 +1683,7 @@ int r_jwe_set_full_unprotected_header_json_t(jwe_t * jwe, json_t * j_unprotected
  * Sets the entire unprotected header with the stringified JSON value specified
  * The unprotected header is useful when serializing in JSON format
  * @param jwe: the jwe_t to update
- * @param j_value: the unprotected header to set, must be a stringified JSON object
+ * @param str_unprotected_header: the unprotected header to set, must be a stringified JSON object
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_set_full_unprotected_header_json_str(jwe_t * jwe, const char * str_unprotected_header);
@@ -2021,7 +2021,7 @@ int r_jwe_parsen_json_str(jwe_t * jwe, const char * jwe_json_str, size_t jwe_jso
 /**
  * Parses the serialized JWE in JSON mode, general or flattened
  * @param jwe: the jwe_t to update
- * @param jwe_json_str: the serialized JWE to parse in json_t * format
+ * @param jwe_json: the serialized JWE to parse in json_t * format
  * @param x5u_flags: Flags to retrieve x5u certificates
  * pointed by x5u if necessary, could be 0 if not needed
  * Flags available are 
@@ -2162,7 +2162,7 @@ int r_jwt_set_header_json_t_value(jwt_t * jwt, const char * key, json_t * j_valu
 /**
  * Sets the entire header with the JSON value specified
  * @param jwt: the jwt_t to update
- * @param j_value: the header to set, must be a JSON object
+ * @param j_header: the header to set, must be a JSON object
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_set_full_header_json_t(jwt_t * jwt, json_t * j_header);
@@ -2170,7 +2170,7 @@ int r_jwt_set_full_header_json_t(jwt_t * jwt, json_t * j_header);
 /**
  * Sets the entire header with the stringified JSON value specified
  * @param jwt: the jwt_t to update
- * @param j_value: the header to set, must be a JSON object
+ * @param str_header: the header to set, must be a JSON object
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_set_full_header_json_str(jwt_t * jwt, const char * str_header);

@@ -393,6 +393,24 @@ r_jwk_free(jwk_key_symmetric);
 
 The header value `"zip":"DEF"` is used to specify if the JWS payload is compressed using [ZIP/Deflate](https://tools.ietf.org/html/rfc7516#section-4.1.3) algorithm. Rhonabwy will automatically compress or decompress the decrypted payload during encryption or decryption process.
 
+### Unsecured JWS
+
+It's possible to use Rhonabwy for unsecured JWS, with the header `alg:"none"` and an empty signature, using a dedicated set of functions: `r_jws_parse_unsecure`, `r_jws_parsen_unsecure`, `r_jws_compact_parsen_unsecure`, `r_jws_compact_parse_unsecure` and `r_jws_serialize_unsecure`.
+
+#### Parse a unsecured JWS
+
+By default, the functions `r_jws_parse`, `r_jws_parsen`, `r_jws_compact_parse` and `r_jws_compact_parsen` will return `RHN_ERROR_INVALID` if the parsed JWS is unsigned.
+To parse any JWS, signed or unsigned, you must use the functions `r_jws_parse_unsecure`, `r_jws_parsen_unsecure`, `r_jws_compact_parsen_unsecure` and `r_jws_compact_parse_unsecure`.
+
+#### Serialize an unsecured JWS
+
+Use the function `r_jws_serialize_unsecure` to serialize an unsecured JWS.
+By design, the functions `r_jws_serialize_json_t` and `r_jws_serialize_json_str` will return NULL with mode `R_JSON_MODE_FLATTENED` on unsecured JWS.
+
+#### Signature verification
+
+The function `r_jws_verify_signature` will return `RHN_ERROR_INVALID` if the JWS is unsecured.
+
 ## JWE
 
 A JWE (JSON Web Encryption) is an encrypted content serialized in a compact format that can be easily transferred in HTTP requests.
@@ -740,3 +758,24 @@ r_free(token);
 r_jwt_free(jwt);
 r_jwk_free(jwk_key);
 ```
+
+### Unsecured JWT
+
+It's possible to use Rhonabwy for unsecured JWT, with the header `alg:"none"` and an empty signature, using a dedicated set of functions: `r_jwt_parse_unsecure`, `r_jwt_parsen_unsecure` and `r_jwt_serialize_signed_unsecure`.
+
+#### Parse a unsecured JWT
+
+By default, the functions `r_jwt_parse` and `r_jwt_parsen` will return `RHN_ERROR_INVALID` if the parsed JWT is unsigned.
+To parse any JWT, signed or unsigned, you must use the functions `r_jwt_parse_unsecure` and `r_jwt_parsen_unsecure`.
+
+#### Serialize an unsecured JWT
+
+Use the function `r_jwt_serialize_signed_unsecure` to serialize an unsecured JWT.
+
+#### Signature verification
+
+The function `r_jwt_verify_signature` will return `RHN_ERROR_INVALID` if the JWT is unsecured.
+
+#### Nested JWT with an unsecured signature
+
+It's not possible to serialize or parse a nested JWT with an unsecured signature.

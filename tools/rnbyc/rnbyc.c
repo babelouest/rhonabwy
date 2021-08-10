@@ -118,11 +118,13 @@ static void print_help(FILE * output) {
   fprintf(output, "-C --claims\n");
   fprintf(output, "\tDisplay claims of a parsed token, default true\n");
   fprintf(output, "-P --public-key\n");
-  fprintf(output, "\tSpecifies the public key to for key management encryption or signature verification\n");
+  fprintf(output, "\tSpecifies the public key for key management encryption or signature verification\n");
   fprintf(output, "\tPublic key must be in JWKS format and can be either a JWKS string or a path to a JWKS file\n");
   fprintf(output, "-K --private-key\n");
-  fprintf(output, "\tSpecifies the private key to for key management decryption or signature generation\n");
+  fprintf(output, "\tSpecifies the private key for key management decryption or signature generation\n");
   fprintf(output, "\tPublic key must be in JWKS format and can be either a JWKS string or a path to a JWKS file\n");
+  fprintf(output, "-W --password\n");
+  fprintf(output, "\tSpecifies the password for key management encryption/decryption using PBES2 alg or signature generation/verification using HS alg\n");
   fprintf(output, "-u --x5u-flags\n");
   fprintf(output, "\tSet x5u flags to retrieve online certificate, values available are:\n");
   fprintf(output, "\t\tcert: ignore server certificate errors (self-signed, expired, etc.)\n");
@@ -574,11 +576,12 @@ static void get_jwks_out(json_t * j_arguments, int split_keys, int x5u_flags, in
   r_jwks_free(jwks_pubkey);
 }
 
-static int parse_token(const char * token, int indent, int x5u_flags, const char * str_jwks_pubkey, const char * str_jwks_privkey, int show_header, int show_claims) {
+static int parse_token(const char * token, int indent, int x5u_flags, const char * str_jwks_pubkey, const char * str_jwks_privkey, const char * password, int show_header, int show_claims) {
   int ret = 0, type, res;
   char * content, * str_value;
   jwt_t * jwt = NULL;
   jwks_t * jwks_pubkey = NULL, * jwks_privkey = NULL;
+  jwk_t * jwk_password;
   json_t * j_value;
 
   if (r_jwt_init(&jwt) == RHN_OK) {
@@ -596,6 +599,16 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
               fprintf(stderr, "Invalid jwks_pubkey path or content\n");
             }
             o_free(content);
+          } else if (o_strlen(password)) {
+            r_jwk_init(&jwk_password);
+            if (r_jwk_import_from_password(jwk_password, password) != RHN_OK) {
+              fprintf(stderr, "Error parsing password\n");
+            } else {
+              if (r_jwks_append_jwk(jwks_pubkey, jwk_password) != RHN_OK) {
+                fprintf(stderr, "Error importing password\n");
+              }
+            }
+            r_jwk_free(jwk_password);
           }
         }
       }
@@ -611,6 +624,16 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
               fprintf(stderr, "Invalid jwks_privkey path or content\n");
             }
             o_free(content);
+          } else if (o_strlen(password)) {
+            r_jwk_init(&jwk_password);
+            if (r_jwk_import_from_password(jwk_password, password) != RHN_OK) {
+              fprintf(stderr, "Error parsing password\n");
+            } else {
+              if (r_jwks_append_jwk(jwks_privkey, jwk_password) != RHN_OK) {
+                fprintf(stderr, "Error importing password\n");
+              }
+            }
+            r_jwk_free(jwk_password);
           }
         }
       }
@@ -678,9 +701,10 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
   return ret;
 }
 
-static int serialize_token(const char * claims, int x5u_flags, const char * str_jwks_pubkey, const char * str_jwks_privkey, const char * alg, const char * enc, const char * enc_alg) {
+static int serialize_token(const char * claims, int x5u_flags, const char * str_jwks_pubkey, const char * str_jwks_privkey, const char * password, const char * alg, const char * enc, const char * enc_alg) {
   jwt_t * jwt = NULL;
   jwks_t * jwks_pubkey = NULL, * jwks_privkey = NULL;
+  jwk_t * jwk_password;
   char * token = NULL, * content = NULL;
   int ret = 0;
 
@@ -699,6 +723,16 @@ static int serialize_token(const char * claims, int x5u_flags, const char * str_
             ret = EAGAIN;
           }
           o_free(content);
+        } else if (o_strlen(password) && o_strlen(enc_alg)) {
+          r_jwk_init(&jwk_password);
+          if (r_jwk_import_from_password(jwk_password, password) != RHN_OK) {
+            fprintf(stderr, "Error parsing password\n");
+          } else {
+            if (r_jwks_append_jwk(jwks_pubkey, jwk_password) != RHN_OK) {
+              fprintf(stderr, "Error importing password\n");
+            }
+          }
+          r_jwk_free(jwk_password);
         }
       }
       if (r_jwks_init(&jwks_privkey) == RHN_OK) {
@@ -714,6 +748,16 @@ static int serialize_token(const char * claims, int x5u_flags, const char * str_
             ret = EAGAIN;
           }
           o_free(content);
+        } else if (o_strlen(password) && o_strlen(alg)) {
+          r_jwk_init(&jwk_password);
+          if (r_jwk_import_from_password(jwk_password, password) != RHN_OK) {
+            fprintf(stderr, "Error parsing password\n");
+          } else {
+            if (r_jwks_append_jwk(jwks_privkey, jwk_password) != RHN_OK) {
+              fprintf(stderr, "Error importing password\n");
+            }
+          }
+          r_jwk_free(jwk_password);
         }
       }
       if (jwks_pubkey != NULL) {
@@ -755,6 +799,8 @@ static int serialize_token(const char * claims, int x5u_flags, const char * str_
           token = r_jwt_serialize_encrypted(jwt, NULL, x5u_flags);
         } else if (!r_jwks_size(jwks_pubkey) && r_jwks_size(jwks_privkey)) {
           token = r_jwt_serialize_signed(jwt, NULL, x5u_flags);
+        } else if (o_strlen(password)) {
+          token = r_jwt_serialize_encrypted(jwt, NULL, x5u_flags);
         } else {
           r_jwt_set_sign_alg(jwt, R_JWA_ALG_NONE);
           token = r_jwt_serialize_signed(jwt, NULL, x5u_flags);
@@ -789,12 +835,13 @@ int main (int argc, char ** argv) {
       x5u_flags = 0,
       debug_mode = 0,
       format = RNBYC_FORMAT_JWK;
-  const char * short_options = "j::g:i::f:k:a:e:l:o:p:n:F:x::t:s:H:C:K:P:u:v::h::d::";
+  const char * short_options = "j::g:i::f:k:a:e:l:o:p:n:F:x::t:s:H:C:K:P:W:u:v::h::d::";
   char * out_file = NULL,
        * out_file_public = NULL,
        * parsed_token = NULL,
        * str_token_public_key = NULL,
        * str_token_private_key = NULL,
+       * password = NULL,
        * alg = NULL,
        * enc = NULL,
        * enc_alg = NULL,
@@ -819,6 +866,7 @@ int main (int argc, char ** argv) {
     {"claims", required_argument, NULL, 'C'},
     {"public-key", required_argument, NULL, 'P'},
     {"private-key", required_argument, NULL, 'K'},
+    {"password", required_argument, NULL, 'W'},
     {"x5u-flags", required_argument, NULL, 'u'},
     {"version", no_argument, NULL, 'v'},
     {"help", no_argument, NULL, 'h'},
@@ -973,6 +1021,9 @@ int main (int argc, char ** argv) {
       case 'P':
         str_token_public_key = o_strdup(optarg);
         break;
+      case 'W':
+        password = o_strdup(optarg);
+        break;
       case 'u':
         if (o_strcasestr(optarg, "cert") != NULL) {
           x5u_flags |= R_FLAG_IGNORE_SERVER_CERTIFICATE;
@@ -1008,9 +1059,9 @@ int main (int argc, char ** argv) {
     if (action == R_ACTION_JWKS_OUT) {
       get_jwks_out(j_arguments, split_keys, x5u_flags, indent, format, out_file, out_file_public);
     } else if (action == R_ACTION_PARSE_TOKEN) {
-      ret = parse_token(parsed_token, indent, x5u_flags, str_token_public_key, str_token_private_key, show_header, show_claims);
+      ret = parse_token(parsed_token, indent, x5u_flags, str_token_public_key, str_token_private_key, password, show_header, show_claims);
     } else if (action == R_ACTION_SERIALIZE_TOKEN) {
-      ret = serialize_token(claims, x5u_flags, str_token_public_key, str_token_private_key, alg, enc, enc_alg);
+      ret = serialize_token(claims, x5u_flags, str_token_public_key, str_token_private_key, password, alg, enc, enc_alg);
     } else {
       ret = EINVAL;
       fprintf(stderr, "Please epecify an action\n");
@@ -1028,6 +1079,7 @@ int main (int argc, char ** argv) {
   o_free(claims);
   o_free(str_token_private_key);
   o_free(str_token_public_key);
+  o_free(password);
 
   if (debug_mode) {
     y_close_logs();

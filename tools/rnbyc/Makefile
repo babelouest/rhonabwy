@@ -67,9 +67,9 @@ test-jwks: debug
 	$(VALGRIND_COMMAND) ./rnbyc -j -g RSA2048 -o priv.jwks -p pub.jwks 2>valgrind-04.txt
 	$(VALGRIND_COMMAND) ./rnbyc -j -f priv.jwks -f pub.jwks 2>valgrind-05.txt
 	$(VALGRIND_COMMAND) ./rnbyc -j -g oct256 -k "oct-1" -o symkey.jwks 2>valgrind-06.txt
-	$(VALGRIND_COMMAND) ./rnbyc -j -g ECDSA256 -n 4 2>valgrind-07.txt
-	$(VALGRIND_COMMAND) ./rnbyc -j -g ECDSA384 -a "plop" -e "grut" 2>valgrind-08.txt
-	$(VALGRIND_COMMAND) ./rnbyc -j -g EDDSA 2>valgrind-09.txt
+	$(VALGRIND_COMMAND) ./rnbyc -j -g EC256 -n 4 2>valgrind-07.txt
+	$(VALGRIND_COMMAND) ./rnbyc -j -g EC384 -a "plop" -e "grut" 2>valgrind-08.txt
+	$(VALGRIND_COMMAND) ./rnbyc -j -g Ed25519 2>valgrind-09.txt
 	$(VALGRIND_COMMAND) ./rnbyc -j -g error 2>valgrind-10.txt || true
 	cat priv.jwks | $(VALGRIND_COMMAND) ./rnbyc -j -i 2>valgrind-11.txt
 	

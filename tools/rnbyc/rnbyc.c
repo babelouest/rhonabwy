@@ -131,7 +131,7 @@ static void print_help(FILE * output) {
   fprintf(output, "\t\tfollow: follow jwks_uri redirection if any\n");
   fprintf(output, "\t\tvalues can be contatenated, e.g. --x5u-flags cert,follow\n");
   fprintf(output, "-v --version\n");
-  fprintf(output, "\tPrint uwsc's current version\n");
+  fprintf(output, "\tPrint rnbyc's current version\n");
   fprintf(output, "-h --help\n");
   fprintf(output, "\tPrint this message\n\n");
   fprintf(output, "-d --debug\n");

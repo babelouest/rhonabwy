@@ -28,6 +28,7 @@ LIBS=-lc -lrhonabwy -lorcania -lyder -ljansson -lgnutls -L$(RHONABWY_LOCATION)
 RHONABWY_LIBRARY=../../src/librhonabwy.so
 VALGRIND_COMMAND=valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes
 CLAIMS='{"plop":"grut"}'
+PASSWORD='RainbowDash'
 
 all: rnbyc
 
@@ -93,6 +94,8 @@ test-serialize: debug
 	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -K priv.jwks -P pub.jwks -a RS256 -l RSA-OAEP-256 1>token7.jwt 2>valgrind-35.txt
 	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -K token0.jwt 2>valgrind-36.txt || true
 	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -P token0.jwt 2>valgrind-37.txt || true
+	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -W $(PASSWORD) -l PBES2-HS256+A128KW 1>token8.jwt 2>valgrind-38.txt
+	$(VALGRIND_COMMAND) ./rnbyc -s $(CLAIMS) -W $(PASSWORD) -l RSA-OAEP 2>valgrind-39.txt || true
 
 test-parse: debug
 	# Parse JWT
@@ -126,3 +129,5 @@ test-parse: debug
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token7.jwt) -P pub.jwks -K priv.jwks 2>valgrind-67.txt
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token1.jwt) -P pub.jwks -H true -C false 2>valgrind-68.txt
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token1.jwt) -P pub.jwks -H false -C false 2>valgrind-69.txt
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token8.jwt) -W $(PASSWORD) 2>valgrind-70.txt
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token8.jwt) -W error 2>valgrind-71.txt || true

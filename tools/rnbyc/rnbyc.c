@@ -80,11 +80,11 @@ static void print_help(FILE * output) {
   fprintf(output, "\tGenerate a key pair or a symmetric key\n");
   fprintf(output, "\t<type> - values available:\n");
 #if NETTLE_VERSION_NUMBER >= 0x03060e
-  fprintf(output, "\tRSA[key size] (default key size: 4096), ECDSA256, ECDSA384, ECDSA521, Ed25519, Ed448, X25519, X448, oct[key size] (default key size: 128 bits)\n");
+  fprintf(output, "\tRSA[key size] (default key size: 4096), EC256, EC384, EC521, Ed25519, Ed448, X25519, X448, oct[key size] (default key size: 128 bits)\n");
 #elif NETTLE_VERSION_NUMBER >= 0x030600
-  fprintf(output, "\tRSA[key size] (default key size: 4096), ECDSA256, ECDSA384, ECDSA521, Ed25519, X25519, oct[key size] (default key size: 128 bits)\n");
+  fprintf(output, "\tRSA[key size] (default key size: 4096), EC256, EC384, EC521, Ed25519, X25519, oct[key size] (default key size: 128 bits)\n");
 #else
-  fprintf(output, "\tRSA[key size] (default key size: 4096), ECDSA256, ECDSA384, ECDSA521, oct[key size] (default key size: 128 bits)\n");
+  fprintf(output, "\tRSA[key size] (default key size: 4096), EC256, EC384, EC521, oct[key size] (default key size: 128 bits)\n");
 #endif
   fprintf(output, "-i --stdin\n");
   fprintf(output, "\tReads key to parse from stdin\n");
@@ -218,7 +218,7 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
       } else {
         r_jwks_append_jwk(jwks_privkey, jwk_pub);
       }
-    } else if (0 == o_strcasecmp("ECDSA256", type)) {
+    } else if (0 == o_strcasecmp("EC256", type)) {
       r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_ECDSA, 256, json_string_value(json_object_get(j_element, "kid")));
       if (json_string_length(json_object_get(j_element, "alg"))) {
         r_jwk_set_property_str(jwk_priv, "alg", json_string_value(json_object_get(j_element, "alg")));
@@ -233,7 +233,7 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
       } else {
         r_jwks_append_jwk(jwks_privkey, jwk_pub);
       }
-    } else if (0 == o_strcasecmp("ECDSA384", type)) {
+    } else if (0 == o_strcasecmp("EC384", type)) {
       r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_ECDSA, 384, json_string_value(json_object_get(j_element, "kid")));
       if (json_string_length(json_object_get(j_element, "alg"))) {
         r_jwk_set_property_str(jwk_priv, "alg", json_string_value(json_object_get(j_element, "alg")));
@@ -248,7 +248,7 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
       } else {
         r_jwks_append_jwk(jwks_privkey, jwk_pub);
       }
-    } else if (0 == o_strcasecmp("ECDSA521", type)) {
+    } else if (0 == o_strcasecmp("EC521", type)) {
       r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_ECDSA, 521, json_string_value(json_object_get(j_element, "kid")));
       if (json_string_length(json_object_get(j_element, "alg"))) {
         r_jwk_set_property_str(jwk_priv, "alg", json_string_value(json_object_get(j_element, "alg")));
@@ -849,7 +849,12 @@ int main (int argc, char ** argv) {
               fprintf(stderr, "--generate: Invalid argument\n");
               ret = EINVAL;
             }
-          } else if (0 == o_strcasecmp("ECDSA256", optarg) || 0 == o_strcasecmp("ECDSA384", optarg) || 0 == o_strcasecmp("ECDSA521", optarg) || 0 == o_strcasecmp("Ed25519", optarg) || 0 == o_strcasecmp("X25519", optarg) || 0 == o_strcasecmp("X448", optarg)) {
+          } else if (0 == o_strcasecmp("EC256", optarg) ||
+                     0 == o_strcasecmp("EC384", optarg) ||
+                     0 == o_strcasecmp("EC521", optarg) ||
+                     0 == o_strcasecmp("Ed25519", optarg) ||
+                     0 == o_strcasecmp("X25519", optarg) ||
+                     0 == o_strcasecmp("X448", optarg)) {
             json_array_append_new(j_arguments, json_pack("{ssss}", "source", "generate", "type", optarg));
           } else if (0 == o_strncasecmp(optarg, "oct", o_strlen("oct"))) {
             if (o_strlen(optarg) == o_strlen("oct")) {

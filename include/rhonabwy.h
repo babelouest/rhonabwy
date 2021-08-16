@@ -287,12 +287,12 @@ typedef struct {
  * The function r_global_close must be called when rhonabwy library is no longer required
  * @return RHN_OK on success, an error value on error
  */
-int r_global_init();
+int r_global_init(void);
 
 /**
  * Close rhonabwy global parameters
  */
-void r_global_close();
+void r_global_close(void);
 
 /**
  * Get the library information as a json_t * object
@@ -301,7 +301,7 @@ void r_global_close();
  * - supported JWE algorithms
  * @return the library information
  */
-json_t * r_library_info_json_t();
+json_t * r_library_info_json_t(void);
 
 /**
  * Get the library information as a JSON object in string format
@@ -310,7 +310,7 @@ json_t * r_library_info_json_t();
  * - supported JWE algorithms
  * @return the library information, must be r_free'd after use
  */
-char * r_library_info_json_str();
+char * r_library_info_json_str(void);
 
 /**
  * Free a heap allocated variable

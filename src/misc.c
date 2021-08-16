@@ -34,7 +34,7 @@
 #define _R_HEADER_CONTENT_TYPE "Content-Type"
 #endif
 
-int r_global_init() {
+int r_global_init(void) {
   o_malloc_t malloc_fn;
   o_realloc_t realloc_fn;
   o_free_t free_fn;
@@ -56,7 +56,7 @@ int r_global_init() {
   return ret;
 }
 
-void r_global_close() {
+void r_global_close(void) {
 #ifdef R_WITH_CURL
   curl_global_cleanup();
 #endif
@@ -641,7 +641,7 @@ const char * r_jwa_enc_to_str(jwa_enc enc) {
   }
 }
 
-json_t * r_library_info_json_t() {
+json_t * r_library_info_json_t(void) {
   json_t * j_info = json_pack("{sss{s[sssssss]}s{s[ssss]s[sssss]}}",
                               "version", RHONABWY_VERSION_STR,
                               "jws",
@@ -700,7 +700,7 @@ json_t * r_library_info_json_t() {
   return j_info;
 }
 
-char * r_library_info_json_str() {
+char * r_library_info_json_str(void) {
   char * to_return = NULL;
   json_t * j_info = r_library_info_json_t();
   if (j_info != NULL) {

@@ -31,7 +31,7 @@ CONFIG_FILE=$(RHONABWY_INCLUDE)/rhonabwy-cfg.h
 CONFIG_TEMPLATE=$(RHONABWY_INCLUDE)/rhonabwy-cfg.h.in
 CC=gcc
 CFLAGS+=-c -pedantic -std=gnu99 -fPIC -Wall -Werror -Wextra -D_REENTRANT -I$(RHONABWY_INCLUDE) $(ADDITIONALFLAGS) $(CPPFLAGS)
-LIBS=-L$(DESTDIR)/lib -lc -lorcania -lyder $(LULFIUS) -ljansson -lgnutls -lz $(LDFLAGS)
+LIBS=-L$(DESTDIR)/lib -lc $(shell pkg-config --libs liborcania) $(shell pkg-config --libs libyder) $(LCURL) $(shell pkg-config --libs jansson) $(shell pkg-config --libs gnutls) $(shell pkg-config --libs zlib) $(LDFLAGS)
 SONAME=-soname
 OBJECTS=jwk.o jwks.o jws.o jwe.o jwt.o misc.o
 OUTPUT=librhonabwy.so
@@ -49,7 +49,7 @@ ifdef DISABLE_CURL
 R_WITH_CURL=0
 else
 R_WITH_CURL=1
-LULFIUS=-lcurl
+LCURL=-lcurl
 endif
 
 .PHONY: all clean
@@ -64,13 +64,6 @@ $(CONFIG_FILE):
 	@sed -i -e 's/$${PROJECT_VERSION_MINOR}/$(VERSION_MINOR)/g' $(CONFIG_FILE)        
 	@sed -i -e 's/$${PROJECT_VERSION_PATCH}/$(VERSION_PATCH)/g' $(CONFIG_FILE)        
 	@sed -i -e 's/$${PROJECT_VERSION_NUMBER}/$(shell printf '%02d' $(VERSION_MAJOR))$(shell printf '%02d' $(VERSION_MINOR))$(shell printf '%02d' $(VERSION_PATCH))/g' $(CONFIG_FILE)        
-	@if [ "$(ENABLE_ECDH)" = "1" ]; then \
-		sed -i -e 's/\#cmakedefine R_ECDH_ENABLED/\#define R_ECDH_ENABLED/g' $(CONFIG_FILE); \
-		echo "ECDH SUPPORT    ENABLED"; \
-	else \
-		sed -i -e 's/\#cmakedefine R_ECDH_ENABLED/\/* #undef R_ECDH_ENABLED *\//g' $(CONFIG_FILE); \
-		echo "ECDH SUPPORT    DISABLED"; \
-	fi
 	@if [ "$(R_WITH_CURL)" = "1" ]; then \
 		sed -i -e 's/\#cmakedefine R_WITH_CURL/\#define R_WITH_CURL/g' $(CONFIG_FILE); \
 		echo "USE ULFIUS      ENABLED"; \

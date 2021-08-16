@@ -691,7 +691,7 @@ json_t * r_library_info_json_t() {
   json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("PBES2-HS384+A192KW"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("PBES2-HS512+A256KW"));
 #endif
-#if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
+#if NETTLE_VERSION_NUMBER >= 0x030400
   json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("ECDH-ES"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("ECDH-ES+A128KW"));
   json_array_append_new(json_object_get(json_object_get(j_info, "jwe"), "alg"), json_string("ECDH-ES+A192KW"));

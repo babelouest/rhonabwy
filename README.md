@@ -56,22 +56,20 @@ JWT Relies on JWS and JWE functions, so it supports the same functionalities as 
 | A192KW | AES Key Wrap with default initial value using 192-bit key |**YES**(3)|
 | A256KW | AES Key Wrap with default initial value using 256-bit key |**YES**(3)|
 | dir | Direct use of a shared symmetric key as the CEK |**YES**|
-| ECDH-ES | Elliptic Curve Diffie-Hellman Ephemeral Static key agreement using Concat KDF |**YES**(4)|
-| ECDH-ES+A128KW | ECDH-ES using Concat KDF and CEK wrapped with "A128KW" |**YES**(4)|
-| ECDH-ES+A192KW | ECDH-ES using Concat KDF and CEK wrapped with "A192KW" |**YES**(4)|
-| ECDH-ES+A256KW | ECDH-ES using Concat KDF and CEK wrapped with "A256KW" |**YES**(4)|
+| ECDH-ES | Elliptic Curve Diffie-Hellman Ephemeral Static key agreement using Concat KDF |**YES**(3)|
+| ECDH-ES+A128KW | ECDH-ES using Concat KDF and CEK wrapped with "A128KW" |**YES**(3)|
+| ECDH-ES+A192KW | ECDH-ES using Concat KDF and CEK wrapped with "A192KW" |**YES**(3)|
+| ECDH-ES+A256KW | ECDH-ES using Concat KDF and CEK wrapped with "A256KW" |**YES**(3)|
 | A128GCMKW | Key wrapping with AES GCM using 128-bit key |**YES**|
-| A192GCMKW | Key wrapping with AES GCM using 192-bit key |**YES**(5)|
+| A192GCMKW | Key wrapping with AES GCM using 192-bit key |**YES**(4)|
 | A256GCMKW | Key wrapping with AES GCM using 256-bit key |**YES**|
-| PBES2-HS256+A128KW | PBES2 with HMAC SHA-256 and "A128KW" wrapping |**YES**(5)|
-| PBES2-HS384+A192KW | PBES2 with HMAC SHA-384 and "A192KW" wrapping |**YES**(5)|
-| PBES2-HS512+A256KW | PBES2 with HMAC SHA-512 and "A256KW" wrapping |**YES**(5)|
+| PBES2-HS256+A128KW | PBES2 with HMAC SHA-256 and "A128KW" wrapping |**YES**(4)|
+| PBES2-HS384+A192KW | PBES2 with HMAC SHA-384 and "A192KW" wrapping |**YES**(4)|
+| PBES2-HS512+A256KW | PBES2 with HMAC SHA-512 and "A256KW" wrapping |**YES**(4)|
 
-(3) Nettle 3.4 minimum is required for RSA-OAEP and AES key Wrap
+(3) Nettle 3.4 minimum is required for RSA-OAEP, AES key Wrap and ECDH-ES
 
-(4) GnuTLS 3.6 minimum with [FIPS140-2 mode enabled](https://www.gnutls.org/manual/html_node/FIPS140_002d2-mode.html)
-
-(5) GnuTLS 3.6.14 minimum is required for `A192GCMKW`, `PBES2-HS256+A128KW`, `PBES2-HS384+A192KW` and  `PBES2-HS512+A256KW` key wrapping algorithms.
+(4) GnuTLS 3.6.14 minimum is required for `A192GCMKW`, `PBES2-HS256+A128KW`, `PBES2-HS384+A192KW` and  `PBES2-HS512+A256KW` key wrapping algorithms.
 
 ## ECDH-ES support
 

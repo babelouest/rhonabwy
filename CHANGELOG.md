@@ -7,6 +7,7 @@
 - Fix `kty` bugs with JWKs
 - Fix bug with `r_jwe_compute_hmac_tag` to work with AES-CBC keys larger than 32 bytes (Thanks wbanga!)
 - Force using `*_unsecure` functions to manage unsecured JWS or JWT with no signature
+- Use Nettle's `ecc_point_mul` instead of GnuTLS' ECDH implementation
 
 ## 0.9.9999
 

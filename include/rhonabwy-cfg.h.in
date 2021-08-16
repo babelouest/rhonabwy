@@ -35,7 +35,6 @@
 
 #define NETTLE_VERSION_NUMBER ((NETTLE_VERSION_MAJOR << 16) | (NETTLE_VERSION_MINOR << 8))
 
-#cmakedefine R_ECDH_ENABLED
 #cmakedefine R_WITH_CURL
 
 #endif /* _RHONABWY_CFG_H_ */

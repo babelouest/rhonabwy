@@ -9,7 +9,7 @@
 
 #define PAYLOAD "The true sign of intelligence is not knowledge but imagination..."
 
-#if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
+#if NETTLE_VERSION_NUMBER >= 0x030400
 
 #define TOKEN "eyJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImVuYyI6IkExMjhDQkMtSFMyNTYiLCJhcHUiOiJjR3h2Y0FvIiwiYXB2IjoiWjNKMWRBbyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiQU13cm02anpoX2d3M1Zmb0xZNE4zSmktSU55aU9NNEZYbnJHODhqOUdodWEiLCJ5IjoiUlJOUFV3dlhDRUV3TVhmOElOcW9GYnYwWHpaNTVGSEN3dEV5cGhReFIwMCIsImNydiI6IlAtMjU2In19.Izru9wTpv5FPlPp7jpDZkueMZ3luMjXBaI2s0YgUtMiDPBAgXw8_GA.aKgPGQYvpPwHsQiDOeTFoQ.3syjxFimN-u5zY8t-mwIcZwVshIfYbzcxXID7FTbqdAKPWKlWfOdkXpk6V_u5p25U73Izv9qgr1UaWQAzaLli-LqFXptmCyciipYJc2BRhw.OwcQLpd3_PZ8wi2GGHqzww"
 #define TOKEN_INVALID_HEADER "eyJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImVuYyI6IkExMjhDQkMtSFMyNTYiLCJhcHUiOiJjR3h2Y0FvIiwiYXB2IjoiWjNKMWRBbyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiQU13cm02anpoX2d3M1Zmb0xZNE4zSmktSU55aU9NNEZYbnJHODhqOUdodWEiLCJ5IjoiUlJOUFV3dlhDRUV3TVhmOElOcW9GYnYwWHpaNTVGSEN3dEV5cGhReFIwMCIsImNydiI6IlAtMgo.Izru9wTpv5FPlPp7jpDZkueMZ3luMjXBaI2s0YgUtMiDPBAgXw8_GA.aKgPGQYvpPwHsQiDOeTFoQ.3syjxFimN-u5zY8t-mwIcZwVshIfYbzcxXID7FTbqdAKPWKlWfOdkXpk6V_u5p25U73Izv9qgr1UaWQAzaLli-LqFXptmCyciipYJc2BRhw.OwcQLpd3_PZ8wi2GGHqzww"
@@ -509,7 +509,7 @@ static Suite *rhonabwy_suite(void)
 
   s = suite_create("Rhonabwy JWE ECDH-ES encryption tests");
   tc_core = tcase_create("test_rhonabwy_ecdh_es");
-#if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
+#if NETTLE_VERSION_NUMBER >= 0x030400
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_ok);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_x25519_ok);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_x448_ok);

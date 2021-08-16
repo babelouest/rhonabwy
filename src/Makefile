@@ -35,9 +35,9 @@ LIBS=-L$(DESTDIR)/lib -lc $(shell pkg-config --libs liborcania) $(shell pkg-conf
 SONAME=-soname
 OBJECTS=jwk.o jwks.o jws.o jwe.o jwt.o misc.o
 OUTPUT=librhonabwy.so
-VERSION_MAJOR=0
-VERSION_MINOR=9
-VERSION_PATCH=999990
+VERSION_MAJOR=1
+VERSION_MINOR=0
+VERSION_PATCH=0
 
 ifdef ECDHFLAG
 ENABLE_ECDH=1

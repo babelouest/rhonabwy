@@ -12,7 +12,7 @@ Rhonabwy is based on the following libraries and actively uses them:
 - GnuTLS for the cryptographic functions
 - Jansson for the JSON manipulation
 - Yder for the logs
-- Ulfius when it requires to retrieve keys from an URL
+- Libcurl when it requires to retrieve keys from an URL
 
 When relevant, a function can accept or return GnuTLS or Jansson data. But if you're not using those in your application and prefer raw data, you can use the more agnostic functions.
 
@@ -36,9 +36,9 @@ If a function is successful, it will return `RHN_OK` (0), otherwise an error cod
 It's **recommended** to use `r_global_init` and `r_global_close` at the beginning and at the end of your program to initialize and cleanup internal values and settings. This will make outgoing requests faster, especially if you use lots of them, and dispatch your memory allocation functions in curl and Jansson if you changed them. These functions are **NOT** thread-safe, so you must use them in a single thread context.
 
 ```C
-int r_global_init();
+int r_global_init(void);
 
-void r_global_close();
+void r_global_close(void);
 ```
 
 ## Log messages
@@ -47,7 +47,7 @@ Usually, a log message is displayed to explain more specifically what happened o
 
 ```C
 
-int main() {
+int main(void) {
   y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy client program");
   
   // Do your code here
@@ -92,11 +92,11 @@ void r_jwt_free(jwt_t * jwt);
 
 In addition, when a function return a `char *` value, this value must be freed using the function `r_free(void *)`.
 
-And finally, all `json_t *` returned values must be de allocated using `json_decref(json_t *)`, see [Jansson Documentation](https://jansson.readthedocs.io/) for more details.
-
 ```C
 void r_free(void * data);
 ```
+
+And finally, all `json_t *` returned values must be de allocated using `json_decref(json_t *)`, see [Jansson Documentation](https://jansson.readthedocs.io/) for more details.
 
 ## Library information
 
@@ -268,7 +268,7 @@ jwk_t * r_jwks_get_by_kid(jwks_t * jwks, const char * kid);
 You can also import a JWKS using a JSON object or an URL.
 
 ```C
-int r_jwks_import_from_str(jwks_t * jwks, const char * input);
+int r_jwks_import_from_json_str(jwks_t * jwks, const char * input);
 
 int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input);
 
@@ -277,9 +277,9 @@ int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int flags);
 
 ## JWS
 
-A JWS (JSON Web Signature) is a content digitally signed and serialized in a compact format that can be easily transferred in HTTP requests.
+A JWS (JSON Web Signature) is a content digitally signed and serialized in a compact or JSON format that can be easily transferred in HTTP requests.
 
-A JWS has 3 elements serialized in base64url format and separated by a dot (.). The 3 elements are:
+A compact JWS has 3 elements serialized in base64url format and separated by a dot (.). The 3 elements are:
 
 - A header in JSON format
 - A Payload

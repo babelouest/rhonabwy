@@ -1,4 +1,4 @@
-# Rhonabwy - JWK, JWKS, JWS, JWE and JWT library
+# Rhonabwy - Javascript Object Signing and Encryption (JOSE) library - JWK, JWKS, JWS, JWE and JWT
 
 [![View on jwt.io](http://jwt.io/img/badge.svg)](https://jwt.io)
 ![C/C++ CI](https://github.com/babelouest/rhonabwy/workflows/C/C++%20CI/badge.svg)
@@ -72,10 +72,6 @@ JWT Relies on JWS and JWE functions, so it supports the same functionalities as 
 (4) Nettle 3.6 minimum is required for ECDH-ES
 
 (5) GnuTLS 3.6.14 minimum is required for `A192GCMKW`, `PBES2-HS256+A128KW`, `PBES2-HS384+A192KW` and  `PBES2-HS512+A256KW` key wrapping algorithms.
-
-## ECDH-ES support
-
-For now, ECDH-ES key management support is implemented, but experimental. You need GnuTLS with [FIPS140-2 mode enabled](https://www.gnutls.org/manual/html_node/FIPS140_002d2-mode.html) and [enable ECDH-ES on build](#manual-install).
 
 # rnbyc, Rhonabwy command-line tool 
 
@@ -173,7 +169,7 @@ Rhonabwy is available in the following distributions.
 
 Rhonabwy is based on [Nettle](https://www.lysator.liu.se/~nisse/nettle/), [GnuTLS](https://www.gnutls.org/), [Jansson](http://www.digip.org/jansson/), [zlib](https://www.zlib.net/), [libcurl](https://curl.haxx.se/libcurl/) and libsystemd (if possible), you must install those libraries first before building Rhonabwy.
 
-You also need check and [Ulfius](https://github.com/babelouest/ulfius) to run the tests.
+You also need [check](https://libcheck.github.io/check/) and [Ulfius](https://github.com/babelouest/ulfius) to run the tests.
 
 ## Prerequisites
 
@@ -221,14 +217,6 @@ Download Rhonabwy from GitHub repository, compile and install.
 $ git clone https://github.com/babelouest/rhonabwy.git
 $ cd rhonabwy/src
 $ make
-$ sudo make install
-```
-
-To enable ECDH-ES key exchange management, you can pass the option `ECDHFLAG=1` to the make command.
-
-```shell
-$ cd rhonabwy/src
-$ make ECDHFLAG=1
 $ sudo make install
 ```
 

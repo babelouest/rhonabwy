@@ -784,7 +784,7 @@ static int _r_aes_key_unwrap(uint8_t * kek, size_t kek_len, uint8_t * key, size_
 }
 #endif
 
-#if NETTLE_VERSION_NUMBER >= 0x030400
+#if NETTLE_VERSION_NUMBER >= 0x030600
 static json_t * r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, jwk_t * jwk_priv, int type, unsigned int bits, int x5u_flags, int * ret) {
   int type_priv = 0;
   unsigned int bits_priv = 0;

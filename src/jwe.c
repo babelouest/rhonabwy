@@ -50,19 +50,16 @@
 #include <nettle/rsa.h>
 #endif
 
-#if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
+#if NETTLE_VERSION_NUMBER >= 0x030400
 #include <nettle/curve25519.h>
 #include <nettle/curve448.h>
 #include <nettle/eddsa.h>
+#include <nettle/ecdsa.h>
+#include <nettle/ecc.h>
+#include <nettle/ecc-curve.h>
 #endif
 
-#if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
-
-int _gnutls_ecdh_compute_key(gnutls_ecc_curve_t curve,
-			   const gnutls_datum_t *x, const gnutls_datum_t *y,
-			   const gnutls_datum_t *k,
-			   const gnutls_datum_t *peer_x, const gnutls_datum_t *peer_y,
-			   gnutls_datum_t *Z);
+#if NETTLE_VERSION_NUMBER >= 0x030400
 
 static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnutls_datum_t * kdf) {
   int ret = RHN_OK;
@@ -193,6 +190,64 @@ static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnu
     kdf->data = NULL;
     kdf->size = 0;
   }
+
+  return ret;
+}
+
+static int _r_ecdh_compute(uint8_t * priv_d, uint8_t * pub_x, uint8_t * pub_y, size_t crv_size, const struct ecc_curve * curve, gnutls_datum_t * Z) {
+  int ret = RHN_OK;
+  struct ecc_scalar priv;
+  struct ecc_point pub, r;
+  mpz_t z_priv_d, z_pub_x, z_pub_y, r_x, r_y;
+  uint8_t r_x_u[64] = {0};
+  size_t r_x_u_len = 64;
+  
+  mpz_init(z_priv_d);
+  mpz_init(z_pub_x);
+  mpz_init(z_pub_y);
+  mpz_init(r_x);
+  mpz_init(r_y);
+  ecc_scalar_init(&priv, curve);
+  ecc_point_init(&pub, curve);
+  ecc_point_init(&r, curve);
+  do {
+    mpz_import(z_priv_d, crv_size, 1, 1, 0, 0, priv_d);
+    if (!ecc_scalar_set(&priv, z_priv_d)) {
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_ecdh_compute - Error ecc_scalar_set");
+      ret = RHN_ERROR;
+      break;
+    }
+    
+    mpz_import(z_pub_x, crv_size, 1, 1, 0, 0, pub_x);
+    mpz_import(z_pub_y, crv_size, 1, 1, 0, 0, pub_y);
+    if (!ecc_point_set(&pub, z_pub_x, z_pub_y)) {
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_ecdh_compute - Error ecc_point_set");
+      ret = RHN_ERROR;
+      break;
+    }
+    
+    ecc_point_mul(&r, &priv, &pub);
+    ecc_point_get(&r, r_x, r_y);
+    
+    mpz_export(r_x_u, &r_x_u_len, 1, 1, 0, 0, r_x);
+    
+    if ((Z->data = gnutls_malloc(crv_size)) == NULL) {
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_ecdh_compute - Error gnutls_malloc");
+      ret = RHN_ERROR_MEMORY;
+      break;
+    }
+    memcpy(Z->data, r_x_u, crv_size);
+    Z->size = crv_size;
+    ret = RHN_OK;
+  } while (0);
+  mpz_clear(z_priv_d);
+  mpz_clear(z_pub_x);
+  mpz_clear(z_pub_y);
+  mpz_clear(r_x);
+  mpz_clear(r_y);
+  ecc_scalar_clear(&priv);
+  ecc_point_clear(&pub);
+  ecc_point_clear(&r);
 
   return ret;
 }
@@ -729,7 +784,7 @@ static int _r_aes_key_unwrap(uint8_t * kek, size_t kek_len, uint8_t * key, size_
 }
 #endif
 
-#if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
+#if NETTLE_VERSION_NUMBER >= 0x030400
 static json_t * r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, jwk_t * jwk_priv, int type, unsigned int bits, int x5u_flags, int * ret) {
   int type_priv = 0;
   unsigned int bits_priv = 0;
@@ -743,6 +798,7 @@ static json_t * r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, jw
   size_t derived_key_len = 0, cipherkey_b64url_len = 0, key_size = ED448_KEY_SIZE, crv_size = 0, d_size = 0;
   const char * key = NULL;
   json_t * j_return = NULL;
+  const struct ecc_curve * nettle_curve;
 
   do {
     if (r_jwk_init(&jwk_ephemeral_pub) != RHN_OK) {
@@ -809,20 +865,28 @@ static json_t * r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, jw
         break;
       }
 
-      if (gnutls_privkey_export_ecc_raw(priv, &curve, &x, &y, &k) != GNUTLS_E_SUCCESS) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error gnutls_privkey_export_ecc_raw (ecc)");
+      if (gnutls_privkey_export_ecc_raw2(priv, &curve, &x, &y, &k, GNUTLS_EXPORT_FLAG_NO_LZ) != GNUTLS_E_SUCCESS) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error gnutls_privkey_export_ecc_raw2 (ecc)");
         *ret = RHN_ERROR;
         break;
       }
 
-      if (gnutls_pubkey_export_ecc_raw(pub, &curve, &peer_x, &peer_y) != GNUTLS_E_SUCCESS) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error gnutls_pubkey_export_ecc_raw (ecc)");
+      if (gnutls_pubkey_export_ecc_raw2(pub, &curve, &peer_x, &peer_y, GNUTLS_EXPORT_FLAG_NO_LZ) != GNUTLS_E_SUCCESS) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error gnutls_pubkey_export_ecc_raw2 (ecc)");
         *ret = RHN_ERROR;
         break;
       }
 
-      if (_gnutls_ecdh_compute_key(curve, &x, &y, &k, &peer_x, &peer_y, &Z) != GNUTLS_E_SUCCESS) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error _gnutls_ecdh_compute_key");
+      if (bits == 256) {
+        nettle_curve = nettle_get_secp_256r1();
+      } else if (bits == 384) {
+        nettle_curve = nettle_get_secp_384r1();
+      } else {
+        nettle_curve = nettle_get_secp_521r1();
+      }
+      
+      if (_r_ecdh_compute(k.data, peer_x.data, peer_y.data, k.size, nettle_curve, &Z) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error _r_ecdh_compute");
         *ret = RHN_ERROR;
         break;
       }
@@ -945,6 +1009,7 @@ static int r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, u
   uint8_t derived_key[64] = {0}, key_data[64] = {0}, cipherkey[128] = {0}, priv_k[CURVE448_SIZE] = {0}, pub_x[CURVE448_SIZE] = {0};
   size_t derived_key_len = 0, cipherkey_len = 0, key_size = CURVE448_SIZE, crv_size = 0;
   const char * key = NULL;
+  const struct ecc_curve * nettle_curve;
 
   do {
     if ((j_epk = r_jwe_get_header_json_t_value(jwe, "epk")) == NULL) {
@@ -984,20 +1049,28 @@ static int r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, u
         break;
       }
 
-      if (gnutls_privkey_export_ecc_raw(priv, &curve, &x, &y, &k) != GNUTLS_E_SUCCESS) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error gnutls_privkey_export_ecc_raw (ecc)");
+      if (gnutls_privkey_export_ecc_raw2(priv, &curve, &x, &y, &k, GNUTLS_EXPORT_FLAG_NO_LZ) != GNUTLS_E_SUCCESS) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error gnutls_privkey_export_ecc_raw2 (ecc)");
         ret = RHN_ERROR;
         break;
       }
 
-      if (gnutls_pubkey_export_ecc_raw(pub, &curve, &peer_x, &peer_y) != GNUTLS_E_SUCCESS) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error gnutls_pubkey_export_ecc_raw (ecc)");
+      if (gnutls_pubkey_export_ecc_raw2(pub, &curve, &peer_x, &peer_y, GNUTLS_EXPORT_FLAG_NO_LZ) != GNUTLS_E_SUCCESS) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error gnutls_pubkey_export_ecc_raw2 (ecc)");
         ret = RHN_ERROR;
         break;
       }
 
-      if (_gnutls_ecdh_compute_key(curve, &x, &y, &k, &peer_x, &peer_y, &Z) != GNUTLS_E_SUCCESS) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error _gnutls_ecdh_compute_key");
+      if (bits == 256) {
+        nettle_curve = nettle_get_secp_256r1();
+      } else if (bits == 384) {
+        nettle_curve = nettle_get_secp_384r1();
+      } else {
+        nettle_curve = nettle_get_secp_521r1();
+      }
+      
+      if (_r_ecdh_compute(k.data, peer_x.data, peer_y.data, k.size, nettle_curve, &Z) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error _r_ecdh_compute");
         ret = RHN_ERROR;
         break;
       }
@@ -1961,7 +2034,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
   uint8_t * cyphertext = NULL;
   size_t cyphertext_len = 0;
 #endif
-#if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
+#if NETTLE_VERSION_NUMBER >= 0x030400
   json_t * jwk_priv = NULL;
 #endif
 
@@ -2096,7 +2169,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
       }
       break;
 #endif
-#if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
+#if NETTLE_VERSION_NUMBER >= 0x030400
     case R_JWA_ALG_ECDH_ES:
     case R_JWA_ALG_ECDH_ES_A128KW:
     case R_JWA_ALG_ECDH_ES_A192KW:
@@ -2312,7 +2385,7 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
       }
       break;
 #endif
-#if defined(R_ECDH_ENABLED) && GNUTLS_VERSION_NUMBER >= 0x030600
+#if NETTLE_VERSION_NUMBER >= 0x030400
     case R_JWA_ALG_ECDH_ES:
     case R_JWA_ALG_ECDH_ES_A128KW:
     case R_JWA_ALG_ECDH_ES_A192KW:

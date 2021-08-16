@@ -22,7 +22,7 @@ Options available:
 -g --generate <type>
 	Generate a key pair or a symmetric key
 	<type> - values available:
-	RSA[key size] (default key size: 4096), ECDSA256, ECDSA384, ECDSA512, EDDSA, oct[key size] (default key size: 128 bits)
+	RSA[key size] (default key size: 4096), EC256, EC384, EC521, Ed25519, oct[key size] (default key size: 128 bits)
 -i --stdin
 	Reads key to parse from stdin
 -f --in-file
@@ -99,7 +99,7 @@ $ rnbyc -j -f /path/to/certificate.crt
 ### Generates a ECDSA 256 bits key pair in a single JWKS and specifies the kid
 
 ```shell
-$ rnbyc -j -g ecdsa256 -k key1
+$ rnbyc -j -g ec256 -k key1
 {
   "keys": [
     {

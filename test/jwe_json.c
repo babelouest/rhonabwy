@@ -70,7 +70,7 @@ const char jwks_all_privkeys[] = "{\"keys\": ["
 ",{\"kty\": \"oct\", \"k\": \"OI_6XYApCCn_9R-8GPxOubBPkMNbt3Vd\", \"alg\": \"A192KW\", \"kid\": \"A192KW\"}"
 ",{\"kty\": \"oct\", \"k\": \"IZ2ifICT03pMCZfqHCtO1vPU1_yhGwZUu3Lt3NPiiow\", \"alg\": \"A256KW\", \"kid\": \"A256KW\"}"
 #endif
-#if NETTLE_VERSION_NUMBER >= 0x030400
+#if NETTLE_VERSION_NUMBER >= 0x030600
 ",{\"kty\": \"EC\", \"x\": \"AOJ9FiyptD67tbjYKAXr7sn7TzT5SAtcke5YcZjXbdLy\", \"y\": \"AMSB2nGzT4mCbai0hY_qODr4DaHVD9Gk_oJ9lXGb-TRw\", \"d\": \"esY6_Xtac52F88CHCIAs-b8kG7VYBvN8GV5vTVeUB6Y\", \"crv\": \"P-256\", \"kid\": \"ECDH-ES+A128KW\", \"alg\": \"ECDH-ES+A128KW\"}"
 ",{\"kty\": \"EC\", \"x\": \"dQQcQ_TdYVScUzDaMdHUHvGZtfc_piecctF-q4Mz8PQ\", \"y\": \"AND5hLGPJKeEFDl_AQ9JsR5cE-uFUgvLQgPW9BgrluZJ\", \"d\": \"FEmyk5hggKjbm-KAAutCvy4Wp4zOYaux8u5Jt6hks-k\", \"crv\": \"P-256\", \"kid\": \"ECDH-ES+A192KW\", \"alg\": \"ECDH-ES+A192KW\"}"
 ",{\"kty\": \"EC\", \"x\": \"AP4C-BLKoo98wrpMSuovvkhV2A7eyXwAw4DSa-Bs724I\", \"y\": \"djnAg_Fqjf9C23WsAI_c7ktV3XweOrfBA5lKzHjV4tw\", \"d\": \"c6-ZFaSrXFhxi0GVjD1DNagk_hwsg7x8BEoh0eT6LmU\", \"crv\": \"P-256\", \"kid\": \"ECDH-ES+A256KW\", \"alg\": \"ECDH-ES+A256KW\"}"
@@ -97,7 +97,7 @@ const char jwks_all_pubkeys[] = "{\"keys\": ["
 ",{\"kty\": \"oct\", \"k\": \"OI_6XYApCCn_9R-8GPxOubBPkMNbt3Vd\", \"alg\": \"A192KW\", \"kid\": \"A192KW\"}"
 ",{\"kty\": \"oct\", \"k\": \"IZ2ifICT03pMCZfqHCtO1vPU1_yhGwZUu3Lt3NPiiow\", \"alg\": \"A256KW\", \"kid\": \"A256KW\"}"
 #endif
-#if NETTLE_VERSION_NUMBER >= 0x030400
+#if NETTLE_VERSION_NUMBER >= 0x030600
 ",{\"kty\": \"EC\", \"x\": \"AOJ9FiyptD67tbjYKAXr7sn7TzT5SAtcke5YcZjXbdLy\", \"y\": \"AMSB2nGzT4mCbai0hY_qODr4DaHVD9Gk_oJ9lXGb-TRw\", \"crv\": \"P-256\", \"kid\": \"ECDH-ES+A128KW\", \"alg\": \"ECDH-ES+A128KW\"}"
 ",{\"kty\": \"EC\", \"x\": \"dQQcQ_TdYVScUzDaMdHUHvGZtfc_piecctF-q4Mz8PQ\", \"y\": \"AND5hLGPJKeEFDl_AQ9JsR5cE-uFUgvLQgPW9BgrluZJ\", \"crv\": \"P-256\", \"kid\": \"ECDH-ES+A192KW\", \"alg\": \"ECDH-ES+A192KW\"}"
 ",{\"kty\": \"EC\", \"x\": \"AP4C-BLKoo98wrpMSuovvkhV2A7eyXwAw4DSa-Bs724I\", \"y\": \"djnAg_Fqjf9C23WsAI_c7ktV3XweOrfBA5lKzHjV4tw\", \"crv\": \"P-256\", \"kid\": \"ECDH-ES+A256KW\", \"alg\": \"ECDH-ES+A256KW\"}"

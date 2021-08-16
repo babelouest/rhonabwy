@@ -326,7 +326,7 @@ START_TEST(test_rhonabwy_cookbook_jwe)
 #if GNUTLS_VERSION_NUMBER >= 0x03060d
   jwe_test(JSON_JWE_5_3_PBES2_AES_CBC);
 #endif
-#if NETTLE_VERSION_NUMBER >= 0x030400
+#if NETTLE_VERSION_NUMBER >= 0x030600
   jwe_test(JSON_JWE_5_4_ECDH_ES_AES_GCM);
   jwe_test(JSON_JWE_5_5_ECDH_ES_AES_CBC);
 #endif
@@ -340,7 +340,7 @@ START_TEST(test_rhonabwy_cookbook_jwe)
   //jwe_test(JSON_JWE_5_12_PROTECTING_CONTENT); // Not sure if relevant
   //jwe_test(JSON_JWE_5_13_MULTIPLE_RECIPIENTS);
 #endif
-#if NETTLE_VERSION_NUMBER >= 0x030400
+#if NETTLE_VERSION_NUMBER >= 0x030600
   jwe_test(JSON_JWE_CURVE25519);
 #endif
 }

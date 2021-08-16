@@ -50,7 +50,7 @@
 #include <nettle/rsa.h>
 #endif
 
-#if NETTLE_VERSION_NUMBER >= 0x030400
+#if NETTLE_VERSION_NUMBER >= 0x030600
 #include <nettle/curve25519.h>
 #include <nettle/curve448.h>
 #include <nettle/eddsa.h>
@@ -59,7 +59,7 @@
 #include <nettle/ecc-curve.h>
 #endif
 
-#if NETTLE_VERSION_NUMBER >= 0x030400
+#if NETTLE_VERSION_NUMBER >= 0x030600
 
 static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnutls_datum_t * kdf) {
   int ret = RHN_OK;
@@ -2034,7 +2034,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
   uint8_t * cyphertext = NULL;
   size_t cyphertext_len = 0;
 #endif
-#if NETTLE_VERSION_NUMBER >= 0x030400
+#if NETTLE_VERSION_NUMBER >= 0x030600
   json_t * jwk_priv = NULL;
 #endif
 
@@ -2169,7 +2169,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
       }
       break;
 #endif
-#if NETTLE_VERSION_NUMBER >= 0x030400
+#if NETTLE_VERSION_NUMBER >= 0x030600
     case R_JWA_ALG_ECDH_ES:
     case R_JWA_ALG_ECDH_ES_A128KW:
     case R_JWA_ALG_ECDH_ES_A192KW:
@@ -2385,7 +2385,7 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
       }
       break;
 #endif
-#if NETTLE_VERSION_NUMBER >= 0x030400
+#if NETTLE_VERSION_NUMBER >= 0x030600
     case R_JWA_ALG_ECDH_ES:
     case R_JWA_ALG_ECDH_ES_A128KW:
     case R_JWA_ALG_ECDH_ES_A192KW:

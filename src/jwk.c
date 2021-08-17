@@ -1244,7 +1244,7 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
           gnutls_free(k.data);
           gnutls_x509_privkey_deinit(x509_key);
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error gnutls_pubkey_export_ecc_raw2");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error gnutls_privkey_export_ecc_raw2");
           ret = RHN_ERROR_PARAM;
         }
         break;
@@ -1316,7 +1316,7 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
           gnutls_free(k.data);
           gnutls_x509_privkey_deinit(x509_key);
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error gnutls_pubkey_export_ecc_raw2");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error gnutls_privkey_export_ecc_raw2");
           ret = RHN_ERROR_PARAM;
         }
         break;
@@ -1388,7 +1388,7 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
           gnutls_free(k.data);
           gnutls_x509_privkey_deinit(x509_key);
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error gnutls_pubkey_export_ecc_raw2");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error gnutls_privkey_export_ecc_raw2");
           ret = RHN_ERROR_PARAM;
         }
         break;
@@ -1651,7 +1651,7 @@ int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
           o_free(b64_enc);
           gnutls_free(x.data);
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_pubkey ecdh - Error gnutls_pubkey_export_ecc_raw");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_pubkey ecdh - Error gnutls_pubkey_export_ecc_raw2");
           ret = RHN_ERROR_PARAM;
         }
         break;

@@ -37,6 +37,7 @@
 
 #define _R_PBES_DEFAULT_ITERATION 4096
 #define _R_PBES_DEFAULT_SALT_LENGTH 8
+#define _R_CURVE_MAX_SIZE 64
 
 #if NETTLE_VERSION_NUMBER >= 0x030400
 #include <nettle/hmac.h>
@@ -194,14 +195,14 @@ static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnu
   return ret;
 }
 
-static int _r_ecdh_compute(uint8_t * priv_d, uint8_t * pub_x, uint8_t * pub_y, size_t crv_size, const struct ecc_curve * curve, gnutls_datum_t * Z) {
+static int _r_ecdh_compute(uint8_t * priv_d, size_t pub_d_size, uint8_t * pub_x, size_t pub_x_size, uint8_t * pub_y, size_t pub_y_size, const struct ecc_curve * curve, gnutls_datum_t * Z) {
   int ret = RHN_OK;
   struct ecc_scalar priv;
   struct ecc_point pub, r;
   mpz_t z_priv_d, z_pub_x, z_pub_y, r_x, r_y;
   uint8_t r_x_u[64] = {0};
   size_t r_x_u_len = 64;
-  
+
   mpz_init(z_priv_d);
   mpz_init(z_pub_x);
   mpz_init(z_pub_y);
@@ -211,33 +212,33 @@ static int _r_ecdh_compute(uint8_t * priv_d, uint8_t * pub_x, uint8_t * pub_y, s
   ecc_point_init(&pub, curve);
   ecc_point_init(&r, curve);
   do {
-    mpz_import(z_priv_d, crv_size, 1, 1, 0, 0, priv_d);
+    mpz_import(z_priv_d, pub_d_size, 1, 1, 0, 0, priv_d);
     if (!ecc_scalar_set(&priv, z_priv_d)) {
       y_log_message(Y_LOG_LEVEL_ERROR, "_r_ecdh_compute - Error ecc_scalar_set");
       ret = RHN_ERROR;
       break;
     }
-    
-    mpz_import(z_pub_x, crv_size, 1, 1, 0, 0, pub_x);
-    mpz_import(z_pub_y, crv_size, 1, 1, 0, 0, pub_y);
+
+    mpz_import(z_pub_x, pub_x_size, 1, 1, 0, 0, pub_x);
+    mpz_import(z_pub_y, pub_y_size, 1, 1, 0, 0, pub_y);
     if (!ecc_point_set(&pub, z_pub_x, z_pub_y)) {
       y_log_message(Y_LOG_LEVEL_ERROR, "_r_ecdh_compute - Error ecc_point_set");
       ret = RHN_ERROR;
       break;
     }
-    
+
     ecc_point_mul(&r, &priv, &pub);
     ecc_point_get(&r, r_x, r_y);
-    
+
     mpz_export(r_x_u, &r_x_u_len, 1, 1, 0, 0, r_x);
-    
-    if ((Z->data = gnutls_malloc(crv_size)) == NULL) {
+
+    if ((Z->data = gnutls_malloc(r_x_u_len)) == NULL) {
       y_log_message(Y_LOG_LEVEL_ERROR, "_r_ecdh_compute - Error gnutls_malloc");
       ret = RHN_ERROR_MEMORY;
       break;
     }
-    memcpy(Z->data, r_x_u, crv_size);
-    Z->size = crv_size;
+    memcpy(Z->data, r_x_u, r_x_u_len);
+    Z->size = r_x_u_len;
     ret = RHN_OK;
   } while (0);
   mpz_clear(z_priv_d);
@@ -785,24 +786,21 @@ static int _r_aes_key_unwrap(uint8_t * kek, size_t kek_len, uint8_t * key, size_
 #endif
 
 #if NETTLE_VERSION_NUMBER >= 0x030600
-static json_t * r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, jwk_t * jwk_priv, int type, unsigned int bits, int x5u_flags, int * ret) {
+static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, jwk_t * jwk_priv, int type, unsigned int bits, int x5u_flags, int * ret) {
   int type_priv = 0;
   unsigned int bits_priv = 0;
   jwk_t * jwk_ephemeral = NULL, * jwk_ephemeral_pub = NULL;
-  gnutls_privkey_t priv = NULL;
-  gnutls_pubkey_t pub = NULL;
-  gnutls_ecc_curve_t curve;
-  gnutls_datum_t x = {NULL, 0}, y = {NULL, 0}, k = {NULL, 0}, peer_x = {NULL, 0}, peer_y = {NULL, 0}, Z = {NULL, 0}, kdf = {NULL, 0};
+  gnutls_datum_t Z = {NULL, 0}, kdf = {NULL, 0};
   unsigned char cipherkey_b64url[256] = {0};
-  uint8_t derived_key[64] = {0}, wrapped_key[72] = {0}, priv_k[CURVE448_SIZE] = {0}, pub_x[CURVE448_SIZE] = {0};
-  size_t derived_key_len = 0, cipherkey_b64url_len = 0, key_size = ED448_KEY_SIZE, crv_size = 0, d_size = 0;
+  uint8_t derived_key[64] = {0}, wrapped_key[72] = {0}, priv_k[_R_CURVE_MAX_SIZE] = {0}, pub_x[_R_CURVE_MAX_SIZE] = {0}, pub_y[_R_CURVE_MAX_SIZE] = {0};
+  size_t derived_key_len = 0, cipherkey_b64url_len = 0, priv_k_size = 0, pub_x_size = 0, pub_y_size = 0, crv_size = 0;
   const char * key = NULL;
   json_t * j_return = NULL;
   const struct ecc_curve * nettle_curve;
 
   do {
     if (r_jwk_init(&jwk_ephemeral_pub) != RHN_OK) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error r_jwk_init jwk_ephemeral_pub");
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error r_jwk_init jwk_ephemeral_pub");
       *ret = RHN_ERROR;
       break;
     }
@@ -811,92 +809,48 @@ static json_t * r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, jw
       type_priv = r_jwk_key_type(jwk_priv, &bits_priv, x5u_flags);
 
       if ((type_priv & 0xffffff00) != (type & 0xffffff00)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error invalid ephemeral key");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error invalid ephemeral key");
         *ret = RHN_ERROR_PARAM;
         break;
       }
 
       if (bits != bits_priv) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error invalid ephemeral key length");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error invalid ephemeral key length");
         *ret = RHN_ERROR_PARAM;
         break;
       }
 
-      if (type & R_KEY_TYPE_ECDSA) {
-        if ((priv = r_jwk_export_to_gnutls_privkey(jwk_priv)) == NULL) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error r_jwk_export_to_gnutls_privkey");
-          *ret = RHN_ERROR;
-          break;
-        }
-      }
-
       if (r_jwk_extract_pubkey(jwk_priv, jwk_ephemeral_pub, x5u_flags) != RHN_OK) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error extracting public key from jwk_priv");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error extracting public key from jwk_priv");
         *ret = RHN_ERROR;
         break;
       }
     } else {
       if (r_jwk_init(&jwk_ephemeral) != RHN_OK) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error r_jwk_init jwk_ephemeral");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error r_jwk_init jwk_ephemeral");
         *ret = RHN_ERROR;
         break;
       }
 
       if (r_jwk_generate_key_pair(jwk_ephemeral, jwk_ephemeral_pub, type&R_KEY_TYPE_ECDSA?R_KEY_TYPE_ECDSA:R_KEY_TYPE_ECDH, bits, NULL) != RHN_OK) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error r_jwk_generate_key_pair");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error r_jwk_generate_key_pair");
         *ret = RHN_ERROR;
         break;
       }
 
-      if (type & R_KEY_TYPE_ECDSA) {
-        if ((priv = r_jwk_export_to_gnutls_privkey(jwk_ephemeral)) == NULL) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error r_jwk_export_to_gnutls_privkey");
-          *ret = RHN_ERROR;
-          break;
-        }
-      }
       r_jwk_delete_property_str(jwk_ephemeral_pub, "kid");
     }
 
     if (type & R_KEY_TYPE_ECDSA) {
-      if ((pub = r_jwk_export_to_gnutls_pubkey(jwk_pub, x5u_flags)) == NULL) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error r_jwk_export_to_gnutls_pubkey");
-        *ret = RHN_ERROR;
-        break;
-      }
-
-      if (gnutls_privkey_export_ecc_raw2(priv, &curve, &x, &y, &k, GNUTLS_EXPORT_FLAG_NO_LZ) != GNUTLS_E_SUCCESS) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error gnutls_privkey_export_ecc_raw2 (ecc)");
-        *ret = RHN_ERROR;
-        break;
-      }
-
-      if (gnutls_pubkey_export_ecc_raw2(pub, &curve, &peer_x, &peer_y, GNUTLS_EXPORT_FLAG_NO_LZ) != GNUTLS_E_SUCCESS) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error gnutls_pubkey_export_ecc_raw2 (ecc)");
-        *ret = RHN_ERROR;
-        break;
-      }
-
       if (bits == 256) {
         nettle_curve = nettle_get_secp_256r1();
+        crv_size = 32;
       } else if (bits == 384) {
         nettle_curve = nettle_get_secp_384r1();
+        crv_size = 48;
       } else {
         nettle_curve = nettle_get_secp_521r1();
-      }
-      
-      if (_r_ecdh_compute(k.data, peer_x.data, peer_y.data, k.size, nettle_curve, &Z) != RHN_OK) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error _r_ecdh_compute");
-        *ret = RHN_ERROR;
-        break;
-      }
-    } else {
-      if (bits == 256) {
-        crv_size = CURVE25519_SIZE;
-        d_size = ED25519_KEY_SIZE;
-      } else {
-        crv_size = CURVE448_SIZE;
-        d_size = ED448_KEY_SIZE;
+        crv_size = 64;
       }
 
       if (jwk_priv != NULL) {
@@ -904,34 +858,59 @@ static json_t * r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, jw
       } else {
         key = r_jwk_get_property_str(jwk_ephemeral, "d");
       }
-      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), priv_k, &key_size)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error o_base64url_decode d");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), priv_k, &priv_k_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode d (ecdsa)");
         *ret = RHN_ERROR_PARAM;
         break;
       }
 
-      if (key_size != d_size) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error key size d");
-        *ret = RHN_ERROR_PARAM;
-        break;
-      }
-
-      key_size = CURVE448_SIZE;
       key = r_jwk_get_property_str(jwk_pub, "x");
-      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_x, &key_size)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error o_base64url_decode x");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_x, &pub_x_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode x (ecdsa)");
         *ret = RHN_ERROR_PARAM;
         break;
       }
 
-      if (key_size != crv_size) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error key size x");
+      key = r_jwk_get_property_str(jwk_pub, "y");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_y, &pub_y_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode y (ecdsa)");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      if (_r_ecdh_compute(priv_k, priv_k_size, pub_x, pub_x_size, pub_y, pub_y_size, nettle_curve, &Z) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error _r_ecdh_compute (ecdsa)");
+        *ret = RHN_ERROR;
+        break;
+      }
+    } else {
+      if (bits == 256) {
+        crv_size = CURVE25519_SIZE;
+      } else {
+        crv_size = CURVE448_SIZE;
+      }
+
+      if (jwk_priv != NULL) {
+        key = r_jwk_get_property_str(jwk_priv, "d");
+      } else {
+        key = r_jwk_get_property_str(jwk_ephemeral, "d");
+      }
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), priv_k, &priv_k_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode d (eddsa)");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      pub_x_size = CURVE448_SIZE;
+      key = r_jwk_get_property_str(jwk_pub, "x");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_x, &pub_x_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode x (eddsa)");
         *ret = RHN_ERROR_PARAM;
         break;
       }
 
       if (_r_dh_compute(priv_k, pub_x, crv_size, &Z) != GNUTLS_E_SUCCESS) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error _r_dh_compute");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error _r_dh_compute (eddsa)");
         *ret = RHN_ERROR;
         break;
       }
@@ -939,13 +918,13 @@ static json_t * r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, jw
 
 
     if (_r_concat_kdf(jwe, alg, &Z, &kdf) != RHN_OK) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error _r_concat_kdf");
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error _r_concat_kdf");
       *ret = RHN_ERROR;
       break;
     }
 
     if (gnutls_hash_fast(GNUTLS_DIG_SHA256, kdf.data, kdf.size, derived_key) != GNUTLS_E_SUCCESS) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error gnutls_hash_fast");
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error gnutls_hash_fast");
       *ret = RHN_ERROR;
       break;
     }
@@ -970,7 +949,7 @@ static json_t * r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, jw
     } else {
       _r_aes_key_wrap(derived_key, derived_key_len, jwe->key, jwe->key_len, wrapped_key);
       if (!o_base64url_encode(wrapped_key, jwe->key_len+8, cipherkey_b64url, &cipherkey_b64url_len)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_encrypt - Error o_base64url_encode wrapped_key");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_encode wrapped_key");
         *ret = RHN_ERROR;
       }
       o_free(jwe->encrypted_key_b64url);
@@ -984,99 +963,89 @@ static json_t * r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, jw
 
   o_free(kdf.data);
   gnutls_free(Z.data);
-  gnutls_free(x.data);
-  gnutls_free(y.data);
-  gnutls_free(k.data);
-  gnutls_free(peer_x.data);
-  gnutls_free(peer_y.data);
-  gnutls_pubkey_deinit(pub);
-  gnutls_privkey_deinit(priv);
   r_jwk_free(jwk_ephemeral);
   r_jwk_free(jwk_ephemeral_pub);
 
   return j_return;
 }
 
-static int r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, unsigned int bits, int x5u_flags) {
+static int _r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, unsigned int bits, int x5u_flags) {
   int ret = RHN_OK;
   jwk_t * jwk_ephemeral_pub = NULL;
   json_t * j_epk = NULL;
   unsigned int epk_bits = 0;
-  gnutls_privkey_t priv = NULL;
-  gnutls_pubkey_t pub = NULL;
-  gnutls_ecc_curve_t curve;
-  gnutls_datum_t x = {NULL, 0}, y = {NULL, 0}, k = {NULL, 0}, peer_x = {NULL, 0}, peer_y = {NULL, 0}, Z = {NULL, 0}, kdf = {NULL, 0};
-  uint8_t derived_key[64] = {0}, key_data[64] = {0}, cipherkey[128] = {0}, priv_k[CURVE448_SIZE] = {0}, pub_x[CURVE448_SIZE] = {0};
-  size_t derived_key_len = 0, cipherkey_len = 0, key_size = CURVE448_SIZE, crv_size = 0;
+  gnutls_datum_t Z = {NULL, 0}, kdf = {NULL, 0};
+  uint8_t derived_key[64] = {0}, key_data[72] = {0}, cipherkey[128] = {0}, priv_k[_R_CURVE_MAX_SIZE] = {0}, pub_x[_R_CURVE_MAX_SIZE] = {0}, pub_y[_R_CURVE_MAX_SIZE] = {0};
+  size_t derived_key_len = 0, cipherkey_len = 0, priv_k_size = 0, pub_x_size = 0, pub_y_size = 0, crv_size = 0;
   const char * key = NULL;
   const struct ecc_curve * nettle_curve;
 
   do {
     if ((j_epk = r_jwe_get_header_json_t_value(jwe, "epk")) == NULL) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - No epk header");
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - No epk header");
       ret = RHN_ERROR_PARAM;
       break;
     }
 
     if (r_jwk_init(&jwk_ephemeral_pub) != RHN_OK) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error r_jwk_init");
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error r_jwk_init");
       ret = RHN_ERROR;
       break;
     }
 
     if (r_jwk_import_from_json_t(jwk_ephemeral_pub, j_epk) != RHN_OK) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error r_jwk_import_from_json_t");
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error r_jwk_import_from_json_t");
       ret = RHN_ERROR_PARAM;
       break;
     }
-    
+
     if (type & R_KEY_TYPE_ECDSA) {
       if (!(r_jwk_key_type(jwk_ephemeral_pub, &epk_bits, x5u_flags) & (R_KEY_TYPE_ECDSA|R_KEY_TYPE_PUBLIC)) || epk_bits != bits) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error invalid private key type (ecc)");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error invalid private key type (ecc)");
         ret = RHN_ERROR_PARAM;
-        break;
-      }
-
-      if ((priv = r_jwk_export_to_gnutls_privkey(jwk)) == NULL) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error r_jwk_export_to_gnutls_privkey");
-        ret = RHN_ERROR;
-        break;
-      }
-
-      if ((pub = r_jwk_export_to_gnutls_pubkey(jwk_ephemeral_pub, x5u_flags)) == NULL) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error r_jwk_export_to_gnutls_pubkey");
-        ret = RHN_ERROR;
-        break;
-      }
-
-      if (gnutls_privkey_export_ecc_raw2(priv, &curve, &x, &y, &k, GNUTLS_EXPORT_FLAG_NO_LZ) != GNUTLS_E_SUCCESS) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error gnutls_privkey_export_ecc_raw2 (ecc)");
-        ret = RHN_ERROR;
-        break;
-      }
-
-      if (gnutls_pubkey_export_ecc_raw2(pub, &curve, &peer_x, &peer_y, GNUTLS_EXPORT_FLAG_NO_LZ) != GNUTLS_E_SUCCESS) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error gnutls_pubkey_export_ecc_raw2 (ecc)");
-        ret = RHN_ERROR;
         break;
       }
 
       if (bits == 256) {
         nettle_curve = nettle_get_secp_256r1();
+        crv_size = 32;
       } else if (bits == 384) {
         nettle_curve = nettle_get_secp_384r1();
+        crv_size = 48;
       } else {
         nettle_curve = nettle_get_secp_521r1();
+        crv_size = 64;
       }
-      
-      if (_r_ecdh_compute(k.data, peer_x.data, peer_y.data, k.size, nettle_curve, &Z) != RHN_OK) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error _r_ecdh_compute");
+
+      key = r_jwk_get_property_str(jwk, "d");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), priv_k, &priv_k_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode d (ecdsa)");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      key = r_jwk_get_property_str(jwk_ephemeral_pub, "x");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_x, &pub_x_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode x (ecdsa)");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      key = r_jwk_get_property_str(jwk_ephemeral_pub, "y");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_y, &pub_y_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode y (ecdsa)");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      if (_r_ecdh_compute(priv_k, priv_k_size, pub_x, pub_x_size, pub_y, pub_y_size, nettle_curve, &Z) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error _r_ecdh_compute (ecdsa)");
         ret = RHN_ERROR;
         break;
       }
     } else {
       if (!(r_jwk_key_type(jwk_ephemeral_pub, &epk_bits, x5u_flags) & (R_KEY_TYPE_ECDH|R_KEY_TYPE_PUBLIC)) || epk_bits != bits) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error invalid private key type (eddsa)");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error invalid private key type (eddsa)");
         ret = RHN_ERROR_INVALID;
         break;
       }
@@ -1088,47 +1057,34 @@ static int r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, u
       }
 
       key = r_jwk_get_property_str(jwk, "d");
-      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), priv_k, &key_size)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error o_base64url_decode d");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), priv_k, &priv_k_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode d");
         ret = RHN_ERROR_PARAM;
         break;
       }
 
-      if (key_size != crv_size) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error key size");
-        ret = RHN_ERROR_INVALID;
-        break;
-      }
-
-      key_size = CURVE448_SIZE;
       key = r_jwk_get_property_str(jwk_ephemeral_pub, "x");
-      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_x, &key_size)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error o_base64url_decode x");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_x, &pub_x_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode x");
         ret = RHN_ERROR_PARAM;
-        break;
-      }
-
-      if (key_size != crv_size) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error key size");
-        ret = RHN_ERROR_INVALID;
         break;
       }
 
       if (_r_dh_compute(priv_k, pub_x, crv_size, &Z) != GNUTLS_E_SUCCESS) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error _r_dh_compute");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error _r_dh_compute");
         ret = RHN_ERROR;
         break;
       }
     }
 
     if (_r_concat_kdf(jwe, alg, &Z, &kdf) != RHN_OK) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error _r_concat_kdf");
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error _r_concat_kdf");
       ret = RHN_ERROR;
       break;
     }
 
     if (gnutls_hash_fast(GNUTLS_DIG_SHA256, kdf.data, kdf.size, derived_key) != GNUTLS_E_SUCCESS) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error gnutls_hash_fast");
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error gnutls_hash_fast");
       ret = RHN_ERROR;
       break;
     }
@@ -1154,7 +1110,7 @@ static int r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, u
           break;
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_ecdh_decrypt - Error o_base64url_decode cipherkey");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode cipherkey");
         ret = RHN_ERROR;
         break;
       }
@@ -1163,13 +1119,6 @@ static int r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, u
 
   o_free(kdf.data);
   gnutls_free(Z.data);
-  gnutls_free(x.data);
-  gnutls_free(y.data);
-  gnutls_free(k.data);
-  gnutls_free(peer_x.data);
-  gnutls_free(peer_y.data);
-  gnutls_privkey_deinit(priv);
-  gnutls_pubkey_deinit(pub);
   r_jwk_free(jwk_ephemeral_pub);
   json_decref(j_epk);
 
@@ -2179,12 +2128,12 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
         if (r_jwks_size(jwe->jwks_privkey) == 1) {
           jwk_priv = r_jwks_get_at(jwe->jwks_privkey, 0);
         }
-        if ((j_return = r_jwe_ecdh_encrypt(jwe, alg, jwk, jwk_priv, res, bits, x5u_flags, ret)) == NULL) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error r_jwe_ecdh_encrypt");
+        if ((j_return = _r_jwe_ecdh_encrypt(jwe, alg, jwk, jwk_priv, res, bits, x5u_flags, ret)) == NULL) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error _r_jwe_ecdh_encrypt");
         }
         r_jwk_free(jwk_priv);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - invalid key type");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - invalid public key type");
         *ret = RHN_ERROR_PARAM;
       }
       break;
@@ -2392,11 +2341,11 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
     case R_JWA_ALG_ECDH_ES_A256KW:
       res = r_jwk_key_type(jwk, &bits, x5u_flags);
       if (res & (R_KEY_TYPE_ECDSA|R_KEY_TYPE_PRIVATE) || res & (R_KEY_TYPE_EDDSA|R_KEY_TYPE_PRIVATE)) {
-        if ((res = r_jwe_ecdh_decrypt(jwe, alg, jwk, res, bits, x5u_flags)) == RHN_OK) {
+        if ((res = _r_jwe_ecdh_decrypt(jwe, alg, jwk, res, bits, x5u_flags)) == RHN_OK) {
           ret = RHN_OK;
         } else {
           if (res != RHN_ERROR_INVALID) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error r_jwe_ecdh_decrypt");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error _r_jwe_ecdh_decrypt");
           }
           ret = res;
         }
@@ -3172,14 +3121,14 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
   char * str_header = NULL;
   int cipher_cbc;
 
-  if (jwe != NULL && 
-      jwe->payload != NULL && 
-      jwe->payload_len && 
-      jwe->enc != R_JWA_ENC_UNKNOWN && 
-      jwe->key != NULL && 
-      jwe->iv != NULL && 
-      jwe->iv_len && 
-      jwe->key_len == _r_get_key_size(jwe->enc) && 
+  if (jwe != NULL &&
+      jwe->payload != NULL &&
+      jwe->payload_len &&
+      jwe->enc != R_JWA_ENC_UNKNOWN &&
+      jwe->key != NULL &&
+      jwe->iv != NULL &&
+      jwe->iv_len &&
+      jwe->key_len == _r_get_key_size(jwe->enc) &&
       r_jwe_set_enc_header(jwe, jwe->j_header) == RHN_OK) {
     cipher_cbc = (jwe->enc == R_JWA_ENC_A128CBC || jwe->enc == R_JWA_ENC_A192CBC || jwe->enc == R_JWA_ENC_A256CBC);
 
@@ -3487,7 +3436,7 @@ int r_jwe_encrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
     y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_key - invalid input parameters");
     ret = RHN_ERROR_PARAM;
   }
-  
+
   r_jwk_free(jwk);
   return ret;
 }
@@ -3525,13 +3474,13 @@ int r_jwe_parse(jwe_t * jwe, const char * jwe_str, int x5u_flags) {
 int r_jwe_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_str_len, int x5u_flags) {
   int ret;
   char * str = (char *)jwe_str;
-  
+
   if (jwe != NULL && str != NULL && jwe_str_len) {
     while(isspace((unsigned char)*str) && jwe_str_len) {
       str++;
       jwe_str_len--;
     }
-    
+
     if (0 == o_strncmp("ey", str, 2)) {
       ret = r_jwe_compact_parsen(jwe, jwe_str, jwe_str_len, x5u_flags);
     } else if (*str == '{') {
@@ -3673,11 +3622,11 @@ int r_jwe_parse_json_str(jwe_t * jwe, const char * jwe_json_str, int x5u_flags) 
 int r_jwe_parsen_json_str(jwe_t * jwe, const char * jwe_json_str, size_t jwe_json_str_len, int x5u_flags) {
   json_t * jwe_json = NULL;
   int ret;
-  
+
   jwe_json = json_loadb(jwe_json_str, jwe_json_str_len, JSON_DECODE_ANY, NULL);
   ret = r_jwe_parse_json_t(jwe, jwe_json, x5u_flags);
   json_decref(jwe_json);
-  
+
   return ret;
 }
 
@@ -3721,19 +3670,19 @@ int r_jwe_parse_json_t(jwe_t * jwe, json_t * jwe_json, int x5u_flags) {
           ret = RHN_ERROR;
           break;
         }
-        
+
         if (json_object_get(jwe_json, "unprotected") != NULL && r_jwe_set_full_unprotected_header_json_t(jwe, json_object_get(jwe_json, "unprotected")) != RHN_OK) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse_json_t - Error r_jwe_set_full_unprotected_header_json_t");
           ret = RHN_ERROR_PARAM;
           break;
         }
-        
+
         if (!o_base64url_decode((unsigned char *)json_string_value(json_object_get(jwe_json, "protected")), json_string_length(json_object_get(jwe_json, "protected")), NULL, &header_len)) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse_json_t - Error invalid protected base64");
           ret = RHN_ERROR_PARAM;
           break;
         }
-        
+
         if ((str_header = o_malloc(header_len+4)) == NULL) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse_json_t - Error allocating resources for str_header");
           ret = RHN_ERROR_PARAM;
@@ -3761,7 +3710,7 @@ int r_jwe_parse_json_t(jwe_t * jwe, json_t * jwe_json, int x5u_flags) {
         json_decref(jwe->j_header);
 
         jwe->j_header = json_incref(j_header);
-        
+
         // Decode iv
         if (!o_base64url_decode((unsigned char *)json_string_value(json_object_get(jwe_json, "iv")), json_string_length(json_object_get(jwe_json, "iv")), NULL, &iv_len)) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse_json_t - Error invalid iv base64");
@@ -4148,7 +4097,7 @@ int r_jwe_set_full_header_json_t(jwe_t * jwe, json_t * j_header) {
   int ret = RHN_OK;
   jwa_alg alg;
   jwa_enc enc;
-  
+
   if (jwe != NULL && json_is_object(j_header)) {
     if (json_object_get(j_header, "alg") != NULL) {
       if ((alg = r_str_to_jwa_alg(json_string_value(json_object_get(j_header, "alg")))) != R_JWA_ALG_UNKNOWN) {
@@ -4183,16 +4132,16 @@ int r_jwe_set_full_header_json_t(jwe_t * jwe, json_t * j_header) {
 int r_jwe_set_full_header_json_str(jwe_t * jwe, const char * str_header) {
   int ret;
   json_t * j_header = json_loads(str_header, JSON_DECODE_ANY, NULL);
-  
+
   ret = r_jwe_set_full_header_json_t(jwe, j_header);
   json_decref(j_header);
-  
+
   return ret;
 }
 
 int r_jwe_set_full_unprotected_header_json_t(jwe_t * jwe, json_t * j_unprotected_header) {
   int ret = RHN_OK;
-  
+
   if (jwe != NULL && json_is_object(j_unprotected_header)) {
     json_decref(jwe->j_unprotected_header);
     if ((jwe->j_unprotected_header = json_deep_copy(j_unprotected_header)) != NULL) {
@@ -4210,10 +4159,10 @@ int r_jwe_set_full_unprotected_header_json_t(jwe_t * jwe, json_t * j_unprotected
 int r_jwe_set_full_unprotected_header_json_str(jwe_t * jwe, const char * str_unprotected_header) {
   int ret;
   json_t * j_unprotected_header = json_loads(str_unprotected_header, JSON_DECODE_ANY, NULL);
-  
+
   ret = r_jwe_set_full_unprotected_header_json_t(jwe, j_unprotected_header);
   json_decref(j_unprotected_header);
-  
+
   return ret;
 }
 

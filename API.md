@@ -218,9 +218,9 @@ The function `r_jwk_is_valid` will check the validity of a JWK, i.e. check if al
 
 ### Generate a random key pair
 
-You can use Rhonabwy to generate a random key pair for RSA or ECC algorithms. The `jwk_t *` parameters must be initialized first.
+You can use Rhonabwy to generate a random key pair for RSA, ECC or OKP algorithms. The `jwk_t *` parameters must be initialized first.
 
-The `type` parameter can have one of the following values: `R_KEY_TYPE_RSA` or `R_KEY_TYPE_ECDSA`. The `bits` parameter specifies the length of the key. A RSA key must be at least 2048 bits, and the bits value allowed for an ECC key are 256, 384 or 512.
+The `type` parameter can have one of the following values: `R_KEY_TYPE_RSA` `R_KEY_TYPE_EC`, `R_KEY_TYPE_EDDSA` or `R_KEY_TYPE_ECDH`. The `bits` parameter specifies the length of the key. A RSA key must be at least 2048 bits, and the bits value allowed for an ECC key are 256, 384 or 512.
 
 If the parameter `kid` is used, the generated key kid property will have the kid specified, otherwise a `kid` will be generated to identify the key pair.
 
@@ -539,7 +539,7 @@ r_jwk_free(jwk_key_rsa);
 
 ### ECDH-ES implementation
 
-The ECDH-ES algorithm requires an ECDSA or ECDH public key for the encryption. The RFC specifies `"A new ephemeral public key value MUST be generated for each key agreement operation.", so an ephemeral key is genererated on each encryption.
+The ECDH-ES algorithm requires an ECC or ECDH public key for the encryption. The RFC specifies `"A new ephemeral public key value MUST be generated for each key agreement operation.", so an ephemeral key is genererated on each encryption.
 
 You can specify the ephemeral key to use though, by setting an encryption key to the JWE before generating the token. The responsibilty not to reuse the same ephemeral key is yours then.
 

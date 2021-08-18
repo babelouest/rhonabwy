@@ -22,7 +22,7 @@ Options available:
 -g --generate <type>
 	Generate a key pair or a symmetric key
 	<type> - values available:
-	RSA[key size] (default key size: 4096), EC256, EC384, EC521, Ed25519, oct[key size] (default key size: 128 bits)
+	RSA[key size] (default key size: 4096), EC256, EC384, EC521, Ed25519, Ed448, X25519, X448, oct[key size] (default key size: 128 bits)
 -i --stdin
 	Reads key to parse from stdin
 -f --in-file

@@ -221,7 +221,7 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
         r_jwks_append_jwk(jwks_privkey, jwk_pub);
       }
     } else if (0 == o_strcasecmp("EC256", type)) {
-      r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_ECDSA, 256, json_string_value(json_object_get(j_element, "kid")));
+      r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_EC, 256, json_string_value(json_object_get(j_element, "kid")));
       if (json_string_length(json_object_get(j_element, "alg"))) {
         r_jwk_set_property_str(jwk_priv, "alg", json_string_value(json_object_get(j_element, "alg")));
         r_jwk_set_property_str(jwk_pub, "alg", json_string_value(json_object_get(j_element, "alg")));
@@ -236,7 +236,7 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
         r_jwks_append_jwk(jwks_privkey, jwk_pub);
       }
     } else if (0 == o_strcasecmp("EC384", type)) {
-      r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_ECDSA, 384, json_string_value(json_object_get(j_element, "kid")));
+      r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_EC, 384, json_string_value(json_object_get(j_element, "kid")));
       if (json_string_length(json_object_get(j_element, "alg"))) {
         r_jwk_set_property_str(jwk_priv, "alg", json_string_value(json_object_get(j_element, "alg")));
         r_jwk_set_property_str(jwk_pub, "alg", json_string_value(json_object_get(j_element, "alg")));
@@ -251,7 +251,7 @@ static int jwk_generate(jwks_t * jwks_privkey, jwks_t * jwks_pubkey, json_t * j_
         r_jwks_append_jwk(jwks_privkey, jwk_pub);
       }
     } else if (0 == o_strcasecmp("EC521", type)) {
-      r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_ECDSA, 521, json_string_value(json_object_get(j_element, "kid")));
+      r_jwk_generate_key_pair(jwk_priv, jwk_pub, R_KEY_TYPE_EC, 521, json_string_value(json_object_get(j_element, "kid")));
       if (json_string_length(json_object_get(j_element, "alg"))) {
         r_jwk_set_property_str(jwk_priv, "alg", json_string_value(json_object_get(j_element, "alg")));
         r_jwk_set_property_str(jwk_pub, "alg", json_string_value(json_object_get(j_element, "alg")));

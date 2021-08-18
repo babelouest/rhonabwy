@@ -9,6 +9,7 @@
 - Force using `*_unsecure` functions to manage unsecured JWS or JWT with no signature
 - Use Nettle's `ecc_point_mul` instead of GnuTLS' ECDH implementation
 - Add macro `RHONABWY_CHECK_VERSION`
+- Rename `R_KEY_TYPE_ECDSA` to `R_KEY_TYPE_EC`
 
 ## 0.9.9999
 

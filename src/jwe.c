@@ -858,6 +858,18 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
       } else {
         key = r_jwk_get_property_str(jwk_ephemeral, "d");
       }
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), NULL, &priv_k_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode d (ecdsa)");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+      
+      if (!priv_k_size || priv_k_size > _R_CURVE_MAX_SIZE) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Invalid priv_k_size (ecdsa)");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+
       if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), priv_k, &priv_k_size)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode d (ecdsa)");
         *ret = RHN_ERROR_PARAM;
@@ -865,6 +877,18 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
       }
 
       key = r_jwk_get_property_str(jwk_pub, "x");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), NULL, &pub_x_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode x (ecdsa)");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      if (!pub_x_size || pub_x_size > _R_CURVE_MAX_SIZE) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Invalid pub_x_size (ecdsa)");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+
       if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_x, &pub_x_size)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode x (ecdsa)");
         *ret = RHN_ERROR_PARAM;
@@ -872,6 +896,18 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
       }
 
       key = r_jwk_get_property_str(jwk_pub, "y");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), NULL, &pub_y_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode y (ecdsa)");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      if (!pub_y_size || pub_y_size > _R_CURVE_MAX_SIZE) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Invalid pub_y_size (ecdsa)");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+
       if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_y, &pub_y_size)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode y (ecdsa)");
         *ret = RHN_ERROR_PARAM;
@@ -895,6 +931,18 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
       } else {
         key = r_jwk_get_property_str(jwk_ephemeral, "d");
       }
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), NULL, &priv_k_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode d (eddsa)");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      if (!priv_k_size || priv_k_size > _R_CURVE_MAX_SIZE) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Invalid priv_k_size (eddsa)");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+
       if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), priv_k, &priv_k_size)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode d (eddsa)");
         *ret = RHN_ERROR_PARAM;
@@ -903,6 +951,18 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
 
       pub_x_size = CURVE448_SIZE;
       key = r_jwk_get_property_str(jwk_pub, "x");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), NULL, &pub_x_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode x (eddsa)");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      if (!pub_x_size || pub_x_size > _R_CURVE_MAX_SIZE) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Invalid pub_x_size (eddsa)");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+
       if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_x, &pub_x_size)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode x (eddsa)");
         *ret = RHN_ERROR_PARAM;
@@ -1018,6 +1078,18 @@ static int _r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, 
       }
 
       key = r_jwk_get_property_str(jwk, "d");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), NULL, &priv_k_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode d (ecdsa)");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      if (!priv_k_size || priv_k_size > _R_CURVE_MAX_SIZE) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Invalid priv_k_size (ecdsa)");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+
       if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), priv_k, &priv_k_size)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode d (ecdsa)");
         ret = RHN_ERROR_PARAM;
@@ -1025,6 +1097,18 @@ static int _r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, 
       }
 
       key = r_jwk_get_property_str(jwk_ephemeral_pub, "x");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), NULL, &pub_x_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode x (ecdsa)");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      if (!pub_x_size || pub_x_size > _R_CURVE_MAX_SIZE) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Invalid pub_x_size (ecdsa)");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+
       if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_x, &pub_x_size)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode x (ecdsa)");
         ret = RHN_ERROR_PARAM;
@@ -1032,6 +1116,18 @@ static int _r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, 
       }
 
       key = r_jwk_get_property_str(jwk_ephemeral_pub, "y");
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), NULL, &pub_y_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode y (ecdsa)");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      if (!pub_y_size || pub_y_size > _R_CURVE_MAX_SIZE) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Invalid pub_y_size (ecdsa)");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+
       if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_y, &pub_y_size)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode y (ecdsa)");
         ret = RHN_ERROR_PARAM;
@@ -1058,20 +1154,44 @@ static int _r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, 
 
       key = r_jwk_get_property_str(jwk, "d");
       if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), priv_k, &priv_k_size)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode d");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode d (eddsa)");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      if (!priv_k_size || priv_k_size > _R_CURVE_MAX_SIZE) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Invalid priv_k_size (eddsa)");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), NULL, &priv_k_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode d (eddsa)");
         ret = RHN_ERROR_PARAM;
         break;
       }
 
       key = r_jwk_get_property_str(jwk_ephemeral_pub, "x");
       if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_x, &pub_x_size)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode x");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode x (eddsa)");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      if (!pub_x_size || pub_x_size > _R_CURVE_MAX_SIZE) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Invalid priv_k_size (eddsa)");
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), NULL, &pub_x_size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error o_base64url_decode x (eddsa)");
         ret = RHN_ERROR_PARAM;
         break;
       }
 
       if (_r_dh_compute(priv_k, pub_x, crv_size, &Z) != GNUTLS_E_SUCCESS) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error _r_dh_compute");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error _r_dh_compute (eddsa)");
         ret = RHN_ERROR;
         break;
       }

@@ -1296,7 +1296,7 @@ START_TEST(test_rhonabwy_import_from_x5u)
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
-  ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
@@ -1310,7 +1310,7 @@ START_TEST(test_rhonabwy_import_from_x5u)
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_RSA, 0);
-  ck_assert_int_ne(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_EC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
 #endif
@@ -1342,7 +1342,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_RSA, 0);
-  ck_assert_int_ne(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_EC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
@@ -1356,7 +1356,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_ne(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_RSA, 0);
-  ck_assert_int_ne(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_EC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
 #endif
@@ -1370,7 +1370,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
-  ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
@@ -1383,7 +1383,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_ne(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
-  ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
@@ -1396,7 +1396,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_RSA, 0);
-  ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
@@ -1410,7 +1410,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
-  ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
@@ -1426,7 +1426,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
-  ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
 #endif
@@ -1441,7 +1441,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
-  ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
@@ -1456,7 +1456,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
-  ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
@@ -1471,7 +1471,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_RSA, 0);
-  ck_assert_int_ne(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_EC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
 #endif
@@ -1498,7 +1498,7 @@ START_TEST(test_rhonabwy_extract_pubkey)
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
-  ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk_privkey);
   r_jwk_free(jwk_pubkey);
@@ -1515,7 +1515,7 @@ START_TEST(test_rhonabwy_extract_pubkey)
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_RSA, 0);
-  ck_assert_int_ne(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_ne(type & R_KEY_TYPE_EC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk_privkey);
   r_jwk_free(jwk_pubkey);
@@ -1538,7 +1538,7 @@ START_TEST(test_rhonabwy_extract_pubkey)
   ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
-  ck_assert_int_eq(type & R_KEY_TYPE_ECDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   ck_assert_int_eq(r_jwk_get_property_array_size(jwk_pubkey, "x5c"), r_jwk_get_property_array_size(jwk_privkey, "x5c"));
   ck_assert_str_eq(r_jwk_get_property_array(jwk_pubkey, "x5c", 0), r_jwk_get_property_array(jwk_privkey, "x5c", 0));

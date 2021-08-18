@@ -247,7 +247,7 @@ START_TEST(test_rhonabwy_cookbook_jwk)
   ck_assert_ptr_ne(NULL, file_content = get_file_content(JSON_JWK_3_1_EC_PUBLIC));
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, file_content), RHN_OK);
-  ck_assert_int_eq(r_jwk_key_type(jwk, &bits, 0), R_KEY_TYPE_ECDSA|R_KEY_TYPE_PUBLIC);
+  ck_assert_int_eq(r_jwk_key_type(jwk, &bits, 0), R_KEY_TYPE_EC|R_KEY_TYPE_PUBLIC);
   ck_assert_int_eq(521, bits);
   r_jwk_free(jwk);
   o_free(file_content);
@@ -256,7 +256,7 @@ START_TEST(test_rhonabwy_cookbook_jwk)
   ck_assert_ptr_ne(NULL, file_content = get_file_content(JSON_JWK_3_2_EC_PRIVATE));
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, file_content), RHN_OK);
-  ck_assert_int_eq(r_jwk_key_type(jwk, &bits, 0), R_KEY_TYPE_ECDSA|R_KEY_TYPE_PRIVATE);
+  ck_assert_int_eq(r_jwk_key_type(jwk, &bits, 0), R_KEY_TYPE_EC|R_KEY_TYPE_PRIVATE);
   ck_assert_int_eq(521, bits);
   r_jwk_free(jwk);
   o_free(file_content);

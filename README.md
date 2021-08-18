@@ -206,7 +206,6 @@ The available options for CMake are:
 - `-DCMAKE_BUILD_TYPE=[Debug|Release]` (default `Release`): Compile with debugging symbols or not
 - `-DBUILD_STATIC=[on|off]` (default `off`): Compile static library
 - `-DBUILD_RHONABWY_DOCUMENTATION=[on|off]` (default `off`): Build documentation with doxygen
-- `-DWITH_ECDH=[on|off]` (default `off`): Allow ECDH-ES for JWE key exchange management
 - `-DWITH_CURL=[on|off]` (default `on`): Use libcurl to download remote content
 
 ### Good ol' Makefile

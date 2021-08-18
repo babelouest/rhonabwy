@@ -789,7 +789,7 @@ static int _r_verify_signature(jws_t * jws, jwk_t * jwk, jwa_alg alg, int x5u_fl
     case R_JWA_ALG_ES256:
     case R_JWA_ALG_ES384:
     case R_JWA_ALG_ES512:
-      if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_ECDSA) {
+      if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_EC) {
         ret = r_jws_verify_sig_ecdsa(jws, jwk, x5u_flags);
       } else {
         ret = RHN_ERROR_INVALID;
@@ -804,7 +804,7 @@ static int _r_verify_signature(jws_t * jws, jwk_t * jwk, jwa_alg alg, int x5u_fl
       break;
 #if 0
     case R_JWA_ALG_ES256K:
-      if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_ECDSA) {
+      if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_EC) {
         ret = r_jws_verify_sig_es256k(jws, jwk, x5u_flags);
       } else {
         ret = RHN_ERROR_INVALID;
@@ -843,7 +843,7 @@ static unsigned char * r_generate_signature(jws_t * jws, jwk_t * jwk, jwa_alg al
       case R_JWA_ALG_ES256:
       case R_JWA_ALG_ES384:
       case R_JWA_ALG_ES512:
-        if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_ECDSA) {
+        if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_EC) {
           str_ret = r_jws_sign_ecdsa(jws, jwk);
         }
         break;
@@ -857,7 +857,7 @@ static unsigned char * r_generate_signature(jws_t * jws, jwk_t * jwk, jwa_alg al
         break;
 #if 0
       case R_JWA_ALG_ES256K:
-        if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_ECDSA) {
+        if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_EC) {
           str_ret = r_jws_sign_es256k(jws, jwk);
         }
         break;

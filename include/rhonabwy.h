@@ -63,7 +63,7 @@ extern "C"
 #define R_KEY_TYPE_PRIVATE   0x00000010
 #define R_KEY_TYPE_SYMMETRIC 0x00000100
 #define R_KEY_TYPE_RSA       0x00001000
-#define R_KEY_TYPE_ECDSA     0x00010000
+#define R_KEY_TYPE_EC        0x00010000
 #define R_KEY_TYPE_HMAC      0x00100000
 #define R_KEY_TYPE_EDDSA     0x01000000
 #define R_KEY_TYPE_ECDH      0x10000000
@@ -441,7 +441,7 @@ const char * r_jwa_enc_to_str(jwa_enc enc);
  * - R_KEY_TYPE_SYMMETRIC: for a symmetrick key
  * * the algorithm used
  * - R_KEY_TYPE_RSA: for a RSA key
- * - R_KEY_TYPE_ECDSA: for a EC key
+ * - R_KEY_TYPE_EC: for a EC key
  * - R_KEY_TYPE_HMAC: for a HMAC key
  * You must test the result value with bitwise operator
  * Ex: if (r_jwk_key_type(jwk) & R_KEY_TYPE_PUBLIC) {
@@ -478,8 +478,8 @@ int r_jwk_is_valid_x5u(jwk_t * jwk, int x5u_flags);
  * @param jwk_privkey: the private key to set, must be initialized
  * @param jwk_pubkey: the public key to set, must be initialized
  * @param type: the type of key, values available are
- * R_KEY_TYPE_RSA or R_KEY_TYPE_ECDSA
- * @param bits: the key size to generate, if the key type is R_KEY_TYPE_ECDSA,
+ * R_KEY_TYPE_RSA or R_KEY_TYPE_EC
+ * @param bits: the key size to generate, if the key type is R_KEY_TYPE_EC,
  * the key size is the curve length: 256, 384 or 512
  * @param kid: the key ID to set to the JWKs, if NULL or empty, will be set automatically
  * @return RHN_OK on success, an error value on error

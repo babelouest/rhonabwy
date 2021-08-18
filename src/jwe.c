@@ -832,7 +832,7 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
         break;
       }
 
-      if (r_jwk_generate_key_pair(jwk_ephemeral, jwk_ephemeral_pub, type&R_KEY_TYPE_ECDSA?R_KEY_TYPE_ECDSA:R_KEY_TYPE_ECDH, bits, NULL) != RHN_OK) {
+      if (r_jwk_generate_key_pair(jwk_ephemeral, jwk_ephemeral_pub, type&R_KEY_TYPE_EC?R_KEY_TYPE_EC:R_KEY_TYPE_ECDH, bits, NULL) != RHN_OK) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error r_jwk_generate_key_pair");
         *ret = RHN_ERROR;
         break;
@@ -841,7 +841,7 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
       r_jwk_delete_property_str(jwk_ephemeral_pub, "kid");
     }
 
-    if (type & R_KEY_TYPE_ECDSA) {
+    if (type & R_KEY_TYPE_EC) {
       if (bits == 256) {
         nettle_curve = nettle_get_secp_256r1();
         crv_size = 32;
@@ -999,8 +999,8 @@ static int _r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, 
       break;
     }
 
-    if (type & R_KEY_TYPE_ECDSA) {
-      if (!(r_jwk_key_type(jwk_ephemeral_pub, &epk_bits, x5u_flags) & (R_KEY_TYPE_ECDSA|R_KEY_TYPE_PUBLIC)) || epk_bits != bits) {
+    if (type & R_KEY_TYPE_EC) {
+      if (!(r_jwk_key_type(jwk_ephemeral_pub, &epk_bits, x5u_flags) & (R_KEY_TYPE_EC|R_KEY_TYPE_PUBLIC)) || epk_bits != bits) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error invalid private key type (ecc)");
         ret = RHN_ERROR_PARAM;
         break;
@@ -2124,7 +2124,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
     case R_JWA_ALG_ECDH_ES_A192KW:
     case R_JWA_ALG_ECDH_ES_A256KW:
       res = r_jwk_key_type(jwk, &bits, x5u_flags);
-      if (res & (R_KEY_TYPE_ECDSA|R_KEY_TYPE_PUBLIC)) {
+      if (res & (R_KEY_TYPE_EC|R_KEY_TYPE_PUBLIC)) {
         if (r_jwks_size(jwe->jwks_privkey) == 1) {
           jwk_priv = r_jwks_get_at(jwe->jwks_privkey, 0);
         }
@@ -2340,7 +2340,7 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
     case R_JWA_ALG_ECDH_ES_A192KW:
     case R_JWA_ALG_ECDH_ES_A256KW:
       res = r_jwk_key_type(jwk, &bits, x5u_flags);
-      if (res & (R_KEY_TYPE_ECDSA|R_KEY_TYPE_PRIVATE) || res & (R_KEY_TYPE_EDDSA|R_KEY_TYPE_PRIVATE)) {
+      if (res & (R_KEY_TYPE_EC|R_KEY_TYPE_PRIVATE) || res & (R_KEY_TYPE_EDDSA|R_KEY_TYPE_PRIVATE)) {
         if ((res = _r_jwe_ecdh_decrypt(jwe, alg, jwk, res, bits, x5u_flags)) == RHN_OK) {
           ret = RHN_OK;
         } else {

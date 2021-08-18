@@ -126,7 +126,7 @@ int r_jwk_is_valid(jwk_t * jwk) {
                               y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwk_is_valid - Invalid x5c leaf rsa parameters");
                             }
                           }
-                        } else if (type_x5c & R_KEY_TYPE_ECDSA || type_x5c & R_KEY_TYPE_EDDSA) {
+                        } else if (type_x5c & R_KEY_TYPE_EC || type_x5c & R_KEY_TYPE_EDDSA) {
                           if ((crv = r_jwk_get_property_str(jwk, "crv")) != NULL && (x = r_jwk_get_property_str(jwk, "x")) != NULL && (y = r_jwk_get_property_str(jwk, "y")) != NULL) {
                             if (0 != o_strcmp(crv, r_jwk_get_property_str(jwk_x5c, "crv")) || 0 != o_strcmp(x, r_jwk_get_property_str(jwk_x5c, "x")) || 0 != o_strcmp(y, r_jwk_get_property_str(jwk_x5c, "y"))) {
                               y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwk_is_valid - Invalid x5c leaf ec parameters");
@@ -403,7 +403,7 @@ int r_jwk_is_valid_x5u(jwk_t * jwk, int x5u_flags) {
         ret = RHN_ERROR;
       }
       r_jwk_free(jwk_x5u);
-    } else if ((type & R_KEY_TYPE_ECDSA || type & R_KEY_TYPE_EDDSA) && json_object_get(jwk, "x") != NULL && json_object_get(jwk, "y") != NULL) {
+    } else if ((type & R_KEY_TYPE_EC || type & R_KEY_TYPE_EDDSA) && json_object_get(jwk, "x") != NULL && json_object_get(jwk, "y") != NULL) {
       if (r_jwk_init(&jwk_x5u) == RHN_OK) {
         if (r_jwk_import_from_x5u(jwk_x5u, x5u_flags, r_jwk_get_property_str(jwk, "x5u")) == RHN_OK) {
           if (type == r_jwk_key_type(jwk_x5u, NULL, x5u_flags) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "x"), r_jwk_get_property_str(jwk_x5u, "x")) && (r_jwk_get_property_str(jwk_x5u, "y") == NULL || 0 == o_strcmp(r_jwk_get_property_str(jwk, "y"), r_jwk_get_property_str(jwk_x5u, "y"))) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "crv"), r_jwk_get_property_str(jwk_x5u, "crv"))) {
@@ -445,7 +445,7 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
   size_t d_ecdh_size = CURVE448_SIZE, x_ecdh_b64_size = 0;
 #endif
 
-  if (jwk_privkey != NULL && jwk_pubkey != NULL && (type == R_KEY_TYPE_RSA || type == R_KEY_TYPE_ECDSA || type == R_KEY_TYPE_EDDSA || type == R_KEY_TYPE_ECDH) && bits) {
+  if (jwk_privkey != NULL && jwk_pubkey != NULL && (type == R_KEY_TYPE_RSA || type == R_KEY_TYPE_EC || type == R_KEY_TYPE_EDDSA || type == R_KEY_TYPE_ECDH) && bits) {
     if (!gnutls_privkey_init(&privkey) && !gnutls_pubkey_init(&pubkey)) {
       if (type == R_KEY_TYPE_RSA) {
         if (!gnutls_privkey_generate(privkey, GNUTLS_PK_RSA, bits, 0)) {
@@ -474,8 +474,8 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
           ret = RHN_ERROR;
         }
 #if GNUTLS_VERSION_NUMBER >= 0x030400
-      } else if (type == R_KEY_TYPE_ECDSA || type == R_KEY_TYPE_EDDSA || type == R_KEY_TYPE_ECDH) {
-        if (type == R_KEY_TYPE_ECDSA) {
+      } else if (type == R_KEY_TYPE_EC || type == R_KEY_TYPE_EDDSA || type == R_KEY_TYPE_ECDH) {
+        if (type == R_KEY_TYPE_EC) {
           if (bits == 256) {
             ec_bits = GNUTLS_CURVE_TO_BITS(GNUTLS_ECC_CURVE_SECP256R1);
             alg = GNUTLS_PK_ECDSA;
@@ -604,7 +604,7 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
         ret |= R_KEY_TYPE_PUBLIC;
       }
     } else if (0 == o_strcmp(json_string_value(json_object_get(jwk, "kty")), "EC")) {
-      ret = R_KEY_TYPE_ECDSA;
+      ret = R_KEY_TYPE_EC;
       if (json_object_get(jwk, "x")) {
         has_values = 1;
       }
@@ -646,7 +646,7 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
                       ret = R_KEY_TYPE_RSA;
 #if GNUTLS_VERSION_NUMBER >= 0x030600
                     } else if (pk_alg == GNUTLS_PK_ECDSA) {
-                      ret = R_KEY_TYPE_ECDSA;
+                      ret = R_KEY_TYPE_EC;
                     } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
                       ret = R_KEY_TYPE_EDDSA;
 #endif
@@ -689,7 +689,7 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
                   ret = R_KEY_TYPE_RSA;
   #if GNUTLS_VERSION_NUMBER >= 0x030600
                 } else if (pk_alg == GNUTLS_PK_ECDSA) {
-                  ret = R_KEY_TYPE_ECDSA;
+                  ret = R_KEY_TYPE_EC;
                 } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
                   ret = R_KEY_TYPE_EDDSA;
   #endif
@@ -721,7 +721,7 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type - Error invalid base64url n value");
         ret = R_KEY_TYPE_NONE;
       }
-    } else if (ret & R_KEY_TYPE_ECDSA) {
+    } else if (ret & R_KEY_TYPE_EC) {
       if (0 == o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv")))) {
         *bits = 256;
       } else if (0 == o_strcmp("P-384", json_string_value(json_object_get(jwk, "crv")))) {
@@ -790,7 +790,7 @@ int r_jwk_extract_pubkey(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int x5u_flags)
     if (type & R_KEY_TYPE_RSA) {
       json_object_set_new(jwk_pubkey, "e", json_string(json_string_value(json_object_get(jwk_privkey, "e"))));
       json_object_set_new(jwk_pubkey, "n", json_string(json_string_value(json_object_get(jwk_privkey, "n"))));
-    } else if (type & R_KEY_TYPE_ECDSA) {
+    } else if (type & R_KEY_TYPE_EC) {
       json_object_set_new(jwk_pubkey, "x", json_string(json_string_value(json_object_get(jwk_privkey, "x"))));
       json_object_set_new(jwk_pubkey, "y", json_string(json_string_value(json_object_get(jwk_privkey, "y"))));
     } else if (type & R_KEY_TYPE_EDDSA || type & R_KEY_TYPE_ECDH) {
@@ -1995,7 +1995,7 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk) {
       o_free(u.data);
       o_free(e1.data);
       o_free(e2.data);
-    } else if (type & R_KEY_TYPE_ECDSA) {
+    } else if (type & R_KEY_TYPE_EC) {
       res = RHN_OK;
       do {
         if ((b64_dec = o_malloc(json_string_length(json_object_get(jwk, "x"))*sizeof(char))) == NULL) {
@@ -2314,7 +2314,7 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
       o_free(m.data);
       o_free(e.data);
 #if GNUTLS_VERSION_NUMBER >= 0x030600
-    } else if (type & R_KEY_TYPE_ECDSA) {
+    } else if (type & R_KEY_TYPE_EC) {
       res = RHN_OK;
       do {
         if ((b64_dec = o_malloc(json_string_length(json_object_get(jwk, "x"))*sizeof(char))) == NULL) {
@@ -2780,7 +2780,7 @@ char * r_jwk_thumbprint(jwk_t * jwk, int hash, int x5u_flags) {
         json_object_set(key_members, "kty", json_object_get(key_export, "kty"));
         json_object_set(key_members, "e", json_object_get(key_export, "e"));
         json_object_set(key_members, "n", json_object_get(key_export, "n"));
-      } else if (type & R_KEY_TYPE_ECDSA) {
+      } else if (type & R_KEY_TYPE_EC) {
         json_object_set(key_members, "kty", json_object_get(key_export, "kty"));
         json_object_set(key_members, "crv", json_object_get(key_export, "crv"));
         json_object_set(key_members, "x", json_object_get(key_export, "x"));

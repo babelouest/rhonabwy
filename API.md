@@ -303,6 +303,57 @@ The algorithms supported by Rhonabwy are:
 - Digital Signature with Ed25519 or Ed448 Elliptic Curve: `EDdSA`
 - Unsecured: `none`
 
+### Set values
+
+To set the values of the JWS (header, keys, payload, etc.), you can use the dedicated functions (see the documentation), or use the function `r_jws_set_properties` to set multiple properties at once. The option list MUST end with the option `RHN_OPT_NONE`.
+
+```C
+/**
+ * Add multiple properties to the jws_t *
+ * @param jws: the jws_t to set values
+ * @param ...: set of values using a rhn_opt and following values
+ */
+int r_jws_set_properties(jws_t * jws, ...);
+```
+
+The `rhn_opt` and their following values available for a `jws_t` are:
+- RHN_OPT_HEADER_INT_VALUE, const char *, int
+- RHN_OPT_HEADER_STR_VALUE, const char * const char *
+- RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
+- RHN_OPT_HEADER_FULL_JSON_T, json_t *
+- RHN_OPT_HEADER_FULL_JSON_STR, const char *
+- RHN_OPT_PAYLOAD, const unsigned char *, size_t
+- RHN_OPT_SIG_ALG, jwa_alg
+- RHN_OPT_SIGN_KEY_JWK, jwk_t *
+- RHN_OPT_SIGN_KEY_JWKS, jwks_t *
+- RHN_OPT_SIGN_KEY_GNUTLS, gnutls_privkey_t
+- RHN_OPT_SIGN_KEY_JSON_T, json_t *
+- RHN_OPT_SIGN_KEY_JSON_STR, const char *
+- RHN_OPT_SIGN_KEY_PEM_DER, uint, const unsigned char *, size_t
+- RHN_OPT_VERIFY_KEY_JWK, jwk_t *
+- RHN_OPT_VERIFY_KEY_JWKS, jwks_t *
+- RHN_OPT_VERIFY_KEY_GNUTLS, gnutls_pubkey_t
+- RHN_OPT_VERIFY_KEY_JSON_T, json_t *
+- RHN_OPT_VERIFY_KEY_JSON_STR, const char *
+- RHN_OPT_VERIFY_KEY_PEM_DER, uint, const unsigned char *, size_t
+
+Example of usage for `r_jws_set_properties`:
+
+```C
+jws_t * jws;
+const unsigned char payload[] = {4, 8, 15, 16, 23, 42};
+jwk_t * jwk; // Set a private RSA key in this value
+r_jws_set_properties(jws, RHN_OPT_HEADER_INT_VALUE, "int", 42,
+                          RHN_OPT_HEADER_STR_VALUE, "str", "a value",
+                          RHN_OPT_HEADER_JSON_T_VALUE, "json", json_true(),
+                          RHN_OPT_PAYLOAD, payload, sizeof(payload),
+                          RHN_OPT_SIG_ALG, R_JWA_ALG_RS256,
+                          RHN_OPT_SIGN_KEY_JWK, jwk,
+                          RHN_OPT_NONE); // Test if return value is RHN_OK
+char * token = r_jws_serialize(jws, NULL, 0);
+}
+```
+
 ### JWS example
 
 In this example, the payload used is the following message:
@@ -430,6 +481,62 @@ In Rhonabwy library, the supported algorithms are:
 - Supported Cryptographic Algorithms for Key Management: `RSA1_5` (RSAES-PKCS1-v1_5), `RSA-OAEP`, `RSA-OAEP-256`, `A128KW`, `A192KW`, `A256KW`, `dir` (Direct use of a shared symmetric key), `A128GCMKW`, `A192GCMKW`, `A256GCMKW`, `ECDH-ES`, `ECDH-ES+A128KW`, `ECDH-ES+A192KW`, `ECDH-ES+A256KW`, `PBES2-HS384+A192KW` and `PBES2-HS512+A256KW`, `PBES2-HS256+A128KW`
 
 If you don't specify a Content Encryption Key or an Initialization Vector before the serialization, Rhonabwy will automatically generate one or the other or both depending on the algorithm specified.
+
+### Set values
+
+To set the values of the JWE (header, keys, payload, etc.), you can use the dedicated functions (see the documentation), or use the function `r_jwe_set_properties` to set multiple properties at once. The option list MUST end with the option `RHN_OPT_NONE`.
+
+```C
+/**
+ * Add multiple properties to the jwe_t *
+ * @param jwe: the jwe_t to set values
+ * @param ...: set of values using a rhn_opt and following values
+ */
+int r_jwe_set_properties(jwe_t * jwe, ...);
+```
+
+The `rhn_opt` and their following values available for a `jwe_t` are:
+- RHN_OPT_HEADER_INT_VALUE, const char *, int
+- RHN_OPT_HEADER_STR_VALUE, const char * const char *
+- RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
+- RHN_OPT_HEADER_FULL_JSON_T, json_t *
+- RHN_OPT_HEADER_FULL_JSON_STR, const char *
+- RHN_OPT_PAYLOAD, const unsigned char *, size_t
+- RHN_OPT_ENC_ALG, jwa_alg
+- RHN_OPT_ENC, jwa_enc
+- RHN_OPT_CIPHER_KEY, const unsigned char *, size_t
+- RHN_OPT_IV, const unsigned char *, size_t
+- RHN_OPT_AAD, const unsigned char *, size_t
+- RHN_OPT_ENCRYPT_KEY_JWK, jwk_t *
+- RHN_OPT_ENCRYPT_KEY_JWKS, jwks_t *
+- RHN_OPT_ENCRYPT_KEY_GNUTLS, gnutls_pubkey_t
+- RHN_OPT_ENCRYPT_KEY_JSON_T, json_t *
+- RHN_OPT_ENCRYPT_KEY_JSON_STR, const char *
+- RHN_OPT_ENCRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+- RHN_OPT_DECRYPT_KEY_JWK, jwk_t *
+- RHN_OPT_DECRYPT_KEY_JWKS, jwks_t *
+- RHN_OPT_DECRYPT_KEY_GNUTLS, gnutls_privkey_t
+- RHN_OPT_DECRYPT_KEY_JSON_T, json_t *
+- RHN_OPT_DECRYPT_KEY_JSON_STR, const char *
+- RHN_OPT_DECRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+
+Example of usage for `r_jwe_set_properties`:
+
+```C
+jwe_t * jwe;
+const unsigned char payload[] = {4, 8, 15, 16, 23, 42};
+jwk_t * jwk; // Set a public RSA key in this value
+r_jwe_set_properties(jwe, RHN_OPT_HEADER_INT_VALUE, "int", 42,
+                          RHN_OPT_HEADER_STR_VALUE, "str", "a value",
+                          RHN_OPT_HEADER_JSON_T_VALUE, "json", json_true(),
+                          RHN_OPT_PAYLOAD, payload, sizeof(payload),
+                          RHN_OPT_ENC_ALG, R_JWA_ALG_RSA_OAEP_256,
+                          RHN_OPT_ENC, R_JWA_ENC_A128GCM,
+                          RHN_OPT_ENCRYPT_KEY_JWK, jwk,
+                          RHN_OPT_NONE); // Test if return value is RHN_OK
+char * token = r_jwe_serialize(jwe, NULL, 0);
+}
+```
 
 ### JWE example
 
@@ -600,6 +707,77 @@ If the token is in general JSON format and has multiple key encryption, the func
 Finally, a JWT (JSON Web Token) is a JSON content signed and/or encrypted and serialized in a compact format that can be easily transferred in HTTP requests. Technically, a JWT is a JWS or a JWE which payload is a stringified JSON and has the property `"type":"JWT"` in the header.
 
 A JWT can be nested, which means signed and encrypted, in which case the payload is signed as a JWS first, then the serialized signed token is used as the payload in a JWE, or the opposite.
+
+### Set values
+
+To set the values of the JWT (header, keys, payload, etc.), you can use the dedicated functions (see the documentation), or use the function `r_jwt_set_properties` to set multiple properties at once. The option list MUST end with the option `RHN_OPT_NONE`.
+
+```C
+/**
+ * Add multiple properties to the jwt_t *
+ * @param jwt: the jwt_t to set values
+ * @param ...: set of values using a rhn_opt and following values
+ */
+int r_jwt_set_properties(jwt_t * jwt, ...);
+```
+
+The `rhn_opt` and their following values available for a `jwt_t` are:
+- RHN_OPT_HEADER_INT_VALUE, const char *, int
+- RHN_OPT_HEADER_STR_VALUE, const char * const char *
+- RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
+- RHN_OPT_HEADER_FULL_JSON_T, json_t *
+- RHN_OPT_HEADER_FULL_JSON_STR, const char *
+- RHN_OPT_CLAIM_INT_VALUE, const char *, int
+- RHN_OPT_CLAIM_STR_VALUE, const char * const char *
+- RHN_OPT_CLAIM_JSON_T_VALUE, const char *, json_t *
+- RHN_OPT_CLAIM_FULL_JSON_T, json_t *
+- RHN_OPT_CLAIM_FULL_JSON_STR, const char *
+- RHN_OPT_SIG_ALG, jwa_alg
+- RHN_OPT_ENC_ALG, jwa_alg
+- RHN_OPT_ENC, jwa_enc
+- RHN_OPT_CIPHER_KEY, const unsigned char *, size_t
+- RHN_OPT_IV, const unsigned char *, size_t
+- RHN_OPT_SIGN_KEY_JWK, jwk_t *
+- RHN_OPT_SIGN_KEY_JWKS, jwks_t *
+- RHN_OPT_SIGN_KEY_GNUTLS, gnutls_privkey_t
+- RHN_OPT_SIGN_KEY_JSON_T, json_t *
+- RHN_OPT_SIGN_KEY_JSON_STR, const char *
+- RHN_OPT_SIGN_KEY_PEM_DER, uint, const unsigned char *, size_t
+- RHN_OPT_VERIFY_KEY_JWK, jwk_t *
+- RHN_OPT_VERIFY_KEY_JWKS, jwks_t *
+- RHN_OPT_VERIFY_KEY_GNUTLS, gnutls_pubkey_t
+- RHN_OPT_VERIFY_KEY_JSON_T, json_t *
+- RHN_OPT_VERIFY_KEY_JSON_STR, const char *
+- RHN_OPT_VERIFY_KEY_PEM_DER, uint, const unsigned char *, size_t
+- RHN_OPT_ENCRYPT_KEY_JWK, jwk_t *
+- RHN_OPT_ENCRYPT_KEY_JWKS, jwks_t *
+- RHN_OPT_ENCRYPT_KEY_GNUTLS, gnutls_pubkey_t
+- RHN_OPT_ENCRYPT_KEY_JSON_T, json_t *
+- RHN_OPT_ENCRYPT_KEY_JSON_STR, const char *
+- RHN_OPT_ENCRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+- RHN_OPT_DECRYPT_KEY_JWK, jwk_t *
+- RHN_OPT_DECRYPT_KEY_JWKS, jwks_t *
+- RHN_OPT_DECRYPT_KEY_GNUTLS, gnutls_privkey_t
+- RHN_OPT_DECRYPT_KEY_JSON_T, json_t *
+- RHN_OPT_DECRYPT_KEY_JSON_STR, const char *
+- RHN_OPT_DECRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+
+Example of usage for `r_jwt_set_properties`:
+
+```C
+jwt_t * jwt;
+const unsigned char payload[] = {4, 8, 15, 16, 23, 42};
+jwk_t * jwk; // Set a private RSA key in this value
+r_jwt_set_properties(jwt, RHN_OPT_HEADER_INT_VALUE, "int", 42,
+                          RHN_OPT_HEADER_STR_VALUE, "str", "a value",
+                          RHN_OPT_HEADER_JSON_T_VALUE, "json", json_true(),
+                          RHN_OPT_CLAIM_FULL_JSON_STR, "{\"str\":\"grut\",\"int\":42,\"obj\":true}",
+                          RHN_OPT_SIG_ALG, R_JWA_ALG_RS256,
+                          RHN_OPT_SIGN_KEY_JWK, jwk,
+                          RHN_OPT_NONE); // Test if return value is RHN_OK
+char * token = r_jwt_serialize_signed(jwt, NULL, 0);
+}
+```
 
 ### Verify a list of claims in the JWT
 

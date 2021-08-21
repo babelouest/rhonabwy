@@ -103,6 +103,8 @@ typedef json_t jwk_t;
 typedef json_t jwks_t;
 typedef json_int_t rhn_int_t;
 
+#define RHONABWY_INTEGER_FORMAT JSON_INTEGER_FORMAT
+
 typedef enum {
   R_JWA_ALG_UNKNOWN        = 0,
   R_JWA_ALG_NONE           = 1,

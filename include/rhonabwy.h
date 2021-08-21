@@ -168,50 +168,50 @@ typedef enum {
 } jwa_enc;
 
 typedef enum {
-  RHN_OPT_NONE                    = 0,
-  RHN_OPT_HEADER_INT_VALUE        = 1,
-  RHN_OPT_HEADER_STR_VALUE        = 2,
-  RHN_OPT_HEADER_JSON_T_VALUE     = 3,
-  RHN_OPT_HEADER_FULL_JSON_T      = 4,
-  RHN_OPT_HEADER_FULL_JSON_STR    = 5,
-  RHN_OPT_UN_HEADER_FULL_JSON_T   = 6,
-  RHN_OPT_UN_HEADER_FULL_JSON_STR = 7,
-  RHN_OPT_PAYLOAD                 = 8,
-  RHN_OPT_CLAIM_INT_VALUE         = 9,
-  RHN_OPT_CLAIM_STR_VALUE         = 10,
-  RHN_OPT_CLAIM_JSON_T_VALUE      = 11,
-  RHN_OPT_CLAIM_FULL_JSON_T       = 12,
-  RHN_OPT_CLAIM_FULL_JSON_STR     = 13,
-  RHN_OPT_ENC_ALG                 = 14,
-  RHN_OPT_ENC                     = 15,
-  RHN_OPT_SIG_ALG                 = 16,
-  RHN_OPT_CIPHER_KEY              = 17,
-  RHN_OPT_IV                      = 18,
-  RHN_OPT_AAD                     = 19,
-  RHN_OPT_SIGN_KEY_JWK            = 20,
-  RHN_OPT_SIGN_KEY_JWKS           = 21,
-  RHN_OPT_SIGN_KEY_GNUTLS         = 22,
-  RHN_OPT_SIGN_KEY_JSON_T         = 23,
-  RHN_OPT_SIGN_KEY_JSON_STR       = 24,
-  RHN_OPT_SIGN_KEY_PEM_DER        = 25,
-  RHN_OPT_VERIFY_KEY_JWK          = 26,
-  RHN_OPT_VERIFY_KEY_JWKS         = 27,
-  RHN_OPT_VERIFY_KEY_GNUTLS       = 28,
-  RHN_OPT_VERIFY_KEY_JSON_T       = 29,
-  RHN_OPT_VERIFY_KEY_JSON_STR     = 30,
-  RHN_OPT_VERIFY_KEY_PEM_DER      = 31,
-  RHN_OPT_ENCRYPT_KEY_JWK         = 32,
-  RHN_OPT_ENCRYPT_KEY_JWKS        = 33,
-  RHN_OPT_ENCRYPT_KEY_GNUTLS      = 34,
-  RHN_OPT_ENCRYPT_KEY_JSON_T      = 35,
-  RHN_OPT_ENCRYPT_KEY_JSON_STR    = 36,
-  RHN_OPT_ENCRYPT_KEY_PEM_DER     = 37,
-  RHN_OPT_DECRYPT_KEY_JWK         = 38,
-  RHN_OPT_DECRYPT_KEY_JWKS        = 39,
-  RHN_OPT_DECRYPT_KEY_GNUTLS      = 40,
-  RHN_OPT_DECRYPT_KEY_JSON_T      = 41,
-  RHN_OPT_DECRYPT_KEY_JSON_STR    = 42,
-  RHN_OPT_DECRYPT_KEY_PEM_DER     = 43
+  RHN_OPT_NONE                    = 0, ///< End option list, mandatory at the end of the option list
+  RHN_OPT_HEADER_INT_VALUE        = 1, ///< Header Integer value, following parameters must be const char * name, int i_value
+  RHN_OPT_HEADER_STR_VALUE        = 2, ///< Header String value, following parameters must be const char * name, const char * str_value
+  RHN_OPT_HEADER_JSON_T_VALUE     = 3, ///< Header JSON value, following parameters must be const char * name, json_t * j_value
+  RHN_OPT_HEADER_FULL_JSON_T      = 4, ///< JSON value to set the entire header, following parameter must be json_t * j_value
+  RHN_OPT_HEADER_FULL_JSON_STR    = 5, ///< Stringified JSON value to set the entire header, following parameter must be const char * str_value
+  RHN_OPT_UN_HEADER_FULL_JSON_T   = 6, ///< JSON value to set the entire unprotected header, following parameter must be json_t * j_value
+  RHN_OPT_UN_HEADER_FULL_JSON_STR = 7, ///< Stringified JSON value to set the entire unprotected header, following parameter must be const char * str_value
+  RHN_OPT_PAYLOAD                 = 8, ///< JSON value to set the entire payload, following parameters must be const unsigned char * value, size_t value_length
+  RHN_OPT_CLAIM_INT_VALUE         = 9, ///< Claims Integer value, following parameters must be const char * name, int i_value
+  RHN_OPT_CLAIM_STR_VALUE         = 10, ///< Claims String value, following parameters must be const char * name, const char * str_value
+  RHN_OPT_CLAIM_JSON_T_VALUE      = 11, ///< Claims JSON value, following parameters must be const char * name, json_t * j_value
+  RHN_OPT_CLAIM_FULL_JSON_T       = 12, ///< JSON value to set the entire claims, following parameter must be json_t * j_value
+  RHN_OPT_CLAIM_FULL_JSON_STR     = 13, ///< Stringified JSON value to set the entire claims, following parameter must be const char * str_value
+  RHN_OPT_ENC_ALG                 = 14, ///< Key management algorithm, following parameter must be a jwa_alg value
+  RHN_OPT_ENC                     = 15, ///< Encryption algorithm, following parameter must be a jwa_enc value
+  RHN_OPT_SIG_ALG                 = 16, ///< Signature algorithm, following parameter must be a jwa_alg value
+  RHN_OPT_CIPHER_KEY              = 17, ///< Cipher key to encrypt data, following parameters must be const unsigned char * value, size_t value_length
+  RHN_OPT_IV                      = 18, ///< Initial Value (IV) for data encryption, following parameters must be const unsigned char * value, size_t value_length
+  RHN_OPT_AAD                     = 19, ///< Additional Authenticated Data (AAD) for data encryption, following parameters must be const unsigned char * value, size_t value_length
+  RHN_OPT_SIGN_KEY_JWK            = 20, ///< Private key in JWK format to sign the token, following parameter must be a jwk_t * value
+  RHN_OPT_SIGN_KEY_JWKS           = 21, ///< Private key set in JWKS format to sign the token, following parameter must be a jwks_t * value
+  RHN_OPT_SIGN_KEY_GNUTLS         = 22, ///< Private key in GnuTLS format to sign the token, following parameter must be a gnutls_privkey_t value
+  RHN_OPT_SIGN_KEY_JSON_T         = 23, ///< Private key in JSON format to sign the token, following parameter must be a json_t * value
+  RHN_OPT_SIGN_KEY_JSON_STR       = 24, ///< Private key in stringified JSON format to sign the token, following parameter must be a const char * value
+  RHN_OPT_SIGN_KEY_PEM_DER        = 25, ///< Private key in PEM or DER format to sign the token, following parameter must be R_FORMAT_PEM or R_FORMAT_DER, const unsigned char * value, size_t value_length
+  RHN_OPT_VERIFY_KEY_JWK          = 26, ///< Public key in JWK format to verify the token signature, following parameter must be a jwk_t * value
+  RHN_OPT_VERIFY_KEY_JWKS         = 27, ///< Public key set in JWKS format to verify the token signature, following parameter must be a jwks_t * value
+  RHN_OPT_VERIFY_KEY_GNUTLS       = 28, ///< Public key in GnuTLS format to verify the token signature, following parameter must be a gnutls_pubkey_t value
+  RHN_OPT_VERIFY_KEY_JSON_T       = 29, ///< Public key in JSON format to verify the token signature, following parameter must be a json_t * value
+  RHN_OPT_VERIFY_KEY_JSON_STR     = 30, ///< Public key in stringified JSON format to verify the token signature, following parameter must be a const char * value
+  RHN_OPT_VERIFY_KEY_PEM_DER      = 31, ///< Public key in PEM or DER format to verify the token signature, following parameter must be R_FORMAT_PEM or R_FORMAT_DER, const unsigned char * value, size_t value_length
+  RHN_OPT_ENCRYPT_KEY_JWK         = 32, ///< Public key in JWK format to encrypt the token, following parameter must be a jwk_t * value
+  RHN_OPT_ENCRYPT_KEY_JWKS        = 33, ///< Public key set in JWKS format to encrypt the token, following parameter must be a jwks_t * value
+  RHN_OPT_ENCRYPT_KEY_GNUTLS      = 34, ///< Public key in GnuTLS format to encrypt the token, following parameter must be a gnutls_pubkey_t value
+  RHN_OPT_ENCRYPT_KEY_JSON_T      = 35, ///< Public key in JSON format to encrypt the token, following parameter must be a json_t * value
+  RHN_OPT_ENCRYPT_KEY_JSON_STR    = 36, ///< Public key in stringified JSON format to encrypt the token, following parameter must be a const char * value
+  RHN_OPT_ENCRYPT_KEY_PEM_DER     = 37, ///< Public key in PEM or DER format to encrypt the token, following parameter must be R_FORMAT_PEM or R_FORMAT_DER, const unsigned char * value, size_t value_length
+  RHN_OPT_DECRYPT_KEY_JWK         = 38, ///< Private key in JWK format to decrypt the token, following parameter must be a jwk_t * value
+  RHN_OPT_DECRYPT_KEY_JWKS        = 39, ///< Private key set in JWKS format to decrypt the token, following parameter must be a jwks_t * value
+  RHN_OPT_DECRYPT_KEY_GNUTLS      = 40, ///< Private key in GnuTLS format to decrypt the token, following parameter must be a gnutls_privkey_t value
+  RHN_OPT_DECRYPT_KEY_JSON_T      = 41, ///< Private key in JSON format to decrypt the token, following parameter must be a json_t * value
+  RHN_OPT_DECRYPT_KEY_JSON_STR    = 42, ///< Private key in stringified JSON format to decrypt the token, following parameter must be a const char * value
+  RHN_OPT_DECRYPT_KEY_PEM_DER     = 43  ///< Private key in PEM or DER format to decrypt the token, following parameter must be R_FORMAT_PEM or R_FORMAT_DER, const unsigned char * value, size_t value_length
 } rhn_opt;
 
 typedef struct {
@@ -1036,6 +1036,8 @@ int r_jwks_export_to_pem_der(jwks_t * jwks, int format, unsigned char * output, 
 
 /**
  * Add multiple properties to the jws_t *
+ * @param jws: the jws_t to set values
+ * @param ...: set of values using a rhn_opt and following values
  */
 int r_jws_set_properties(jws_t * jws, ...);
 
@@ -1549,6 +1551,8 @@ char * r_jws_serialize_json_str(jws_t * jws, jwks_t * jwks_privkey, int x5u_flag
 
 /**
  * Add multiple properties to the jwe_t *
+ * @param jwe: the jwe_t to set values
+ * @param ...: set of values using a rhn_opt and following values
  */
 int r_jwe_set_properties(jwe_t * jwe, ...);
 
@@ -2109,6 +2113,8 @@ json_t * r_jwe_serialize_json_t(jwe_t * jwe, jwks_t * jwks_pubkey, int x5u_flags
 
 /**
  * Add multiple properties to the jwt_t *
+ * @param jwt: the jwt_t to set values
+ * @param ...: set of values using a rhn_opt and following values
  */
 int r_jwt_set_properties(jwt_t * jwt, ...);
 

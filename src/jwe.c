@@ -4289,7 +4289,7 @@ int r_jwe_set_full_unprotected_header_json_str(jwe_t * jwe, const char * str_unp
 int r_jwe_set_properties(jwe_t * jwe, ...) {
   rhn_opt option;
   int ret = RHN_OK;
-  rhn_int_t i_value;
+  int i_value;
   uint ui_value;
   const char * str_key, * str_value;
   json_t * j_value;
@@ -4307,8 +4307,8 @@ int r_jwe_set_properties(jwe_t * jwe, ...) {
       switch (option) {
         case RHN_OPT_HEADER_INT_VALUE:
           str_key = va_arg(vl, const char *);
-          i_value = va_arg(vl, rhn_int_t);
-          ret = r_jwe_set_header_int_value(jwe, str_key, i_value);
+          i_value = va_arg(vl, int);
+          ret = r_jwe_set_header_int_value(jwe, str_key, (rhn_int_t)i_value);
           break;
         case RHN_OPT_HEADER_STR_VALUE:
           str_key = va_arg(vl, const char *);

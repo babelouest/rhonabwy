@@ -168,6 +168,7 @@ To use a `rhn_int_t` in a printf-like function, you can use the macro `RHONABWY_
 ```C
 rhn_int_t val = 42;
 printf("value: %"RHONABWY_INTEGER_FORMAT"\n", val);
+```
 
 ## JWK
 

@@ -1,6 +1,6 @@
 # Rhonabwy Changelog
 
-## 1.0
+## 1.0.0
 
 - Use type `rhn_int_t` for integer property values instead of `int`
 - Rename `r_jwks_import_from_str` to `r_jwks_import_from_json_str`

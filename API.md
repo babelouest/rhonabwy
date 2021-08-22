@@ -329,26 +329,29 @@ To set the values of the JWS (header, keys, payload, etc.), you can use the dedi
 int r_jws_set_properties(jws_t * jws, ...);
 ```
 
-The `rhn_opt` and their following values available for a `jws_t` are:
-- RHN_OPT_HEADER_INT_VALUE, const char *, int
-- RHN_OPT_HEADER_STR_VALUE, const char * const char *
-- RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
-- RHN_OPT_HEADER_FULL_JSON_T, json_t *
-- RHN_OPT_HEADER_FULL_JSON_STR, const char *
-- RHN_OPT_PAYLOAD, const unsigned char *, size_t
-- RHN_OPT_SIG_ALG, jwa_alg
-- RHN_OPT_SIGN_KEY_JWK, jwk_t *
-- RHN_OPT_SIGN_KEY_JWKS, jwks_t *
-- RHN_OPT_SIGN_KEY_GNUTLS, gnutls_privkey_t
-- RHN_OPT_SIGN_KEY_JSON_T, json_t *
-- RHN_OPT_SIGN_KEY_JSON_STR, const char *
-- RHN_OPT_SIGN_KEY_PEM_DER, uint, const unsigned char *, size_t
-- RHN_OPT_VERIFY_KEY_JWK, jwk_t *
-- RHN_OPT_VERIFY_KEY_JWKS, jwks_t *
-- RHN_OPT_VERIFY_KEY_GNUTLS, gnutls_pubkey_t
-- RHN_OPT_VERIFY_KEY_JSON_T, json_t *
-- RHN_OPT_VERIFY_KEY_JSON_STR, const char *
-- RHN_OPT_VERIFY_KEY_PEM_DER, uint, const unsigned char *, size_t
+The available `rhn_opt` and their following values for a `jws_t` are:
+
+```C
+RHN_OPT_HEADER_INT_VALUE, const char *, int
+RHN_OPT_HEADER_STR_VALUE, const char * const char *
+RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
+RHN_OPT_HEADER_FULL_JSON_T, json_t *
+RHN_OPT_HEADER_FULL_JSON_STR, const char *
+RHN_OPT_PAYLOAD, const unsigned char *, size_t
+RHN_OPT_SIG_ALG, jwa_alg
+RHN_OPT_SIGN_KEY_JWK, jwk_t *
+RHN_OPT_SIGN_KEY_JWKS, jwks_t *
+RHN_OPT_SIGN_KEY_GNUTLS, gnutls_privkey_t
+RHN_OPT_SIGN_KEY_JSON_T, json_t *
+RHN_OPT_SIGN_KEY_JSON_STR, const char *
+RHN_OPT_SIGN_KEY_PEM_DER, uint, const unsigned char *, size_t
+RHN_OPT_VERIFY_KEY_JWK, jwk_t *
+RHN_OPT_VERIFY_KEY_JWKS, jwks_t *
+RHN_OPT_VERIFY_KEY_GNUTLS, gnutls_pubkey_t
+RHN_OPT_VERIFY_KEY_JSON_T, json_t *
+RHN_OPT_VERIFY_KEY_JSON_STR, const char *
+RHN_OPT_VERIFY_KEY_PEM_DER, uint, const unsigned char *, size_t
+```
 
 Example of usage for `r_jws_set_properties`:
 
@@ -508,30 +511,33 @@ To set the values of the JWE (header, keys, payload, etc.), you can use the dedi
 int r_jwe_set_properties(jwe_t * jwe, ...);
 ```
 
-The `rhn_opt` and their following values available for a `jwe_t` are:
-- RHN_OPT_HEADER_INT_VALUE, const char *, int
-- RHN_OPT_HEADER_STR_VALUE, const char * const char *
-- RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
-- RHN_OPT_HEADER_FULL_JSON_T, json_t *
-- RHN_OPT_HEADER_FULL_JSON_STR, const char *
-- RHN_OPT_PAYLOAD, const unsigned char *, size_t
-- RHN_OPT_ENC_ALG, jwa_alg
-- RHN_OPT_ENC, jwa_enc
-- RHN_OPT_CIPHER_KEY, const unsigned char *, size_t
-- RHN_OPT_IV, const unsigned char *, size_t
-- RHN_OPT_AAD, const unsigned char *, size_t
-- RHN_OPT_ENCRYPT_KEY_JWK, jwk_t *
-- RHN_OPT_ENCRYPT_KEY_JWKS, jwks_t *
-- RHN_OPT_ENCRYPT_KEY_GNUTLS, gnutls_pubkey_t
-- RHN_OPT_ENCRYPT_KEY_JSON_T, json_t *
-- RHN_OPT_ENCRYPT_KEY_JSON_STR, const char *
-- RHN_OPT_ENCRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
-- RHN_OPT_DECRYPT_KEY_JWK, jwk_t *
-- RHN_OPT_DECRYPT_KEY_JWKS, jwks_t *
-- RHN_OPT_DECRYPT_KEY_GNUTLS, gnutls_privkey_t
-- RHN_OPT_DECRYPT_KEY_JSON_T, json_t *
-- RHN_OPT_DECRYPT_KEY_JSON_STR, const char *
-- RHN_OPT_DECRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+The available `rhn_opt` and their following values for a `jwe_t` are:
+
+```C
+RHN_OPT_HEADER_INT_VALUE, const char *, int
+RHN_OPT_HEADER_STR_VALUE, const char * const char *
+RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
+RHN_OPT_HEADER_FULL_JSON_T, json_t *
+RHN_OPT_HEADER_FULL_JSON_STR, const char *
+RHN_OPT_PAYLOAD, const unsigned char *, size_t
+RHN_OPT_ENC_ALG, jwa_alg
+RHN_OPT_ENC, jwa_enc
+RHN_OPT_CIPHER_KEY, const unsigned char *, size_t
+RHN_OPT_IV, const unsigned char *, size_t
+RHN_OPT_AAD, const unsigned char *, size_t
+RHN_OPT_ENCRYPT_KEY_JWK, jwk_t *
+RHN_OPT_ENCRYPT_KEY_JWKS, jwks_t *
+RHN_OPT_ENCRYPT_KEY_GNUTLS, gnutls_pubkey_t
+RHN_OPT_ENCRYPT_KEY_JSON_T, json_t *
+RHN_OPT_ENCRYPT_KEY_JSON_STR, const char *
+RHN_OPT_ENCRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+RHN_OPT_DECRYPT_KEY_JWK, jwk_t *
+RHN_OPT_DECRYPT_KEY_JWKS, jwks_t *
+RHN_OPT_DECRYPT_KEY_GNUTLS, gnutls_privkey_t
+RHN_OPT_DECRYPT_KEY_JSON_T, json_t *
+RHN_OPT_DECRYPT_KEY_JSON_STR, const char *
+RHN_OPT_DECRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+```
 
 Example of usage for `r_jwe_set_properties`:
 
@@ -734,46 +740,49 @@ To set the values of the JWT (header, keys, payload, etc.), you can use the dedi
 int r_jwt_set_properties(jwt_t * jwt, ...);
 ```
 
-The `rhn_opt` and their following values available for a `jwt_t` are:
-- RHN_OPT_HEADER_INT_VALUE, const char *, int
-- RHN_OPT_HEADER_STR_VALUE, const char * const char *
-- RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
-- RHN_OPT_HEADER_FULL_JSON_T, json_t *
-- RHN_OPT_HEADER_FULL_JSON_STR, const char *
-- RHN_OPT_CLAIM_INT_VALUE, const char *, int
-- RHN_OPT_CLAIM_STR_VALUE, const char * const char *
-- RHN_OPT_CLAIM_JSON_T_VALUE, const char *, json_t *
-- RHN_OPT_CLAIM_FULL_JSON_T, json_t *
-- RHN_OPT_CLAIM_FULL_JSON_STR, const char *
-- RHN_OPT_SIG_ALG, jwa_alg
-- RHN_OPT_ENC_ALG, jwa_alg
-- RHN_OPT_ENC, jwa_enc
-- RHN_OPT_CIPHER_KEY, const unsigned char *, size_t
-- RHN_OPT_IV, const unsigned char *, size_t
-- RHN_OPT_SIGN_KEY_JWK, jwk_t *
-- RHN_OPT_SIGN_KEY_JWKS, jwks_t *
-- RHN_OPT_SIGN_KEY_GNUTLS, gnutls_privkey_t
-- RHN_OPT_SIGN_KEY_JSON_T, json_t *
-- RHN_OPT_SIGN_KEY_JSON_STR, const char *
-- RHN_OPT_SIGN_KEY_PEM_DER, uint, const unsigned char *, size_t
-- RHN_OPT_VERIFY_KEY_JWK, jwk_t *
-- RHN_OPT_VERIFY_KEY_JWKS, jwks_t *
-- RHN_OPT_VERIFY_KEY_GNUTLS, gnutls_pubkey_t
-- RHN_OPT_VERIFY_KEY_JSON_T, json_t *
-- RHN_OPT_VERIFY_KEY_JSON_STR, const char *
-- RHN_OPT_VERIFY_KEY_PEM_DER, uint, const unsigned char *, size_t
-- RHN_OPT_ENCRYPT_KEY_JWK, jwk_t *
-- RHN_OPT_ENCRYPT_KEY_JWKS, jwks_t *
-- RHN_OPT_ENCRYPT_KEY_GNUTLS, gnutls_pubkey_t
-- RHN_OPT_ENCRYPT_KEY_JSON_T, json_t *
-- RHN_OPT_ENCRYPT_KEY_JSON_STR, const char *
-- RHN_OPT_ENCRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
-- RHN_OPT_DECRYPT_KEY_JWK, jwk_t *
-- RHN_OPT_DECRYPT_KEY_JWKS, jwks_t *
-- RHN_OPT_DECRYPT_KEY_GNUTLS, gnutls_privkey_t
-- RHN_OPT_DECRYPT_KEY_JSON_T, json_t *
-- RHN_OPT_DECRYPT_KEY_JSON_STR, const char *
-- RHN_OPT_DECRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+The available `rhn_opt` and their following values for a `jwt_t` are:
+
+```C
+RHN_OPT_HEADER_INT_VALUE, const char *, int
+RHN_OPT_HEADER_STR_VALUE, const char * const char *
+RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
+RHN_OPT_HEADER_FULL_JSON_T, json_t *
+RHN_OPT_HEADER_FULL_JSON_STR, const char *
+RHN_OPT_CLAIM_INT_VALUE, const char *, int
+RHN_OPT_CLAIM_STR_VALUE, const char * const char *
+RHN_OPT_CLAIM_JSON_T_VALUE, const char *, json_t *
+RHN_OPT_CLAIM_FULL_JSON_T, json_t *
+RHN_OPT_CLAIM_FULL_JSON_STR, const char *
+RHN_OPT_SIG_ALG, jwa_alg
+RHN_OPT_ENC_ALG, jwa_alg
+RHN_OPT_ENC, jwa_enc
+RHN_OPT_CIPHER_KEY, const unsigned char *, size_t
+RHN_OPT_IV, const unsigned char *, size_t
+RHN_OPT_SIGN_KEY_JWK, jwk_t *
+RHN_OPT_SIGN_KEY_JWKS, jwks_t *
+RHN_OPT_SIGN_KEY_GNUTLS, gnutls_privkey_t
+RHN_OPT_SIGN_KEY_JSON_T, json_t *
+RHN_OPT_SIGN_KEY_JSON_STR, const char *
+RHN_OPT_SIGN_KEY_PEM_DER, uint, const unsigned char *, size_t
+RHN_OPT_VERIFY_KEY_JWK, jwk_t *
+RHN_OPT_VERIFY_KEY_JWKS, jwks_t *
+RHN_OPT_VERIFY_KEY_GNUTLS, gnutls_pubkey_t
+RHN_OPT_VERIFY_KEY_JSON_T, json_t *
+RHN_OPT_VERIFY_KEY_JSON_STR, const char *
+RHN_OPT_VERIFY_KEY_PEM_DER, uint, const unsigned char *, size_t
+RHN_OPT_ENCRYPT_KEY_JWK, jwk_t *
+RHN_OPT_ENCRYPT_KEY_JWKS, jwks_t *
+RHN_OPT_ENCRYPT_KEY_GNUTLS, gnutls_pubkey_t
+RHN_OPT_ENCRYPT_KEY_JSON_T, json_t *
+RHN_OPT_ENCRYPT_KEY_JSON_STR, const char *
+RHN_OPT_ENCRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+RHN_OPT_DECRYPT_KEY_JWK, jwk_t *
+RHN_OPT_DECRYPT_KEY_JWKS, jwks_t *
+RHN_OPT_DECRYPT_KEY_GNUTLS, gnutls_privkey_t
+RHN_OPT_DECRYPT_KEY_JSON_T, json_t *
+RHN_OPT_DECRYPT_KEY_JSON_STR, const char *
+RHN_OPT_DECRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+```
 
 Example of usage for `r_jwt_set_properties`:
 

@@ -179,7 +179,7 @@ $(function() {
 <div class="line">    ]</div>
 <div class="line">  }</div>
 <div class="line">}</div>
-</div><!-- fragment --><h1>Header or Claim int value</h1>
+</div><!-- fragment --><h1>Header or Claim integer value</h1>
 <p>When using <code>r_jws_set_header_int_value</code>, <code>r_jwe_set_header_int_value</code>, <code>r_jwt_set_header_int_value</code> or <code>r_jwt_set_claim_int_value</code>, the int value must be of type <code>rhn_int_t</code>, which inner format depend on the architecture. It's recommended not to use an <code>int</code> instead, or undefined behaviour may happen.</p>
 <p>Likewise, the functions <code>r_jws_get_header_int_value</code>, <code>r_jwe_get_header_int_value</code>, <code>r_jwt_get_header_int_value</code> or <code>r_jwt_get_claim_int_value</code>, these functions will return a <code>rhn_int_t</code>.</p>
 <p>To use a <code>rhn_int_t</code> in a printf-like function, you can use the macro <code>RHONABWY_INTEGER_FORMAT</code>:</p>

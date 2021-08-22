@@ -157,6 +157,18 @@ Example output:
 }
 ```
 
+## Header or Claim int value
+
+When using `r_jws_set_header_int_value`, `r_jwe_set_header_int_value`, `r_jwt_set_header_int_value` or `r_jwt_set_claim_int_value`, the int value must be of type `rhn_int_t`, which inner format depend on the architecture. It's recommended not to use an `int` instead, or undefined behaviour may happen.
+
+Likewise, the functions `r_jws_get_header_int_value`, `r_jwe_get_header_int_value`, `r_jwt_get_header_int_value` or `r_jwt_get_claim_int_value`, these functions will return a `rhn_int_t`.
+
+To use a `rhn_int_t` in a printf-like function, you can use the macro `RHONABWY_INTEGER_FORMAT`:
+
+```C
+rhn_int_t val = 42;
+printf("value: %"RHONABWY_INTEGER_FORMAT"\n", val);
+
 ## JWK
 
 A JWK (JSON Web Key) is a format used to store and represent a cryptographic key in a JSON object.
@@ -442,7 +454,7 @@ r_jwk_free(jwk_key_symmetric);
 
 #### Compressed payload
 
-The header value `"zip":"DEF"` is used to specify if the JWS payload is compressed using [ZIP/Deflate](https://tools.ietf.org/html/rfc7516#section-4.1.3) algorithm. Rhonabwy will automatically compress or decompress the decrypted payload during encryption or decryption process.
+The header value `"zip":"DEF"` is used to specify if the JWS payload is compressed using [ZIP/Deflate](https://tools.ietf.org/html/rfc7516#section-4.1.3) algorithm. Rhonabwy will automatically compress or decompress the decrypted payload during serialization or parse process.
 
 ### Unsecured JWS
 

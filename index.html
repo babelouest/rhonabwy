@@ -185,23 +185,18 @@ $(function() {
 <p>To use a <code>rhn_int_t</code> in a printf-like function, you can use the macro <code>RHONABWY_INTEGER_FORMAT</code>:</p>
 <div class="fragment"><div class="line"><a class="code" href="group__type.html#ga6757151c907d670d38e412e623c0309b">rhn_int_t</a> val = 42;</div>
 <div class="line">printf(<span class="stringliteral">&quot;value: %&quot;</span><a class="code" href="group__type.html#ga1e2e24586ed46d6ce8b43cf52c929ffb">RHONABWY_INTEGER_FORMAT</a><span class="stringliteral">&quot;\n&quot;</span>, val);</div>
-<div class="line"> </div>
-<div class="line"><span class="preprocessor">## JWK</span></div>
-<div class="line"> </div>
-<div class="line">A JWK (JSON Web Key) is a format used to store and represent a cryptographic key in a JSON <span class="keywordtype">object</span>.</div>
-<div class="line"> </div>
-<div class="line">Example of JWK:</div>
-<div class="line"> </div>
-<div class="line">```JSON</div>
-<div class="line">{</div>
-<div class="line">  <span class="stringliteral">&quot;kty&quot;</span>:<span class="stringliteral">&quot;EC&quot;</span>,</div>
-<div class="line">  <span class="stringliteral">&quot;crv&quot;</span>:<span class="stringliteral">&quot;P-256&quot;</span>,</div>
-<div class="line">  <span class="stringliteral">&quot;x&quot;</span>:<span class="stringliteral">&quot;f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU&quot;</span>,</div>
-<div class="line">  <span class="stringliteral">&quot;y&quot;</span>:<span class="stringliteral">&quot;x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0&quot;</span>,</div>
-<div class="line">  <span class="stringliteral">&quot;kid&quot;</span>:<span class="stringliteral">&quot;Public key used in JWS spec Appendix A.3 example&quot;</span></div>
-<div class="line">}</div>
 <div class="ttc" id="agroup__type_html_ga1e2e24586ed46d6ce8b43cf52c929ffb"><div class="ttname"><a href="group__type.html#ga1e2e24586ed46d6ce8b43cf52c929ffb">RHONABWY_INTEGER_FORMAT</a></div><div class="ttdeci">#define RHONABWY_INTEGER_FORMAT</div><div class="ttdef"><b>Definition:</b> rhonabwy.h:106</div></div>
 <div class="ttc" id="agroup__type_html_ga6757151c907d670d38e412e623c0309b"><div class="ttname"><a href="group__type.html#ga6757151c907d670d38e412e623c0309b">rhn_int_t</a></div><div class="ttdeci">json_int_t rhn_int_t</div><div class="ttdef"><b>Definition:</b> rhonabwy.h:104</div></div>
+</div><!-- fragment --><h1>JWK</h1>
+<p>A JWK (JSON Web Key) is a format used to store and represent a cryptographic key in a JSON object.</p>
+<p>Example of JWK:</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;kty&quot;:&quot;EC&quot;,</div>
+<div class="line">  &quot;crv&quot;:&quot;P-256&quot;,</div>
+<div class="line">  &quot;x&quot;:&quot;f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU&quot;,</div>
+<div class="line">  &quot;y&quot;:&quot;x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0&quot;,</div>
+<div class="line">  &quot;kid&quot;:&quot;Public key used in JWS spec Appendix A.3 example&quot;</div>
+<div class="line">}</div>
 </div><!-- fragment --><p>The standard allows to store public and private keys for RSA and ECC algorithms, it also allows to store symmetric keys. In a JWK, every raw value is encoded in Base64Url format to fit in the JSON object without any issue.</p>
 <p>A JWK is represented in Rhonabwy library using the type <code>jwk_t *</code>.</p>
 <h2>Import and Export JWK</h2>

@@ -157,7 +157,7 @@ Example output:
 }
 ```
 
-## Header or Claim int value
+## Header or Claim integer value
 
 When using `r_jws_set_header_int_value`, `r_jwe_set_header_int_value`, `r_jwt_set_header_int_value` or `r_jwt_set_claim_int_value`, the int value must be of type `rhn_int_t`, which inner format depend on the architecture. It's recommended not to use an `int` instead, or undefined behaviour may happen.
 

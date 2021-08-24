@@ -66,10 +66,10 @@ $(CONFIG_FILE):
 	@sed -i -e 's/$${PROJECT_VERSION_NUMBER}/$(shell printf '%02d' $(VERSION_MAJOR))$(shell printf '%02d' $(VERSION_MINOR))$(shell printf '%02d' $(VERSION_PATCH))/g' $(CONFIG_FILE)        
 	@if [ "$(R_WITH_CURL)" = "1" ]; then \
 		sed -i -e 's/\#cmakedefine R_WITH_CURL/\#define R_WITH_CURL/g' $(CONFIG_FILE); \
-		echo "USE ULFIUS      ENABLED"; \
+		echo "USE CURL      ENABLED"; \
 	else \
 		sed -i -e 's/\#cmakedefine R_WITH_CURL/\/* #undef R_WITH_CURL *\//g' $(CONFIG_FILE); \
-		echo "USE ULFIUS      DISABLED"; \
+		echo "USE CURL      DISABLED"; \
 	fi
 
 $(PKGCONFIG_FILE):

@@ -21,9 +21,6 @@ jobs:
         mkdir build
         # build rhonabwy, run tests, build package
         cd build
-        cmake -DBUILD_RHONABWY_TESTING=ON -DBUILD_RHONABWY_DOCUMENTATION=ON -DWITH_ULFIUS=OFF ..
-        make
-        rm -rf *
         cmake -DBUILD_RHONABWY_TESTING=ON -DBUILD_RHONABWY_DOCUMENTATION=ON -DWITH_CURL=OFF ..
         make
         rm -rf *

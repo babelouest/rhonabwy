@@ -767,12 +767,17 @@ END_TEST
 START_TEST(test_rhonabwy_jwk_in_header)
 {
   jws_t * jws;
+  jwk_t * jwk;
   
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
   ck_assert_int_eq(r_jws_parse(jws, TOKEN_WITH_JWK_IN_HEADER, 0), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_int_gt(r_jwks_size(jws->jwks_pubkey), 0);
   ck_assert_int_eq(r_jws_verify_signature(jws, NULL, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_verify_signature(jws, jwk, 0), RHN_ERROR_INVALID);
   r_jws_free(jws);
+  r_jwk_free(jwk);
 }
 END_TEST
 #endif

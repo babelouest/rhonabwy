@@ -300,6 +300,36 @@ const char jwk_pubkey_rsa_x5c_only[] = "{\"alg\": \"RS256\",\"x5c\":[\"MIIFkjCCB
                                        "4tWDQH8NVU6YZZ/XteDSGU9YzJqPjY8q3MDxrzmqepBCf5o8mw/wJ4a2G6xzUr6Fb6T8McDO22PLRL6u3M4Tzs3A2M1j6bykJYi8wWIRdAvKLWZu/axBVb"\
                                        "zYmqmwkm5zLSDW5nIAJbELCQCZwMH56t2Dvqofxs6BBcCFIZUSpxu6x6td0V7SvJCCosirSmIatj/9dSSVDQibet8q/7UK4v4ZUN80atnZz1yg==\"],\""\
                                        "kty\":\"RSA\"}";
+const char jwk_pubkey_rsa_x5c_only_invalid_type[] = "{\"alg\": \"ES256\",\"x5c\":[\"MIIFkjCCBHqgAwIBAgIQRXroN0ZOdRkBAAAAAAPunzANBgkqhkiG9w0BAQsFADBCMQswCQYDVQQGEwJVUzEeMBw"\
+                                                    "GA1UEChMVR29vZ2xlIFRydXN0IFNlcnZpY2VzMRMwEQYDVQQDEwpHVFMgQ0EgMU8xMB4XDTE4MTAxMDA3MTk0NVoXDTE5MTAwOTA3MTk0NVowbDELMAkGA"\
+                                                    "1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3JuaWExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxEzARBgNVBAoTCkdvb2dsZSBMTEMxGzAZBgNVBAMTEmF0dGV"\
+                                                    "zdC5hbmRyb2lkLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANjXkz0eK1SE4m+/G5wOo+XGSECrqdn88sCpR7fs14fK0Rh3ZCYZLFHqB"\
+                                                    "k6AmZVw2K9FG0O9rRPeQDIVRyE30QunS9ugHC4eg9ovvOm+QdZ2p93XhzunQEhUWXCxADIEGJK3S2aAfze99PLS29hLcQuYXHDaC7OZqNnosiOGifs8v1j"\
+                                                    "i6H/xhltCZe2lJ+7GutzexKpxvpE/tZSfbY905qSlBh9fpj015cjnQFkUsAUwmKVAUueUz4tKcFK4pevNLaxEAl+OkilMtIYDacD5nel4xJiys413hagqW"\
+                                                    "0Whh5FP39hGk9E/BwQTjazSxGdvX0m6xFYhh/2VMyZjT4KzPJECAwEAAaOCAlgwggJUMA4GA1UdDwEB/wQEAwIFoDATBgNVHSUEDDAKBggrBgEFBQcDATA"\
+                                                    "MBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBQqBQwGWoJBa1oTKqupo4W6xT6j2DAfBgNVHSMEGDAWgBSY0fhuEOvPm+xgnxiQG6DrfQn9KzBkBggrBgEFBQcBA"\
+                                                    "QRYMFYwJwYIKwYBBQUHMAGGG2h0dHA6Ly9vY3NwLnBraS5nb29nL2d0czFvMTArBggrBgEFBQcwAoYfaHR0cDovL3BraS5nb29nL2dzcjIvR1RTMU8xLmN"\
+                                                    "ydDAdBgNVHREEFjAUghJhdHRlc3QuYW5kcm9pZC5jb20wIQYDVR0gBBowGDAIBgZngQwBAgIwDAYKKwYBBAHWeQIFAzAvBgNVHR8EKDAmMCSgIqAghh5od"\
+                                                    "HRwOi8vY3JsLnBraS5nb29nL0dUUzFPMS5jcmwwggEEBgorBgEEAdZ5AgQCBIH1BIHyAPAAdwCkuQmQtBhYFIe7E6LMZ3AKPDWYBPkb37jjd80OyA3cEAA"\
+                                                    "AAWZdD3PLAAAEAwBIMEYCIQCSZCWeLJvsiVW6Cg+gj/9wYTJRzu4Hiqe4eY4c/myzjgIhALSbi/Thzczqtij3dk3vbLcIW3Ll2B0o75GQdhMigbBgAHUAV"\
+                                                    "hQGmi/XwuzT9eG9RLI+x0Z2ubyZEVzA75SYVdaJ0N0AAAFmXQ9z5AAABAMARjBEAiBcCwA9j7NTGXP278z4hr/uCHiAFLyoCq2K0+yLRwJUbgIgf8gHjvp"\
+                                                    "w2mB1ESjq2Of3A0AEAwCknCaEKFUyZ7f/QtIwDQYJKoZIhvcNAQELBQADggEBAI9nTfRKIWgtlWl3wBL55ETV6kazsphW1yAc5Dum6XO41kZzwJ61wJmdR"\
+                                                    "RT/UsCIy1KEt2c0EjglnJCF2eawcEWlLQY2XPLyFjkWQNbShB1i4W2NRGzPht3m1b49hbstuXM6tX5CyEHnTh8Bom4/WlFihzhgn81Dldogz/K2UwM6S6C"\
+                                                    "B/SExkiVfv+zbJ0rjvg94AldjUfUwkI9VNMjEP5e8ydB3oLl6glpCeF5dgfSX4U9x35oj/IId3UE/dPpb/qgGvskfdeztmUte/KSmriwcgUWWeXfTbI3zs"\
+                                                    "ikwZbkpmRYKmjPmhv4rlizGCGt8Pn8pq8M2KDf/P3kVot3e18Q=\",\"MIIESjCCAzKgAwIBAgINAeO0mqGNiqmBJWlQuDANBgkqhkiG9w0BAQsFADBMMS"\
+                                                    "AwHgYDVQQLExdHbG9iYWxTaWduIFJvb3QgQ0EgLSBSMjETMBEGA1UEChMKR2xvYmFsU2lnbjETMBEGA1UEAxMKR2xvYmFsU2lnbjAeFw0xNzA2MTUwMDAw"\
+                                                    "NDJaFw0yMTEyMTUwMDAwNDJaMEIxCzAJBgNVBAYTAlVTMR4wHAYDVQQKExVHb29nbGUgVHJ1c3QgU2VydmljZXMxEzARBgNVBAMTCkdUUyBDQSAxTzEwgg"\
+                                                    "EiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDQGM9F1IvN05zkQO9+tN1pIRvJzzyOTHW5DzEZhD2ePCnvUA0Qk28FgICfKqC9EksC4T2fWBYk/jCf"\
+                                                    "C3R3VZMdS/dN4ZKCEPZRrAzDsiKUDzRrmBBJ5wudgzndIMYcLe/RGGFl5yODIKgjEv/SJH/UL+dEaltN11BmsK+eQmMF++AcxGNhr59qM/9il71I2dN8FG"\
+                                                    "fcddwuaej4bXhp0LcQBbjxMcI7JP0aM3T4I+DsaxmKFsbjzaTNC9uzpFlgOIg7rR25xoynUxv8vNmkq7zdPGHXkxWY7oG9j+JkRyBABk7XrJfoucBZEqFJ"\
+                                                    "JSPk7XA0LKW0Y3z5oz2D0c1tJKwHAgMBAAGjggEzMIIBLzAOBgNVHQ8BAf8EBAMCAYYwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMBIGA1UdEw"\
+                                                    "EB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFJjR+G4Q68+b7GCfGJAboOt9Cf0rMB8GA1UdIwQYMBaAFJviB1dnHB7AagbeWbSaLd/cGYYuMDUGCCsGAQUFBwEB"\
+                                                    "BCkwJzAlBggrBgEFBQcwAYYZaHR0cDovL29jc3AucGtpLmdvb2cvZ3NyMjAyBgNVHR8EKzApMCegJaAjhiFodHRwOi8vY3JsLnBraS5nb29nL2dzcjIvZ3"\
+                                                    "NyMi5jcmwwPwYDVR0gBDgwNjA0BgZngQwBAgIwKjAoBggrBgEFBQcCARYcaHR0cHM6Ly9wa2kuZ29vZy9yZXBvc2l0b3J5LzANBgkqhkiG9w0BAQsFAAOC"\
+                                                    "AQEAGoA+Nnn78y6pRjd9XlQWNa7HTgiZ/r3RNGkmUmYHPQq6Scti9PEajvwRT2iWTHQr02fesqOqBY2ETUwgZQ+lltoNFvhsO9tvBCOIazpswWC9aJ9xju"\
+                                                    "4tWDQH8NVU6YZZ/XteDSGU9YzJqPjY8q3MDxrzmqepBCf5o8mw/wJ4a2G6xzUr6Fb6T8McDO22PLRL6u3M4Tzs3A2M1j6bykJYi8wWIRdAvKLWZu/axBVb"\
+                                                    "zYmqmwkm5zLSDW5nIAJbELCQCZwMH56t2Dvqofxs6BBcCFIZUSpxu6x6td0V7SvJCCosirSmIatj/9dSSVDQibet8q/7UK4v4ZUN80atnZz1yg==\"],\""\
+                                                    "kty\":\"EC\"}";
 
 const char jwk_pubkey_rsa_x5u_str[] = "{\"kty\":\"RSA\",\"n\":\"sUWjL3wK1B_dQbXbhSXaodF0gXMNlZg3ZecjZIJOKgXGDVOnV0ly4evW8xkn8F2gC3TYJXik7efdhGdiaYul9kyzpPBr53"\
                                        "ELHMmAeI_I1rnF4pgIwfN1vBsaDwJw9w0R6FQ9fxDUIte47WdElEHhtST9V874mMehsSUG4xM2qiBvvbWwX0KCyKk6BY_CdyljUjAPUShcVysKUTyfefew"\
@@ -309,7 +339,9 @@ const char jwk_pubkey_rsa_x5u_str[] = "{\"kty\":\"RSA\",\"n\":\"sUWjL3wK1B_dQbXb
                                        "29\",\"x5u\":\"https://localhost:7464/x5u_rsa_crt\"}";
 
 const char jwk_pubkey_rsa_x5u_only_rsa_pub[] = "{\"kty\":\"RSA\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7464/x5u_rsa_crt\"}";
-const char jwk_pubkey_rsa_x5u_only_ecdsa_pub[] = "{\"kty\":\"EC\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7464/x5u_ecdsa_crt\"}";
+const char jwk_pubkey_rsa_x5u_only_ecdsa_pub[] = "{\"kty\":\"EC\",\"alg\":\"ES256\",\"x5u\":\"https://localhost:7464/x5u_ecdsa_crt\"}";
+const char jwk_pubkey_rsa_x5u_only_eddsa_pub[] = "{\"kty\":\"OKP\",\"alg\":\"ES256\",\"x5u\":\"https://localhost:7464/x5u_eddsa_crt\"}";
+const char jwk_pubkey_rsa_x5u_only_ecdsa_pub_invalid_type[] = "{\"kty\":\"RSA\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7464/x5u_ecdsa_crt\"}";
 
 const char jwk_pubkey_rsa_x5u_str_invalid_x5u[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWK"\
                                                   "RXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZ"\
@@ -595,6 +627,25 @@ const unsigned char ecdsa_crt[] = "-----BEGIN CERTIFICATE-----\n"
 "NUV15utv9AMvahkCI5ZS71TAv4AFjsZpsvYuCvpUUPdZpC+r9lk8H1wa4VA+mujL\n"
 "2Yxh1fFV7ONNjA==\n"
 "-----END CERTIFICATE-----";
+const unsigned char eddsa_crt[] = "-----BEGIN CERTIFICATE-----\n"
+"MIIDLDCCAZSgAwIBAgIUTuClu4hNHMPpKcw6+rjDqVXaQVkwDQYJKoZIhvcNAQEL\n"
+"BQAwMjEbMBkGA1UEAwwSZ2xld2x3eWRfcGFja2VkX2NhMRMwEQYDVQQKEwpiYWJl\n"
+"bG91ZXN0MB4XDTIxMDgzMDE0MzY1OVoXDTIyMDgxNTE0MzY1OVowYDEYMBYGA1UE\n"
+"AwwPZ2xld2x3eWRfcGFja2VkMSIwIAYDVQQLExlBdXRoZW50aWNhdG9yIEF0dGVz\n"
+"dGF0aW9uMRMwEQYDVQQKEwpiYWJlbG91ZXN0MQswCQYDVQQGEwJDQTAqMAUGAytl\n"
+"cAMhAIouRueZYs1tzatbfdECcJwHwun+WXzH3CBy8BJxJYcLo4GFMIGCMCEGCysG\n"
+"AQQBguUcAQEEBBIEEEJDREVGR0hJUFFSU1RVVlcwDAYDVR0TAQH/BAIwADAPBgNV\n"
+"HQ8BAf8EBQMDB4AAMB0GA1UdDgQWBBS6GVmW2tFiBlvcLopMuEv2UFlTRTAfBgNV\n"
+"HSMEGDAWgBRYdd7pkDm7ZUQq0dg+usf8qHk4DjANBgkqhkiG9w0BAQsFAAOCAYEA\n"
+"K7L+G+skxijb+9onGRpnsJ98JTBiPMoyvvTzmkw54JiYufG3fkbumM+TRohyydEQ\n"
+"4bZT/yiO8KJz3Y3D7QKKDxZTPm6/lGlrFVzlJ18CNvRoypvws1VOik6iroJBvCQO\n"
+"YpiuKlcK+g7kQxGkk5i/2roohzxJHFUqJ6vKGRsxg3GySBSCS+BjLPHQckUnQhdP\n"
+"WcNthoYnqNpSwyAIWgQ6D/Hus7nUI3EVzDmXPwWYRhxtuBVMhw9nWi7xO89kQGjl\n"
+"zcCFzVI23ktwTDBt1XNHlxwuqnWKDBdPFd+UJvplE9tcr2I5IoLf+wtUx9/8zPcS\n"
+"cYWbe1bTykoZXGFJJaVU+58sT9CseICfScCwwMgd2kZ7zFtgceOqaOuIgAoD0ub2\n"
+"2YbXZ/M+B1Z1TDQ2qF+KdHBQvrp8bbf0Y3CMgPPzJmABuzVSOxazqBSgMSufrlzA\n"
+"s0nRjPr3UZRaPv5RDpGk8eqGU7szhTrMpr0/lX30YNuXndPWfD/axRvvAH0EtvhI\n"
+"-----END CERTIFICATE-----";
 
 const char x5u_fullchain1_crt[] = "{\"kty\":\"RSA\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7465/x5u_fullchain1\"}";
 const char x5u_fullchain2_crt[] = "{\"kty\":\"RSA\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7465/x5u_fullchain2\"}";
@@ -635,6 +686,11 @@ int callback_x5u_rsa_crt (const struct _u_request * request, struct _u_response 
 
 int callback_x5u_ecdsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
   ulfius_set_string_body_response(response, 200, (const char *)ecdsa_crt);
+  return U_CALLBACK_CONTINUE;
+}
+
+int callback_x5u_eddsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  ulfius_set_string_body_response(response, 200, (const char *)eddsa_crt);
   return U_CALLBACK_CONTINUE;
 }
 
@@ -1331,6 +1387,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(ulfius_init_instance(&instance, 7464, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_ecdsa_crt", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_eddsa_crt", NULL, 0, &callback_x5u_eddsa_crt, NULL), U_OK);
   
   ck_assert_int_eq(ulfius_start_secure_framework(&instance, HTTPS_CERT_KEY, HTTPS_CERT_PEM), U_OK);
   
@@ -1343,6 +1400,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_RSA, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_EC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EDDSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
@@ -1357,6 +1415,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_RSA, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_EC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EDDSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
 #endif
@@ -1371,6 +1430,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EDDSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
@@ -1384,6 +1444,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EDDSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
@@ -1397,6 +1458,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_ne(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_RSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EDDSA, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
@@ -1411,6 +1473,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EDDSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
@@ -1427,6 +1490,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EDDSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
 #endif
@@ -1442,6 +1506,21 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EDDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
+  r_jwk_free(jwk);
+  
+  bits = 0;
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_only_invalid_type), RHN_ERROR_PARAM);
+  ck_assert_int_eq((type = r_jwk_key_type(jwk, &bits, 0)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_REMOTE)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(type & R_KEY_TYPE_PUBLIC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_RSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EDDSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
@@ -1457,6 +1536,7 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_RSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EDDSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
@@ -1472,6 +1552,37 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_RSA, 0);
   ck_assert_int_ne(type & R_KEY_TYPE_EC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EDDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
+  r_jwk_free(jwk);
+
+  bits = 0;
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_eddsa_pub), RHN_OK);
+  ck_assert_int_eq(r_jwk_is_valid_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_ERROR_PARAM);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_SERVER_CERTIFICATE)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 256);
+  ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_RSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EDDSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
+  r_jwk_free(jwk);
+
+  bits = 0;
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_only_ecdsa_pub_invalid_type), RHN_OK);
+  ck_assert_int_eq(r_jwk_is_valid_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_ERROR_PARAM);
+  ck_assert_int_ne((type = r_jwk_key_type(jwk, &bits, R_FLAG_IGNORE_SERVER_CERTIFICATE)), R_KEY_TYPE_NONE);
+  ck_assert_int_eq(bits, 256);
+  ck_assert_int_ne(type & R_KEY_TYPE_PUBLIC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_PRIVATE, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_SYMMETRIC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_RSA, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EC, 0);
+  ck_assert_int_eq(type & R_KEY_TYPE_EDDSA, 0);
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
 #endif

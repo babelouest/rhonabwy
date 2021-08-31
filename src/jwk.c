@@ -57,7 +57,7 @@ int r_jwk_is_valid(jwk_t * jwk) {
   int ret = RHN_OK, has_privkey_parameters = 0, type_x5c, is_x5_key = 0;
   json_t * j_element = NULL;
   unsigned char * b64dec = NULL;
-  const char * n, * e, * crv, * x, * y;
+  const char * n, * e, * x, * y;
   size_t index = 0, b64dec_len = 0;
   jwk_t * jwk_x5c = NULL;
   gnutls_pubkey_t pubkey = NULL;
@@ -121,14 +121,32 @@ int r_jwk_is_valid(jwk_t * jwk) {
                       if (r_jwk_import_from_gnutls_pubkey(jwk_x5c, pubkey) == RHN_OK) {
                         type_x5c = r_jwk_key_type(jwk_x5c, NULL, 0);
                         if (type_x5c & R_KEY_TYPE_RSA) {
+                          if (0 != o_strcmp("RSA", r_jwk_get_property_str(jwk, "kty"))) {
+                            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x5c key type");
+                            ret = RHN_ERROR_PARAM;
+                          }
                           if ((n = r_jwk_get_property_str(jwk, "n")) != NULL && (e = r_jwk_get_property_str(jwk, "e")) != NULL) {
                             if (0 != o_strcmp(n, r_jwk_get_property_str(jwk_x5c, "n")) || 0 != o_strcmp(e, r_jwk_get_property_str(jwk_x5c, "e"))) {
                               y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwk_is_valid - Invalid x5c leaf rsa parameters");
                             }
                           }
-                        } else if (type_x5c & R_KEY_TYPE_EC || type_x5c & R_KEY_TYPE_EDDSA) {
-                          if ((crv = r_jwk_get_property_str(jwk, "crv")) != NULL && (x = r_jwk_get_property_str(jwk, "x")) != NULL && (y = r_jwk_get_property_str(jwk, "y")) != NULL) {
-                            if (0 != o_strcmp(crv, r_jwk_get_property_str(jwk_x5c, "crv")) || 0 != o_strcmp(x, r_jwk_get_property_str(jwk_x5c, "x")) || 0 != o_strcmp(y, r_jwk_get_property_str(jwk_x5c, "y"))) {
+                        } else if (type_x5c & R_KEY_TYPE_EC) {
+                          if (0 != o_strcmp("EC", r_jwk_get_property_str(jwk, "kty")) || 0 != o_strcmp(r_jwk_get_property_str(jwk, "crv"), r_jwk_get_property_str(jwk_x5c, "crv"))) {
+                            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x5c key type");
+                            ret = RHN_ERROR_PARAM;
+                          }
+                          if ((x = r_jwk_get_property_str(jwk, "x")) != NULL && (y = r_jwk_get_property_str(jwk, "y")) != NULL) {
+                            if (0 != o_strcmp(x, r_jwk_get_property_str(jwk_x5c, "x")) || 0 != o_strcmp(y, r_jwk_get_property_str(jwk_x5c, "y"))) {
+                              y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwk_is_valid - Invalid x5c leaf ec parameters");
+                            }
+                          }
+                        } else if (type_x5c & R_KEY_TYPE_EDDSA) {
+                          if (0 != o_strcmp("OKP", r_jwk_get_property_str(jwk, "kty")) || 0 != o_strcmp(r_jwk_get_property_str(jwk, "crv"), r_jwk_get_property_str(jwk_x5c, "crv"))) {
+                            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x5c key type");
+                            ret = RHN_ERROR_PARAM;
+                          }
+                          if ((x = r_jwk_get_property_str(jwk, "x")) != NULL) {
+                            if (0 != o_strcmp(x, r_jwk_get_property_str(jwk_x5c, "x"))) {
                               y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwk_is_valid - Invalid x5c leaf ec parameters");
                             }
                           }
@@ -380,18 +398,23 @@ int r_jwk_is_valid(jwk_t * jwk) {
 }
 
 int r_jwk_is_valid_x5u(jwk_t * jwk, int x5u_flags) {
-  int ret, type;
+  int ret, type, type_x5u;
   jwk_t * jwk_x5u = NULL;
 
   if (r_jwk_is_valid(jwk) == RHN_OK && r_jwk_get_property_str(jwk, "x5u") != NULL) {
     type = r_jwk_key_type(jwk, NULL, x5u_flags);
-    if (type & R_KEY_TYPE_RSA && r_jwk_get_property_str(jwk, "n") != NULL && r_jwk_get_property_str(jwk, "e") != NULL) {
+    if (type & R_KEY_TYPE_RSA) {
       if (r_jwk_init(&jwk_x5u) == RHN_OK) {
         if (r_jwk_import_from_x5u(jwk_x5u, x5u_flags, r_jwk_get_property_str(jwk, "x5u")) == RHN_OK) {
-          if (type == r_jwk_key_type(jwk_x5u, NULL, x5u_flags) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "n"), r_jwk_get_property_str(jwk_x5u, "n")) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "e"), r_jwk_get_property_str(jwk_x5u, "e"))) {
+          type_x5u = r_jwk_key_type(jwk_x5u, NULL, x5u_flags);
+          if (type_x5u == type) {
             ret = RHN_OK;
+            if (r_jwk_get_property_str(jwk, "n") != NULL && r_jwk_get_property_str(jwk, "e") != NULL && (0 != o_strcmp(r_jwk_get_property_str(jwk, "n"), r_jwk_get_property_str(jwk_x5u, "n")) || 0 != o_strcmp(r_jwk_get_property_str(jwk, "e"), r_jwk_get_property_str(jwk_x5u, "e")))) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error invalid x5u key parameters (rsa)");
+              ret = RHN_ERROR_PARAM;
+            }
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error invalid x5u key parameters (rsa)");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error invalid x5u key type (rsa expected)");
             ret = RHN_ERROR_PARAM;
           }
         } else {
@@ -403,13 +426,18 @@ int r_jwk_is_valid_x5u(jwk_t * jwk, int x5u_flags) {
         ret = RHN_ERROR;
       }
       r_jwk_free(jwk_x5u);
-    } else if ((type & R_KEY_TYPE_EC || type & R_KEY_TYPE_EDDSA) && json_object_get(jwk, "x") != NULL && json_object_get(jwk, "y") != NULL) {
+    } else if (type & R_KEY_TYPE_EC) {
       if (r_jwk_init(&jwk_x5u) == RHN_OK) {
         if (r_jwk_import_from_x5u(jwk_x5u, x5u_flags, r_jwk_get_property_str(jwk, "x5u")) == RHN_OK) {
-          if (type == r_jwk_key_type(jwk_x5u, NULL, x5u_flags) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "x"), r_jwk_get_property_str(jwk_x5u, "x")) && (r_jwk_get_property_str(jwk_x5u, "y") == NULL || 0 == o_strcmp(r_jwk_get_property_str(jwk, "y"), r_jwk_get_property_str(jwk_x5u, "y"))) && 0 == o_strcmp(r_jwk_get_property_str(jwk, "crv"), r_jwk_get_property_str(jwk_x5u, "crv"))) {
+          type_x5u = r_jwk_key_type(jwk_x5u, NULL, x5u_flags);
+          if (type_x5u == type) {
             ret = RHN_OK;
+            if (json_object_get(jwk, "x") != NULL && json_object_get(jwk, "y") != NULL && (0 != o_strcmp(r_jwk_get_property_str(jwk, "x"), r_jwk_get_property_str(jwk_x5u, "x")) || 0 != o_strcmp(r_jwk_get_property_str(jwk, "y"), r_jwk_get_property_str(jwk_x5u, "y")))) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error invalid x5u key parameters (ec)");
+              ret = RHN_ERROR_PARAM;
+            }
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error invalid x5u key parameters (ec)");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error invalid x5u key type (ec expected)");
             ret = RHN_ERROR_PARAM;
           }
         } else {
@@ -421,8 +449,31 @@ int r_jwk_is_valid_x5u(jwk_t * jwk, int x5u_flags) {
         ret = RHN_ERROR;
       }
       r_jwk_free(jwk_x5u);
+    } else if (type & R_KEY_TYPE_EDDSA) {
+      if (r_jwk_init(&jwk_x5u) == RHN_OK) {
+        if (r_jwk_import_from_x5u(jwk_x5u, x5u_flags, r_jwk_get_property_str(jwk, "x5u")) == RHN_OK) {
+          type_x5u = r_jwk_key_type(jwk_x5u, NULL, x5u_flags);
+          if (type_x5u == type) {
+            ret = RHN_OK;
+            if (json_object_get(jwk, "x") != NULL && (0 != o_strcmp(r_jwk_get_property_str(jwk, "x"), r_jwk_get_property_str(jwk_x5u, "x")))) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error invalid x5u key parameters (eddsa)");
+              ret = RHN_ERROR_PARAM;
+            }
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error invalid x5u key type (eddsa expected)");
+            ret = RHN_ERROR_PARAM;
+          }
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error r_jwk_import_from_x5u (eddsa)");
+          ret = RHN_ERROR_PARAM;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid_x5u - Error r_jwk_init (eddsa)");
+        ret = RHN_ERROR;
+      }
+      r_jwk_free(jwk_x5u);
     } else {
-      ret = RHN_OK;
+      ret = RHN_ERROR_PARAM;
     }
   } else {
     ret = RHN_ERROR_PARAM;
@@ -584,7 +635,7 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
 }
 
 int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
-  gnutls_x509_crt_t     crt      = NULL;
+  gnutls_x509_crt_t     crt = NULL;
   gnutls_datum_t        data;
   int ret = R_KEY_TYPE_NONE, pk_alg;
   unsigned char * data_dec = NULL;
@@ -642,14 +693,26 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
                   if (!gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_DER)) {
                     pk_alg = gnutls_x509_crt_get_pk_algorithm(crt, bits);
                     bits_set = 1;
-                    if (pk_alg == GNUTLS_PK_RSA) {
-                      ret = R_KEY_TYPE_RSA;
+                    if ((ret&R_KEY_TYPE_RSA)) {
+                      if (pk_alg != GNUTLS_PK_RSA) {
+                        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Invalid x5c type, expected RSA");
+                        ret = R_KEY_TYPE_NONE;
+                      }
 #if GNUTLS_VERSION_NUMBER >= 0x030600
-                    } else if (pk_alg == GNUTLS_PK_ECDSA) {
-                      ret = R_KEY_TYPE_EC;
-                    } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
-                      ret = R_KEY_TYPE_EDDSA;
+                    } else if ((ret&R_KEY_TYPE_EC)) {
+                      if (pk_alg != GNUTLS_PK_ECDSA) {
+                        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Invalid x5c type, expected EC");
+                        ret = R_KEY_TYPE_NONE;
+                      }
+                    } else if ((ret&R_KEY_TYPE_EDDSA)) {
+                      if (pk_alg != GNUTLS_PK_EDDSA_ED25519 && pk_alg != GNUTLS_PK_EDDSA_ED448) {
+                        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Invalid x5c type, expected OKP");
+                        ret = R_KEY_TYPE_NONE;
+                      }
 #endif
+                    } else {
+                      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Error unsupported algorithm %s", gnutls_pk_algorithm_get_name(pk_alg));
+                      ret = R_KEY_TYPE_NONE;
                     }
                     ret |= R_KEY_TYPE_PUBLIC;
                   } else {
@@ -685,15 +748,25 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
               if (!gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_PEM)) {
                 pk_alg = gnutls_x509_crt_get_pk_algorithm(crt, bits);
                 bits_set = 1;
-                if (pk_alg == GNUTLS_PK_RSA) {
-                  ret = R_KEY_TYPE_RSA;
-  #if GNUTLS_VERSION_NUMBER >= 0x030600
-                } else if (pk_alg == GNUTLS_PK_ECDSA) {
-                  ret = R_KEY_TYPE_EC;
-                } else if (pk_alg == GNUTLS_PK_EDDSA_ED25519) {
-                  ret = R_KEY_TYPE_EDDSA;
-  #endif
+                if ((ret&R_KEY_TYPE_RSA)) {
+                  if (pk_alg != GNUTLS_PK_RSA) {
+                    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Invalid x5u type, expected RSA");
+                    ret = R_KEY_TYPE_NONE;
+                  }
+#if GNUTLS_VERSION_NUMBER >= 0x030600
+                } else if ((ret&R_KEY_TYPE_EC)) {
+                  if (pk_alg != GNUTLS_PK_ECDSA) {
+                    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Invalid x5u type, expected EC");
+                    ret = R_KEY_TYPE_NONE;
+                  }
+                } else if ((ret&R_KEY_TYPE_EDDSA)) {
+                  if (pk_alg != GNUTLS_PK_EDDSA_ED25519 && pk_alg != GNUTLS_PK_EDDSA_ED448) {
+                    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Invalid x5u type, expected OKP");
+                    ret = R_KEY_TYPE_NONE;
+                  }
+#endif
                 } else {
+                  ret = R_KEY_TYPE_NONE;
                   y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Error unsupported algorithm %s", gnutls_pk_algorithm_get_name(pk_alg));
                 }
                 ret |= R_KEY_TYPE_PUBLIC;

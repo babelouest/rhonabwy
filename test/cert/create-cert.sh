@@ -27,6 +27,24 @@ echo >> $DEST/certtool.log
 echo Generate Rhonabwy test certificates >> $DEST/certtool.log
 echo >> $DEST/certtool.log
 
+# www cert
+$CERTTOOL --generate-privkey --outfile $DEST/server.key --sec-param High 2>>$DEST/certtool.log
+STATUS=$?
+if [ $STATUS -eq 0 ]; then
+  printf "server.key         \033[0;32mOK\033[0m\n"
+else
+  printf "server.key         \033[0;31mError\033[0m\n"
+  RET=$STATUS
+fi
+$CERTTOOL --generate-self-signed --load-privkey $DEST/server.key --outfile $DEST/server.crt --template $DEST/template-server.cfg 2>>$DEST/certtool.log
+STATUS=$?
+if [ $STATUS -eq 0 ]; then
+  printf "server.crt         \033[0;32mOK\033[0m\n"
+else
+  printf "server.crt         \033[0;31mError\033[0m\n"
+  RET=$STATUS
+fi
+
 # CA root
 $CERTTOOL --generate-privkey --outfile $DEST/root1.key --sec-param High 2>>$DEST/certtool.log
 STATUS=$?

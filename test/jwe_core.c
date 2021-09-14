@@ -7,6 +7,7 @@
 #include <check.h>
 #include <yder.h>
 #include <orcania.h>
+#include <ulfius.h>
 #include <rhonabwy.h>
 
 #define PAYLOAD "The true sign of intelligence is not knowledge but imagination."
@@ -86,6 +87,184 @@ const unsigned char rsa_2048_priv[] = "-----BEGIN PRIVATE KEY-----\n"
 unsigned char cypher_key[] = {4, 211, 31, 197, 84, 157, 252, 254, 11, 100, 157, 250, 63, 170, 106, 206, 107, 124, 212, 45, 111, 107, 9, 219, 200, 177, 0, 240, 143, 156, 44, 207};
 unsigned char iv[] = {3, 22, 60, 12, 43, 67, 104, 105, 108, 108, 105, 99, 111, 116, 104, 101};
 unsigned char aad[] = {82, 110, 74, 112, 90, 87, 53, 107, 99, 50, 104, 112, 99, 67, 66, 112, 99, 121, 66, 116, 89, 87, 100, 112, 89, 119, 111};
+
+#define HTTPS_CERT_KEY "cert/server.key"
+#define HTTPS_CERT_PEM "cert/server.crt"
+
+const unsigned char advanced_key_1[] = "-----BEGIN EC PRIVATE KEY-----\n"
+"MHcCAQEEIAYMcQvkJcMXw5WYHEL05zOvksZ3JG6WAVc4PqupNxncoAoGCCqGSM49\n"
+"AwEHoUQDQgAEKOIR+UzdL4i9/nP35uX5RIafqwsADRFiN74McMa3LVL/TDfougV5\n"
+"plYuZz2/TzJbrwPDUYCB/rV8/hHku0tXnA==\n"
+"-----END EC PRIVATE KEY-----";
+const unsigned char advanced_cert_pem_1[] = "-----BEGIN CERTIFICATE-----\n"
+"MIIDDjCCAXagAwIBAgIUNdBXsS0f7w7zoqBV005eOeD2DMgwDQYJKoZIhvcNAQEL\n"
+"BQAwKjETMBEGA1UEAwwKZ2xld2x3eWRfMTETMBEGA1UEChMKYmFiZWxvdWVzdDAe\n"
+"Fw0yMTA5MTMyMTQ5MzhaFw0yMjA4MjkyMTQ5MzhaMCsxFDASBgNVBAMTC0RhdmUg\n"
+"TG9wcGVyMRMwEQYDVQQKEwpiYWJlbG91ZXN0MFkwEwYHKoZIzj0CAQYIKoZIzj0D\n"
+"AQcDQgAEKOIR+UzdL4i9/nP35uX5RIafqwsADRFiN74McMa3LVL/TDfougV5plYu\n"
+"Zz2/TzJbrwPDUYCB/rV8/hHku0tXnKN2MHQwDAYDVR0TAQH/BAIwADATBgNVHSUE\n"
+"DDAKBggrBgEFBQcDAjAPBgNVHQ8BAf8EBQMDB4AAMB0GA1UdDgQWBBR/xAPVMRUg\n"
+"SF2INrNsGrX9ZikSYDAfBgNVHSMEGDAWgBRZm42kTC+aL+0DVOySIDIN9SvUEjAN\n"
+"BgkqhkiG9w0BAQsFAAOCAYEAHH8FtJ4CVfrSvlGxRkZH91XFK6ib110b/Nu9zIPG\n"
+"2t+GaFhvCBtRfHhbzF7FG/o+NNhbUfWLnbPReNQy45QasqlrQMDkgeCAZskeadx1\n"
+"MjrAN8EbFSmQxQ9dKJwZrXYxiT3IW1LFWyuHHA+avDyWyDQSoABZkVWzV3UHj6PF\n"
+"GjNUhdWbU7WLF9zYX07K7u2FyV67/fJCPX9R1+cvVFpYtPQsOo5NFnELrlbRs8d1\n"
+"g7JpfZX/juXBtYsiA71iOP9sVqWHM5UkWgd6xadOGFqiiSpJMn+k5LL9PVLZ6Bqd\n"
+"qLOEFELIULM/mVvIvd3kbwiTiUkZTb6wtI/Z8bAPlKSQB/xHuxy8/H3cOc8COoq2\n"
+"fnTtLBaQj4c4VEk+MPuLsK7smFWsQnQNRS+uHPIPW4Nv6nyUj54tqe8FaIzEioBU\n"
+"D779sJ9gxiz68UPDo5ArHx3i2iS2ROkEGEUm93fYGi8y8yZtWb8MsPvqJi2Ar0tv\n"
+"s3yOHp3+WqTOfToYSrrNz2rP\n"
+"-----END CERTIFICATE-----";
+const unsigned char advanced_cert_der_1[] = 
+"MIIDDjCCAXagAwIBAgIUNdBXsS0f7w7zoqBV005eOeD2DMgwDQYJKoZIhvcNAQEL"
+"BQAwKjETMBEGA1UEAwwKZ2xld2x3eWRfMTETMBEGA1UEChMKYmFiZWxvdWVzdDAe"
+"Fw0yMTA5MTMyMTQ5MzhaFw0yMjA4MjkyMTQ5MzhaMCsxFDASBgNVBAMTC0RhdmUg"
+"TG9wcGVyMRMwEQYDVQQKEwpiYWJlbG91ZXN0MFkwEwYHKoZIzj0CAQYIKoZIzj0D"
+"AQcDQgAEKOIR+UzdL4i9/nP35uX5RIafqwsADRFiN74McMa3LVL/TDfougV5plYu"
+"Zz2/TzJbrwPDUYCB/rV8/hHku0tXnKN2MHQwDAYDVR0TAQH/BAIwADATBgNVHSUE"
+"DDAKBggrBgEFBQcDAjAPBgNVHQ8BAf8EBQMDB4AAMB0GA1UdDgQWBBR/xAPVMRUg"
+"SF2INrNsGrX9ZikSYDAfBgNVHSMEGDAWgBRZm42kTC+aL+0DVOySIDIN9SvUEjAN"
+"BgkqhkiG9w0BAQsFAAOCAYEAHH8FtJ4CVfrSvlGxRkZH91XFK6ib110b/Nu9zIPG"
+"2t+GaFhvCBtRfHhbzF7FG/o+NNhbUfWLnbPReNQy45QasqlrQMDkgeCAZskeadx1"
+"MjrAN8EbFSmQxQ9dKJwZrXYxiT3IW1LFWyuHHA+avDyWyDQSoABZkVWzV3UHj6PF"
+"GjNUhdWbU7WLF9zYX07K7u2FyV67/fJCPX9R1+cvVFpYtPQsOo5NFnELrlbRs8d1"
+"g7JpfZX/juXBtYsiA71iOP9sVqWHM5UkWgd6xadOGFqiiSpJMn+k5LL9PVLZ6Bqd"
+"qLOEFELIULM/mVvIvd3kbwiTiUkZTb6wtI/Z8bAPlKSQB/xHuxy8/H3cOc8COoq2"
+"fnTtLBaQj4c4VEk+MPuLsK7smFWsQnQNRS+uHPIPW4Nv6nyUj54tqe8FaIzEioBU"
+"D779sJ9gxiz68UPDo5ArHx3i2iS2ROkEGEUm93fYGi8y8yZtWb8MsPvqJi2Ar0tv"
+"s3yOHp3+WqTOfToYSrrNz2rP";
+
+const unsigned char advanced_key_2[] = "-----BEGIN EC PRIVATE KEY-----\n"
+"MHcCAQEEICXdcvJ68jTD5qOxv5a1QQLE7K6OcqSOjgNLd3pPE1z1oAoGCCqGSM49\n"
+"AwEHoUQDQgAEO/I3Q8FsEFii5oHZB5HtZe46awSYxkmTtmVpWKab5T9SIfznVwL3\n"
+"n5/ijLyQ54f6bWnLkxeuZxRfTdrDHNodOg==\n"
+"-----END EC PRIVATE KEY-----";
+const unsigned char advanced_cert_pem_2[] = "-----BEGIN CERTIFICATE-----\n"
+"MIIDDjCCAXagAwIBAgIUd1sYeALcC3nDDzlovmUm9S+IAaEwDQYJKoZIhvcNAQEL\n"
+"BQAwKjETMBEGA1UEAwwKZ2xld2x3eWRfMTETMBEGA1UEChMKYmFiZWxvdWVzdDAe\n"
+"Fw0yMTA5MTQxNTI0NDZaFw0yMjA4MzAxNTI0NDZaMCsxFDASBgNVBAMTC0RhdmUg\n"
+"TG9wcGVyMRMwEQYDVQQKEwpiYWJlbG91ZXN0MFkwEwYHKoZIzj0CAQYIKoZIzj0D\n"
+"AQcDQgAEO/I3Q8FsEFii5oHZB5HtZe46awSYxkmTtmVpWKab5T9SIfznVwL3n5/i\n"
+"jLyQ54f6bWnLkxeuZxRfTdrDHNodOqN2MHQwDAYDVR0TAQH/BAIwADATBgNVHSUE\n"
+"DDAKBggrBgEFBQcDAjAPBgNVHQ8BAf8EBQMDB4AAMB0GA1UdDgQWBBSdjs0rqLgE\n"
+"HvJoen2T0XIRRirS5TAfBgNVHSMEGDAWgBSTmEmG+THW/zrJM5ZfCPi259RA8zAN\n"
+"BgkqhkiG9w0BAQsFAAOCAYEAECdRtFVERpkkAfj7mwC7Qu2nopMYcKCDagDKi16Y\n"
+"JELQWDEx1djR9GFu19QERN0RGSOEgzPunifaUOGfkYsFaF9NA27KVGgpK3TgTl5A\n"
+"JBIGIiKP8vSiqF6KOosbTU3WeKwT4mE3t1yWcG/ExCqXUcOUmH2BFMh74aO2yp8A\n"
+"FiRAK51AlU7L3WRvdtaVL1rriiYnOh5SrSevVvebMdZxOzsl7wGhpW6gVfm0xmMP\n"
+"KdCNhyjTlX6UzRDGpNxT5TNb3kYRGviZ/BsMpT1MrnIQRUUhLEz7dd4362XgRX1J\n"
+"i6RvDKcQVxQNdIOTWyJIDenrbqmuA4ZeV/OI86Uf9iPkjKUGJiVhaYMWwgXSkfRy\n"
+"U3uAVpelLX7/mzm3PuJV5RyBsJqNsumsdDSkA++5VhdOqi8Yr5gI0gF3ep5tggvV\n"
+"BKgGmpZ2fEF6BKMTC4HyiCc9e2qeqLTIOZPiMpJm8N6fpEY37JEqqPHeY19WYxdE\n"
+"TrY5XLCqtITFRVTMubJPyDnc\n"
+"-----END CERTIFICATE-----";
+const unsigned char advanced_cert_der_2[] = 
+"MIIDDjCCAXagAwIBAgIUd1sYeALcC3nDDzlovmUm9S+IAaEwDQYJKoZIhvcNAQEL"
+"BQAwKjETMBEGA1UEAwwKZ2xld2x3eWRfMTETMBEGA1UEChMKYmFiZWxvdWVzdDAe"
+"Fw0yMTA5MTQxNTI0NDZaFw0yMjA4MzAxNTI0NDZaMCsxFDASBgNVBAMTC0RhdmUg"
+"TG9wcGVyMRMwEQYDVQQKEwpiYWJlbG91ZXN0MFkwEwYHKoZIzj0CAQYIKoZIzj0D"
+"AQcDQgAEO/I3Q8FsEFii5oHZB5HtZe46awSYxkmTtmVpWKab5T9SIfznVwL3n5/i"
+"jLyQ54f6bWnLkxeuZxRfTdrDHNodOqN2MHQwDAYDVR0TAQH/BAIwADATBgNVHSUE"
+"DDAKBggrBgEFBQcDAjAPBgNVHQ8BAf8EBQMDB4AAMB0GA1UdDgQWBBSdjs0rqLgE"
+"HvJoen2T0XIRRirS5TAfBgNVHSMEGDAWgBSTmEmG+THW/zrJM5ZfCPi259RA8zAN"
+"BgkqhkiG9w0BAQsFAAOCAYEAECdRtFVERpkkAfj7mwC7Qu2nopMYcKCDagDKi16Y"
+"JELQWDEx1djR9GFu19QERN0RGSOEgzPunifaUOGfkYsFaF9NA27KVGgpK3TgTl5A"
+"JBIGIiKP8vSiqF6KOosbTU3WeKwT4mE3t1yWcG/ExCqXUcOUmH2BFMh74aO2yp8A"
+"FiRAK51AlU7L3WRvdtaVL1rriiYnOh5SrSevVvebMdZxOzsl7wGhpW6gVfm0xmMP"
+"KdCNhyjTlX6UzRDGpNxT5TNb3kYRGviZ/BsMpT1MrnIQRUUhLEz7dd4362XgRX1J"
+"i6RvDKcQVxQNdIOTWyJIDenrbqmuA4ZeV/OI86Uf9iPkjKUGJiVhaYMWwgXSkfRy"
+"U3uAVpelLX7/mzm3PuJV5RyBsJqNsumsdDSkA++5VhdOqi8Yr5gI0gF3ep5tggvV"
+"BKgGmpZ2fEF6BKMTC4HyiCc9e2qeqLTIOZPiMpJm8N6fpEY37JEqqPHeY19WYxdE"
+"TrY5XLCqtITFRVTMubJPyDnc";
+
+const unsigned char advanced_key_3[] = "-----BEGIN EC PRIVATE KEY-----\n"
+"MHcCAQEEIEslWGWIe3xz8KResadYE+JZEfrPNp4wV7b19He998GLoAoGCCqGSM49\n"
+"AwEHoUQDQgAEB8zD2LcZJt8GFMS07Z9k0aWm4r4VFOAm7BQOJzgsIUkFbVxKfABU\n"
+"Xm1qDJIFMq/Ct9//ZMw3cHcvzJSDsqOuLQ==\n"
+"-----END EC PRIVATE KEY-----";
+const unsigned char advanced_cert_pem_3[] = "-----BEGIN CERTIFICATE-----\n"
+"MIIDDjCCAXagAwIBAgIUF6BNJxZDAJ79e+0I4OStbeBHNB4wDQYJKoZIhvcNAQEL\n"
+"BQAwKjETMBEGA1UEAwwKZ2xld2x3eWRfMjETMBEGA1UEChMKYmFiZWxvdWVzdDAe\n"
+"Fw0yMTA5MTMyMTQ5NDBaFw0yMjA4MjkyMTQ5NDBaMCsxFDASBgNVBAMTC0RhdmUg\n"
+"TG9wcGVyMRMwEQYDVQQKEwpiYWJlbG91ZXN0MFkwEwYHKoZIzj0CAQYIKoZIzj0D\n"
+"AQcDQgAEB8zD2LcZJt8GFMS07Z9k0aWm4r4VFOAm7BQOJzgsIUkFbVxKfABUXm1q\n"
+"DJIFMq/Ct9//ZMw3cHcvzJSDsqOuLaN2MHQwDAYDVR0TAQH/BAIwADATBgNVHSUE\n"
+"DDAKBggrBgEFBQcDAjAPBgNVHQ8BAf8EBQMDB4AAMB0GA1UdDgQWBBSdgOkpqrAK\n"
+"R71zgTVIPfKcF40SAzAfBgNVHSMEGDAWgBREM51ULZjY5niamwAnB62dRTAjZDAN\n"
+"BgkqhkiG9w0BAQsFAAOCAYEAHe+d5uxOBNW+6o9gyn+g2Q1x0YFJhaCvvgoVVC71\n"
+"E1WkdBMO0nRYJZNxmNgd13DNvrD+Y31IFmTgGidg9urDq6HLo9Q9UkpAYdOKTsXk\n"
+"NDo1QL5Kjqspuf2Aco3cDcvR2a5OUAJigftpdjOSTvG3geltDsYcd/khY0dMOl3h\n"
+"25OZm6KyZAORWw3LhXxtmDfPxe31cd/lEp19Gp8aokLorHc7/yYS5h4OhL146vm/\n"
+"CHYSt8pAIP65IyKoHJpHdSc4uOz0HJ92lpR10Qa9wqrFzDVcHGDX/JBvS0/H5Uyd\n"
+"OY4jO7FEImq434YOtSy0yGJh/soK8RNe0frGzoQsQ/WxMBeHnprp/eBVZ8jqvYJ4\n"
+"GW8kTtl8SGitehjoFdby46nAzdt3dBUcmZhm9Yka4jRVN5mwd+s13Pu2zRSvEwvq\n"
+"IiKlSjZYotFffUsrfHVYqlk58PX5j7P/fohvLnHkucbu9FVrvVLlqZHK3vzafdw6\n"
+"SlefNWD4/90X/5VFOpePkjZY\n"
+"-----END CERTIFICATE-----";
+const unsigned char advanced_cert_der_3[] = 
+"MIIDDjCCAXagAwIBAgIUcqJBzjg4lb0vBeFBGZ2uuY9ZoLkwDQYJKoZIhvcNAQEL"
+"BQAwKjETMBEGA1UEAwwKZ2xld2x3eWRfMTETMBEGA1UEChMKYmFiZWxvdWVzdDAe"
+"Fw0yMTA5MTMyMTQ5MzlaFw0yMjA4MjkyMTQ5MzlaMCsxFDASBgNVBAMTC0RhdmUg"
+"TG9wcGVyMRMwEQYDVQQKEwpiYWJlbG91ZXN0MFkwEwYHKoZIzj0CAQYIKoZIzj0D"
+"AQcDQgAE/TPAuX0MdUL6H1xse1VwixvR6wxmy6+GS5XS4P8H6lcczryuu+8Oqz2h"
+"6sw1ChDIRt00l25j92h1SjFknnbE2qN2MHQwDAYDVR0TAQH/BAIwADATBgNVHSUE"
+"DDAKBggrBgEFBQcDAjAPBgNVHQ8BAf8EBQMDB4AAMB0GA1UdDgQWBBScRf4VnU2d"
+"71JxFeUmXa5uqaMclTAfBgNVHSMEGDAWgBRZm42kTC+aL+0DVOySIDIN9SvUEjAN"
+"BgkqhkiG9w0BAQsFAAOCAYEAmhXg8uHQcAttx1gOKrLi77q1RpeGIu4dYy0UtOW1"
+"ucNJuOGs8prcPROPElZEkZmfcgwDd2wwjNfs8tqPrcgSDyipLG7yMEj3uxxSZW7S"
+"DN72f3qL2QavZ4joVZI5v2VplBFbCqC3Fr06Pg8xRcihfb+SnsrhQ4hVuG6GxIF+"
+"n/khTXsEW6kEi6V0s79AIFBzYa/nH3sfK4gWQvcmUoBJ3Hzz2EIroB9v+P8OdJcR"
+"37pfw+IDZx2Ri/W18nLwDTF0NVydT2ZGxHRFjankV2uM5q79nW1fsRCTrfoKxWGN"
+"pKG9IxeXORwv87pETRxQA8W08AGqBsk62f5/lEuxfJqIw6wZKLtb2nqN912QDXLc"
+"q0F6StYQHYB7WMZM2FA3AzaYeCjfI5a1/LirKm8okt96HXVo2rpqaDB3sJq5C5u+"
+"yUZ3i+PlDEkUv3CTYSVYaBjKBDTgj6Z4kxKTdBE/A5rXRwIi14LyddTcPRKDrHlh"
+"MQJL7ADzfeTbVYOHJx8XEE0F";
+
+const unsigned char advanced_key_4[] = "-----BEGIN EC PRIVATE KEY-----\n"
+"MHcCAQEEIF+8UMnI9we1opth9BXqoNmsyj7bpeyMl6gnj8y4jejaoAoGCCqGSM49\n"
+"AwEHoUQDQgAErXNalVG5Ylar4cutzXQVVA02QJLCo7b21E3C2nHhBLdF/27T27R6\n"
+"KeiN/+ym/O780uZLwqCaFR9ix5I3/Jxpdg==\n"
+"-----END EC PRIVATE KEY-----";
+const unsigned char advanced_cert_pem_4[] = "-----BEGIN CERTIFICATE-----\n"
+"MIIDDjCCAXagAwIBAgIUVWRCzRVkKkvSV8p5hX2em+k5NH0wDQYJKoZIhvcNAQEL\n"
+"BQAwKjETMBEGA1UEAwwKZ2xld2x3eWRfMjETMBEGA1UEChMKYmFiZWxvdWVzdDAe\n"
+"Fw0yMTA5MTQxNTI0NDdaFw0yMjA4MzAxNTI0NDdaMCsxFDASBgNVBAMTC0RhdmUg\n"
+"TG9wcGVyMRMwEQYDVQQKEwpiYWJlbG91ZXN0MFkwEwYHKoZIzj0CAQYIKoZIzj0D\n"
+"AQcDQgAErXNalVG5Ylar4cutzXQVVA02QJLCo7b21E3C2nHhBLdF/27T27R6KeiN\n"
+"/+ym/O780uZLwqCaFR9ix5I3/JxpdqN2MHQwDAYDVR0TAQH/BAIwADATBgNVHSUE\n"
+"DDAKBggrBgEFBQcDAjAPBgNVHQ8BAf8EBQMDB4AAMB0GA1UdDgQWBBTLd4oWdCho\n"
+"wKLuBKrx0Gq1C8W4mDAfBgNVHSMEGDAWgBRK5ldhst/tVyTQRn8g0Sc3gWnqkDAN\n"
+"BgkqhkiG9w0BAQsFAAOCAYEAjq6QQM2ghdIvYkPwVV1r3oovuX9jTflslmzcZhuA\n"
+"Mf41hKXjx/Y56n5YgWm6IeDWNfD7Q0u+ewe9k8sOA/6SROlrhW/1mFSVUDACd0uw\n"
+"NubxeQQBLuYC+aoXOVacWX3zPXti7AcmYCHXtHnIp9ug3mYPyXg5idKRAqaaujZw\n"
+"lN9DXB8L40PcujjzG/2rYhUx0xasyZZsbUotwn8YxvqPtEFls/3KWNTguu64VE3a\n"
+"ha+NYJHcyyK8anNSTGV2snHNyCQagvb/lu+hsLYx3QkfknqWnbLHaA5Be86jZNQ8\n"
+"EfAKsVN2N1NsIZfeRJ7jkeoFztI+sEuJjXEKJfQ69KoDAiIVfNuooMlYH9r2ldCJ\n"
+"WZp5QzZ+cMXLrf3quKudH6QvdD0uKkHX9vQ9pfMDhMNgAbrUyI4dMgWJcW788N1N\n"
+"Yj7MxshEtderX2xwlf0atGNyj/MQjhiuBzYCuvbzLxD8CkZMMjPwEHbwGkVaSdTa\n"
+"Cggnp64OVIyU5OqLa4BVmWQl\n"
+"-----END CERTIFICATE-----";
+const unsigned char advanced_cert_der_4[] = 
+"MIIDDjCCAXagAwIBAgIUVWRCzRVkKkvSV8p5hX2em+k5NH0wDQYJKoZIhvcNAQEL"
+"BQAwKjETMBEGA1UEAwwKZ2xld2x3eWRfMjETMBEGA1UEChMKYmFiZWxvdWVzdDAe"
+"Fw0yMTA5MTQxNTI0NDdaFw0yMjA4MzAxNTI0NDdaMCsxFDASBgNVBAMTC0RhdmUg"
+"TG9wcGVyMRMwEQYDVQQKEwpiYWJlbG91ZXN0MFkwEwYHKoZIzj0CAQYIKoZIzj0D"
+"AQcDQgAErXNalVG5Ylar4cutzXQVVA02QJLCo7b21E3C2nHhBLdF/27T27R6KeiN"
+"/+ym/O780uZLwqCaFR9ix5I3/JxpdqN2MHQwDAYDVR0TAQH/BAIwADATBgNVHSUE"
+"DDAKBggrBgEFBQcDAjAPBgNVHQ8BAf8EBQMDB4AAMB0GA1UdDgQWBBTLd4oWdCho"
+"wKLuBKrx0Gq1C8W4mDAfBgNVHSMEGDAWgBRK5ldhst/tVyTQRn8g0Sc3gWnqkDAN"
+"BgkqhkiG9w0BAQsFAAOCAYEAjq6QQM2ghdIvYkPwVV1r3oovuX9jTflslmzcZhuA"
+"Mf41hKXjx/Y56n5YgWm6IeDWNfD7Q0u+ewe9k8sOA/6SROlrhW/1mFSVUDACd0uw"
+"NubxeQQBLuYC+aoXOVacWX3zPXti7AcmYCHXtHnIp9ug3mYPyXg5idKRAqaaujZw"
+"lN9DXB8L40PcujjzG/2rYhUx0xasyZZsbUotwn8YxvqPtEFls/3KWNTguu64VE3a"
+"ha+NYJHcyyK8anNSTGV2snHNyCQagvb/lu+hsLYx3QkfknqWnbLHaA5Be86jZNQ8"
+"EfAKsVN2N1NsIZfeRJ7jkeoFztI+sEuJjXEKJfQ69KoDAiIVfNuooMlYH9r2ldCJ"
+"WZp5QzZ+cMXLrf3quKudH6QvdD0uKkHX9vQ9pfMDhMNgAbrUyI4dMgWJcW788N1N"
+"Yj7MxshEtderX2xwlf0atGNyj/MQjhiuBzYCuvbzLxD8CkZMMjPwEHbwGkVaSdTa"
+"Cggnp64OVIyU5OqLa4BVmWQl";
+const char advanced_jku_4[] = "{\"keys\":[{\"kty\":\"EC\",\"x\":\"rXNalVG5Ylar4cutzXQVVA02QJLCo7b21E3C2nHhBLc\",\"y\":\"Rf9u09u0einojf_spvzu_NLmS8KgmhUfYseSN_ycaXY\",\"crv\":\"P-256\",\"kid\":\"OsipzlLJ1CAOU_WnT2zuB4u31IlgFPsZfT4j4r5qZUA\"}]}";
+
+#define ADVANCED_TOKEN "eyJraWQiOiJkZjVTckx2SlgzWEI3OHhHa25QZVZDemdXOTZhT2pYSTlfQnFtYkUzV0ljIiwiandrIjp7Imt0eSI6IkVDIiwieCI6IktPSVItVXpkTDRpOV9uUDM1dVg1UklhZnF3c0FEUkZpTjc0TWNNYTNMVkkiLCJ5IjoiXzB3MzZMb0ZlYVpXTG1jOXYwOHlXNjhEdzFHQWdmNjFmUDRSNUx0TFY1dyIsImNydiI6IlAtMjU2Iiwia2lkIjoiMSIsIng1YyI6WyJNSUlERGpDQ0FYYWdBd0lCQWdJVU5kQlhzUzBmN3c3em9xQlYwMDVlT2VEMkRNZ3dEUVlKS29aSWh2Y05BUUVMQlFBd0tqRVRNQkVHQTFVRUF3d0taMnhsZDJ4M2VXUmZNVEVUTUJFR0ExVUVDaE1LWW1GaVpXeHZkV1Z6ZERBZUZ3MHlNVEE1TVRNeU1UUTVNemhhRncweU1qQTRNamt5TVRRNU16aGFNQ3N4RkRBU0JnTlZCQU1UQzBSaGRtVWdURzl3Y0dWeU1STXdFUVlEVlFRS0V3cGlZV0psYkc5MVpYTjBNRmt3RXdZSEtvWkl6ajBDQVFZSUtvWkl6ajBEQVFjRFFnQUVLT0lSK1V6ZEw0aTkvblAzNXVYNVJJYWZxd3NBRFJGaU43NE1jTWEzTFZML1REZm91Z1Y1cGxZdVp6Mi9UekpicndQRFVZQ0IvclY4L2hIa3UwdFhuS04yTUhRd0RBWURWUjBUQVFIL0JBSXdBREFUQmdOVkhTVUVEREFLQmdnckJnRUZCUWNEQWpBUEJnTlZIUThCQWY4RUJRTURCNEFBTUIwR0ExVWREZ1FXQkJSL3hBUFZNUlVnU0YySU5yTnNHclg5WmlrU1lEQWZCZ05WSFNNRUdEQVdnQlJabTQya1RDK2FMKzBEVk95U0lESU45U3ZVRWpBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVlFQUhIOEZ0SjRDVmZyU3ZsR3hSa1pIOTFYRks2aWIxMTBiL051OXpJUEcydCtHYUZodkNCdFJmSGhiekY3RkcvbytOTmhiVWZXTG5iUFJlTlF5NDVRYXNxbHJRTURrZ2VDQVpza2VhZHgxTWpyQU44RWJGU21ReFE5ZEtKd1pyWFl4aVQzSVcxTEZXeXVISEErYXZEeVd5RFFTb0FCWmtWV3pWM1VIajZQRkdqTlVoZFdiVTdXTEY5ellYMDdLN3UyRnlWNjcvZkpDUFg5UjErY3ZWRnBZdFBRc09vNU5GbkVMcmxiUnM4ZDFnN0pwZlpYL2p1WEJ0WXNpQTcxaU9QOXNWcVdITTVVa1dnZDZ4YWRPR0ZxaWlTcEpNbitrNUxMOVBWTFo2QnFkcUxPRUZFTElVTE0vbVZ2SXZkM2tid2lUaVVrWlRiNnd0SS9aOGJBUGxLU1FCL3hIdXh5OC9IM2NPYzhDT29xMmZuVHRMQmFRajRjNFZFaytNUHVMc0s3c21GV3NRblFOUlMrdUhQSVBXNE52Nm55VWo1NHRxZThGYUl6RWlvQlVENzc5c0o5Z3hpejY4VVBEbzVBckh4M2kyaVMyUk9rRUdFVW05M2ZZR2k4eTh5WnRXYjhNc1B2cUppMkFyMHR2czN5T0hwMytXcVRPZlRvWVNyck56MnJQIl19LCJ4NWMiOlsiTUlJRERqQ0NBWGFnQXdJQkFnSVVkMXNZZUFMY0MzbkREemxvdm1VbTlTK0lBYUV3RFFZSktvWklodmNOQVFFTEJRQXdLakVUTUJFR0ExVUVBd3dLWjJ4bGQyeDNlV1JmTVRFVE1CRUdBMVVFQ2hNS1ltRmlaV3h2ZFdWemREQWVGdzB5TVRBNU1UUXhOVEkwTkRaYUZ3MHlNakE0TXpBeE5USTBORFphTUNzeEZEQVNCZ05WQkFNVEMwUmhkbVVnVEc5d2NHVnlNUk13RVFZRFZRUUtFd3BpWVdKbGJHOTFaWE4wTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFTy9JM1E4RnNFRmlpNW9IWkI1SHRaZTQ2YXdTWXhrbVR0bVZwV0thYjVUOVNJZnpuVndMM241L2lqTHlRNTRmNmJXbkxreGV1WnhSZlRkckRITm9kT3FOMk1IUXdEQVlEVlIwVEFRSC9CQUl3QURBVEJnTlZIU1VFRERBS0JnZ3JCZ0VGQlFjREFqQVBCZ05WSFE4QkFmOEVCUU1EQjRBQU1CMEdBMVVkRGdRV0JCU2RqczBycUxnRUh2Sm9lbjJUMFhJUlJpclM1VEFmQmdOVkhTTUVHREFXZ0JTVG1FbUcrVEhXL3pySk01WmZDUGkyNTlSQTh6QU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FZRUFFQ2RSdEZWRVJwa2tBZmo3bXdDN1F1Mm5vcE1ZY0tDRGFnREtpMTZZSkVMUVdERXgxZGpSOUdGdTE5UUVSTjBSR1NPRWd6UHVuaWZhVU9HZmtZc0ZhRjlOQTI3S1ZHZ3BLM1RnVGw1QUpCSUdJaUtQOHZTaXFGNktPb3NiVFUzV2VLd1Q0bUUzdDF5V2NHL0V4Q3FYVWNPVW1IMkJGTWg3NGFPMnlwOEFGaVJBSzUxQWxVN0wzV1J2ZHRhVkwxcnJpaVluT2g1U3JTZXZWdmViTWRaeE96c2w3d0docFc2Z1ZmbTB4bU1QS2RDTmh5alRsWDZVelJER3BOeFQ1VE5iM2tZUkd2aVovQnNNcFQxTXJuSVFSVVVoTEV6N2RkNDM2MlhnUlgxSmk2UnZES2NRVnhRTmRJT1RXeUpJRGVucmJxbXVBNFplVi9PSTg2VWY5aVBraktVR0ppVmhhWU1Xd2dYU2tmUnlVM3VBVnBlbExYNy9tem0zUHVKVjVSeUJzSnFOc3Vtc2REU2tBKys1VmhkT3FpOFlyNWdJMGdGM2VwNXRnZ3ZWQktnR21wWjJmRUY2QktNVEM0SHlpQ2M5ZTJxZXFMVElPWlBpTXBKbThONmZwRVkzN0pFcXFQSGVZMTlXWXhkRVRyWTVYTENxdElURlJWVE11YkpQeURuYyJdLCJ4NXUiOiJodHRwczovL2xvY2FsaG9zdDo3NDY4L3g1dSIsImprdSI6Imh0dHBzOi8vbG9jYWxob3N0Ojc0Njgvamt1IiwiYWxnIjoiRUNESC1FUytBMTI4S1ciLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoicDBRRHpqVU5HVTJ0UmM4QlNPbFpzRzBONTQwazNmTzBPT082bTJjbDlJSSIsInkiOiItTEkwRjdwbC1yNklYZjlXMVpMVFRDZXV3M05JemZRLW1OamVJS2RJc1RVIiwiY3J2IjoiUC0yNTYifSwiZW5jIjoiQTEyOENCQy1IUzI1NiJ9.jJY1hvX8J0f8T-8piAS_9zVejfTVV-oUaflrY7WV0ErmiNlYc7aHRg.bToigkLnPUDJb_P4cHt0hA.lLYVB2ajc0KNPt2iAvP2LFxDAjI1ujqKkjgZ1--8seq63WF0jZD9CxKRUUseIAmEjiPpaOG1co8DdqUXMEvw2g.MnoGVwEN_PG2i_joWhxTUA"
 
 START_TEST(test_rhonabwy_init)
 {
@@ -1027,6 +1206,112 @@ START_TEST(test_rhonabwy_decrypt_updated_header_gcm)
 }
 END_TEST
 
+#if GNUTLS_VERSION_NUMBER >= 0x030600 && defined(R_WITH_CURL)
+static char * get_file_content(const char * file_path) {
+  char * buffer = NULL;
+  size_t length, res;
+  FILE * f;
+
+  f = fopen (file_path, "rb");
+  if (f) {
+    fseek (f, 0, SEEK_END);
+    length = ftell (f);
+    fseek (f, 0, SEEK_SET);
+    buffer = o_malloc((length+1)*sizeof(char));
+    if (buffer) {
+      res = fread (buffer, 1, length, f);
+      if (res != length) {
+        fprintf(stderr, "fread warning, reading %zu while expecting %zu", res, length);
+      }
+      // Add null character at the end of buffer, just in case
+      buffer[length] = '\0';
+    }
+    fclose (f);
+  } else {
+    fprintf(stderr, "error opening file %s\n", file_path);
+  }
+  
+  return buffer;
+}
+
+int callback_x5u_ecdsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  ulfius_set_string_body_response(response, 200, (const char *)advanced_cert_pem_3);
+  return U_CALLBACK_CONTINUE;
+}
+
+int callback_jku_ecdsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  ulfius_set_response_properties(response, U_OPT_STATUS, 200,
+                                           U_OPT_HEADER_PARAMETER, "Content-Type", "application/json",
+                                           U_OPT_STRING_BODY, advanced_jku_4,
+                                           U_OPT_NONE);
+  return U_CALLBACK_CONTINUE;
+}
+
+START_TEST(test_rhonabwy_advanced_parse)
+{
+  jwk_t * jwk_pub;
+  jwe_t * jwe;
+  struct _u_instance instance;
+  char * http_key = get_file_content(HTTPS_CERT_KEY), * http_cert = get_file_content(HTTPS_CERT_PEM);
+  
+  ck_assert_int_eq(ulfius_init_instance(&instance, 7468, NULL, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jku", NULL, 0, &callback_jku_ecdsa_crt, NULL), U_OK);
+  
+  ck_assert_int_eq(ulfius_start_secure_framework(&instance, http_key, http_cert), U_OK);
+  
+  ck_assert_int_eq(r_jwk_init(&jwk_pub), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pub, jwk_pubkey_ecdsa_str), RHN_OK);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_parse(jwe, ADVANCED_TOKEN, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
+  ck_assert_int_eq(r_jwks_size(jwe->jwks_pubkey), 4);
+  r_jwe_free(jwe);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_advanced_parse(jwe, ADVANCED_TOKEN, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
+  ck_assert_int_eq(r_jwks_size(jwe->jwks_pubkey), 0);
+  r_jwe_free(jwe);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_advanced_parse(jwe, ADVANCED_TOKEN, R_PARSE_HEADER_JKU, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
+  ck_assert_int_eq(r_jwks_size(jwe->jwks_pubkey), 1);
+  r_jwe_free(jwe);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_advanced_parse(jwe, ADVANCED_TOKEN, R_PARSE_HEADER_JWK, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
+  ck_assert_int_eq(r_jwks_size(jwe->jwks_pubkey), 1);
+  r_jwe_free(jwe);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_advanced_parse(jwe, ADVANCED_TOKEN, R_PARSE_HEADER_X5C, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
+  ck_assert_int_eq(r_jwks_size(jwe->jwks_pubkey), 1);
+  r_jwe_free(jwe);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_advanced_parse(jwe, ADVANCED_TOKEN, R_PARSE_HEADER_X5U, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
+  ck_assert_int_eq(r_jwks_size(jwe->jwks_pubkey), 1);
+  r_jwe_free(jwe);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_advanced_parse(jwe, ADVANCED_TOKEN, R_PARSE_HEADER_X5U|R_PARSE_HEADER_X5C, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
+  ck_assert_int_eq(r_jwks_size(jwe->jwks_pubkey), 2);
+  r_jwe_free(jwe);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_advanced_parse(jwe, ADVANCED_TOKEN, R_PARSE_HEADER_ALL, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
+  ck_assert_int_eq(r_jwks_size(jwe->jwks_pubkey), 4);
+  r_jwe_free(jwe);
+  
+  r_jwk_free(jwk_pub);
+  o_free(http_key);
+  o_free(http_cert);
+  ulfius_stop_framework(&instance);
+  ulfius_clean_instance(&instance);
+}
+END_TEST
+#endif
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -1066,6 +1351,9 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_decrypt_key_valid);
   tcase_add_test(tc_core, test_rhonabwy_decrypt_updated_header_cbc);
   tcase_add_test(tc_core, test_rhonabwy_decrypt_updated_header_gcm);
+#if GNUTLS_VERSION_NUMBER >= 0x030600 && defined(R_WITH_CURL)
+  tcase_add_test(tc_core, test_rhonabwy_advanced_parse);
+#endif
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

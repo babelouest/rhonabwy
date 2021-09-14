@@ -12,6 +12,8 @@
 #define FULLCHAIN1_FILE "cert/fullchain1.crt"
 #define FULLCHAIN2_FILE "cert/fullchain2.crt"
 #define FULLCHAIN_ERROR_FILE "cert/fullchain-error.crt"
+#define HTTPS_CERT_KEY "cert/server.key"
+#define HTTPS_CERT_PEM "cert/server.crt"
 
 const unsigned char symmetric_key[] = "secret";
 const unsigned char symmetric_key_b64url[] = "c2VjcmV0";
@@ -532,55 +534,6 @@ U8JNjzPwv//HmV/FAiBT45X52j1G6QGPg82twWR7CZiHbJPe26drWkkoDeT/QQ==";
 
 const unsigned char error_pem[] = "-----BEGIN ERROR FROM OUTER SPACE-----";
 
-#define HTTPS_CERT_KEY "-----BEGIN PRIVATE KEY-----\
-MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDr90HrswgEmln/\
-rXeNqYq0boIvas5wu27hmeHDdGGKtkCWIWGAo9GUy45xqsI4mDl3bOWS+pmb/3yi\
-+nhe+BmYHvEqUFo1JfUcVMxaNEbdd9REytMjKdOS+kkLf++BBRoZI/g8DggIu+Ri\
-dOSypk+pUECyQxROsyCrB/FgXuKbyC4QNl7fqZxMSpzw7jsWCZiwFv4pu8kMqzDG\
-2wTl/r/4STyK4Pj2TVa/JVzbZbH7VfcjT8MdMsXvKhlmPywjbqo70Hnmt3cnakYF\
-X+07ncx/5mjYYd3eSFgiNXr7WNw2rhFKtfTUcjrqSw9FDxmHFWUU76mwJyUo02N9\
-ViakSoQpAgMBAAECggEBAJp/VBwdJpzM6yxqyaJpZbXpvTeKuQw6zMjN1nIBG3SV\
-DAjAZnSxziGcffGSmoQvt0CoflAT4MuxJkwXrwSPcUKWz9Sis82kwq4AH6TYIaYU\
-NVmtazzUwAC1+2maJJjXXFUlpfy8Oypsy4ZjfvIxzmrPbuzI2t0Ej9kr5DDzL3BL\
-CWQ/U7w7y4KC0Pnq1ueIzM+UJIfvI0ldUcXHWsAnjyQzwgFBC35qDOfDTw0YUJv+\
-ElfFFcGYCA+9wlQyhM/zhAWqKgZ2mwAS6WykgbSc7j4NDjlmZwf4ZuTxbDUV1kBX\
-pPH21snqO42CFpw9hRUAA0W0XydCIfUhH8/6tH9enQECgYEA+rM9f6cUk3c7aLWs\
-hnauVqJuyGhgCkMyF9sSxgfcs87OVLNuGgaTIfwcT/7oxAY8G7sY44cbk1ZRhh7y\
-6kf01xqiJeXxBQei1qiJxMb2gukvpeY81s2Mg9og5d9qbEhLzp8TdiRJHxLIiGwF\
-xOM69CpugKN4T0Zum7EBGeSvmBECgYEA8PRG5SRTE4JwzGtLuTbMbjYTqyEjXAkB\
-zo33a92znA0EXEeLCl845EUgzUkSkeN/T/uyWRjj0hrPU99UaaXHt3bc+lrDHrc7\
-WFAR3QoAfFFJPIqqwiHcBDdTeAozQ8IOqFIxspl72RukuRdeQR3EdfcF9TUZyUbU\
-k8SuRioggpkCgYA2scgnA3KvwYGKlKgxJc9fQ0zcGDlrw8E4BymPXsO9zs6hGAxb\
-TTfoYDJlGX361kli22zQpvdTK6/ZjQL+LfiyvTLHBeWRbVsPbfGwpp+9a9ZjYVnA\
-m1OeqIYo4Jc9TICNcZMzYTM6vkRVzwtrKw//mQpGsmNbGEilWvaciZHtoQKBgQDo\
-FDBQtir6SJIConm9/ETtBlLtai6Xj+lYnK6qC1DaxkLj6tjF9a9jVh3g/DfRopBW\
-ZnSCkpGkJcR54Up5s35ofCkdTdxPsmaLihuaje6nztc+Y8VS1LAIs41GunRkF/5s\
-KzbI8kIyfAitag+Toms+v93SLwIWNo27gh3lYOANSQKBgQDIidSO3fzB+jzJh7R0\
-Yy9ADWbBsLxc8u+sBdxmZBGl+l4YZWNPlQsnsafwcpJWT3le6N7Ri3iuOZw9KiGe\
-QDkc7olxUZZ3pshg+cOORK6jVE8v6FeUlLnxpeAWa4C4JDawGPTOBct6bVBl5sxi\
-7GaqDcEK1TSxc4cUaiiPDNNXQA==\
------END PRIVATE KEY-----"
-#define HTTPS_CERT_PEM "-----BEGIN CERTIFICATE-----\
-MIIDhTCCAm2gAwIBAgIJANrO2RnCbURLMA0GCSqGSIb3DQEBCwUAMFkxCzAJBgNV\
-BAYTAkFVMRMwEQYDVQQIDApTb21lLVN0YXRlMSEwHwYDVQQKDBhJbnRlcm5ldCBX\
-aWRnaXRzIFB0eSBMdGQxEjAQBgNVBAMMCWxvY2FsaG9zdDAeFw0xNzA0MjgxNTA0\
-NDVaFw0xODA0MjgxNTA0NDVaMFkxCzAJBgNVBAYTAkFVMRMwEQYDVQQIDApTb21l\
-LVN0YXRlMSEwHwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQxEjAQBgNV\
-BAMMCWxvY2FsaG9zdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAOv3\
-QeuzCASaWf+td42pirRugi9qznC7buGZ4cN0YYq2QJYhYYCj0ZTLjnGqwjiYOXds\
-5ZL6mZv/fKL6eF74GZge8SpQWjUl9RxUzFo0Rt131ETK0yMp05L6SQt/74EFGhkj\
-+DwOCAi75GJ05LKmT6lQQLJDFE6zIKsH8WBe4pvILhA2Xt+pnExKnPDuOxYJmLAW\
-/im7yQyrMMbbBOX+v/hJPIrg+PZNVr8lXNtlsftV9yNPwx0yxe8qGWY/LCNuqjvQ\
-eea3dydqRgVf7TudzH/maNhh3d5IWCI1evtY3DauEUq19NRyOupLD0UPGYcVZRTv\
-qbAnJSjTY31WJqRKhCkCAwEAAaNQME4wHQYDVR0OBBYEFPFfmGA3jO9koBZNGNZC\
-T/dZHZyHMB8GA1UdIwQYMBaAFPFfmGA3jO9koBZNGNZCT/dZHZyHMAwGA1UdEwQF\
-MAMBAf8wDQYJKoZIhvcNAQELBQADggEBAIc8Yuom4vz82izNEV+9bcCvuabcVwLH\
-Qgpv5Nzy/W+1hDoqfMfKNwOSdUB7jZoDaNDG1WhjKGGCLTAx4Hx+q1LwUXvu4Bs1\
-woocge65bl85h10l2TxxnlT5BIJezm5r3NiZSwOK2zxxIEyL4vh+b/xqQblBEkR3\
-e4/A4Ugn9Egh8GdpF4klGp4MjjpRyAVI7BDaleAhvDSfPmm7ylHJ2y7CLI9ApOQY\
-glwRuTmowAZQtaSiE1Ox7QtWj858HDzzTZyFWRG/MNqQptn7AMTPJv3DivNfDNPj\
-fYxFAheH3CjryHqqR9DD+d9396W8mqEaUp+plMwSjpcTDSR4rEQkUJg=\
------END CERTIFICATE-----"
 const unsigned char rsa_crt[] = "-----BEGIN CERTIFICATE-----\n"
 "MIIEWTCCAsGgAwIBAgIUJyAFwqkMTppNiyU8gFOK4WUC1GgwDQYJKoZIhvcNAQEL\n"
 "BQAwKjETMBEGA1UEAwwKZ2xld2x3eWRfMTETMBEGA1UEChMKYmFiZWxvdWVzdDAe\n"
@@ -727,12 +680,13 @@ START_TEST(test_rhonabwy_import_from_json_str)
 {
   jwk_t * jwk;
   struct _u_instance instance;
+  char * http_key = get_file_content(HTTPS_CERT_KEY), * http_cert = get_file_content(HTTPS_CERT_PEM);
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7464, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_ecdsa_crt", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);
   
-  ck_assert_int_eq(ulfius_start_secure_framework(&instance, HTTPS_CERT_KEY, HTTPS_CERT_PEM), U_OK);
+  ck_assert_int_eq(ulfius_start_secure_framework(&instance, http_key, http_cert), U_OK);
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
@@ -988,6 +942,8 @@ START_TEST(test_rhonabwy_import_from_json_str)
   ck_assert_str_eq((const char *)symmetric_key_b64url, r_jwk_get_property_str(jwk, "k"));
   r_jwk_free(jwk);
   
+  o_free(http_key);
+  o_free(http_cert);
   ulfius_stop_framework(&instance);
   ulfius_clean_instance(&instance);
 }
@@ -1335,12 +1291,13 @@ START_TEST(test_rhonabwy_import_from_x5u)
   unsigned int bits = 0;
 #endif
   struct _u_instance instance;
+  char * http_key = get_file_content(HTTPS_CERT_KEY), * http_cert = get_file_content(HTTPS_CERT_PEM);
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7463, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_ecdsa_crt", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);
   
-  ck_assert_int_eq(ulfius_start_secure_framework(&instance, HTTPS_CERT_KEY, HTTPS_CERT_PEM), U_OK);
+  ck_assert_int_eq(ulfius_start_secure_framework(&instance, http_key, http_cert), U_OK);
   
 #ifdef R_WITH_CURL
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
@@ -1372,6 +1329,8 @@ START_TEST(test_rhonabwy_import_from_x5u)
 #endif
 #endif
   
+  o_free(http_key);
+  o_free(http_cert);
   ulfius_stop_framework(&instance);
   ulfius_clean_instance(&instance);
 }
@@ -1383,13 +1342,14 @@ START_TEST(test_rhonabwy_key_type)
   int type;
   struct _u_instance instance;
   unsigned int bits = 0;
+  char * http_key = get_file_content(HTTPS_CERT_KEY), * http_cert = get_file_content(HTTPS_CERT_PEM);
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7464, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_ecdsa_crt", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_eddsa_crt", NULL, 0, &callback_x5u_eddsa_crt, NULL), U_OK);
   
-  ck_assert_int_eq(ulfius_start_secure_framework(&instance, HTTPS_CERT_KEY, HTTPS_CERT_PEM), U_OK);
+  ck_assert_int_eq(ulfius_start_secure_framework(&instance, http_key, http_cert), U_OK);
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
@@ -1588,6 +1548,8 @@ START_TEST(test_rhonabwy_key_type)
 #endif
 #endif
   
+  o_free(http_key);
+  o_free(http_cert);
   ulfius_stop_framework(&instance);
   ulfius_clean_instance(&instance);
 }
@@ -1665,6 +1627,7 @@ END_TEST
 START_TEST(test_rhonabwy_append_x5c)
 {
   jwk_t * jwk;
+  char * http_cert = get_file_content(HTTPS_CERT_PEM);
 
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), -1);
@@ -1681,11 +1644,12 @@ START_TEST(test_rhonabwy_append_x5c)
   ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), 2);
   ck_assert_ptr_ne(r_jwk_get_property_array(jwk, "x5c", 1), NULL);
   ck_assert_ptr_eq(r_jwk_get_property_array(jwk, "x5c", 2), NULL);
-  ck_assert_int_eq(r_jwk_append_x5c(jwk, R_FORMAT_PEM, (const unsigned char *)HTTPS_CERT_PEM, o_strlen(HTTPS_CERT_PEM)), RHN_OK);
+  ck_assert_int_eq(r_jwk_append_x5c(jwk, R_FORMAT_PEM, (const unsigned char *)http_cert, o_strlen(http_cert)), RHN_OK);
   ck_assert_int_eq(r_jwk_get_property_array_size(jwk, "x5c"), 3);
   ck_assert_ptr_ne(r_jwk_get_property_array(jwk, "x5c", 1), NULL);
   ck_assert_ptr_ne(r_jwk_get_property_array(jwk, "x5c", 2), NULL);
   ck_assert_ptr_eq(r_jwk_get_property_array(jwk, "x5c", 3), NULL);
+  o_free(http_cert);
   r_jwk_free(jwk);
 }
 END_TEST
@@ -1762,6 +1726,7 @@ START_TEST(test_rhonabwy_validate_x5u_chain)
   jwk_t * jwk;
 #endif
   struct _u_instance instance;
+  char * http_key = get_file_content(HTTPS_CERT_KEY), * http_cert = get_file_content(HTTPS_CERT_PEM);
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7465, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_fullchain1", NULL, 0, &callback_x5u_fullchain1, NULL), U_OK);
@@ -1769,7 +1734,7 @@ START_TEST(test_rhonabwy_validate_x5u_chain)
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_fullchain1_trucated", NULL, 0, &callback_x5u_fullchain1_trucated, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_fullchain_error", NULL, 0, &callback_x5u_fullchain_error, NULL), U_OK);
   
-  ck_assert_int_eq(ulfius_start_secure_framework(&instance, HTTPS_CERT_KEY, HTTPS_CERT_PEM), U_OK);
+  ck_assert_int_eq(ulfius_start_secure_framework(&instance, http_key, http_cert), U_OK);
 
 #ifdef R_WITH_CURL
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
@@ -1801,6 +1766,8 @@ START_TEST(test_rhonabwy_validate_x5u_chain)
   r_jwk_free(jwk);
 #endif
 
+  o_free(http_key);
+  o_free(http_cert);
   ulfius_stop_framework(&instance);
   ulfius_clean_instance(&instance);
 }

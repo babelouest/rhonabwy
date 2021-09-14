@@ -456,6 +456,39 @@ r_jws_free(jws);
 r_jwk_free(jwk_key_symmetric);
 ```
 
+The functions `r_jws_parse`, `r_jws_parsen`, `r_jws_compact_parse` and `r_jws_compact_parsen` will parse a serialized JWS. If public keys are present in the header, they will be added to the public keys list and can be used to verify the token signature.
+
+```C
+/**
+ * Parses the serialized JWS in all modes (compact, flattened or general)
+ * @param jws: the jws_t to update
+ * @param jws_str: the serialized JWS to parse, must end with a NULL string terminator
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags);
+
+/**
+ * Parses the serialized JWS in all modes (compact, flattened or general)
+ * @param jws: the jws_t to update
+ * @param jws_str: the serialized JWS to parse
+ * @param jws_str_len: the length of jws_str to parse
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_flags);
+```
+
 #### Compressed payload
 
 The header value `"zip":"DEF"` is used to specify if the JWS payload is compressed using [ZIP/Deflate](https://tools.ietf.org/html/rfc7516#section-4.1.3) algorithm. Rhonabwy will automatically compress or decompress the decrypted payload during serialization or parse process.
@@ -474,9 +507,99 @@ To parse any JWS, signed or unsigned, you must use the functions `r_jws_parse_un
 Use the function `r_jws_serialize_unsecure` to serialize an unsecured JWS.
 By design, the functions `r_jws_serialize_json_t` and `r_jws_serialize_json_str` will return NULL with mode `R_JSON_MODE_FLATTENED` on unsecured JWS.
 
+### Advanced parsing
+
+JWS standard allows to add in the JWS header a public key in several forms:
+- `jwk`: a public key in JWK format
+- `jku`: an url to a JWK Set
+- `x5c`: an array of X509 certificates
+- `x5u`: an url to a X509 certificate
+
+When using the functions `r_jws_parse`, `r_jws_parsen`, `r_jws_compact_parse`, `r_jws_compact_parsen`, `r_jws_parse_unsecure`, `r_jws_parsen_unsecure`, `r_jws_compact_parsen_unsecure` and `r_jws_compact_parse_unsecure`, by default, if a public key is mentionned in the header, it will be added to the `jws->jwks_pubkey`, so the signature verification will not need to specify a key. This can be dangerous if the token comes from a untrustworthy source and if the token isn't checked properly.
+
+To simplify secure token parsing, you should use the functions `r_jws_advanced_parse[n]`:
+
+```C
+/**
+ * Parses the serialized JWS in all modes (compact, flattened or general)
+ * @param jws: the jws_t to update
+ * @param jws_str: the serialized JWS to parse, must end with a NULL string terminator
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_advanced_parse(jws_t * jws, const char * jws_str, uint32_t parse_flags, int x5u_flags);
+
+/**
+ * Parses the serialized JWS in all modes (compact, flattened or general)
+ * @param jws: the jws_t to update
+ * @param jws_str: the serialized JWS to parse
+ * @param jws_str_len: the length of jws_str to parse
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_advanced_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, uint32_t parse_flags, int x5u_flags);
+```
+
 #### Signature verification
 
+Signature verification is provided by the function `r_jws_verify_signature` which has the following definition:
+
+```C
+/**
+ * Verifies the signature of the JWS
+ * The JWS must contain a signature
+ * or the JWS must have alg: none
+ * If the jws has multiple signatures, it will return RHN_OK if one signature matches
+ * the public key
+ * @param jws: the jws_t to update
+ * @param jwk_pubkey: the public key to check the signature,
+ * can be NULL if jws already contains a public key
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags);
+```
+
 The function `r_jws_verify_signature` will return `RHN_ERROR_INVALID` if the JWS is unsecured.
+
+##### Security consideration
+
+The parameter `jwk_pubkey`, if `NULL` must be 
 
 ## JWE
 
@@ -957,6 +1080,104 @@ if (r_jwk_init(&jwk_key) == RHN_OK &&
 r_free(token);
 r_jwt_free(jwt);
 r_jwk_free(jwk_key);
+```
+
+### Parse a JWT
+
+The functions `r_jwt_parse` and `r_jwt_parsen` will parse a serialized JWT. If public keys are present in the header, they will be added to the public keys list and can be used to verify the token signature.
+
+```C
+/**
+ * Parses the serialized JWT in all modes (compact, flattened or general)
+ * @param jwt: the jwt_t to update
+ * @param jwt_str: the serialized JWT to parse, must end with a NULL string terminator
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_parse(jwt_t * jwt, const char * jwt_str, int x5u_flags);
+
+/**
+ * Parses the serialized JWT in all modes (compact, flattened or general)
+ * @param jwt: the jwt_t to update
+ * @param jwt_str: the serialized JWT to parse
+ * @param jwt_str_len: the length of jwt_str to parse
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_parsen(jwt_t * jwt, const char * jwt_str, size_t jwt_str_len, int x5u_flags);
+```
+
+### Advanced parsing
+
+JWT standard allows to add in the JWT header a public key in several forms:
+- `jwk`: a public key in JWK format
+- `jku`: an url to a JWK Set
+- `x5c`: an array of X509 certificates
+- `x5u`: an url to a X509 certificate
+
+When using the functions `r_jwt_parse`, `r_jwt_parsen`, `r_jwt_compact_parse`, `r_jwt_compact_parsen`, `r_jwt_parse_unsecure`, `r_jwt_parsen_unsecure`, `r_jwt_compact_parsen_unsecure` and `r_jwt_compact_parse_unsecure`, by default, if a public key is mentionned in the header, it will be added to the `jwt->jwks_pubkey`, so the signature verification will not need to specify a key. This can be dangerous if the token comes from a untrustworthy source and if the token isn't checked properly.
+
+To simplify secure token parsing, you should use the functions `r_jwt_advanced_parse[n]`:
+
+```C
+/**
+ * Parses the serialized JWT in all modes (compact, flattened or general)
+ * @param jwt: the jwt_t to update
+ * @param jwt_str: the serialized JWT to parse, must end with a NULL string terminator
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_advanced_parse(jwt_t * jwt, const char * jwt_str, uint32_t parse_flags, int x5u_flags);
+
+/**
+ * Parses the serialized JWT in all modes (compact, flattened or general)
+ * @param jwt: the jwt_t to update
+ * @param jwt_str: the serialized JWT to parse
+ * @param jwt_str_len: the length of jwt_str to parse
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_advanced_parsen(jwt_t * jwt, const char * jwt_str, size_t jwt_str_len, uint32_t parse_flags, int x5u_flags);
 ```
 
 ### Unsecured JWT

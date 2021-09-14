@@ -36,7 +36,7 @@ SONAME=-soname
 OBJECTS=jwk.o jwks.o jws.o jwe.o jwt.o misc.o
 OUTPUT=librhonabwy.so
 VERSION_MAJOR=1
-VERSION_MINOR=0
+VERSION_MINOR=1
 VERSION_PATCH=0
 
 ifdef ECDHFLAG

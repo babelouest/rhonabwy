@@ -1,5 +1,9 @@
 # Rhonabwy Changelog
 
+## 1.1.0
+
+- Add advanced parsing functions
+
 ## 1.0.0
 
 - Use type `rhn_int_t` for integer property values instead of `int`

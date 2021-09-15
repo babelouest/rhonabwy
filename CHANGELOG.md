@@ -4,6 +4,8 @@
 
 - Add advanced parsing functions
 - Add quick_parse functions
+- Add `r_jwk_quick_import` and `r_jwks_quick_import`
+- rnbyc: update `-H` option, no value is necessary
 
 ## 1.0.0
 

@@ -1846,6 +1846,27 @@ int r_jws_advanced_parse_json_t(jws_t * jws, json_t * jws_json, uint32_t parse_f
   return ret;
 }
 
+jws_t * r_jws_quick_parse(const char * jws_str, uint32_t parse_flags, int x5u_flags) {
+  return r_jws_quick_parsen(jws_str, o_strlen(jws_str), parse_flags, x5u_flags);
+}
+
+jws_t * r_jws_quick_parsen(const char * jws_str, size_t jws_str_len, uint32_t parse_flags, int x5u_flags) {
+  jws_t * jws = NULL;
+  int ret;
+  
+  if (r_jws_init(&jws) == RHN_OK) {
+    ret = r_jws_advanced_parsen(jws, jws_str, jws_str_len, parse_flags, x5u_flags);
+    if (ret != RHN_OK) {
+      r_jws_free(jws);
+      jws = NULL;
+    }
+  } else {
+    r_jws_free(jws);
+    jws = NULL;
+  }
+  return jws;
+}
+
 int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags) {
   int ret, res;
   jwk_t * jwk = NULL, * cur_jwk;

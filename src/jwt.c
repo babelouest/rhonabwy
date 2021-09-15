@@ -1333,6 +1333,27 @@ int r_jwt_advanced_parsen(jwt_t * jwt, const char * token, size_t token_len, uin
   return ret;
 }
 
+jwt_t * r_jwt_quick_parse(const char * token, uint32_t parse_flags, int x5u_flags) {
+  return r_jwt_quick_parsen(token, o_strlen(token), parse_flags, x5u_flags);
+}
+
+jwt_t * r_jwt_quick_parsen(const char * token, size_t token_len, uint32_t parse_flags, int x5u_flags) {
+  jwt_t * jwt = NULL;
+  int ret;
+  
+  if (r_jwt_init(&jwt) == RHN_OK) {
+    ret = r_jwt_advanced_parsen(jwt, token, token_len, parse_flags, x5u_flags);
+    if (ret != RHN_OK) {
+      r_jwt_free(jwt);
+      jwt = NULL;
+    }
+  } else {
+    r_jwt_free(jwt);
+    jwt = NULL;
+  }
+  return jwt;
+}
+
 int r_jwt_get_type(jwt_t * jwt) {
   if (jwt != NULL) {
     return jwt->type;

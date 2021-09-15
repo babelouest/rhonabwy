@@ -224,6 +224,21 @@ typedef enum {
   RHN_OPT_DECRYPT_KEY_PEM_DER     = 43  ///< Private key in PEM or DER format to decrypt the token, following parameter must be R_FORMAT_PEM or R_FORMAT_DER, const unsigned char * value, size_t value_length
 } rhn_opt;
 
+typedef enum {
+  R_IMPORT_NONE      = 0,
+  R_IMPORT_JSON_STR  = 1,
+  R_IMPORT_JSON_T    = 2,
+  R_IMPORT_PEM       = 3,
+  R_IMPORT_DER       = 4,
+  R_IMPORT_G_PRIVKEY = 5,
+  R_IMPORT_G_PUBKEY  = 6,
+  R_IMPORT_G_CERT    = 7,
+  R_IMPORT_X5U       = 8,
+  R_IMPORT_SYMKEY    = 9,
+  R_IMPORT_PASSWORD  = 10,
+  R_IMPORT_JKU       = 11
+} rhn_import;
+
 typedef struct {
   unsigned char * header_b64url;
   unsigned char * payload_b64url;
@@ -717,6 +732,11 @@ int r_jwk_import_from_password(jwk_t * jwk, const char * password);
 int r_jwk_extract_pubkey(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int x5u_flags);
 
 /**
+ * Import data into a jwk
+ */
+jwk_t * r_jwk_quick_import(rhn_import type, ...);
+
+/**
  * Return a copy of the JWK
  * @param jwk: the jwk to copy
  * @return a copy of the jwk
@@ -905,6 +925,11 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input);
  * is invalid, but the will import the others
  */
 int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int x5u_flags);
+
+/**
+ * Import data into a jwks
+ */
+jwks_t * r_jwks_quick_import(rhn_import, ...);
 
 /**
  * Return a copy of the JWKS

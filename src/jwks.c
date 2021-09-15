@@ -332,3 +332,132 @@ int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int x5u_flags) {
   }
   return ret;
 }
+
+jwks_t * r_jwks_quick_import(rhn_import type, ...) {
+  va_list vl;
+  rhn_import opt;
+  jwk_t * jwk;
+  jwks_t * jwks;
+  int i_val;
+  const char * str;
+  json_t * j_jwk;
+  const unsigned char * data;
+  size_t data_len;
+  gnutls_privkey_t privkey;
+  gnutls_pubkey_t pubkey;
+  gnutls_x509_crt_t crt;
+
+  if (r_jwks_init(&jwks) != RHN_OK) {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwks_quick_import - Error r_jwks_init");
+    return NULL;
+  } else {
+    va_start(vl, type);
+    opt = type;
+    while (opt != R_IMPORT_NONE) {
+      switch (opt) {
+        case R_IMPORT_JSON_STR:
+          str = va_arg(vl, const char *);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_JSON_STR, str)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          } else {
+            r_jwks_import_from_json_str(jwks, str);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_JSON_T:
+          j_jwk = va_arg(vl, json_t *);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_JSON_T, j_jwk)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          } else {
+            r_jwks_import_from_json_t(jwks, j_jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_PEM:
+          i_val = va_arg(vl, int);
+          data = va_arg(vl, const unsigned char *);
+          data_len = va_arg(vl, size_t);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_PEM, i_val, data, data_len)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_DER:
+          i_val = va_arg(vl, int);
+          data = va_arg(vl, const unsigned char *);
+          data_len = va_arg(vl, size_t);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_DER, i_val, data, data_len)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_G_PRIVKEY:
+          privkey = va_arg(vl, gnutls_privkey_t);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_G_PRIVKEY, privkey)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_G_PUBKEY:
+          pubkey = va_arg(vl, gnutls_pubkey_t);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_G_PUBKEY, pubkey)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_G_CERT:
+          crt = va_arg(vl, gnutls_x509_crt_t);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_G_CERT, crt)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_X5U:
+          i_val = va_arg(vl, int);
+          str = va_arg(vl, const char *);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_X5U, i_val, str)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_SYMKEY:
+          data = va_arg(vl, const unsigned char *);
+          data_len = va_arg(vl, size_t);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_SYMKEY, data, data_len)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_PASSWORD:
+          str = va_arg(vl, const char *);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_PASSWORD, str)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_JKU:
+          i_val = va_arg(vl, int);
+          str = va_arg(vl, const char *);
+          r_jwks_import_from_uri(jwks, str, i_val);
+          opt = va_arg(vl, rhn_import);
+          break;
+        default:
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwks_quick_import - Invalid type");
+          opt = R_IMPORT_NONE;
+          break;
+      }
+    }
+    va_end(vl);
+    return jwks;
+  }
+}

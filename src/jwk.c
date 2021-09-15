@@ -1858,6 +1858,84 @@ int r_jwk_import_from_password(jwk_t * jwk, const char * password) {
   return r_jwk_import_from_symmetric_key(jwk, (const unsigned char *)password, o_strlen(password));
 }
 
+jwk_t * r_jwk_quick_import(rhn_import type, ...) {
+  va_list vl;
+  jwk_t * jwk = NULL;
+  int ret, i_val;
+  const char * str;
+  json_t * j_jwk;
+  const unsigned char * data;
+  size_t data_len;
+  gnutls_privkey_t privkey;
+  gnutls_pubkey_t pubkey;
+  gnutls_x509_crt_t crt;
+
+  if (r_jwk_init(&jwk) != RHN_OK) {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_quick_import - Error r_jwk_init");
+    return NULL;
+  } else {
+    va_start(vl, type);
+    switch (type) {
+      case R_IMPORT_JSON_STR:
+        str = va_arg(vl, const char *);
+        ret = r_jwk_import_from_json_str(jwk, str);
+        break;
+      case R_IMPORT_JSON_T:
+        j_jwk = va_arg(vl, json_t *);
+        ret = r_jwk_import_from_json_t(jwk, j_jwk);
+        break;
+      case R_IMPORT_PEM:
+        i_val = va_arg(vl, int);
+        data = va_arg(vl, const unsigned char *);
+        data_len = va_arg(vl, size_t);
+        ret = r_jwk_import_from_pem_der(jwk, i_val, R_FORMAT_PEM, data, data_len);
+        break;
+      case R_IMPORT_DER:
+        i_val = va_arg(vl, int);
+        data = va_arg(vl, const unsigned char *);
+        data_len = va_arg(vl, size_t);
+        ret = r_jwk_import_from_pem_der(jwk, i_val, R_FORMAT_DER, data, data_len);
+        break;
+      case R_IMPORT_G_PRIVKEY:
+        privkey = va_arg(vl, gnutls_privkey_t);
+        ret = r_jwk_import_from_gnutls_privkey(jwk, privkey);
+        break;
+      case R_IMPORT_G_PUBKEY:
+        pubkey = va_arg(vl, gnutls_pubkey_t);
+        ret = r_jwk_import_from_gnutls_pubkey(jwk, pubkey);
+        break;
+      case R_IMPORT_G_CERT:
+        crt = va_arg(vl, gnutls_x509_crt_t);
+        ret = r_jwk_import_from_gnutls_x509_crt(jwk, crt);
+        break;
+      case R_IMPORT_X5U:
+        i_val = va_arg(vl, int);
+        str = va_arg(vl, const char *);
+        ret = r_jwk_import_from_x5u(jwk, i_val, str);
+        break;
+      case R_IMPORT_SYMKEY:
+        data = va_arg(vl, const unsigned char *);
+        data_len = va_arg(vl, size_t);
+        ret = r_jwk_import_from_symmetric_key(jwk, data, data_len);
+        break;
+      case R_IMPORT_PASSWORD:
+        str = va_arg(vl, const char *);
+        ret = r_jwk_import_from_password(jwk, str);
+        break;
+      default:
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_quick_import - Invalid type");
+        ret = RHN_ERROR_PARAM;
+        break;
+    }
+    va_end(vl);
+    if (ret != RHN_OK) {
+      r_jwk_free(jwk);
+      jwk = NULL;
+    }
+    return jwk;
+  }
+}
+
 jwk_t * r_jwk_copy(jwk_t * jwk) {
   if (jwk != NULL) {
     return json_deep_copy(jwk);

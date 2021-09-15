@@ -3,6 +3,7 @@
 ## 1.1.0
 
 - Add advanced parsing functions
+- Add quick_parse functions
 
 ## 1.0.0
 

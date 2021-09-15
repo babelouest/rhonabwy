@@ -570,6 +570,58 @@ int r_jws_advanced_parse(jws_t * jws, const char * jws_str, uint32_t parse_flags
 int r_jws_advanced_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, uint32_t parse_flags, int x5u_flags);
 ```
 
+### Quick parsing
+
+The quick parsing functions can be used to parse a JWS in one line:
+
+```C
+/**
+ * Parses the serialized JWS in all modes (compact, flattened or general)
+ * @param jws_json: the serialized JWS to parse in json_t * format
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return a new jwt_t * on success, NULL on error
+ */
+jws_t * r_jws_quick_parse(const char * jws_str, uint32_t parse_flags, int x5u_flags);
+
+/**
+ * Parses the serialized JWS in all modes (compact, flattened or general)
+ * @param jws_json: the serialized JWS to parse in json_t * format
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return a new jwt_t * on success, NULL on error
+ */
+jws_t * r_jws_quick_parsen(const char * jws_str, size_t jws_str_len, uint32_t parse_flags, int x5u_flags);
+```
+
 #### Signature verification
 
 Signature verification is provided by the function `r_jws_verify_signature` which has the following definition:
@@ -596,10 +648,6 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags);
 ```
 
 The function `r_jws_verify_signature` will return `RHN_ERROR_INVALID` if the JWS is unsecured.
-
-##### Security consideration
-
-The parameter `jwk_pubkey`, if `NULL` must be 
 
 ## JWE
 
@@ -797,8 +845,11 @@ Example with a specified ephemeral key:
 ```C
 #define PAYLOAD "The true sign of intelligence is not knowledge but imagination..."
 
-const char eph[] = " {\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"gI0GAILBdu7T53akrFmMyGcsF3n5dO7MmwNBHKW5SV0\",\"y\":\"SLW_xSffzlPWrHEVI30DHM_4egVwt3NQqeUD7nMFpps\",\"d\":\"0_NxaRPUMQoAJt50Gz8YiTr8gRTwyEaCumd-MToTmIo\"}", // This is the ephemeral key
-bob[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"weNJy2HscCSM6AEDTDg04biOvhFhyyWvOHQfeF_PxMQ\",\"y\":\"e8lnCO-AlStT-NJVX-crhB7QRYhiix03illJOVAOyck\"}"; // This is the public key
+// This is the ephemeral key
+const char eph[] = " {\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"gI0GAILBdu7T53akrFmMyGcsF3n5dO7MmwNBHKW5SV0\","
+"\"y\":\"SLW_xSffzlPWrHEVI30DHM_4egVwt3NQqeUD7nMFpps\",\"d\":\"0_NxaRPUMQoAJt50Gz8YiTr8gRTwyEaCumd-MToTmIo\"}",
+bob[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"weNJy2HscCSM6AEDTDg04biOvhFhyyWvOHQfeF_PxMQ\","
+"\"y\":\"e8lnCO-AlStT-NJVX-crhB7QRYhiix03illJOVAOyck\"}"; // This is the public key
 jwk_t * jwk_eph, * jwk_bob;
 jwe_t * jwe;
 char * token;
@@ -843,6 +894,58 @@ To serialize a JWE in JSON format, you must use the functions `r_jwe_serialize_j
 To parse a JWE in JSON format, you can either use `r_jwe_parse_json_str`, `r_jwe_parsen_json_str` or `r_jwe_parse_json_t` when you know the token is in JSON format, or you can use `r_jwe_parse` or `r_jwe_parsen`.
 
 If the token is in general JSON format and has multiple key encryption, the function `r_jwe_decrypt` will decrypt the payload and return `RHN_OK` if one of the recipients content is correctly decrypted using a specified private key or one of the private key added to its private JWKS.
+
+### Quick parsing
+
+The quick parsing functions can be used to parse a JWE in one line:
+
+```C
+/**
+ * Parses the serialized JWE in all modes (compact, flattened or general)
+ * @param jwe_json: the serialized JWE to parse in json_t * format
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return a new jwt_t * on success, NULL on error
+ */
+jwe_t * r_jwe_quick_parse(const char * jwe_str, uint32_t parse_flags, int x5u_flags);
+
+/**
+ * Parses the serialized JWE in all modes (compact, flattened or general)
+ * @param jwe_json: the serialized JWE to parse in json_t * format
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return a new jwt_t * on success, NULL on error
+ */
+jwe_t * r_jwe_quick_parsen(const char * jwe_str, size_t jwe_str_len, uint32_t parse_flags, int x5u_flags);
+```
 
 ## JWT
 
@@ -1178,6 +1281,58 @@ int r_jwt_advanced_parse(jwt_t * jwt, const char * jwt_str, uint32_t parse_flags
  * @return RHN_OK on success, an error value on error
  */
 int r_jwt_advanced_parsen(jwt_t * jwt, const char * jwt_str, size_t jwt_str_len, uint32_t parse_flags, int x5u_flags);
+```
+
+### Quick parsing
+
+The quick parsing functions can be used to parse a JWT in one line:
+
+```C
+/**
+ * Parses a serialized JWT
+ * @param jws_json: the serialized JWT to parse in json_t * format
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return a new jwt_t * on success, NULL on error
+ */
+jws_t * r_jws_quick_parse(const char * jws_str, uint32_t parse_flags, int x5u_flags);
+
+/**
+ * Parses a serialized JWT
+ * @param jws_json: the serialized JWT to parse in json_t * format
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return a new jwt_t * on success, NULL on error
+ */
+jws_t * r_jws_quick_parsen(const char * jws_str, size_t jws_str_len, uint32_t parse_flags, int x5u_flags);
 ```
 
 ### Unsecured JWT

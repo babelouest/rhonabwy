@@ -3065,7 +3065,7 @@ char * r_jwt_serialize_encrypted(jwt_t * jwt, jwk_t * pubkey, int x5u_flags);
 char * r_jwt_serialize_nested(jwt_t * jwt, unsigned int type, jwk_t * sign_key, int sign_key_x5u_flags, jwk_t * encrypt_key, int encrypt_key_x5u_flags);
 
 /**
- * Parse a serialized JWT
+ * Parses a serialized JWT
  * If the JWT is signed only, the claims will be available
  * If the JWT is encrypted, the claims will not be accessible until
  * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
@@ -3082,7 +3082,7 @@ char * r_jwt_serialize_nested(jwt_t * jwt, unsigned int type, jwk_t * sign_key, 
 int r_jwt_parse(jwt_t * jwt, const char * token, int x5u_flags);
 
 /**
- * Parse a serialized JWT
+ * Parses a serialized JWT
  * If the JWT is signed only, the claims will be available
  * If the JWT is encrypted, the claims will not be accessible until
  * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
@@ -3100,7 +3100,7 @@ int r_jwt_parse(jwt_t * jwt, const char * token, int x5u_flags);
 int r_jwt_parsen(jwt_t * jwt, const char * token, size_t token_len, int x5u_flags);
 
 /**
- * Parse a serialized JWT
+ * Parses a serialized JWT
  * Allows to parse unsigned JWT
  * If the JWT is signed only, the claims will be available
  * If the JWT is encrypted, the claims will not be accessible until
@@ -3118,7 +3118,7 @@ int r_jwt_parsen(jwt_t * jwt, const char * token, size_t token_len, int x5u_flag
 int r_jwt_parse_unsecure(jwt_t * jwt, const char * token, int x5u_flags);
 
 /**
- * Parse a serialized JWT
+ * Parses a serialized JWT
  * Allows to parse unsigned JWT
  * If the JWT is signed only, the claims will be available
  * If the JWT is encrypted, the claims will not be accessible until
@@ -3137,7 +3137,7 @@ int r_jwt_parse_unsecure(jwt_t * jwt, const char * token, int x5u_flags);
 int r_jwt_parsen_unsecure(jwt_t * jwt, const char * token, size_t token_len, int x5u_flags);
 
 /**
- * Parse a serialized JWT
+ * Parses a serialized JWT
  * If the JWT is signed only, the claims will be available
  * If the JWT is encrypted, the claims will not be accessible until
  * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
@@ -3164,7 +3164,7 @@ int r_jwt_parsen_unsecure(jwt_t * jwt, const char * token, size_t token_len, int
 int r_jwt_advanced_parse(jwt_t * jwt, const char * token, uint32_t parse_flags, int x5u_flags);
 
 /**
- * Parse a serialized JWT
+ * Parses a serialized JWT
  * If the JWT is signed only, the claims will be available
  * If the JWT is encrypted, the claims will not be accessible until
  * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
@@ -3192,7 +3192,7 @@ int r_jwt_advanced_parse(jwt_t * jwt, const char * token, uint32_t parse_flags, 
 int r_jwt_advanced_parsen(jwt_t * jwt, const char * token, size_t token_len, uint32_t parse_flags, int x5u_flags);
 
 /**
- * Parse a serialized JWT
+ * Parses a serialized JWT
  * If the JWT is signed only, the claims will be available
  * If the JWT is encrypted, the claims will not be accessible until
  * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
@@ -3218,7 +3218,7 @@ int r_jwt_advanced_parsen(jwt_t * jwt, const char * token, size_t token_len, uin
 jwt_t * r_jwt_quick_parse(const char * token, uint32_t parse_flags, int x5u_flags);
 
 /**
- * Parse a serialized JWT
+ * Parses a serialized JWT
  * If the JWT is signed only, the claims will be available
  * If the JWT is encrypted, the claims will not be accessible until
  * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull

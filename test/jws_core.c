@@ -726,6 +726,17 @@ START_TEST(test_rhonabwy_parse_android_safetynet_jwt)
   ck_assert_int_gt(r_jwks_size(jws->jwks_pubkey), 0);
   ck_assert_int_eq(r_jws_verify_signature(jws, NULL, 0), RHN_OK);
   r_jws_free(jws);
+  
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jws_advanced_parse(jws, ANDROID_SAFETYNET_JWT, R_PARSE_HEADER_X5C, 0), RHN_OK);
+  ck_assert_int_gt(r_jwks_size(jws->jwks_pubkey), 0);
+  ck_assert_int_eq(r_jws_verify_signature(jws, NULL, 0), RHN_OK);
+  
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jws_advanced_parse(jws, ANDROID_SAFETYNET_JWT, R_PARSE_NONE, 0), RHN_OK);
+  ck_assert_int_eq(r_jwks_size(jws->jwks_pubkey), 0);
+  ck_assert_int_eq(r_jws_verify_signature(jws, NULL, 0), RHN_ERROR_INVALID);
+  r_jws_free(jws);
 }
 END_TEST
 
@@ -1221,6 +1232,60 @@ START_TEST(test_rhonabwy_advanced_parse)
   ulfius_clean_instance(&instance);
 }
 END_TEST
+
+START_TEST(test_rhonabwy_quick_parse)
+{
+  jwk_t * jwk_pub;
+  jws_t * jws;
+  struct _u_instance instance;
+  char * http_key = get_file_content(HTTPS_CERT_KEY), * http_cert = get_file_content(HTTPS_CERT_PEM);
+  
+  ck_assert_int_eq(ulfius_init_instance(&instance, 7468, NULL, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jku", NULL, 0, &callback_jku_ecdsa_crt, NULL), U_OK);
+  
+  ck_assert_int_eq(ulfius_start_secure_framework(&instance, http_key, http_cert), U_OK);
+  
+  ck_assert_int_eq(r_jwk_init(&jwk_pub), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pub, jwk_pubkey_ecdsa_str), RHN_OK);
+
+  ck_assert_ptr_ne(NULL, jws = r_jws_quick_parse(HS256_TOKEN, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  r_jws_free(jws);
+
+  ck_assert_ptr_eq(NULL, jws = r_jws_quick_parse(HS256_TOKEN_INVALID_DOTS, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  ck_assert_ptr_eq(NULL, jws = r_jws_quick_parse(HS256_TOKEN_INVALID_HEADER, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  ck_assert_ptr_eq(NULL, jws = r_jws_quick_parse(HS256_TOKEN_INVALID_HEADER_B64, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  ck_assert_ptr_eq(NULL, jws = r_jws_quick_parse(HS256_TOKEN_INVALID_PAYLOAD_B64, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  ck_assert_ptr_eq(NULL, jws = r_jws_quick_parse(UNSECURE_TOKEN, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  
+  ck_assert_ptr_ne(NULL, jws = r_jws_quick_parse(UNSECURE_TOKEN, R_PARSE_UNSIGNED, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  r_jws_free(jws);
+
+  ck_assert_ptr_ne(NULL, jws = r_jws_quick_parse(ADVANCED_TOKEN_SIGNED_WITH_ROOT_KEY, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  ck_assert_int_eq(r_jwks_size(jws->jwks_pubkey), 0);
+  ck_assert_int_eq(r_jws_verify_signature(jws, NULL, 0), RHN_ERROR_INVALID);
+  ck_assert_int_eq(r_jws_verify_signature(jws, jwk_pub, 0), RHN_OK);
+  r_jws_free(jws);
+
+  ck_assert_ptr_ne(NULL, jws = r_jws_quick_parse(ADVANCED_TOKEN_SIGNED_WITH_ROOT_KEY, R_PARSE_HEADER_ALL, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  ck_assert_int_eq(r_jwks_size(jws->jwks_pubkey), 4);
+  ck_assert_int_eq(r_jws_verify_signature(jws, NULL, 0), RHN_ERROR_INVALID);
+  ck_assert_int_eq(r_jws_verify_signature(jws, jwk_pub, 0), RHN_OK);
+  r_jws_free(jws);
+
+  ck_assert_ptr_ne(NULL, jws = r_jws_quick_parse(ADVANCED_TOKEN_SIGNED_WITH_ROOT_KEY, R_PARSE_HEADER_JWK|R_PARSE_HEADER_X5C, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  ck_assert_int_eq(r_jwks_size(jws->jwks_pubkey), 2);
+  ck_assert_int_eq(r_jws_verify_signature(jws, NULL, 0), RHN_ERROR_INVALID);
+  ck_assert_int_eq(r_jws_verify_signature(jws, jwk_pub, 0), RHN_OK);
+  r_jws_free(jws);
+
+  r_jwk_free(jwk_pub);
+  o_free(http_key);
+  o_free(http_cert);
+  ulfius_stop_framework(&instance);
+  ulfius_clean_instance(&instance);
+}
+END_TEST
 #endif
 #endif
 
@@ -1255,6 +1320,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_jwk_in_header);
 #ifdef R_WITH_CURL
   tcase_add_test(tc_core, test_rhonabwy_advanced_parse);
+  tcase_add_test(tc_core, test_rhonabwy_quick_parse);
 #endif
 #endif
   tcase_set_timeout(tc_core, 30);

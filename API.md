@@ -203,6 +203,33 @@ If the imported JWK contains a `x5u` property, the key or certificate will be do
 - `R_FLAG_FOLLOW_REDIRECT`: follow redirection if necessary
 - `R_FLAG_IGNORE_REMOTE`: do not download remote key, but the function may return an error
 
+```C
+int r_jwk_import_from_json_str(jwk_t * jwk, const char * input);
+
+int r_jwk_import_from_json_t(jwk_t * jwk, json_t * j_input);
+
+int r_jwk_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned char * input, size_t input_len);
+
+int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key);
+
+int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub);
+
+int r_jwk_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt);
+
+int r_jwk_import_from_x5u(jwk_t * jwk, int x5u_flags, const char * x5u);
+
+int r_jwk_import_from_x5c(jwk_t * jwk, const char * x5c);
+
+int r_jwk_import_from_symmetric_key(jwk_t * jwk, const unsigned char * key, size_t key_len);
+
+int r_jwk_import_from_password(jwk_t * jwk, const char * password);
+
+int r_jwk_extract_pubkey(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int x5u_flags);
+
+jwk_t * r_jwk_quick_import(rhn_import type, ...);
+```
+
+
 The values `R_FLAG_IGNORE_SERVER_CERTIFICATE` and `R_FLAG_FOLLOW_REDIRECT` can be merged: `R_FLAG_IGNORE_SERVER_CERTIFICATE|R_FLAG_FOLLOW_REDIRECT`
 
 ### Manipulate JWK properties
@@ -286,6 +313,8 @@ int r_jwks_import_from_json_str(jwks_t * jwks, const char * input);
 int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input);
 
 int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int flags);
+
+jwks_t * r_jwks_quick_import(rhn_import, ...);
 ```
 
 ## JWS
@@ -1290,7 +1319,10 @@ The quick parsing functions can be used to parse a JWT in one line:
 ```C
 /**
  * Parses a serialized JWT
- * @param jws_json: the serialized JWT to parse in json_t * format
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
+ * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
+ * @param token: the token to parse into a JWT, must end with a NULL string terminator
  * @param parse_flags: Flags to set or unset options
  * Flags available are
  * - R_PARSE_NONE
@@ -1309,11 +1341,15 @@ The quick parsing functions can be used to parse a JWT in one line:
  * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return a new jwt_t * on success, NULL on error
  */
-jws_t * r_jws_quick_parse(const char * jws_str, uint32_t parse_flags, int x5u_flags);
+jwt_t * r_jwt_quick_parse(const char * token, uint32_t parse_flags, int x5u_flags);
 
 /**
  * Parses a serialized JWT
- * @param jws_json: the serialized JWT to parse in json_t * format
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
+ * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
+ * @param token: the token to parse into a JWT, must end with a NULL string terminator
+ * @param token_len: token length
  * @param parse_flags: Flags to set or unset options
  * Flags available are
  * - R_PARSE_NONE
@@ -1332,7 +1368,7 @@ jws_t * r_jws_quick_parse(const char * jws_str, uint32_t parse_flags, int x5u_fl
  * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return a new jwt_t * on success, NULL on error
  */
-jws_t * r_jws_quick_parsen(const char * jws_str, size_t jws_str_len, uint32_t parse_flags, int x5u_flags);
+jwt_t * r_jwt_quick_parsen(const char * token, size_t token_len, uint32_t parse_flags, int x5u_flags);
 ```
 
 ### Unsecured JWT

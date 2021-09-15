@@ -225,18 +225,18 @@ typedef enum {
 } rhn_opt;
 
 typedef enum {
-  R_IMPORT_NONE      = 0,
-  R_IMPORT_JSON_STR  = 1,
-  R_IMPORT_JSON_T    = 2,
-  R_IMPORT_PEM       = 3,
-  R_IMPORT_DER       = 4,
-  R_IMPORT_G_PRIVKEY = 5,
-  R_IMPORT_G_PUBKEY  = 6,
-  R_IMPORT_G_CERT    = 7,
-  R_IMPORT_X5U       = 8,
-  R_IMPORT_SYMKEY    = 9,
-  R_IMPORT_PASSWORD  = 10,
-  R_IMPORT_JKU       = 11
+  R_IMPORT_NONE      = 0,  ///< End option list, mandatory at the end of the option list when using r_jwks_quick_import
+  R_IMPORT_JSON_STR  = 1,  ///< Import from a stringified JSON, following parameter must be a const char * value
+  R_IMPORT_JSON_T    = 2,  ///< Import from a json_t *, following parameter must be a const json_t * value
+  R_IMPORT_PEM       = 3,  ///< Import from a X509 key in PEM format, following parameters must be type (R_X509_TYPE_PUBKEY, R_X509_TYPE_PRIVKEY or R_X509_TYPE_CERTIFICATE), const unsigned char *, size_t
+  R_IMPORT_DER       = 4,  ///< Import from a X509 key in DER format, following parameters must be type (R_X509_TYPE_PUBKEY, R_X509_TYPE_PRIVKEY or R_X509_TYPE_CERTIFICATE), const unsigned char *, size_t
+  R_IMPORT_G_PRIVKEY = 5,  ///< Import from a gnutls_privkey_t, following parameters must be gnutls_privkey_t
+  R_IMPORT_G_PUBKEY  = 6,  ///< Import from a gnutls_pubkey_t, following parameters must be gnutls_pubkey_t
+  R_IMPORT_G_CERT    = 7,  ///< Import from a gnutls_x509_crt_t, following parameters must be gnutls_x509_crt_t
+  R_IMPORT_X5U       = 8,  ///< Import from an URL pointing to a x5u, following parameters must be x5u_flags (R_FLAG_IGNORE_SERVER_CERTIFICATE, R_FLAG_FOLLOW_REDIRECT, R_FLAG_IGNORE_REMOTE), const char * value
+  R_IMPORT_SYMKEY    = 9,  ///< Import from a symmetric key, following parameters must be const unsigned char *, size_t
+  R_IMPORT_PASSWORD  = 10, ///< Import from a password, following parameter must be a const char * value
+  R_IMPORT_JKU       = 11  ///< Import from an URL pointing to a jku, available for r_jwks_quick_import only, following parameters must be x5u_flags (R_FLAG_IGNORE_SERVER_CERTIFICATE, R_FLAG_FOLLOW_REDIRECT, R_FLAG_IGNORE_REMOTE), const char * value
 } rhn_import;
 
 typedef struct {
@@ -733,6 +733,11 @@ int r_jwk_extract_pubkey(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int x5u_flags)
 
 /**
  * Import data into a jwk
+ * @param Parameters must be set of values
+ * starting with a rhn_import,
+ * and the mandatory parameters for each rhn_import
+ * See rhn_import documentation
+ * @return a jwk containing key parsed, or NULL on error
  */
 jwk_t * r_jwk_quick_import(rhn_import type, ...);
 
@@ -928,6 +933,12 @@ int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int x5u_flags);
 
 /**
  * Import data into a jwks
+ * @param Parameters must be a list of sets of values
+ * each set of values starts with a rhn_import,
+ * and the mandatory parameters for each rhn_import
+ * The parameters list MUST end with R_IMPORT_NONE
+ * See rhn_import documentation
+ * @return a jwks containing the list of keys parsed
  */
 jwks_t * r_jwks_quick_import(rhn_import, ...);
 

@@ -705,7 +705,11 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
                         ret = R_KEY_TYPE_NONE;
                       }
                     } else if ((ret&R_KEY_TYPE_EDDSA)) {
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
                       if (pk_alg != GNUTLS_PK_EDDSA_ED25519 && pk_alg != GNUTLS_PK_EDDSA_ED448) {
+#else
+                      if (pk_alg != GNUTLS_PK_EDDSA_ED25519) {
+#endif
                         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Invalid x5c type, expected OKP");
                         ret = R_KEY_TYPE_NONE;
                       }
@@ -760,7 +764,11 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
                     ret = R_KEY_TYPE_NONE;
                   }
                 } else if ((ret&R_KEY_TYPE_EDDSA)) {
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
                   if (pk_alg != GNUTLS_PK_EDDSA_ED25519 && pk_alg != GNUTLS_PK_EDDSA_ED448) {
+#else
+                  if (pk_alg != GNUTLS_PK_EDDSA_ED25519) {
+#endif
                     y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Invalid x5u type, expected OKP");
                     ret = R_KEY_TYPE_NONE;
                   }

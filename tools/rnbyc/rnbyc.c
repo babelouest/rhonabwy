@@ -114,7 +114,7 @@ static void print_help(FILE * output) {
   fprintf(output, "-s --serialize-token\n");
   fprintf(output, "\tAction: serialize given claims in a token\n");
   fprintf(output, "-H --header\n");
-  fprintf(output, "\tDisplay header of a parsed token, default false\n");
+  fprintf(output, "\tDisplay header of a parsed token\n");
   fprintf(output, "-C --claims\n");
   fprintf(output, "\tDisplay claims of a parsed token, default true\n");
   fprintf(output, "-P --public-key\n");
@@ -835,7 +835,7 @@ int main (int argc, char ** argv) {
       x5u_flags = 0,
       debug_mode = 0,
       format = RNBYC_FORMAT_JWK;
-  const char * short_options = "j::g:i::f:k:a:e:l:o:p:n:F:x::t:s:H:C:K:P:W:u:v::h::d::";
+  const char * short_options = "j::g:i::f:k:a:e:l:o:p:n:F:x::t:s:H::C:K:P:W:u:v::h::d::";
   char * out_file = NULL,
        * out_file_public = NULL,
        * parsed_token = NULL,
@@ -862,7 +862,7 @@ int main (int argc, char ** argv) {
     {"split", no_argument, NULL, 'x'},
     {"parse-token", required_argument, NULL, 't'},
     {"serialize-token", required_argument, NULL, 's'},
-    {"header", required_argument, NULL, 'H'},
+    {"header", no_argument, NULL, 'H'},
     {"claims", required_argument, NULL, 'C'},
     {"public-key", required_argument, NULL, 'P'},
     {"private-key", required_argument, NULL, 'K'},
@@ -1002,11 +1002,7 @@ int main (int argc, char ** argv) {
         claims = o_strdup(optarg);
         break;
       case 'H':
-        if (0 == o_strcasecmp("false", optarg) || 0 == o_strcasecmp("no", optarg) || 0 == o_strcmp("0", optarg)) {
-          show_header = 0;
-        } else {
-          show_header = 1;
-        }
+        show_header = 1;
         break;
       case 'C':
         if (0 == o_strcasecmp("false", optarg) || 0 == o_strcasecmp("no", optarg) || 0 == o_strcmp("0", optarg)) {

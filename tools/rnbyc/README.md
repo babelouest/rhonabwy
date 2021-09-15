@@ -49,7 +49,7 @@ Options available:
 -s --serialize-token
 	Action: serialize given claims in a token
 -H --header
-	Display header of a parsed token, default false
+	Display header of a parsed token
 -C --claims
 	Display claims of a parsed token, default true
 -P --public-key
@@ -162,7 +162,7 @@ $ rnbyc -t eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjJZcXVEeXlNamJvWU4xSkU2T
 ### Parses a signed JWT to display header only
 
 ```shell
-$ rnbyc -t eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjJZcXVEeXlNamJvWU4xSkU2TWVQQWVORk5lTzJUN0thTDcydTRQcUYySTgifQ.eyJhdWQiOiJ4eXoxMjMiLCJub25jZSI6Im5vbmNlMTIzNCJ9.ARpZkLEDAMLDfbcdowyHeb7fg00U06NHRnXCn2SiDMy1wE9SGJT3br-til-BXHJ0HoiSZ4HGhgTEaRf317bhy8jhHHVSJngWSncBxXzNe8cJ3A-bXZJBeTo5wKmxcwqgen744rAG5cmszC0KYR0rAXoqFDgPxxmw-EiFvgOfwn-COUS_ofdruc3BPyK-wuMNFMjqaQMi5RnTPuQZkSmmJkHGoRkAl0oafkKVvOL9VvO29It_b5Sk6uAHViczSY7A2v9oCQvGXML6aN8fqqQivM3ArCxWaDRXrWzO22SL3Qy11blrrCh-JJmKTcrHUjx2Ozacy1ecVXwc__h9Kn_AtA -H true -C false
+$ rnbyc -t eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjJZcXVEeXlNamJvWU4xSkU2TWVQQWVORk5lTzJUN0thTDcydTRQcUYySTgifQ.eyJhdWQiOiJ4eXoxMjMiLCJub25jZSI6Im5vbmNlMTIzNCJ9.ARpZkLEDAMLDfbcdowyHeb7fg00U06NHRnXCn2SiDMy1wE9SGJT3br-til-BXHJ0HoiSZ4HGhgTEaRf317bhy8jhHHVSJngWSncBxXzNe8cJ3A-bXZJBeTo5wKmxcwqgen744rAG5cmszC0KYR0rAXoqFDgPxxmw-EiFvgOfwn-COUS_ofdruc3BPyK-wuMNFMjqaQMi5RnTPuQZkSmmJkHGoRkAl0oafkKVvOL9VvO29It_b5Sk6uAHViczSY7A2v9oCQvGXML6aN8fqqQivM3ArCxWaDRXrWzO22SL3Qy11blrrCh-JJmKTcrHUjx2Ozacy1ecVXwc__h9Kn_AtA -H -C false
 ```
 
 ### Parses a signed JWT to verify the signature and display claims

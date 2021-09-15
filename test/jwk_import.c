@@ -1,6 +1,9 @@
 /* Public domain, no copyright. Use at your own risk. */
 
 #include <stdio.h>
+#include <gnutls/abstract.h>
+#include <gnutls/x509.h>
+#include <gnutls/crypto.h>
 
 #include <check.h>
 #include <rhonabwy.h>
@@ -1283,6 +1286,47 @@ START_TEST(test_rhonabwy_import_from_der)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_import_from_gnutls)
+{
+  gnutls_privkey_t privkey;
+  gnutls_x509_privkey_t x509_key;
+  gnutls_pubkey_t pubkey;
+  gnutls_x509_crt_t crt;
+  gnutls_datum_t data;
+  jwk_t * jwk;
+
+  gnutls_privkey_init(&privkey);
+  ck_assert_int_eq(GNUTLS_E_SUCCESS, gnutls_x509_privkey_init(&x509_key));
+  data.data = (unsigned char *)rsa_2048_priv;
+  data.size = sizeof(rsa_2048_priv);
+  ck_assert_int_eq(GNUTLS_E_SUCCESS, gnutls_x509_privkey_import(x509_key, &data, GNUTLS_X509_FMT_PEM));
+  ck_assert_int_eq(GNUTLS_E_SUCCESS, gnutls_privkey_import_x509(privkey, x509_key, 0));
+  ck_assert_int_eq(RHN_OK, r_jwk_init(&jwk));
+  ck_assert_int_eq(RHN_OK, r_jwk_import_from_gnutls_privkey(jwk, privkey));
+  gnutls_privkey_deinit(privkey);
+  gnutls_x509_privkey_deinit(x509_key);
+  r_jwk_free(jwk);
+
+  gnutls_pubkey_init(&pubkey);
+  data.data = (unsigned char *)rsa_2048_pub;
+  data.size = sizeof(rsa_2048_pub);
+  ck_assert_int_eq(GNUTLS_E_SUCCESS, gnutls_pubkey_import(pubkey, &data, GNUTLS_X509_FMT_PEM));
+  ck_assert_int_eq(RHN_OK, r_jwk_init(&jwk));
+  ck_assert_int_eq(RHN_OK, r_jwk_import_from_gnutls_pubkey(jwk, pubkey));
+  gnutls_pubkey_deinit(pubkey);
+  r_jwk_free(jwk);
+
+  gnutls_x509_crt_init(&crt);
+  data.data = (unsigned char *)x509_cert;
+  data.size = sizeof(x509_cert);
+  ck_assert_int_eq(GNUTLS_E_SUCCESS, gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_PEM));
+  ck_assert_int_eq(RHN_OK, r_jwk_init(&jwk));
+  ck_assert_int_eq(RHN_OK, r_jwk_import_from_gnutls_x509_crt(jwk, crt));
+  gnutls_x509_crt_deinit(crt);
+  r_jwk_free(jwk);
+}
+END_TEST
+
 START_TEST(test_rhonabwy_import_from_x5u)
 {
 #ifdef R_WITH_CURL
@@ -1773,6 +1817,119 @@ START_TEST(test_rhonabwy_validate_x5u_chain)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_quick_import)
+{
+  jwk_t * jwk;
+  json_t * j_input;
+  unsigned char der_decoded[4096];
+  size_t der_dec_len = 0;
+  struct _u_instance instance;
+  char * http_key = get_file_content(HTTPS_CERT_KEY), * http_cert = get_file_content(HTTPS_CERT_PEM);
+  gnutls_privkey_t privkey;
+  gnutls_x509_privkey_t x509_key;
+  gnutls_pubkey_t pubkey;
+  gnutls_x509_crt_t crt;
+  gnutls_datum_t data;
+  
+  ck_assert_int_eq(ulfius_init_instance(&instance, 7463, NULL, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_ecdsa_crt", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);
+  
+  ck_assert_int_eq(ulfius_start_secure_framework(&instance, http_key, http_cert), U_OK);
+  
+  ck_assert_ptr_ne(NULL, jwk = r_jwk_quick_import(R_IMPORT_JSON_STR, jwk_pubkey_ecdsa_str));
+  r_jwk_free(jwk);
+  
+  ck_assert_ptr_eq(NULL, r_jwk_quick_import(R_IMPORT_JSON_STR, jwk_pubkey_ecdsa_str_invalid_kty));
+  
+  ck_assert_ptr_ne(NULL, j_input = json_loads(jwk_pubkey_ecdsa_str, JSON_DECODE_ANY, NULL));
+  ck_assert_ptr_ne(NULL, jwk = r_jwk_quick_import(R_IMPORT_JSON_T, j_input));
+  json_decref(j_input);
+  r_jwk_free(jwk);
+  
+  ck_assert_ptr_ne(NULL, j_input = json_loads(jwk_pubkey_ecdsa_str_invalid_kty, JSON_DECODE_ANY, NULL));
+  ck_assert_ptr_eq(NULL, r_jwk_quick_import(R_IMPORT_JSON_T, j_input));
+  json_decref(j_input);
+
+  ck_assert_ptr_ne(NULL, jwk = r_jwk_quick_import(R_IMPORT_PEM, R_X509_TYPE_PUBKEY, rsa_2048_pub, sizeof(rsa_2048_pub)));
+  ck_assert_int_eq(r_jwk_is_valid(jwk), RHN_OK);
+  r_jwk_free(jwk);
+
+  ck_assert_ptr_eq(NULL, r_jwk_quick_import(R_IMPORT_PEM, R_X509_TYPE_PUBKEY, error_pem, sizeof(error_pem)));
+
+  ck_assert_int_eq(o_base64_decode(rsa_2048_pub_der, o_strlen((const char *)rsa_2048_pub_der), der_decoded, &der_dec_len), 1);
+  ck_assert_ptr_ne(NULL, jwk = r_jwk_quick_import(R_IMPORT_DER, R_X509_TYPE_PUBKEY, der_decoded, der_dec_len));
+  ck_assert_int_eq(r_jwk_is_valid(jwk), RHN_OK);
+  r_jwk_free(jwk);
+
+  ck_assert_ptr_eq(NULL, r_jwk_quick_import(R_IMPORT_DER, R_X509_TYPE_PUBKEY, der_decoded+40, der_dec_len-40));
+
+  ck_assert_int_eq(GNUTLS_E_SUCCESS, gnutls_privkey_init(&privkey));
+  ck_assert_int_eq(GNUTLS_E_SUCCESS, gnutls_x509_privkey_init(&x509_key));
+  data.data = (unsigned char *)rsa_2048_priv;
+  data.size = sizeof(rsa_2048_priv);
+  ck_assert_int_eq(GNUTLS_E_SUCCESS, gnutls_x509_privkey_import(x509_key, &data, GNUTLS_X509_FMT_PEM));
+  ck_assert_int_eq(GNUTLS_E_SUCCESS, gnutls_privkey_import_x509(privkey, x509_key, 0));
+  ck_assert_ptr_ne(RHN_OK, jwk = r_jwk_quick_import(R_IMPORT_G_PRIVKEY, privkey));
+  gnutls_privkey_deinit(privkey);
+  gnutls_x509_privkey_deinit(x509_key);
+  r_jwk_free(jwk);
+
+  ck_assert_ptr_eq(NULL, r_jwk_quick_import(R_IMPORT_G_PRIVKEY, NULL));
+  
+  gnutls_pubkey_init(&pubkey);
+  data.data = (unsigned char *)rsa_2048_pub;
+  data.size = sizeof(rsa_2048_pub);
+  ck_assert_int_eq(GNUTLS_E_SUCCESS, gnutls_pubkey_import(pubkey, &data, GNUTLS_X509_FMT_PEM));
+  ck_assert_ptr_ne(NULL, jwk = r_jwk_quick_import(R_IMPORT_G_PUBKEY, pubkey));
+  gnutls_pubkey_deinit(pubkey);
+  r_jwk_free(jwk);
+
+  ck_assert_ptr_eq(NULL, r_jwk_quick_import(R_IMPORT_G_PUBKEY, NULL));
+  
+  gnutls_x509_crt_init(&crt);
+  data.data = (unsigned char *)x509_cert;
+  data.size = sizeof(x509_cert);
+  ck_assert_int_eq(GNUTLS_E_SUCCESS, gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_PEM));
+  ck_assert_ptr_ne(NULL, jwk = r_jwk_quick_import(R_IMPORT_G_CERT, crt));
+  gnutls_x509_crt_deinit(crt);
+  r_jwk_free(jwk);
+  
+  ck_assert_ptr_eq(NULL, r_jwk_quick_import(R_IMPORT_G_CERT, NULL));
+  
+#ifdef R_WITH_CURL
+
+  ck_assert_ptr_ne(NULL, jwk = r_jwk_quick_import(R_IMPORT_X5U, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7463/x5u_rsa_crt"));
+  r_jwk_free(jwk);
+  
+  ck_assert_ptr_eq(NULL, r_jwk_quick_import(R_IMPORT_X5U, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7463/error"));
+  
+#if GNUTLS_VERSION_NUMBER >= 0x030600
+
+  ck_assert_ptr_ne(NULL, jwk = r_jwk_quick_import(R_IMPORT_X5U, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7463/x5u_ecdsa_crt"));
+  r_jwk_free(jwk);
+  
+  ck_assert_ptr_eq(NULL, r_jwk_quick_import(R_IMPORT_X5U, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7463/error"));
+#endif
+#endif
+  
+  ck_assert_ptr_ne(NULL, jwk = r_jwk_quick_import(R_IMPORT_SYMKEY, symmetric_key, sizeof(symmetric_key)));
+  r_jwk_free(jwk);
+  
+  ck_assert_ptr_eq(NULL, r_jwk_quick_import(R_IMPORT_SYMKEY, NULL, sizeof(symmetric_key)));
+  
+  ck_assert_ptr_ne(NULL, jwk = r_jwk_quick_import(R_IMPORT_PASSWORD, symmetric_key, sizeof(symmetric_key)));
+  r_jwk_free(jwk);
+  
+  ck_assert_ptr_eq(NULL, r_jwk_quick_import(R_IMPORT_PASSWORD, NULL, sizeof(symmetric_key)));
+  
+  o_free(http_key);
+  o_free(http_cert);
+  ulfius_stop_framework(&instance);
+  ulfius_clean_instance(&instance);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -1784,6 +1941,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_import_from_json_t);
   tcase_add_test(tc_core, test_rhonabwy_import_from_pem);
   tcase_add_test(tc_core, test_rhonabwy_import_from_der);
+  tcase_add_test(tc_core, test_rhonabwy_import_from_gnutls);
   tcase_add_test(tc_core, test_rhonabwy_import_from_x5u);
   tcase_add_test(tc_core, test_rhonabwy_key_type);
   tcase_add_test(tc_core, test_rhonabwy_extract_pubkey);
@@ -1791,6 +1949,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_parse_x5c);
   tcase_add_test(tc_core, test_rhonabwy_validate_xc5_chain);
   tcase_add_test(tc_core, test_rhonabwy_validate_x5u_chain);
+  tcase_add_test(tc_core, test_rhonabwy_quick_import);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

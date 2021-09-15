@@ -86,7 +86,7 @@ $(function() {
 <div class="line">-s --serialize-token</div>
 <div class="line">    Action: serialize given claims in a token</div>
 <div class="line">-H --header</div>
-<div class="line">    Display header of a parsed token, default false</div>
+<div class="line">    Display header of a parsed token</div>
 <div class="line">-C --claims</div>
 <div class="line">    Display claims of a parsed token, default true</div>
 <div class="line">-P --public-key</div>
@@ -161,7 +161,7 @@ $(function() {
 </div><!-- fragment --><h2>Parses a signed JWT to display claims</h2>
 <div class="fragment"><div class="line">$ rnbyc -t eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjJZcXVEeXlNamJvWU4xSkU2TWVQQWVORk5lTzJUN0thTDcydTRQcUYySTgifQ.eyJhdWQiOiJ4eXoxMjMiLCJub25jZSI6Im5vbmNlMTIzNCJ9.ARpZkLEDAMLDfbcdowyHeb7fg00U06NHRnXCn2SiDMy1wE9SGJT3br-til-BXHJ0HoiSZ4HGhgTEaRf317bhy8jhHHVSJngWSncBxXzNe8cJ3A-bXZJBeTo5wKmxcwqgen744rAG5cmszC0KYR0rAXoqFDgPxxmw-EiFvgOfwn-COUS_ofdruc3BPyK-wuMNFMjqaQMi5RnTPuQZkSmmJkHGoRkAl0oafkKVvOL9VvO29It_b5Sk6uAHViczSY7A2v9oCQvGXML6aN8fqqQivM3ArCxWaDRXrWzO22SL3Qy11blrrCh-JJmKTcrHUjx2Ozacy1ecVXwc__h9Kn_AtA</div>
 </div><!-- fragment --><h2>Parses a signed JWT to display header only</h2>
-<div class="fragment"><div class="line">$ rnbyc -t eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjJZcXVEeXlNamJvWU4xSkU2TWVQQWVORk5lTzJUN0thTDcydTRQcUYySTgifQ.eyJhdWQiOiJ4eXoxMjMiLCJub25jZSI6Im5vbmNlMTIzNCJ9.ARpZkLEDAMLDfbcdowyHeb7fg00U06NHRnXCn2SiDMy1wE9SGJT3br-til-BXHJ0HoiSZ4HGhgTEaRf317bhy8jhHHVSJngWSncBxXzNe8cJ3A-bXZJBeTo5wKmxcwqgen744rAG5cmszC0KYR0rAXoqFDgPxxmw-EiFvgOfwn-COUS_ofdruc3BPyK-wuMNFMjqaQMi5RnTPuQZkSmmJkHGoRkAl0oafkKVvOL9VvO29It_b5Sk6uAHViczSY7A2v9oCQvGXML6aN8fqqQivM3ArCxWaDRXrWzO22SL3Qy11blrrCh-JJmKTcrHUjx2Ozacy1ecVXwc__h9Kn_AtA -H true -C false</div>
+<div class="fragment"><div class="line">$ rnbyc -t eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjJZcXVEeXlNamJvWU4xSkU2TWVQQWVORk5lTzJUN0thTDcydTRQcUYySTgifQ.eyJhdWQiOiJ4eXoxMjMiLCJub25jZSI6Im5vbmNlMTIzNCJ9.ARpZkLEDAMLDfbcdowyHeb7fg00U06NHRnXCn2SiDMy1wE9SGJT3br-til-BXHJ0HoiSZ4HGhgTEaRf317bhy8jhHHVSJngWSncBxXzNe8cJ3A-bXZJBeTo5wKmxcwqgen744rAG5cmszC0KYR0rAXoqFDgPxxmw-EiFvgOfwn-COUS_ofdruc3BPyK-wuMNFMjqaQMi5RnTPuQZkSmmJkHGoRkAl0oafkKVvOL9VvO29It_b5Sk6uAHViczSY7A2v9oCQvGXML6aN8fqqQivM3ArCxWaDRXrWzO22SL3Qy11blrrCh-JJmKTcrHUjx2Ozacy1ecVXwc__h9Kn_AtA -H -C false</div>
 </div><!-- fragment --><h2>Parses a signed JWT to verify the signature and display claims</h2>
 <div class="fragment"><div class="line">$ rnbyc -t eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjJZcXVEeXlNamJvWU4xSkU2TWVQQWVORk5lTzJUN0thTDcydTRQcUYySTgifQ.eyJhdWQiOiJ4eXoxMjMiLCJub25jZSI6Im5vbmNlMTIzNCJ9.ARpZkLEDAMLDfbcdowyHeb7fg00U06NHRnXCn2SiDMy1wE9SGJT3br-til-BXHJ0HoiSZ4HGhgTEaRf317bhy8jhHHVSJngWSncBxXzNe8cJ3A-bXZJBeTo5wKmxcwqgen744rAG5cmszC0KYR0rAXoqFDgPxxmw-EiFvgOfwn-COUS_ofdruc3BPyK-wuMNFMjqaQMi5RnTPuQZkSmmJkHGoRkAl0oafkKVvOL9VvO29It_b5Sk6uAHViczSY7A2v9oCQvGXML6aN8fqqQivM3ArCxWaDRXrWzO22SL3Qy11blrrCh-JJmKTcrHUjx2Ozacy1ecVXwc__h9Kn_AtA -P pub.jwks</div>
 </div><!-- fragment --><h2>Parses an encrypted JWT to decrypt its content and display claims</h2>

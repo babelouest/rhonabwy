@@ -56,6 +56,8 @@ Functions</h2></td></tr>
 <tr class="separator:ga6c32c46305421cf0eed3c6f3ea91a798"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga37b2cc95af08528b2d80f590f69a9280"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga37b2cc95af08528b2d80f590f69a9280">r_jwks_import_from_uri</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, const char *uri, int x5u_flags)</td></tr>
 <tr class="separator:ga37b2cc95af08528b2d80f590f69a9280"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae4ba88e4c54aedd5b930ad230dd934cd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#gae4ba88e4c54aedd5b930ad230dd934cd">r_jwks_quick_import</a> (<a class="el" href="group__type.html#ga7ac7039b8e1cc414d3da273c244ed591">rhn_import</a>,...)</td></tr>
+<tr class="separator:gae4ba88e4c54aedd5b930ad230dd934cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga39a3c880b62eb0bb1f718bec976ca0a7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga39a3c880b62eb0bb1f718bec976ca0a7">r_jwks_copy</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
 <tr class="separator:ga39a3c880b62eb0bb1f718bec976ca0a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1370763ce4d4ed8009ae87ca8e08e2db"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga1370763ce4d4ed8009ae87ca8e08e2db">r_jwks_size</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
@@ -229,6 +231,41 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error may return RHN_ERROR_PARAM if at least one JWK is invalid, but the will import the others </dd></dl>
+
+</div>
+</div>
+<a id="gae4ba88e4c54aedd5b930ad230dd934cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae4ba88e4c54aedd5b930ad230dd934cd">&#9670;&nbsp;</a></span>r_jwks_quick_import()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a>* r_jwks_quick_import </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#ga7ac7039b8e1cc414d3da273c244ed591">rhn_import</a>&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Import data into a jwks </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">Parameters</td><td>must be a list of sets of values each set of values starts with a rhn_import, and the mandatory parameters for each rhn_import The parameters list MUST end with R_IMPORT_NONE See rhn_import documentation </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a jwks containing the list of keys parsed </dd></dl>
 
 </div>
 </div>

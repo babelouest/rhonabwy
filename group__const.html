@@ -120,6 +120,22 @@ Macros</h2></td></tr>
 <tr class="separator:gae786a45fe01852566d1c20507cbd9789"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0ac13e5d39f083ae417e3bc7619cca08"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga0ac13e5d39f083ae417e3bc7619cca08">R_JSON_MODE_FLATTENED</a>&#160;&#160;&#160;2</td></tr>
 <tr class="separator:ga0ac13e5d39f083ae417e3bc7619cca08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6e438810c00442c0731a7b21c30837f7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga6e438810c00442c0731a7b21c30837f7">R_PARSE_NONE</a>&#160;&#160;&#160;0</td></tr>
+<tr class="separator:ga6e438810c00442c0731a7b21c30837f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf83f8016b249374ae714c27019967e38"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gaf83f8016b249374ae714c27019967e38">R_PARSE_HEADER_JWK</a>&#160;&#160;&#160;1</td></tr>
+<tr class="separator:gaf83f8016b249374ae714c27019967e38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf0234a74e5f1f83fc6507e90d398c28a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gaf0234a74e5f1f83fc6507e90d398c28a">R_PARSE_HEADER_JKU</a>&#160;&#160;&#160;2</td></tr>
+<tr class="separator:gaf0234a74e5f1f83fc6507e90d398c28a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf867c4cc9701f2eeb6e11969e5bf3a8c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gaf867c4cc9701f2eeb6e11969e5bf3a8c">R_PARSE_HEADER_X5C</a>&#160;&#160;&#160;4</td></tr>
+<tr class="separator:gaf867c4cc9701f2eeb6e11969e5bf3a8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga20d31ca47a24172276a206956ec68573"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga20d31ca47a24172276a206956ec68573">R_PARSE_HEADER_X5U</a>&#160;&#160;&#160;8</td></tr>
+<tr class="separator:ga20d31ca47a24172276a206956ec68573"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga37a6c50182cdea6ffc554e6b405dbf8d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga37a6c50182cdea6ffc554e6b405dbf8d">R_PARSE_HEADER_ALL</a>&#160;&#160;&#160;(<a class="el" href="group__const.html#gaf83f8016b249374ae714c27019967e38">R_PARSE_HEADER_JWK</a>|<a class="el" href="group__const.html#gaf0234a74e5f1f83fc6507e90d398c28a">R_PARSE_HEADER_JKU</a>|<a class="el" href="group__const.html#gaf867c4cc9701f2eeb6e11969e5bf3a8c">R_PARSE_HEADER_X5C</a>|<a class="el" href="group__const.html#ga20d31ca47a24172276a206956ec68573">R_PARSE_HEADER_X5U</a>)</td></tr>
+<tr class="separator:ga37a6c50182cdea6ffc554e6b405dbf8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga60f43fd61b74524abf5de9f5dba56659"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga60f43fd61b74524abf5de9f5dba56659">R_PARSE_UNSIGNED</a>&#160;&#160;&#160;16</td></tr>
+<tr class="separator:ga60f43fd61b74524abf5de9f5dba56659"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga26a9498ad17f4629c026f91d2bc3d97f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga26a9498ad17f4629c026f91d2bc3d97f">R_PARSE_ALL</a>&#160;&#160;&#160;(<a class="el" href="group__const.html#ga37a6c50182cdea6ffc554e6b405dbf8d">R_PARSE_HEADER_ALL</a>|<a class="el" href="group__const.html#ga60f43fd61b74524abf5de9f5dba56659">R_PARSE_UNSIGNED</a>)</td></tr>
+<tr class="separator:ga26a9498ad17f4629c026f91d2bc3d97f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Constant values used as input or output </p>
@@ -622,6 +638,118 @@ Macros</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">#define R_JSON_MODE_FLATTENED&#160;&#160;&#160;2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ga6e438810c00442c0731a7b21c30837f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6e438810c00442c0731a7b21c30837f7">&#9670;&nbsp;</a></span>R_PARSE_NONE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define R_PARSE_NONE&#160;&#160;&#160;0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="gaf83f8016b249374ae714c27019967e38"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf83f8016b249374ae714c27019967e38">&#9670;&nbsp;</a></span>R_PARSE_HEADER_JWK</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define R_PARSE_HEADER_JWK&#160;&#160;&#160;1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="gaf0234a74e5f1f83fc6507e90d398c28a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf0234a74e5f1f83fc6507e90d398c28a">&#9670;&nbsp;</a></span>R_PARSE_HEADER_JKU</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define R_PARSE_HEADER_JKU&#160;&#160;&#160;2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="gaf867c4cc9701f2eeb6e11969e5bf3a8c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf867c4cc9701f2eeb6e11969e5bf3a8c">&#9670;&nbsp;</a></span>R_PARSE_HEADER_X5C</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define R_PARSE_HEADER_X5C&#160;&#160;&#160;4</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ga20d31ca47a24172276a206956ec68573"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga20d31ca47a24172276a206956ec68573">&#9670;&nbsp;</a></span>R_PARSE_HEADER_X5U</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define R_PARSE_HEADER_X5U&#160;&#160;&#160;8</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ga37a6c50182cdea6ffc554e6b405dbf8d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga37a6c50182cdea6ffc554e6b405dbf8d">&#9670;&nbsp;</a></span>R_PARSE_HEADER_ALL</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define R_PARSE_HEADER_ALL&#160;&#160;&#160;(<a class="el" href="group__const.html#gaf83f8016b249374ae714c27019967e38">R_PARSE_HEADER_JWK</a>|<a class="el" href="group__const.html#gaf0234a74e5f1f83fc6507e90d398c28a">R_PARSE_HEADER_JKU</a>|<a class="el" href="group__const.html#gaf867c4cc9701f2eeb6e11969e5bf3a8c">R_PARSE_HEADER_X5C</a>|<a class="el" href="group__const.html#ga20d31ca47a24172276a206956ec68573">R_PARSE_HEADER_X5U</a>)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ga60f43fd61b74524abf5de9f5dba56659"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga60f43fd61b74524abf5de9f5dba56659">&#9670;&nbsp;</a></span>R_PARSE_UNSIGNED</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define R_PARSE_UNSIGNED&#160;&#160;&#160;16</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ga26a9498ad17f4629c026f91d2bc3d97f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga26a9498ad17f4629c026f91d2bc3d97f">&#9670;&nbsp;</a></span>R_PARSE_ALL</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define R_PARSE_ALL&#160;&#160;&#160;(<a class="el" href="group__const.html#ga37a6c50182cdea6ffc554e6b405dbf8d">R_PARSE_HEADER_ALL</a>|<a class="el" href="group__const.html#ga60f43fd61b74524abf5de9f5dba56659">R_PARSE_UNSIGNED</a>)</td>
         </tr>
       </table>
 </div><div class="memdoc">

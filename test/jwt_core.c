@@ -1580,7 +1580,7 @@ START_TEST(test_rhonabwy_advanced_parse)
   ck_assert_int_eq(r_jwt_verify_signature(jwt, jwk_pub, 0), RHN_ERROR_INVALID);
   r_jwt_free(jwt);
 
-#if GNUTLS_VERSION_NUMBER >= 0x030600  
+#if GNUTLS_VERSION_NUMBER >= 0x030600 && NETTLE_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
   ck_assert_int_eq(r_jwt_parse(jwt, ADVANCED_NESTED_TOKEN_SE_SIGNED_WITH_KEY_2, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
   ck_assert_int_eq(r_jwt_decrypt_nested(jwt, jwk_priv, 0), RHN_OK);

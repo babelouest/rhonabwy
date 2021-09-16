@@ -713,12 +713,15 @@ START_TEST(test_rhonabwy_jwks_quick_import)
   unsigned char der_decoded[4096];
   size_t der_dec_len = 0;
   struct _u_instance instance;
-  char * http_key = get_file_content(HTTPS_CERT_KEY), * http_cert = get_file_content(HTTPS_CERT_PEM);
+  char * http_key, * http_cert;
   gnutls_privkey_t privkey;
   gnutls_x509_privkey_t x509_key;
   gnutls_pubkey_t pubkey;
   gnutls_x509_crt_t crt;
   gnutls_datum_t data;
+  
+  ck_assert_ptr_ne(NULL, http_key = get_file_content(HTTPS_CERT_KEY));
+  ck_assert_ptr_ne(NULL, http_cert = get_file_content(HTTPS_CERT_PEM));
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7463, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);

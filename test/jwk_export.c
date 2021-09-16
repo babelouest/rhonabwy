@@ -468,7 +468,10 @@ START_TEST(test_rhonabwy_export_to_gnutls_pubkey)
   jwk_t * jwk;
   gnutls_pubkey_t pubkey = NULL;
   struct _u_instance instance;
-  char * http_key = get_file_content(HTTPS_CERT_KEY), * http_cert = get_file_content(HTTPS_CERT_PEM);
+  char * http_key, * http_cert;
+  
+  ck_assert_ptr_ne(NULL, http_key = get_file_content(HTTPS_CERT_KEY));
+  ck_assert_ptr_ne(NULL, http_cert = get_file_content(HTTPS_CERT_PEM));
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7465, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);
@@ -538,7 +541,10 @@ START_TEST(test_rhonabwy_export_to_gnutls_crt)
   jwk_t * jwk;
   gnutls_x509_crt_t crt = NULL;
   struct _u_instance instance;
-  char * http_key = get_file_content(HTTPS_CERT_KEY), * http_cert = get_file_content(HTTPS_CERT_PEM);
+  char * http_key, * http_cert;
+  
+  ck_assert_ptr_ne(NULL, http_key = get_file_content(HTTPS_CERT_KEY));
+  ck_assert_ptr_ne(NULL, http_cert = get_file_content(HTTPS_CERT_PEM));
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7466, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);
@@ -603,7 +609,10 @@ START_TEST(test_rhonabwy_export_to_pem)
   unsigned char data[4096];
   size_t data_len = 4096;
   struct _u_instance instance;
-  char * http_key = get_file_content(HTTPS_CERT_KEY), * http_cert = get_file_content(HTTPS_CERT_PEM);
+  char * http_key, * http_cert;
+  
+  ck_assert_ptr_ne(NULL, http_key = get_file_content(HTTPS_CERT_KEY));
+  ck_assert_ptr_ne(NULL, http_cert = get_file_content(HTTPS_CERT_PEM));
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7467, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);

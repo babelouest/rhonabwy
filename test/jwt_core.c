@@ -1369,7 +1369,10 @@ START_TEST(test_rhonabwy_advanced_parse)
   jwk_t * jwk_pub, * jwk_priv, * jwk_pubkey_1;
   jwt_t * jwt;
   struct _u_instance instance;
-  char * http_key = get_file_content(HTTPS_CERT_KEY), * http_cert = get_file_content(HTTPS_CERT_PEM);
+  char * http_key, * http_cert;
+  
+  ck_assert_ptr_ne(NULL, http_key = get_file_content(HTTPS_CERT_KEY));
+  ck_assert_ptr_ne(NULL, http_cert = get_file_content(HTTPS_CERT_PEM));
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7468, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);
@@ -1576,7 +1579,8 @@ START_TEST(test_rhonabwy_advanced_parse)
   ck_assert_int_eq(r_jwt_verify_signature(jwt, NULL, 0), RHN_OK);
   ck_assert_int_eq(r_jwt_verify_signature(jwt, jwk_pub, 0), RHN_ERROR_INVALID);
   r_jwt_free(jwt);
-  
+
+#if GNUTLS_VERSION_NUMBER >= 0x030600  
   ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
   ck_assert_int_eq(r_jwt_parse(jwt, ADVANCED_NESTED_TOKEN_SE_SIGNED_WITH_KEY_2, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_OK);
   ck_assert_int_eq(r_jwt_decrypt_nested(jwt, jwk_priv, 0), RHN_OK);
@@ -1606,6 +1610,7 @@ START_TEST(test_rhonabwy_advanced_parse)
   ck_assert_int_eq(r_jwt_verify_signature_nested(jwt, NULL, 0), RHN_OK);
   ck_assert_int_eq(r_jwt_verify_signature_nested(jwt, jwk_pubkey_1, 0), RHN_ERROR_INVALID);
   r_jwt_free(jwt);
+#endif
   
   r_jwk_free(jwk_pub);
   r_jwk_free(jwk_priv);
@@ -1622,7 +1627,10 @@ START_TEST(test_rhonabwy_quick_parse)
   jwk_t * jwk_pub;
   jwt_t * jwt;
   struct _u_instance instance;
-  char * http_key = get_file_content(HTTPS_CERT_KEY), * http_cert = get_file_content(HTTPS_CERT_PEM);
+  char * http_key, * http_cert;
+  
+  ck_assert_ptr_ne(NULL, http_key = get_file_content(HTTPS_CERT_KEY));
+  ck_assert_ptr_ne(NULL, http_cert = get_file_content(HTTPS_CERT_PEM));
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7468, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);

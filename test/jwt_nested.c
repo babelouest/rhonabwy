@@ -1230,7 +1230,7 @@ START_TEST(test_rhonabwy_nested_unsecure)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey_rsa, jwk_privkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwt_get_type(jwt), R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT);
   ck_assert_int_eq(r_jwt_decrypt_nested(jwt, jwk_privkey_rsa, 0), RHN_ERROR_INVALID);
-  ck_assert_int_eq(r_jwt_verify_signature_nested(jwt, jwk_pubkey_ecdsa, 0), RHN_ERROR_INVALID);
+  ck_assert_int_eq(r_jwt_verify_signature_nested(jwt, jwk_pubkey_ecdsa, 0), RHN_ERROR_PARAM);
   r_jwk_free(jwk_pubkey_ecdsa);
   r_jwk_free(jwk_privkey_rsa);
   r_jwt_free(jwt);

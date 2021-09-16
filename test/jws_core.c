@@ -1021,7 +1021,10 @@ START_TEST(test_rhonabwy_advanced_parse)
   jwk_t * jwk_pub;
   jws_t * jws;
   struct _u_instance instance;
-  char * http_key = get_file_content(HTTPS_CERT_KEY), * http_cert = get_file_content(HTTPS_CERT_PEM);
+  char * http_key, * http_cert;
+  
+  ck_assert_ptr_ne(NULL, http_key = get_file_content(HTTPS_CERT_KEY));
+  ck_assert_ptr_ne(NULL, http_cert = get_file_content(HTTPS_CERT_PEM));
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7468, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);
@@ -1238,7 +1241,10 @@ START_TEST(test_rhonabwy_quick_parse)
   jwk_t * jwk_pub;
   jws_t * jws;
   struct _u_instance instance;
-  char * http_key = get_file_content(HTTPS_CERT_KEY), * http_cert = get_file_content(HTTPS_CERT_PEM);
+  char * http_key, * http_cert;
+  
+  ck_assert_ptr_ne(NULL, http_key = get_file_content(HTTPS_CERT_KEY));
+  ck_assert_ptr_ne(NULL, http_cert = get_file_content(HTTPS_CERT_PEM));
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7468, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);

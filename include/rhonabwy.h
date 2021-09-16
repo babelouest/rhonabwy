@@ -280,6 +280,7 @@ typedef struct {
 
 typedef struct {
   int             type;
+  uint32_t        parse_flags;
   json_t        * j_header;
   json_t        * j_claims;
   jws_t         * jws;

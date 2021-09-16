@@ -488,7 +488,7 @@ static void get_jwks_out(json_t * j_arguments, int split_keys, int x5u_flags, in
   if (r_jwks_size(jwks_privkey)) {
     if (format == RNBYC_FORMAT_JWK) {
       j_jwks = r_jwks_export_to_json_t(jwks_privkey);
-      str_jwks = json_dumps(j_jwks, JSON_INDENT(indent));
+      str_jwks = json_dumps(j_jwks, JSON_INDENT(indent)|JSON_SORT_KEYS);
       str_jwks_len = o_strlen(str_jwks);
     } else {
       str_jwks = NULL;
@@ -535,7 +535,7 @@ static void get_jwks_out(json_t * j_arguments, int split_keys, int x5u_flags, in
   if (r_jwks_size(jwks_pubkey)) {
     if (format == RNBYC_FORMAT_JWK) {
       j_jwks = r_jwks_export_to_json_t(jwks_pubkey);
-      str_jwks = json_dumps(j_jwks, JSON_INDENT(indent));
+      str_jwks = json_dumps(j_jwks, JSON_INDENT(indent)|JSON_SORT_KEYS);
       str_jwks_len = o_strlen(str_jwks);
     } else {
       for (index=0; index<r_jwks_size(jwks_pubkey); index++) {
@@ -674,7 +674,7 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
       }
       if (show_header) {
         j_value = r_jwt_get_full_header_json_t(jwt);
-        str_value = json_dumps(j_value, JSON_INDENT(indent));
+        str_value = json_dumps(j_value, JSON_INDENT(indent)|JSON_SORT_KEYS);
         printf("%s\n", str_value);
         o_free(str_value);
         json_decref(j_value);
@@ -683,7 +683,7 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
         str_value = NULL;
         j_value = r_jwt_get_full_claims_json_t(jwt);
         if (j_value != NULL) {
-          str_value = json_dumps(j_value, JSON_INDENT(indent));
+          str_value = json_dumps(j_value, JSON_INDENT(indent)|JSON_SORT_KEYS);
           printf("%s\n", str_value);
           o_free(str_value);
           json_decref(j_value);

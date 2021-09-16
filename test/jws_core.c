@@ -731,6 +731,7 @@ START_TEST(test_rhonabwy_parse_android_safetynet_jwt)
   ck_assert_int_eq(r_jws_advanced_parse(jws, ANDROID_SAFETYNET_JWT, R_PARSE_HEADER_X5C, 0), RHN_OK);
   ck_assert_int_gt(r_jwks_size(jws->jwks_pubkey), 0);
   ck_assert_int_eq(r_jws_verify_signature(jws, NULL, 0), RHN_OK);
+  r_jws_free(jws);
   
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
   ck_assert_int_eq(r_jws_advanced_parse(jws, ANDROID_SAFETYNET_JWT, R_PARSE_NONE, 0), RHN_OK);

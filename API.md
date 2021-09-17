@@ -524,12 +524,12 @@ The header value `"zip":"DEF"` is used to specify if the JWS payload is compress
 
 ### Unsecured JWS
 
-It's possible to use Rhonabwy for unsecured JWS, with the header `alg:"none"` and an empty signature, using a dedicated set of functions: `r_jws_parse_unsecure`, `r_jws_parsen_unsecure`, `r_jws_compact_parsen_unsecure`, `r_jws_compact_parse_unsecure` and `r_jws_serialize_unsecure`.
+It's possible to use Rhonabwy for unsecured JWS, with the header `alg:"none"` and an empty signature, using a dedicated set of functions: `r_jws_parse_unsecure`, `r_jws_parsen_unsecure`, `r_jws_compact_parsen_unsecure`, `r_jws_compact_parse_unsecure` and `r_jws_serialize_unsecure`, or using `r_jws_advanced_parse` with the `parse_flags` value `R_PARSE_UNSIGNED` set.
 
 #### Parse a unsecured JWS
 
 By default, the functions `r_jws_parse`, `r_jws_parsen`, `r_jws_compact_parse` and `r_jws_compact_parsen` will return `RHN_ERROR_INVALID` if the parsed JWS is unsigned.
-To parse any JWS, signed or unsigned, you must use the functions `r_jws_parse_unsecure`, `r_jws_parsen_unsecure`, `r_jws_compact_parsen_unsecure` and `r_jws_compact_parse_unsecure`.
+To parse any JWS, signed or unsigned, you must use the functions `r_jws_parse_unsecure`, `r_jws_parsen_unsecure`, `r_jws_compact_parsen_unsecure` and `r_jws_compact_parse_unsecure`, or using `r_jws_advanced_parse` with the `parse_flags` value `R_PARSE_UNSIGNED` set.
 
 #### Serialize an unsecured JWS
 
@@ -1263,9 +1263,12 @@ To simplify secure token parsing, you should use the functions `r_jwt_advanced_p
 
 ```C
 /**
- * Parses the serialized JWT in all modes (compact, flattened or general)
- * @param jwt: the jwt_t to update
- * @param jwt_str: the serialized JWT to parse, must end with a NULL string terminator
+ * Parses a serialized JWT
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
+ * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
+ * @param jwt: the jwt that will contain the parsed token
+ * @param token: the token to parse into a JWT, must end with a NULL string terminator
  * @param parse_flags: Flags to set or unset options
  * Flags available are
  * - R_PARSE_NONE
@@ -1284,13 +1287,16 @@ To simplify secure token parsing, you should use the functions `r_jwt_advanced_p
  * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return RHN_OK on success, an error value on error
  */
-int r_jwt_advanced_parse(jwt_t * jwt, const char * jwt_str, uint32_t parse_flags, int x5u_flags);
+int r_jwt_advanced_parse(jwt_t * jwt, const char * token, uint32_t parse_flags, int x5u_flags);
 
 /**
- * Parses the serialized JWT in all modes (compact, flattened or general)
- * @param jwt: the jwt_t to update
- * @param jwt_str: the serialized JWT to parse
- * @param jwt_str_len: the length of jwt_str to parse
+ * Parses a serialized JWT
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
+ * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
+ * @param jwt: the jwt that will contain the parsed token
+ * @param token: the token to parse into a JWT
+ * @param token_len: token length
  * @param parse_flags: Flags to set or unset options
  * Flags available are
  * - R_PARSE_NONE
@@ -1309,7 +1315,7 @@ int r_jwt_advanced_parse(jwt_t * jwt, const char * jwt_str, uint32_t parse_flags
  * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
  * @return RHN_OK on success, an error value on error
  */
-int r_jwt_advanced_parsen(jwt_t * jwt, const char * jwt_str, size_t jwt_str_len, uint32_t parse_flags, int x5u_flags);
+int r_jwt_advanced_parsen(jwt_t * jwt, const char * token, size_t token_len, uint32_t parse_flags, int x5u_flags);
 ```
 
 ### Quick parsing
@@ -1373,12 +1379,12 @@ jwt_t * r_jwt_quick_parsen(const char * token, size_t token_len, uint32_t parse_
 
 ### Unsecured JWT
 
-It's possible to use Rhonabwy for unsecured JWT, with the header `alg:"none"` and an empty signature, using a dedicated set of functions: `r_jwt_parse_unsecure`, `r_jwt_parsen_unsecure` and `r_jwt_serialize_signed_unsecure`.
+It's possible to use Rhonabwy for unsecured JWT, with the header `alg:"none"` and an empty signature, using a dedicated set of functions: `r_jwt_parse_unsecure`, `r_jwt_parsen_unsecure` and `r_jwt_serialize_signed_unsecure`, or using `r_jwt_advanced_parse` with the `parse_flags` value `R_PARSE_UNSIGNED` set.
 
 #### Parse a unsecured JWT
 
 By default, the functions `r_jwt_parse` and `r_jwt_parsen` will return `RHN_ERROR_INVALID` if the parsed JWT is unsigned.
-To parse any JWT, signed or unsigned, you must use the functions `r_jwt_parse_unsecure` and `r_jwt_parsen_unsecure`.
+To parse any JWT, signed or unsigned, you must use the functions `r_jwt_parse_unsecure` and `r_jwt_parsen_unsecure`, or using `r_jwt_advanced_parse` with the `parse_flags` value `R_PARSE_UNSIGNED` set.
 
 #### Serialize an unsecured JWT
 

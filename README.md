@@ -112,49 +112,45 @@ Example program to parse and verify the signature of a JWT using its public key 
 #include <rhonabwy.h>
 
 int main(void) {
-  const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjEifQ."
-  "eyJzdHIiOiJwbG9wIiwiaW50Ijo0Miwib2JqIjp0cnVlfQ."
-  "ooXNEt3JWFGMuvkGUM-szUOU1QTu4DvyC3qQP64UGeeJQuMGupBCVATnGkiqNLiPSJ9uBsjZbyUrWe8z7Iag_A";
-  
-  const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
-                                      "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\",\"alg\":\"ES256\"}";
-  
+  const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjEifQ."                                     // Header
+                       "eyJzdHIiOiJwbG9wIiwiaW50Ijo0Miwib2JqIjp0cnVlfQ."                                         // Claims
+                       "ooXNEt3JWFGMuvkGUM-szUOU1QTu4DvyC3qQP64UGeeJQuMGupBCVATnGkiqNLiPSJ9uBsjZbyUrWe8z7Iag_A"; // Signature
+
+  const char jwk_pubkey_ecdsa_str[] = "{"
+                                        "\"kty\":\"EC\","
+                                        "\"crv\":\"P-256\","
+                                        "\"alg\":\"ES256\","
+                                        "\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","
+                                        "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\","
+                                        "\"kid\":\"1\","
+                                        "\"use\":\"sig\""
+                                      "}";
+
   unsigned char output[2048];
   size_t output_len = 2048;
-  jwk_t * jwk;
-  jwt_t * jwt;
+  jwk_t * jwk = NULL;
+  jwt_t * jwt = NULL;
   char * claims;
 
-  if (r_jwk_init(&jwk) == RHN_OK) {
-    if (r_jwt_init(&jwt) == RHN_OK) {
-      if (r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str) == RHN_OK) {
-        if (r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, output, &output_len, 0) == RHN_OK) {
-          printf("Exported key:\n%.*s\n", (int)output_len, output);
-          if (r_jwt_parse(jwt, token, 0) == RHN_OK) {
-            if (r_jwt_verify_signature(jwt, jwk, 0) == RHN_OK) {
-              claims = r_jwt_get_full_claims_str(jwt);
-              printf("Verified payload:\n%s\n", claims);
-              r_free(claims);
-            } else {
-              fprintf(stderr, "Error r_jwt_verify_signature\n");
-            }
-          } else {
-            fprintf(stderr, "Error r_jwt_parse\n");
-          }
-        } else {
-          fprintf(stderr, "Error r_jwk_export_to_pem_der\n");
-        }
+  if ((jwk = r_jwk_quick_import(R_IMPORT_JSON_STR, jwk_pubkey_ecdsa_str)) != NULL && (jwt = r_jwt_quick_parse(token, R_PARSE_NONE, 0)) != NULL) {
+    if (r_jwk_export_to_pem_der(jwk, R_FORMAT_PEM, output, &output_len, 0) == RHN_OK) {
+      printf("Exported key:\n%.*s\n", (int)output_len, output);
+      if (r_jwt_verify_signature(jwt, jwk, 0) == RHN_OK) {
+        claims = r_jwt_get_full_claims_str(jwt);
+        printf("Verified payload:\n%s\n", claims);
+        r_free(claims);
       } else {
-        fprintf(stderr, "Error r_jwk_import_from_json_str\n");
+        fprintf(stderr, "Error r_jwt_verify_signature\n");
       }
-      r_jwt_free(jwt);
     } else {
-      fprintf(stderr, "Error r_jwt_init\n");
+      fprintf(stderr, "Error r_jwk_export_to_pem_der\n");
     }
-    r_jwk_free(jwk);
   } else {
-    fprintf(stderr, "Error r_jwk_init\n");
+    fprintf(stderr, "Error parsing\n");
   }
+  r_jwk_free(jwk);
+  r_jwt_free(jwt);
+
   return 0;
 }
 ```

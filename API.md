@@ -872,33 +872,32 @@ You can specify the ephemeral key to use though, by setting an encryption key to
 Example with a specified ephemeral key:
 
 ```C
-#define PAYLOAD "The true sign of intelligence is not knowledge but imagination..."
-
+const unsigned char payload[] = "The true sign of intelligence is not knowledge but imagination...";
 // This is the ephemeral key
 const char eph[] = " {\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"gI0GAILBdu7T53akrFmMyGcsF3n5dO7MmwNBHKW5SV0\","
 "\"y\":\"SLW_xSffzlPWrHEVI30DHM_4egVwt3NQqeUD7nMFpps\",\"d\":\"0_NxaRPUMQoAJt50Gz8YiTr8gRTwyEaCumd-MToTmIo\"}",
 bob[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"weNJy2HscCSM6AEDTDg04biOvhFhyyWvOHQfeF_PxMQ\","
 "\"y\":\"e8lnCO-AlStT-NJVX-crhB7QRYhiix03illJOVAOyck\"}"; // This is the public key
-jwk_t * jwk_eph, * jwk_bob;
-jwe_t * jwe;
+jwk_t * jwk_eph = NULL, * jwk_bob = NULL;
+jwe_t * jwe = NULL;
 char * token;
 
-r_jwk_init(&jwk_eph);
-r_jwk_init(&jwk_bob);
+jwk_eph = r_jwk_quick_import(R_IMPORT_JSON_STR, eph);
+jwk_bob = r_jwk_quick_import(R_IMPORT_JSON_STR, bob);
+
 r_jwe_init(&jwe);
-r_jwk_import_from_json_str(jwk_eph, eph);
-r_jwk_import_from_json_str(jwk_bob, bob);
-r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD));
+r_jwe_set_payload(jwe, payload, sizeof(payload));
 
 r_jwe_add_keys(jwe, jwk_eph, jwk_bob); // Add both public and ephemeral keys here
 
-r_jwe_set_alg(jwe, R_JWA_ALG_ECDH_ES);
+r_jwe_set_alg(jwe, R_JWA_ALG_ECDH_ES_A128KW);
 r_jwe_set_enc(jwe, R_JWA_ENC_A128GCM);
 r_jwe_set_header_str_value(jwe, "apu", "QWxpY2U");
 r_jwe_set_header_str_value(jwe, "apv", "Qm9i");
 
-token = r_jwe_serialize(jwe, NULL, 0);
+token = r_jwe_serialize(jwe, NULL, 0); // token will contain the compact representation of the serialized token, e.g. eyJhcHUiOiJRV3hwWTJVIiwiYXB2IjoiUW0[...]
 
+r_free(token);
 r_jwk_free(jwk_eph);
 r_jwk_free(jwk_bob);
 r_jwe_free(jwe);

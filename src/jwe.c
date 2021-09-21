@@ -1687,7 +1687,7 @@ static json_t * r_jwe_aesgcm_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int
       iv_g.size = iv_size;
       if ((res = gnutls_cipher_init(&handle, r_jwe_get_alg_from_alg(alg), &key_g, &iv_g))) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error gnutls_cipher_init: '%s'", gnutls_strerror(res));
-        *ret = RHN_ERROR;
+        *ret = RHN_ERROR_PARAM;
         break;
       }
       if ((res = gnutls_cipher_encrypt2(handle, jwe->key, jwe->key_len, cipherkey, jwe->key_len))) {
@@ -1859,7 +1859,7 @@ static int r_jwe_aesgcm_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5
       iv_g.size = iv_len;
       if ((res = gnutls_cipher_init(&handle, r_jwe_get_alg_from_alg(alg), &key_g, &iv_g))) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error gnutls_cipher_init: '%s'", gnutls_strerror(res));
-        ret = RHN_ERROR;
+        ret = RHN_ERROR_INVALID;
         break;
       }
       if ((res = gnutls_cipher_decrypt(handle, cipherkey, cipherkey_len))) {

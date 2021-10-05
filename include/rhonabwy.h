@@ -877,6 +877,38 @@ char * r_jwk_thumbprint(jwk_t * jwk, int hash, int x5u_flags);
 int r_jwk_validate_x5c_chain(jwk_t * jwk, int x5u_flags);
 
 /**
+ * Search if a jwk matches the given properties
+ * @param jwk: the jwk_t to look into
+ * @param j_match: The query to match. Must be a JSON object with key/values
+ * that will be compared against all keys in jwk
+ * All parameters must match
+ * Example, to match a RSA key with alg "RS256", the parameter j_match must contain:
+ * {kty: "RSA", alg: "RS256"}
+ * To match a RSA key with the kid "1", the parameter j_match must contain:
+ * {kty: "RSA", kid: "1"}
+ * @return RHN_OK on success
+ *         RHN_ERROR_PARAM if input parameters are invalid
+ *         RHN_ERROR_INVALID if j_match does not match
+ */
+int r_jwk_match_json_t(jwk_t * jwk, json_t * j_match);
+
+/**
+ * Search if a jwk matches the given properties
+ * @param jwk: the jwk_t to look into
+ * @param str_match: The query to match. Must be a stringified JSON object with key/values
+ * that will be compared against all keys in jwk
+ * All parameters must match
+ * Example, to match a RSA key with alg "RS256", the parameter str_match must contain:
+ * {kty: "RSA", alg: "RS256"}
+ * To match a RSA key with the kid "1", the parameter str_match must contain:
+ * {kty: "RSA", kid: "1"}
+ * @return RHN_OK on success
+ *         RHN_ERROR_PARAM if input parameters are invalid
+ *         RHN_ERROR_INVALID if str_match does not match
+ */
+int r_jwk_match_json_str(jwk_t * jwk, const char * str_match);
+
+/**
  * @}
  */
 
@@ -1070,6 +1102,34 @@ gnutls_pubkey_t * r_jwks_export_to_gnutls_pubkey(jwks_t * jwks, size_t * len, in
  * @return RHN_ERROR_PARAM if output_len isn't large enough to hold the output, then output_len will be set to the required size
  */
 int r_jwks_export_to_pem_der(jwks_t * jwks, int format, unsigned char * output, size_t * output_len, int x5u_flags);
+
+/**
+ * Search in a jwks_t for a subset matching the given query
+ * @param jwks: the jwks_t to look into
+ * @param j_match: The query to match. Must be a JSON object with key/values
+ * that will be compared against all keys in jwks
+ * All parameters must match
+ * Example, to look for all RSA keys, the parameter j_match must contain:
+ * {kty: "RSA"}
+ * To look for all RSA keys with the kid "1", the parameter j_match must contain:
+ * {kty: "RSA", kid: "1"}
+ * @return a new jwks_t * containing all the matching keys, or an empty jwks_t if no match
+ */
+jwks_t * r_jwks_search_json_t(jwks_t * jwks, json_t * j_match);
+
+/**
+ * Search in a jwks_t for a subset matching the given query
+ * @param jwks: the jwks_t to look into
+ * @param str_match: The query to match. Must be a stringified JSON object with key/values
+ * that will be compared against all keys in jwks
+ * All parameters must match
+ * Example, to look for all RSA keys, the parameter str_match must contain:
+ * {kty: "RSA"}
+ * To look for all RSA keys with the kid "1", the parameter str_match must contain:
+ * {kty: "RSA", kid: "1"}
+ * @return a new jwks_t * containing all the matching keys, or an empty jwks_t if no match
+ */
+jwks_t * r_jwks_search_json_str(jwks_t * jwks, const char * str_match);
 
 /**
  * @}

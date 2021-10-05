@@ -2138,7 +2138,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
         }
         gnutls_pubkey_deinit(g_pub);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - invalid key type");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error invalid key type");
         *ret = RHN_ERROR_PARAM;
       }
       break;
@@ -2178,7 +2178,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
         }
         gnutls_pubkey_deinit(g_pub);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - invalid key type");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error invalid key type");
         *ret = RHN_ERROR_PARAM;
       }
       break;

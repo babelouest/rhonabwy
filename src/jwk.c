@@ -3142,3 +3142,31 @@ int r_jwk_validate_x5c_chain(jwk_t * jwk, int x5u_flags) {
   }
   return ret;
 }
+
+int r_jwk_match_json_t(jwk_t * jwk, json_t * j_match) {
+  int ret;
+  json_t * j_value = NULL, * j_jwk = r_jwk_export_to_json_t(jwk);
+  const char * key = NULL;
+  
+  if (j_jwk != NULL && json_object_size(j_match)) {
+    ret = RHN_OK;
+    json_object_foreach(j_match, key, j_value) {
+      if (json_object_get(j_jwk, key) == NULL || !json_equal(json_object_get(j_jwk, key), j_value)) {
+        ret = RHN_ERROR_INVALID;
+        break;
+      }
+    }
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_match_json_t - Error invalid input parameters");
+    ret = RHN_ERROR_PARAM;
+  }
+  json_decref(j_jwk);
+  return ret;
+}
+
+int r_jwk_match_json_str(jwk_t * jwk, const char * str_match) {
+  json_t * j_match = json_loads(str_match, JSON_DECODE_ANY, NULL);
+  int ret = r_jwk_match_json_t(jwk, j_match);
+  json_decref(j_match);
+  return ret;
+}

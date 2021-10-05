@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 1.1.1
+
+- Add `r_jwk_match_json_t` and `r_jwk_match_json_str`
+- Add `r_jwks_search_json_t` and `r_jwks_search_json_str`
+
 ## 1.1.0
 
 - Add advanced parsing functions

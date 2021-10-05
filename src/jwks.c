@@ -461,3 +461,33 @@ jwks_t * r_jwks_quick_import(rhn_import type, ...) {
     return jwks;
   }
 }
+
+jwks_t * r_jwks_search_json_t(jwks_t * jwks, json_t * j_match) {
+  jwks_t * jwks_ret = NULL;
+  jwk_t * jwk;
+  size_t i;
+  
+  if (r_jwks_init(&jwks_ret) == RHN_OK) {
+    if (r_jwks_size(jwks) && json_object_size(j_match)) {
+      for (i=0; i<r_jwks_size(jwks); i++) {
+        jwk = r_jwks_get_at(jwks, i);
+        if (r_jwk_match_json_t(jwk, j_match) == RHN_OK) {
+          r_jwks_append_jwk(jwks_ret, jwk);
+        }
+        r_jwk_free(jwk);
+      }
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwks_search_json_t - Error invalid input parameters");
+    }
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwks_search_json_t - Error r_jwks_init");
+  }
+  return jwks_ret;
+}
+
+jwks_t * r_jwks_search_json_str(jwks_t * jwks, const char * str_match) {
+  json_t * j_match = json_loads(str_match, JSON_DECODE_ANY, NULL);
+  jwks_t * jwks_ret = r_jwks_search_json_t(jwks, j_match);
+  json_decref(j_match);
+  return jwks_ret;
+}

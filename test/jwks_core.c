@@ -867,6 +867,52 @@ START_TEST(test_rhonabwy_jwks_quick_import)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_jwks_search)
+{
+  char * jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_x5c_str);
+  jwks_t * jwks = r_jwks_quick_import(R_IMPORT_JSON_STR, jwks_str), * jwks_ret;
+  json_t * j_match;
+  const char match_empty[] = "{}",
+             match_invalid[] = "error",
+             match_kty_rsa[] = "{\"kty\":\"RSA\"}",
+             match_kty_ec[] = "{\"kty\":\"EC\"}",
+             match_kty_oct[] = "{\"kty\":\"oct\"}",
+             match_kty_rsa_alg_rs256[] = "{\"kty\":\"RSA\",\"alg\":\"RS256\"}",
+             match_kty_rsa_n[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"
+                                 "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"
+                                 "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\"}",
+             match_kty_rsa_alg_ps256[] = "{\"kty\":\"RSA\",\"alg\":\"PS256\"}";
+
+  ck_assert_int_eq(4, r_jwks_size(jwks));
+  ck_assert_int_eq(0, r_jwks_size((jwks_ret = r_jwks_search_json_str(jwks, match_empty))));
+  r_jwks_free(jwks_ret);
+  ck_assert_int_eq(0, r_jwks_size((jwks_ret = r_jwks_search_json_str(jwks, match_invalid))));
+  r_jwks_free(jwks_ret);
+
+  ck_assert_ptr_ne(NULL, j_match = json_loads(match_kty_rsa, JSON_DECODE_ANY, NULL));
+  ck_assert_int_eq(3, r_jwks_size((jwks_ret = r_jwks_search_json_t(jwks, j_match))));
+  r_jwks_free(jwks_ret);
+  json_decref(j_match);
+
+  ck_assert_int_eq(1, r_jwks_size((jwks_ret = r_jwks_search_json_str(jwks, match_kty_ec))));
+  r_jwks_free(jwks_ret);
+
+  ck_assert_int_eq(0, r_jwks_size((jwks_ret = r_jwks_search_json_str(jwks, match_kty_oct))));
+  r_jwks_free(jwks_ret);
+
+  ck_assert_int_eq(2, r_jwks_size((jwks_ret = r_jwks_search_json_str(jwks, match_kty_rsa_alg_rs256))));
+  r_jwks_free(jwks_ret);
+
+  ck_assert_int_eq(2, r_jwks_size((jwks_ret = r_jwks_search_json_str(jwks, match_kty_rsa_n))));
+  r_jwks_free(jwks_ret);
+
+  ck_assert_int_eq(0, r_jwks_size((jwks_ret = r_jwks_search_json_str(jwks, match_kty_rsa_alg_ps256))));
+  r_jwks_free(jwks_ret);
+  r_jwks_free(jwks);
+  o_free(jwks_str);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -888,6 +934,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_jwks_empty);
   tcase_add_test(tc_core, test_rhonabwy_jwks_copy);
   tcase_add_test(tc_core, test_rhonabwy_jwks_quick_import);
+  tcase_add_test(tc_core, test_rhonabwy_jwks_search);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

@@ -580,6 +580,38 @@ START_TEST(test_rhonabwy_thumb)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_match)
+{
+  jwk_t * jwk;
+  json_t * j_match;
+  const char match_empty[] = "{}",
+             match_invalid[] = "error",
+             match_kty_rsa[] = "{\"kty\":\"RSA\"}",
+             match_kty_ec[] = "{\"kty\":\"EC\"}",
+             match_kty_rsa_alg_rs256[] = "{\"kty\":\"RSA\",\"alg\":\"RS256\"}",
+             match_kty_rsa_n[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"
+                                 "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"
+                                 "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\"}",
+             match_kty_rsa_alg_ps256[] = "{\"kty\":\"RSA\",\"alg\":\"PS256\"}";
+  
+  ck_assert_ptr_ne(NULL, jwk = r_jwk_quick_import(R_IMPORT_JSON_STR, jwk_pubkey_rsa_str));
+  
+  ck_assert_int_eq(RHN_ERROR_PARAM, r_jwk_match_json_str(jwk, match_empty));
+  ck_assert_int_eq(RHN_ERROR_PARAM, r_jwk_match_json_str(jwk, match_invalid));
+  
+  ck_assert_ptr_ne(NULL, j_match = json_loads(match_kty_rsa, JSON_DECODE_ANY, NULL));
+  ck_assert_int_eq(RHN_OK, r_jwk_match_json_t(jwk, j_match));
+  json_decref(j_match);
+  
+  ck_assert_int_eq(RHN_OK, r_jwk_match_json_str(jwk, match_kty_rsa));
+  ck_assert_int_eq(RHN_ERROR_INVALID, r_jwk_match_json_str(jwk, match_kty_ec));
+  ck_assert_int_eq(RHN_OK, r_jwk_match_json_str(jwk, match_kty_rsa_alg_rs256));
+  ck_assert_int_eq(RHN_ERROR_INVALID, r_jwk_match_json_str(jwk, match_kty_rsa_alg_ps256));
+  ck_assert_int_eq(RHN_OK, r_jwk_match_json_str(jwk, match_kty_rsa_n));
+  r_jwk_free(jwk);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -595,6 +627,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_equal);
   tcase_add_test(tc_core, test_rhonabwy_copy);
   tcase_add_test(tc_core, test_rhonabwy_thumb);
+  tcase_add_test(tc_core, test_rhonabwy_match);
   tcase_set_timeout(tc_core, 90);
   suite_add_tcase(s, tc_core);
 

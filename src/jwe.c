@@ -3993,9 +3993,7 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
     if (jwk_privkey != NULL) {
       jwk = r_jwk_copy(jwk_privkey);
     } else {
-      if (r_jwks_size(jwe->jwks_privkey) == 1) {
-        jwk = r_jwks_get_at(jwe->jwks_privkey, 0);
-      } else if (r_jwe_get_header_str_value(jwe, "kid") != NULL) {
+      if (r_jwe_get_header_str_value(jwe, "kid") != NULL) {
         jwk = r_jwks_get_by_kid(jwe->jwks_privkey, r_jwe_get_header_str_value(jwe, "kid"));
       } else if (r_jwks_size(jwe->jwks_privkey) == 1) {
         jwk = r_jwks_get_at(jwe->jwks_privkey, 0);

@@ -1878,9 +1878,7 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags) {
     if (jwk_pubkey != NULL) {
       jwk = r_jwk_copy(jwk_pubkey);
     } else {
-      if (r_jwks_size(jws->jwks_pubkey) == 1) {
-        jwk = r_jwks_get_at(jws->jwks_pubkey, 0);
-      } else if ((kid = r_jws_get_header_str_value(jws, "kid")) != NULL || (jws->token_mode == R_JSON_MODE_FLATTENED && (kid = json_string_value(json_object_get(json_object_get(jws->j_json_serialization, "header"), "kid"))) != NULL)) {
+      if ((kid = r_jws_get_header_str_value(jws, "kid")) != NULL || (jws->token_mode == R_JSON_MODE_FLATTENED && (kid = json_string_value(json_object_get(json_object_get(jws->j_json_serialization, "header"), "kid"))) != NULL)) {
         jwk = r_jwks_get_by_kid(jws->jwks_pubkey, kid);
       } else if (r_jwks_size(jws->jwks_pubkey) == 1) {
         jwk = r_jwks_get_at(jws->jwks_pubkey, 0);

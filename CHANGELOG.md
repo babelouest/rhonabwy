@@ -4,6 +4,7 @@
 
 - Add `r_jwk_match_json_t` and `r_jwk_match_json_str`
 - Add `r_jwks_search_json_t` and `r_jwks_search_json_str`
+- Add option `R_X509_TYPE_UNSPECIFIED` for `r_jwk_import_from_pem_der` parameter `type`
 
 ## 1.1.0
 

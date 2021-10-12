@@ -692,6 +692,8 @@ START_TEST(test_rhonabwy_set_properties_error)
                                              RHN_OPT_NONE), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwe_set_properties(jwe, RHN_OPT_CLAIM_INT_VALUE, "key", CLAIM_INT,
                                              RHN_OPT_NONE), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_set_properties(jwe, RHN_OPT_CLAIM_RHN_INT_VALUE, "key", CLAIM_INT,
+                                             RHN_OPT_NONE), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwe_set_properties(jwe, RHN_OPT_CLAIM_JSON_T_VALUE, "key", json_true(),
                                              RHN_OPT_NONE), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwe_set_properties(jwe, RHN_OPT_CLAIM_STR_VALUE, "key", CLAIM_STR,
@@ -721,6 +723,7 @@ START_TEST(test_rhonabwy_set_properties)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
   
   ck_assert_int_eq(r_jwe_set_properties(jwe, RHN_OPT_HEADER_INT_VALUE, "int", CLAIM_INT,
+                                             RHN_OPT_HEADER_RHN_INT_VALUE, "rhn_int", (rhn_int_t)CLAIM_INT,
                                              RHN_OPT_HEADER_STR_VALUE, "str", CLAIM_STR,
                                              RHN_OPT_HEADER_JSON_T_VALUE, "json", json_true(),
                                              RHN_OPT_UN_HEADER_FULL_JSON_T, j_un_header,
@@ -735,6 +738,7 @@ START_TEST(test_rhonabwy_set_properties)
                                              RHN_OPT_NONE), RHN_OK);
 
   ck_assert_int_eq(CLAIM_INT, r_jwe_get_header_int_value(jwe, "int"));
+  ck_assert_int_eq(CLAIM_INT, r_jwe_get_header_int_value(jwe, "rhn_int"));
   ck_assert_str_eq(CLAIM_STR, r_jwe_get_header_str_value(jwe, "str"));
   ck_assert_ptr_eq(json_true(), r_jwe_get_header_json_t_value(jwe, "json"));
   ck_assert_ptr_ne(NULL, j_un_header_resp = r_jwe_get_full_unprotected_header_json_t(jwe));

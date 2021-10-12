@@ -44,6 +44,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">jwk.c File Reference</div>  </div>
@@ -57,6 +58,21 @@ $(function() {
 <code>#include &lt;yder.h&gt;</code><br />
 <code>#include &lt;<a class="el" href="rhonabwy_8h_source.html">rhonabwy.h</a>&gt;</code><br />
 </div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a7bad9cc7e1afbc1fca4e9615580bf16b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwk_8c.html#a7bad9cc7e1afbc1fca4e9615580bf16b">RHN_PEM_HEADER_CERT</a>&#160;&#160;&#160;&quot;-----BEGIN CERTIFICATE-----&quot;</td></tr>
+<tr class="separator:a7bad9cc7e1afbc1fca4e9615580bf16b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf2690c8669380296afd936bc303027c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwk_8c.html#abf2690c8669380296afd936bc303027c">RHN_PEM_HEADER_PUBKEY</a>&#160;&#160;&#160;&quot;-----BEGIN PUBLIC KEY-----&quot;</td></tr>
+<tr class="separator:abf2690c8669380296afd936bc303027c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:accb224f6b41f7949d9a4def21777f13f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwk_8c.html#accb224f6b41f7949d9a4def21777f13f">RHN_PEM_HEADER_PRIVKEY</a>&#160;&#160;&#160;&quot;-----BEGIN PRIVATE KEY-----&quot;</td></tr>
+<tr class="separator:accb224f6b41f7949d9a4def21777f13f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a422f3d7f3a4594f3aebc35511cab5e7e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwk_8c.html#a422f3d7f3a4594f3aebc35511cab5e7e">RHN_PEM_HEADER_EC_PRIVKEY</a>&#160;&#160;&#160;&quot;-----BEGIN EC PRIVATE KEY-----&quot;</td></tr>
+<tr class="separator:a422f3d7f3a4594f3aebc35511cab5e7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab21e5906fe7867b8d364b81182318ca7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwk_8c.html#ab21e5906fe7867b8d364b81182318ca7">RHN_PEM_HEADER_RSA_PRIVKEY</a>&#160;&#160;&#160;&quot;-----BEGIN RSA PRIVATE KEY-----&quot;</td></tr>
+<tr class="separator:ab21e5906fe7867b8d364b81182318ca7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace3897a999357a388d2d61195849f10a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwk_8c.html#ace3897a999357a388d2d61195849f10a">RHN_PEM_HEADER_UNKNOWN_PRIVKEY</a>&#160;&#160;&#160;&quot;-----BEGIN UNKNOWN-----&quot;</td></tr>
+<tr class="separator:ace3897a999357a388d2d61195849f10a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a4da44469083f9e6bb8e69159d9bc00e1"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="jwk_8c.html#a4da44469083f9e6bb8e69159d9bc00e1">_r_get_http_content</a> (const char *url, int x5u_flags, const char *expected_content_type)</td></tr>
@@ -137,7 +153,102 @@ Functions</h2></td></tr>
 <tr class="separator:ga413fe03ac9de025427405c727f120592"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gabd247e4915ed326c35435ac1611e1c0f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__export.html#gabd247e4915ed326c35435ac1611e1c0f">r_jwk_validate_x5c_chain</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, int x5u_flags)</td></tr>
 <tr class="separator:gabd247e4915ed326c35435ac1611e1c0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa71a272a384fc1870d842c5fefa713c9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__export.html#gaa71a272a384fc1870d842c5fefa713c9">r_jwk_match_json_t</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, json_t *j_match)</td></tr>
+<tr class="separator:gaa71a272a384fc1870d842c5fefa713c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga56dbb9b5519791ebc2a5baef7067fc94"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__export.html#ga56dbb9b5519791ebc2a5baef7067fc94">r_jwk_match_json_str</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, const char *str_match)</td></tr>
+<tr class="separator:ga56dbb9b5519791ebc2a5baef7067fc94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a7bad9cc7e1afbc1fca4e9615580bf16b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7bad9cc7e1afbc1fca4e9615580bf16b">&#9670;&nbsp;</a></span>RHN_PEM_HEADER_CERT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RHN_PEM_HEADER_CERT&#160;&#160;&#160;&quot;-----BEGIN CERTIFICATE-----&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Rhonabwy JSON Web Key (JWK) library</p>
+<p><a class="el" href="jwk_8c.html">jwk.c</a>: functions definitions</p>
+<p>Copyright 2020-2021 Nicolas Mora <a href="#" onclick="location.href='mai'+'lto:'+'mai'+'l@'+'bab'+'el'+'oue'+'st'+'.or'+'g'; return false;">mail@<span style="display: none;">.nosp@m.</span>babe<span style="display: none;">.nosp@m.</span>loues<span style="display: none;">.nosp@m.</span>t.or<span style="display: none;">.nosp@m.</span>g</a></p>
+<p>This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; version 2.1 of the License.</p>
+<p>This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU GENERAL PUBLIC LICENSE for more details.</p>
+<p>You should have received a copy of the GNU General Public License along with this library. If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>. </p>
+
+</div>
+</div>
+<a id="abf2690c8669380296afd936bc303027c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf2690c8669380296afd936bc303027c">&#9670;&nbsp;</a></span>RHN_PEM_HEADER_PUBKEY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RHN_PEM_HEADER_PUBKEY&#160;&#160;&#160;&quot;-----BEGIN PUBLIC KEY-----&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="accb224f6b41f7949d9a4def21777f13f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#accb224f6b41f7949d9a4def21777f13f">&#9670;&nbsp;</a></span>RHN_PEM_HEADER_PRIVKEY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RHN_PEM_HEADER_PRIVKEY&#160;&#160;&#160;&quot;-----BEGIN PRIVATE KEY-----&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a422f3d7f3a4594f3aebc35511cab5e7e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a422f3d7f3a4594f3aebc35511cab5e7e">&#9670;&nbsp;</a></span>RHN_PEM_HEADER_EC_PRIVKEY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RHN_PEM_HEADER_EC_PRIVKEY&#160;&#160;&#160;&quot;-----BEGIN EC PRIVATE KEY-----&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab21e5906fe7867b8d364b81182318ca7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab21e5906fe7867b8d364b81182318ca7">&#9670;&nbsp;</a></span>RHN_PEM_HEADER_RSA_PRIVKEY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RHN_PEM_HEADER_RSA_PRIVKEY&#160;&#160;&#160;&quot;-----BEGIN RSA PRIVATE KEY-----&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ace3897a999357a388d2d61195849f10a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ace3897a999357a388d2d61195849f10a">&#9670;&nbsp;</a></span>RHN_PEM_HEADER_UNKNOWN_PRIVKEY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RHN_PEM_HEADER_UNKNOWN_PRIVKEY&#160;&#160;&#160;&quot;-----BEGIN UNKNOWN-----&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a4da44469083f9e6bb8e69159d9bc00e1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4da44469083f9e6bb8e69159d9bc00e1">&#9670;&nbsp;</a></span>_r_get_http_content()</h2>
@@ -170,12 +281,6 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Rhonabwy JSON Web Key (JWK) library</p>
-<p><a class="el" href="jwk_8c.html">jwk.c</a>: functions definitions</p>
-<p>Copyright 2020-2021 Nicolas Mora <a href="#" onclick="location.href='mai'+'lto:'+'mai'+'l@'+'bab'+'el'+'oue'+'st'+'.or'+'g'; return false;">mail@<span style="display: none;">.nosp@m.</span>babe<span style="display: none;">.nosp@m.</span>loues<span style="display: none;">.nosp@m.</span>t.or<span style="display: none;">.nosp@m.</span>g</a></p>
-<p>This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; version 2.1 of the License.</p>
-<p>This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU GENERAL PUBLIC LICENSE for more details.</p>
-<p>You should have received a copy of the GNU General Public License along with this library. If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>. </p>
 
 </div>
 </div>

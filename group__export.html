@@ -66,6 +66,10 @@ Functions</h2></td></tr>
 <tr class="separator:ga413fe03ac9de025427405c727f120592"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gabd247e4915ed326c35435ac1611e1c0f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__export.html#gabd247e4915ed326c35435ac1611e1c0f">r_jwk_validate_x5c_chain</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, int x5u_flags)</td></tr>
 <tr class="separator:gabd247e4915ed326c35435ac1611e1c0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa71a272a384fc1870d842c5fefa713c9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__export.html#gaa71a272a384fc1870d842c5fefa713c9">r_jwk_match_json_t</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, json_t *j_match)</td></tr>
+<tr class="separator:gaa71a272a384fc1870d842c5fefa713c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga56dbb9b5519791ebc2a5baef7067fc94"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__export.html#ga56dbb9b5519791ebc2a5baef7067fc94">r_jwk_match_json_str</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, const char *str_match)</td></tr>
+<tr class="separator:ga56dbb9b5519791ebc2a5baef7067fc94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Export a jwk to JSON data, gnutls inner types or PEM/DER </p>
@@ -438,6 +442,78 @@ RHN_ERROR_PARAM if output_len isn't large enough to hold the output, then output
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>RHN_OK on success, an error value on error </dd></dl>
+
+</div>
+</div>
+<a id="gaa71a272a384fc1870d842c5fefa713c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa71a272a384fc1870d842c5fefa713c9">&#9670;&nbsp;</a></span>r_jwk_match_json_t()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwk_match_json_t </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
+          <td class="paramname"><em>jwk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">json_t *&#160;</td>
+          <td class="paramname"><em>j_match</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Search if a jwk matches the given properties </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwk</td><td>the jwk_t to look into </td></tr>
+    <tr><td class="paramname">j_match</td><td>The query to match. Must be a JSON object with key/values that will be compared against all keys in jwk All parameters must match Example, to match a RSA key with alg "RS256", the parameter j_match must contain: {kty: "RSA", alg: "RS256"} To match a RSA key with the kid "1", the parameter j_match must contain: {kty: "RSA", kid: "1"} </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success RHN_ERROR_PARAM if input parameters are invalid RHN_ERROR_INVALID if j_match does not match </dd></dl>
+
+</div>
+</div>
+<a id="ga56dbb9b5519791ebc2a5baef7067fc94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga56dbb9b5519791ebc2a5baef7067fc94">&#9670;&nbsp;</a></span>r_jwk_match_json_str()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwk_match_json_str </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *&#160;</td>
+          <td class="paramname"><em>jwk</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>str_match</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Search if a jwk matches the given properties </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">jwk</td><td>the jwk_t to look into </td></tr>
+    <tr><td class="paramname">str_match</td><td>The query to match. Must be a stringified JSON object with key/values that will be compared against all keys in jwk All parameters must match Example, to match a RSA key with alg "RS256", the parameter str_match must contain: {kty: "RSA", alg: "RS256"} To match a RSA key with the kid "1", the parameter str_match must contain: {kty: "RSA", kid: "1"} </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>RHN_OK on success RHN_ERROR_PARAM if input parameters are invalid RHN_ERROR_INVALID if str_match does not match </dd></dl>
 
 </div>
 </div>

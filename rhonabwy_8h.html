@@ -75,8 +75,6 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a976ac3323bf3732db3cff6a2ca79a416"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rhonabwy_8h.html#a976ac3323bf3732db3cff6a2ca79a416">RHN_BEGIN_CERT_TAG</a>&#160;&#160;&#160;&quot;-----BEGIN CERTIFICATE-----&quot;</td></tr>
-<tr class="separator:a976ac3323bf3732db3cff6a2ca79a416"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga3fc690cb1d601c13fce959aff60de0d7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga3fc690cb1d601c13fce959aff60de0d7">RHN_OK</a>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:ga3fc690cb1d601c13fce959aff60de0d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa583716ce2823841223d71ab19c3e44d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gaa583716ce2823841223d71ab19c3e44d">RHN_ERROR</a>&#160;&#160;&#160;1</td></tr>
@@ -89,6 +87,8 @@ Macros</h2></td></tr>
 <tr class="separator:ga3a8234d203a129fc255460b0a060a877"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga59bda6f5931de99c32e8da10229105fc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#ga59bda6f5931de99c32e8da10229105fc">RHN_ERROR_INVALID</a>&#160;&#160;&#160;5</td></tr>
 <tr class="separator:ga59bda6f5931de99c32e8da10229105fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadd1021aa3bdc2d6c6bb71f1469cd198e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gadd1021aa3bdc2d6c6bb71f1469cd198e">R_X509_TYPE_UNSPECIFIED</a>&#160;&#160;&#160;0</td></tr>
+<tr class="separator:gadd1021aa3bdc2d6c6bb71f1469cd198e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gad6bf1e8fdc295b99d7a0fcab85c4ab8e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gad6bf1e8fdc295b99d7a0fcab85c4ab8e">R_X509_TYPE_PUBKEY</a>&#160;&#160;&#160;1</td></tr>
 <tr class="separator:gad6bf1e8fdc295b99d7a0fcab85c4ab8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa2ce44937ab9079370bf3fc4500b1623"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__const.html#gaa2ce44937ab9079370bf3fc4500b1623">R_X509_TYPE_PRIVKEY</a>&#160;&#160;&#160;2</td></tr>
@@ -259,58 +259,61 @@ Enumerations</h2></td></tr>
 <tr class="memitem:ga37e05440364473c9a0ce205ea0013402"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__type.html#ga37e05440364473c9a0ce205ea0013402">rhn_opt</a> { <br />
 &#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402add9d6beaac445b88123fa1554cb05f66">RHN_OPT_NONE</a> = 0
 , <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a0ea0448c1d0c968077dec9b5994d8570">RHN_OPT_HEADER_INT_VALUE</a> = 1
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a502c5d3b3748cd27ff97895c8d6d8405">RHN_OPT_HEADER_STR_VALUE</a> = 2
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a0c0a789329c4c331fa210d5a6f9a2ac5">RHN_OPT_HEADER_JSON_T_VALUE</a> = 3
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a8517fe52c309d9c4e6d3cff567041626">RHN_OPT_HEADER_RHN_INT_VALUE</a> = 2
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a502c5d3b3748cd27ff97895c8d6d8405">RHN_OPT_HEADER_STR_VALUE</a> = 3
 , <br />
-&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a6a2e0fbadbe28205282a6102d60d15f5">RHN_OPT_HEADER_FULL_JSON_T</a> = 4
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a1a2c54296bfe7135b46ea89a5e5025a4">RHN_OPT_HEADER_FULL_JSON_STR</a> = 5
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402ab79821b30d54fddc7b087d2660e272eb">RHN_OPT_UN_HEADER_FULL_JSON_T</a> = 6
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a664ef49457744cfe1d602c1520e6b873">RHN_OPT_UN_HEADER_FULL_JSON_STR</a> = 7
+&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a0c0a789329c4c331fa210d5a6f9a2ac5">RHN_OPT_HEADER_JSON_T_VALUE</a> = 4
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a6a2e0fbadbe28205282a6102d60d15f5">RHN_OPT_HEADER_FULL_JSON_T</a> = 5
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a1a2c54296bfe7135b46ea89a5e5025a4">RHN_OPT_HEADER_FULL_JSON_STR</a> = 6
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402ab79821b30d54fddc7b087d2660e272eb">RHN_OPT_UN_HEADER_FULL_JSON_T</a> = 7
 , <br />
-&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402ae90f8b7c3c9c82cd1a34001571e2a240">RHN_OPT_PAYLOAD</a> = 8
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a74068aeb2cbaf7a6afdfbc94aa47b1da">RHN_OPT_CLAIM_INT_VALUE</a> = 9
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a827f23fda36ef6a6381a8e35c2b1a058">RHN_OPT_CLAIM_STR_VALUE</a> = 10
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a978cec3203c016291e9d1feee452ed48">RHN_OPT_CLAIM_JSON_T_VALUE</a> = 11
+&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a664ef49457744cfe1d602c1520e6b873">RHN_OPT_UN_HEADER_FULL_JSON_STR</a> = 8
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402ae90f8b7c3c9c82cd1a34001571e2a240">RHN_OPT_PAYLOAD</a> = 9
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a74068aeb2cbaf7a6afdfbc94aa47b1da">RHN_OPT_CLAIM_INT_VALUE</a> = 10
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402ac5212a08ebe87297761702ac396a3bc3">RHN_OPT_CLAIM_RHN_INT_VALUE</a> = 11
 , <br />
-&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402ac11f081db984ba118a2a56b7354a938a">RHN_OPT_CLAIM_FULL_JSON_T</a> = 12
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a7ecbee0637864c99a71c413d98cdbf61">RHN_OPT_CLAIM_FULL_JSON_STR</a> = 13
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402ac2374e1b6b62a3b07197c52a93f925a6">RHN_OPT_ENC_ALG</a> = 14
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402ad5e5eaa26dfc6cb43c2a5787e5382d31">RHN_OPT_ENC</a> = 15
+&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a827f23fda36ef6a6381a8e35c2b1a058">RHN_OPT_CLAIM_STR_VALUE</a> = 12
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a978cec3203c016291e9d1feee452ed48">RHN_OPT_CLAIM_JSON_T_VALUE</a> = 13
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402ac11f081db984ba118a2a56b7354a938a">RHN_OPT_CLAIM_FULL_JSON_T</a> = 14
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a7ecbee0637864c99a71c413d98cdbf61">RHN_OPT_CLAIM_FULL_JSON_STR</a> = 15
 , <br />
-&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a088ca2f913481ff69b486b3977c61179">RHN_OPT_SIG_ALG</a> = 16
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a75cbb9a6c8895781e8045323953f29ef">RHN_OPT_CIPHER_KEY</a> = 17
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a82a19cbd2d2579513b9ea8d7c0e4f858">RHN_OPT_IV</a> = 18
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a66644b8bd21495f6cf354f9fbe2cf926">RHN_OPT_AAD</a> = 19
+&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402ac2374e1b6b62a3b07197c52a93f925a6">RHN_OPT_ENC_ALG</a> = 16
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402ad5e5eaa26dfc6cb43c2a5787e5382d31">RHN_OPT_ENC</a> = 17
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a088ca2f913481ff69b486b3977c61179">RHN_OPT_SIG_ALG</a> = 18
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a75cbb9a6c8895781e8045323953f29ef">RHN_OPT_CIPHER_KEY</a> = 19
 , <br />
-&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a7d9f4877070fb37224b3cbb6900b3c14">RHN_OPT_SIGN_KEY_JWK</a> = 20
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402aa5ca058c2c0c465ff0699fed1db46abd">RHN_OPT_SIGN_KEY_JWKS</a> = 21
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a3804634b86406a1eef280df58bb3402f">RHN_OPT_SIGN_KEY_GNUTLS</a> = 22
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a15eaf3170167396aa6daff26b9f018c8">RHN_OPT_SIGN_KEY_JSON_T</a> = 23
+&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a82a19cbd2d2579513b9ea8d7c0e4f858">RHN_OPT_IV</a> = 20
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a66644b8bd21495f6cf354f9fbe2cf926">RHN_OPT_AAD</a> = 21
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a7d9f4877070fb37224b3cbb6900b3c14">RHN_OPT_SIGN_KEY_JWK</a> = 22
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402aa5ca058c2c0c465ff0699fed1db46abd">RHN_OPT_SIGN_KEY_JWKS</a> = 23
 , <br />
-&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402ab445d6fa54b6f04bc100493834b0d983">RHN_OPT_SIGN_KEY_JSON_STR</a> = 24
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a84369d36b933aaecbbba3af453869f78">RHN_OPT_SIGN_KEY_PEM_DER</a> = 25
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a2789a2c85064106bcb0e43433746afe5">RHN_OPT_VERIFY_KEY_JWK</a> = 26
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a073305504de0376b363830faa39e6a8c">RHN_OPT_VERIFY_KEY_JWKS</a> = 27
+&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a3804634b86406a1eef280df58bb3402f">RHN_OPT_SIGN_KEY_GNUTLS</a> = 24
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a15eaf3170167396aa6daff26b9f018c8">RHN_OPT_SIGN_KEY_JSON_T</a> = 25
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402ab445d6fa54b6f04bc100493834b0d983">RHN_OPT_SIGN_KEY_JSON_STR</a> = 26
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a84369d36b933aaecbbba3af453869f78">RHN_OPT_SIGN_KEY_PEM_DER</a> = 27
 , <br />
-&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a2a1508af75c9b400453948c650baca91">RHN_OPT_VERIFY_KEY_GNUTLS</a> = 28
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402ac72af1210a1c3f48e9c4588698b186a4">RHN_OPT_VERIFY_KEY_JSON_T</a> = 29
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a74e2befc9eaff371d4801b7b7b724cde">RHN_OPT_VERIFY_KEY_JSON_STR</a> = 30
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a7e816f846fa39d7c0ac9a1f669f82864">RHN_OPT_VERIFY_KEY_PEM_DER</a> = 31
+&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a2789a2c85064106bcb0e43433746afe5">RHN_OPT_VERIFY_KEY_JWK</a> = 28
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a073305504de0376b363830faa39e6a8c">RHN_OPT_VERIFY_KEY_JWKS</a> = 29
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a2a1508af75c9b400453948c650baca91">RHN_OPT_VERIFY_KEY_GNUTLS</a> = 30
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402ac72af1210a1c3f48e9c4588698b186a4">RHN_OPT_VERIFY_KEY_JSON_T</a> = 31
 , <br />
-&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402aec7ea054ff0b0262ad4f755896a23bca">RHN_OPT_ENCRYPT_KEY_JWK</a> = 32
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402aec369cd6472feadfeeb70f0c4b9f95de">RHN_OPT_ENCRYPT_KEY_JWKS</a> = 33
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a28e6000e49f87a835dfe58825c9cbedc">RHN_OPT_ENCRYPT_KEY_GNUTLS</a> = 34
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a16f4eea7c6035ad8311509d23950f8d2">RHN_OPT_ENCRYPT_KEY_JSON_T</a> = 35
+&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a74e2befc9eaff371d4801b7b7b724cde">RHN_OPT_VERIFY_KEY_JSON_STR</a> = 32
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a7e816f846fa39d7c0ac9a1f669f82864">RHN_OPT_VERIFY_KEY_PEM_DER</a> = 33
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402aec7ea054ff0b0262ad4f755896a23bca">RHN_OPT_ENCRYPT_KEY_JWK</a> = 34
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402aec369cd6472feadfeeb70f0c4b9f95de">RHN_OPT_ENCRYPT_KEY_JWKS</a> = 35
 , <br />
-&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a216199ac195850890a96299cfb4d147f">RHN_OPT_ENCRYPT_KEY_JSON_STR</a> = 36
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a5320c4edd278e1a945147c7a87d44310">RHN_OPT_ENCRYPT_KEY_PEM_DER</a> = 37
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a12049510fcaef29c2ef4d1b95245bf06">RHN_OPT_DECRYPT_KEY_JWK</a> = 38
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a1a446f5001dfca1674a7d0f5193c8b01">RHN_OPT_DECRYPT_KEY_JWKS</a> = 39
+&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a28e6000e49f87a835dfe58825c9cbedc">RHN_OPT_ENCRYPT_KEY_GNUTLS</a> = 36
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a16f4eea7c6035ad8311509d23950f8d2">RHN_OPT_ENCRYPT_KEY_JSON_T</a> = 37
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a216199ac195850890a96299cfb4d147f">RHN_OPT_ENCRYPT_KEY_JSON_STR</a> = 38
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a5320c4edd278e1a945147c7a87d44310">RHN_OPT_ENCRYPT_KEY_PEM_DER</a> = 39
 , <br />
-&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402acd9f2decb365f6e9d52e035c8af21a5c">RHN_OPT_DECRYPT_KEY_GNUTLS</a> = 40
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a875eddf1c2db86da4e021f390affaa0c">RHN_OPT_DECRYPT_KEY_JSON_T</a> = 41
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a28baf76e56201b3c71c431948e812733">RHN_OPT_DECRYPT_KEY_JSON_STR</a> = 42
-, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402aa2b6f594db59a1c3448a1c830d39da70">RHN_OPT_DECRYPT_KEY_PEM_DER</a> = 43
+&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a12049510fcaef29c2ef4d1b95245bf06">RHN_OPT_DECRYPT_KEY_JWK</a> = 40
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a1a446f5001dfca1674a7d0f5193c8b01">RHN_OPT_DECRYPT_KEY_JWKS</a> = 41
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402acd9f2decb365f6e9d52e035c8af21a5c">RHN_OPT_DECRYPT_KEY_GNUTLS</a> = 42
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a875eddf1c2db86da4e021f390affaa0c">RHN_OPT_DECRYPT_KEY_JSON_T</a> = 43
+, <br />
+&#160;&#160;<a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402a28baf76e56201b3c71c431948e812733">RHN_OPT_DECRYPT_KEY_JSON_STR</a> = 44
+, <a class="el" href="group__type.html#gga37e05440364473c9a0ce205ea0013402aa2b6f594db59a1c3448a1c830d39da70">RHN_OPT_DECRYPT_KEY_PEM_DER</a> = 45
 <br />
  }</td></tr>
 <tr class="separator:ga37e05440364473c9a0ce205ea0013402"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -445,6 +448,10 @@ Functions</h2></td></tr>
 <tr class="separator:ga413fe03ac9de025427405c727f120592"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gabd247e4915ed326c35435ac1611e1c0f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__export.html#gabd247e4915ed326c35435ac1611e1c0f">r_jwk_validate_x5c_chain</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, int x5u_flags)</td></tr>
 <tr class="separator:gabd247e4915ed326c35435ac1611e1c0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa71a272a384fc1870d842c5fefa713c9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__export.html#gaa71a272a384fc1870d842c5fefa713c9">r_jwk_match_json_t</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, json_t *j_match)</td></tr>
+<tr class="separator:gaa71a272a384fc1870d842c5fefa713c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga56dbb9b5519791ebc2a5baef7067fc94"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__export.html#ga56dbb9b5519791ebc2a5baef7067fc94">r_jwk_match_json_str</a> (<a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *jwk, const char *str_match)</td></tr>
+<tr class="separator:ga56dbb9b5519791ebc2a5baef7067fc94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7f1dc22797e2eff901845aad8215f9cc"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga7f1dc22797e2eff901845aad8215f9cc">r_jwks_is_valid</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks)</td></tr>
 <tr class="separator:ga7f1dc22797e2eff901845aad8215f9cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac7fd6ecf065d01d22375c06494ef91cc"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#gac7fd6ecf065d01d22375c06494ef91cc">r_jwks_import_from_json_str</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, const char *input)</td></tr>
@@ -483,6 +490,10 @@ Functions</h2></td></tr>
 <tr class="separator:gaf035e13fb4fe40384241c5d3c4e93f82"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaefb49de8696bef348414893d8a27f2bc"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#gaefb49de8696bef348414893d8a27f2bc">r_jwks_export_to_pem_der</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, int format, unsigned char *output, size_t *output_len, int x5u_flags)</td></tr>
 <tr class="separator:gaefb49de8696bef348414893d8a27f2bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1b208a1dc407b701cdcaac1f4868bbdb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#ga1b208a1dc407b701cdcaac1f4868bbdb">r_jwks_search_json_t</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, json_t *j_match)</td></tr>
+<tr class="separator:ga1b208a1dc407b701cdcaac1f4868bbdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa98fb2d1a16aa3f3c04f4cef80d27847"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwks.html#gaa98fb2d1a16aa3f3c04f4cef80d27847">r_jwks_search_json_str</a> (<a class="el" href="group__type.html#gad1e7e9d151ac27e89f550389ee397494">jwks_t</a> *jwks, const char *str_match)</td></tr>
+<tr class="separator:gaa98fb2d1a16aa3f3c04f4cef80d27847"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga71ee233e569429145001514c7052d66d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jws.html#ga71ee233e569429145001514c7052d66d">r_jws_set_properties</a> (<a class="el" href="structjws__t.html">jws_t</a> *jws,...)</td></tr>
 <tr class="separator:ga71ee233e569429145001514c7052d66d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga383a92dbe7a8f7e64493ee7e2af317ba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structjws__t.html">jws_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jws.html#ga383a92dbe7a8f7e64493ee7e2af317ba">r_jws_copy</a> (<a class="el" href="structjws__t.html">jws_t</a> *jws)</td></tr>
@@ -871,22 +882,7 @@ Functions</h2></td></tr>
 <p>This program is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; version 2.1 of the License.</p>
 <p>This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU GENERAL PUBLIC LICENSE for more details.</p>
 <p>You should have received a copy of the GNU General Public License along with this library. If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>. </p>
-</div><h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="a976ac3323bf3732db3cff6a2ca79a416"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a976ac3323bf3732db3cff6a2ca79a416">&#9670;&nbsp;</a></span>RHN_BEGIN_CERT_TAG</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define RHN_BEGIN_CERT_TAG&#160;&#160;&#160;&quot;-----BEGIN CERTIFICATE-----&quot;</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-</div><!-- contents -->
+</div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.1

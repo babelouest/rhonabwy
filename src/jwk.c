@@ -29,6 +29,13 @@
 #include <yder.h>
 #include <rhonabwy.h>
 
+#define RHN_PEM_HEADER_CERT            "-----BEGIN CERTIFICATE-----"
+#define RHN_PEM_HEADER_PUBKEY          "-----BEGIN PUBLIC KEY-----"
+#define RHN_PEM_HEADER_PRIVKEY         "-----BEGIN PRIVATE KEY-----"
+#define RHN_PEM_HEADER_EC_PRIVKEY      "-----BEGIN EC PRIVATE KEY-----"
+#define RHN_PEM_HEADER_RSA_PRIVKEY     "-----BEGIN RSA PRIVATE KEY-----"
+#define RHN_PEM_HEADER_UNKNOWN_PRIVKEY "-----BEGIN UNKNOWN-----"
+
 char * _r_get_http_content(const char * url, int x5u_flags, const char * expected_content_type);
 
 #if NETTLE_VERSION_NUMBER >= 0x030600
@@ -932,6 +939,18 @@ int r_jwk_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned 
   size_t input_end_len;
 
   if (jwk != NULL && input != NULL && input_len) {
+    if (R_X509_TYPE_UNSPECIFIED == type) {
+      if (0 == o_strncmp((const char *)input, RHN_PEM_HEADER_CERT, o_strlen(RHN_PEM_HEADER_CERT))) {
+        type = R_X509_TYPE_CERTIFICATE;
+      } else if (0 == o_strncmp((const char *)input, RHN_PEM_HEADER_PUBKEY, o_strlen(RHN_PEM_HEADER_PUBKEY))) {
+        type = R_X509_TYPE_PUBKEY;
+      } else if (0 == o_strncmp((const char *)input, RHN_PEM_HEADER_PRIVKEY, o_strlen(RHN_PEM_HEADER_PRIVKEY)) ||
+                 0 == o_strncmp((const char *)input, RHN_PEM_HEADER_EC_PRIVKEY, o_strlen(RHN_PEM_HEADER_EC_PRIVKEY)) ||
+                 0 == o_strncmp((const char *)input, RHN_PEM_HEADER_RSA_PRIVKEY, o_strlen(RHN_PEM_HEADER_RSA_PRIVKEY)) ||
+                 0 == o_strncmp((const char *)input, RHN_PEM_HEADER_UNKNOWN_PRIVKEY, o_strlen(RHN_PEM_HEADER_UNKNOWN_PRIVKEY))) {
+        type = R_X509_TYPE_PRIVKEY;
+      }
+    }
     input_copy = (unsigned char *)o_strndup((const char *)input, input_len);
     input_copy_orig = input_copy;
     switch (type) {
@@ -976,8 +995,8 @@ int r_jwk_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned 
         break;
       case R_X509_TYPE_CERTIFICATE:
         if (!(res = gnutls_x509_crt_init(&crt))) {
-          if (format == R_FORMAT_PEM && o_strlen((const char *)input_copy) >= o_strlen(RHN_BEGIN_CERT_TAG)) {
-            input_end = (const unsigned char *)o_strstr((const char *)input_copy + o_strlen(RHN_BEGIN_CERT_TAG), RHN_BEGIN_CERT_TAG);
+          if (format == R_FORMAT_PEM && o_strlen((const char *)input_copy) >= o_strlen(RHN_PEM_HEADER_CERT)) {
+            input_end = (const unsigned char *)o_strstr((const char *)input_copy + o_strlen(RHN_PEM_HEADER_CERT), RHN_PEM_HEADER_CERT);
             if (input_end != NULL) {
               input_end_len = input_end - input_copy;
             } else {
@@ -997,7 +1016,7 @@ int r_jwk_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned 
             }
             while (ret == RHN_OK && input_end != NULL) {
               input_copy += input_end_len;
-              input_end = (const unsigned char *)o_strstr((const char *)input_copy + o_strlen(RHN_BEGIN_CERT_TAG), RHN_BEGIN_CERT_TAG);
+              input_end = (const unsigned char *)o_strstr((const char *)input_copy + o_strlen(RHN_PEM_HEADER_CERT), RHN_PEM_HEADER_CERT);
               if (input_end != NULL) {
                 input_end_len = input_end - input_copy;
               } else {

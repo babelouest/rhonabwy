@@ -37,8 +37,6 @@ extern "C"
 #include <gnutls/gnutls.h>
 #include <nettle/version.h>
 
-#define RHN_BEGIN_CERT_TAG "-----BEGIN CERTIFICATE-----"
-
 /**
  * @defgroup const Constants and properties
  * Constant values used as input or output
@@ -52,6 +50,7 @@ extern "C"
 #define RHN_ERROR_UNSUPPORTED  4
 #define RHN_ERROR_INVALID      5
 
+#define R_X509_TYPE_UNSPECIFIED 0
 #define R_X509_TYPE_PUBKEY      1
 #define R_X509_TYPE_PRIVKEY     2
 #define R_X509_TYPE_CERTIFICATE 3

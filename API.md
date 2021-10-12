@@ -362,6 +362,7 @@ The available `rhn_opt` and their following values for a `jws_t` are:
 
 ```C
 RHN_OPT_HEADER_INT_VALUE, const char *, int
+RHN_OPT_HEADER_RHN_INT_VALUE, const char *, rhn_int_t
 RHN_OPT_HEADER_STR_VALUE, const char * const char *
 RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
 RHN_OPT_HEADER_FULL_JSON_T, json_t *
@@ -715,6 +716,7 @@ The available `rhn_opt` and their following values for a `jwe_t` are:
 
 ```C
 RHN_OPT_HEADER_INT_VALUE, const char *, int
+RHN_OPT_HEADER_RHN_INT_VALUE, const char *, rhn_int_t
 RHN_OPT_HEADER_STR_VALUE, const char * const char *
 RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
 RHN_OPT_HEADER_FULL_JSON_T, json_t *
@@ -998,11 +1000,13 @@ The available `rhn_opt` and their following values for a `jwt_t` are:
 
 ```C
 RHN_OPT_HEADER_INT_VALUE, const char *, int
+RHN_OPT_HEADER_RHN_INT_VALUE, const char *, rhn_int_t
 RHN_OPT_HEADER_STR_VALUE, const char * const char *
 RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
 RHN_OPT_HEADER_FULL_JSON_T, json_t *
 RHN_OPT_HEADER_FULL_JSON_STR, const char *
 RHN_OPT_CLAIM_INT_VALUE, const char *, int
+RHN_OPT_CLAIM_RHN_INT_VALUE, const char *, rhn_int_t
 RHN_OPT_CLAIM_STR_VALUE, const char * const char *
 RHN_OPT_CLAIM_JSON_T_VALUE, const char *, json_t *
 RHN_OPT_CLAIM_FULL_JSON_T, json_t *

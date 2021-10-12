@@ -5,6 +5,7 @@
 - Add `r_jwk_match_json_t` and `r_jwk_match_json_str`
 - Add `r_jwks_search_json_t` and `r_jwks_search_json_str`
 - Add option `R_X509_TYPE_UNSPECIFIED` for `r_jwk_import_from_pem_der` parameter `type`
+- Add options `RHN_OPT_HEADER_RHN_INT_VALUE` and `RHN_OPT_CLAIM_INT_VALUE` to set `rhn_int_t values in `r_jwx_set_properties`
 
 ## 1.1.0
 

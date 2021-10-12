@@ -4365,6 +4365,7 @@ int r_jwe_set_properties(jwe_t * jwe, ...) {
   rhn_opt option;
   int ret = RHN_OK;
   int i_value;
+  rhn_int_t r_value;
   uint ui_value;
   const char * str_key, * str_value;
   json_t * j_value;
@@ -4384,6 +4385,11 @@ int r_jwe_set_properties(jwe_t * jwe, ...) {
           str_key = va_arg(vl, const char *);
           i_value = va_arg(vl, int);
           ret = r_jwe_set_header_int_value(jwe, str_key, (rhn_int_t)i_value);
+          break;
+        case RHN_OPT_HEADER_RHN_INT_VALUE:
+          str_key = va_arg(vl, const char *);
+          r_value = va_arg(vl, rhn_int_t);
+          ret = r_jwe_set_header_int_value(jwe, str_key, r_value);
           break;
         case RHN_OPT_HEADER_STR_VALUE:
           str_key = va_arg(vl, const char *);

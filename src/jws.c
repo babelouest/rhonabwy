@@ -2138,6 +2138,7 @@ int r_jws_set_properties(jws_t * jws, ...) {
   uint ui_value;
   int ret = RHN_OK;
   int i_value;
+  rhn_int_t r_value;
   const char * str_key, * str_value;
   json_t * j_value;
   const unsigned char * ustr_value;
@@ -2156,6 +2157,11 @@ int r_jws_set_properties(jws_t * jws, ...) {
           str_key = va_arg(vl, const char *);
           i_value = va_arg(vl, int);
           ret = r_jws_set_header_int_value(jws, str_key, (rhn_int_t)i_value);
+          break;
+        case RHN_OPT_HEADER_RHN_INT_VALUE:
+          str_key = va_arg(vl, const char *);
+          r_value = va_arg(vl, rhn_int_t);
+          ret = r_jws_set_header_int_value(jws, str_key, r_value);
           break;
         case RHN_OPT_HEADER_STR_VALUE:
           str_key = va_arg(vl, const char *);

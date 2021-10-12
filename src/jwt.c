@@ -2083,6 +2083,7 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
   uint ui_value;
   int ret = RHN_OK;
   int i_value;
+  rhn_int_t r_value;
   const char * str_key, * str_value;
   json_t * j_value;
   const unsigned char * ustr_value;
@@ -2101,6 +2102,11 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
           str_key = va_arg(vl, const char *);
           i_value = va_arg(vl, int);
           ret = r_jwt_set_header_int_value(jwt, str_key, (rhn_int_t)i_value);
+          break;
+        case RHN_OPT_HEADER_RHN_INT_VALUE:
+          str_key = va_arg(vl, const char *);
+          r_value = va_arg(vl, rhn_int_t);
+          ret = r_jwt_set_header_int_value(jwt, str_key, r_value);
           break;
         case RHN_OPT_HEADER_STR_VALUE:
           str_key = va_arg(vl, const char *);
@@ -2124,6 +2130,11 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
           str_key = va_arg(vl, const char *);
           i_value = va_arg(vl, int);
           ret = r_jwt_set_claim_int_value(jwt, str_key, (rhn_int_t)i_value);
+          break;
+        case RHN_OPT_CLAIM_RHN_INT_VALUE:
+          str_key = va_arg(vl, const char *);
+          r_value = va_arg(vl, rhn_int_t);
+          ret = r_jwt_set_claim_int_value(jwt, str_key, r_value);
           break;
         case RHN_OPT_CLAIM_STR_VALUE:
           str_key = va_arg(vl, const char *);

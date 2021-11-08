@@ -735,9 +735,9 @@ int r_jwk_extract_pubkey(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int x5u_flags)
 
 /**
  * Import data into a jwk
- * @param Parameters must be set of values
- * starting with a rhn_import,
- * and the mandatory parameters for each rhn_import
+ * @param type: type of the data to import
+ * Following parameters must be set of values
+ * with the mandatory parameters for each rhn_import
  * See rhn_import documentation
  * @return a jwk containing key parsed, or NULL on error
  */
@@ -967,9 +967,9 @@ int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int x5u_flags);
 
 /**
  * Import data into a jwks
- * @param Parameters must be a list of sets of values
- * each set of values starts with a rhn_import,
- * and the mandatory parameters for each rhn_import
+ * parameters must be set of values
+ * with the mandatory parameters for each rhn_import
+ * See rhn_import documentation
  * The parameters list MUST end with R_IMPORT_NONE
  * See rhn_import documentation
  * @return a jwks containing the list of keys parsed
@@ -1697,7 +1697,7 @@ int r_jws_advanced_parse_json_t(jws_t * jws, json_t * jws_json, uint32_t parse_f
 
 /**
  * Parses the serialized JWS in all modes (compact, flattened or general)
- * @param jws_json: the serialized JWS to parse in json_t * format
+ * @param jws_str: the serialized JWS to parse in char * format
  * @param parse_flags: Flags to set or unset options
  * Flags available are
  * - R_PARSE_NONE
@@ -1720,7 +1720,8 @@ jws_t * r_jws_quick_parse(const char * jws_str, uint32_t parse_flags, int x5u_fl
 
 /**
  * Parses the serialized JWS in all modes (compact, flattened or general)
- * @param jws_json: the serialized JWS to parse in json_t * format
+ * @param jws_str: the serialized JWS to parse in char * format
+ * @param jws_str_len: the length of jws_str
  * @param parse_flags: Flags to set or unset options
  * Flags available are
  * - R_PARSE_NONE

@@ -48,7 +48,7 @@
 #include <yder.h>
 #include <rhonabwy.h>
 
-#define _RNBYC_VERSION_ "0.9"
+#define _RNBYC_VERSION_ "1.0"
 
 #define R_RSA_DEFAULT_SIZE 4096
 #define R_OCT_DEFAULT_SIZE 128

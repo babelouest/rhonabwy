@@ -1993,10 +1993,8 @@ START_TEST(test_rhonabwy_quick_import)
   
   ck_assert_ptr_eq(NULL, r_jwk_quick_import(R_IMPORT_SYMKEY, NULL, sizeof(symmetric_key)));
   
-  ck_assert_ptr_ne(NULL, jwk = r_jwk_quick_import(R_IMPORT_PASSWORD, symmetric_key, sizeof(symmetric_key)));
+  ck_assert_ptr_ne(NULL, jwk = r_jwk_quick_import(R_IMPORT_PASSWORD, symmetric_key));
   r_jwk_free(jwk);
-  
-  ck_assert_ptr_eq(NULL, r_jwk_quick_import(R_IMPORT_PASSWORD, NULL, sizeof(symmetric_key)));
   
   o_free(http_key);
   o_free(http_cert);

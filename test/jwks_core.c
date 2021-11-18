@@ -835,12 +835,8 @@ START_TEST(test_rhonabwy_jwks_quick_import)
   ck_assert_int_eq(0, r_jwks_size(jwks));
   r_jwks_free(jwks);
   
-  ck_assert_ptr_ne(NULL, jwks = r_jwks_quick_import(R_IMPORT_PASSWORD, symmetric_key, sizeof(symmetric_key), R_IMPORT_NONE));
+  ck_assert_ptr_ne(NULL, jwks = r_jwks_quick_import(R_IMPORT_PASSWORD, symmetric_key, R_IMPORT_NONE));
   ck_assert_int_eq(1, r_jwks_size(jwks));
-  r_jwks_free(jwks);
-  
-  ck_assert_ptr_ne(NULL, jwks = r_jwks_quick_import(R_IMPORT_PASSWORD, NULL, sizeof(symmetric_key), R_IMPORT_NONE));
-  ck_assert_int_eq(0, r_jwks_size(jwks));
   r_jwks_free(jwks);
   
   ck_assert_ptr_ne(NULL, jwks = r_jwks_quick_import(R_IMPORT_JSON_T, jwk_j, R_IMPORT_JSON_T, jwks_j, R_IMPORT_NONE));

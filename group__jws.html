@@ -2182,7 +2182,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Parses the serialized JWS in all modes (compact, flattened or general) </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">jws_json</td><td>the serialized JWS to parse in json_t * format </td></tr>
+    <tr><td class="paramname">jws_str</td><td>the serialized JWS to parse in char * format </td></tr>
     <tr><td class="paramname">parse_flags</td><td>Flags to set or unset options Flags available are<ul>
 <li>R_PARSE_NONE</li>
 <li>R_PARSE_HEADER_JWK</li>
@@ -2246,7 +2246,8 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Parses the serialized JWS in all modes (compact, flattened or general) </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">jws_json</td><td>the serialized JWS to parse in json_t * format </td></tr>
+    <tr><td class="paramname">jws_str</td><td>the serialized JWS to parse in char * format </td></tr>
+    <tr><td class="paramname">jws_str_len</td><td>the length of jws_str </td></tr>
     <tr><td class="paramname">parse_flags</td><td>Flags to set or unset options Flags available are<ul>
 <li>R_PARSE_NONE</li>
 <li>R_PARSE_HEADER_JWK</li>

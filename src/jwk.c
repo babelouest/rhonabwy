@@ -713,10 +713,11 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
                       }
                     } else if ((ret&R_KEY_TYPE_EDDSA)) {
 #if GNUTLS_VERSION_NUMBER >= 0x03060e
-                      if (pk_alg != GNUTLS_PK_EDDSA_ED25519 && pk_alg != GNUTLS_PK_EDDSA_ED448) {
+                      if (pk_alg != GNUTLS_PK_EDDSA_ED25519 && pk_alg != GNUTLS_PK_EDDSA_ED448)
 #else
-                      if (pk_alg != GNUTLS_PK_EDDSA_ED25519) {
+                      if (pk_alg != GNUTLS_PK_EDDSA_ED25519)
 #endif
+                      {
                         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Invalid x5c type, expected OKP");
                         ret = R_KEY_TYPE_NONE;
                       }
@@ -772,10 +773,11 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
                   }
                 } else if ((ret&R_KEY_TYPE_EDDSA)) {
 #if GNUTLS_VERSION_NUMBER >= 0x03060e
-                  if (pk_alg != GNUTLS_PK_EDDSA_ED25519 && pk_alg != GNUTLS_PK_EDDSA_ED448) {
+                  if (pk_alg != GNUTLS_PK_EDDSA_ED25519 && pk_alg != GNUTLS_PK_EDDSA_ED448)
 #else
-                  if (pk_alg != GNUTLS_PK_EDDSA_ED25519) {
+                  if (pk_alg != GNUTLS_PK_EDDSA_ED25519)
 #endif
+                  {
                     y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Invalid x5u type, expected OKP");
                     ret = R_KEY_TYPE_NONE;
                   }
@@ -2282,9 +2284,9 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk) {
         } else if (0 == o_strcmp("Ed448", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_ED448;
 #endif
-#if 0 // Disabled for now
         } else if (0 == o_strcmp("X25519", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_X25519;
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
         } else if (0 == o_strcmp("X448", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_X448;
 #endif
@@ -2313,6 +2315,7 @@ gnutls_privkey_t r_jwk_export_to_gnutls_privkey(jwk_t * jwk) {
       }
       o_free(x.data);
       o_free(k.data);
+    } else if (type & R_KEY_TYPE_EDDSA || type & R_KEY_TYPE_ECDH) {
 #endif
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_privkey - invalid key format, expected 'RSA' or 'EC'");
@@ -2575,9 +2578,9 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
         } else if (0 == o_strcmp("Ed448", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_ED448;
 #endif
-#if 0 // Disabled for now
         } else if (0 == o_strcmp("X25519", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_X25519;
+#if GNUTLS_VERSION_NUMBER >= 0x03060e
         } else if (0 == o_strcmp("X448", json_string_value(json_object_get(jwk, "crv")))) {
           curve = GNUTLS_ECC_CURVE_X448;
 #endif

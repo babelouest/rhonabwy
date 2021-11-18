@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 1.1.2
+
+- Upgrade rnbyc version to 1.0
+- Fix bug in `r_jwk_import_from_gnutls_privkey` for ECDSA keys
+
 ## 1.1.1
 
 - Add `r_jwk_match_json_t` and `r_jwk_match_json_str`

@@ -1326,19 +1326,19 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
             }
 
             if (gnutls_privkey_export_x509(key, &x509_key)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey rsa - Error gnutls_privkey_export_x509");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error gnutls_privkey_export_x509");
               ret = RHN_ERROR;
               break;
             }
             if (gnutls_x509_privkey_get_key_id(x509_key, GNUTLS_KEYID_USE_SHA256, kid, &kid_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey rsa - Error gnutls_x509_crt_get_key_id");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error gnutls_x509_crt_get_key_id");
               ret = RHN_ERROR;
             }
             if (!o_base64url_encode(kid, kid_len, kid_b64, &kid_b64_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey rsa - Error o_base64url_encode (5)");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error o_base64url_encode (5)");
               ret = RHN_ERROR;
             }
-            json_object_set_new(jwk, "kid", json_stringn((const char *)b64_enc, b64_enc_len));
+            json_object_set_new(jwk, "kid", json_stringn((const char *)kid_b64, kid_b64_len));
           } while (0);
           o_free(b64_enc);
           gnutls_free(x.data);
@@ -1359,17 +1359,17 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
           ret = RHN_OK;
           do {
             if (!o_base64url_encode(x.data, x.size, NULL, &b64_enc_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error o_base64url_encode (1)");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_base64url_encode (1)");
               ret = RHN_ERROR;
               break;
             }
             if ((b64_enc = o_malloc((b64_enc_len+4)*sizeof(char))) == NULL) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error o_malloc (1)");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_malloc (1)");
               ret = RHN_ERROR;
               break;
             }
             if (!o_base64url_encode(x.data, x.size, b64_enc, &b64_enc_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error o_base64url_encode (2)");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_base64url_encode (2)");
               ret = RHN_ERROR;
               break;
             }
@@ -1377,17 +1377,17 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
             o_free(b64_enc);
 
             if (!o_base64url_encode(k.data, k.size, NULL, &b64_enc_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error o_base64url_encode (5)");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_base64url_encode (5)");
               ret = RHN_ERROR;
               break;
             }
             if ((b64_enc = o_malloc((b64_enc_len+4)*sizeof(char))) == NULL) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error o_malloc (3)");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_malloc (3)");
               ret = RHN_ERROR;
               break;
             }
             if (!o_base64url_encode(k.data, k.size, b64_enc, &b64_enc_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error o_base64url_encode (6)");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_base64url_encode (6)");
               ret = RHN_ERROR;
               break;
             }
@@ -1399,16 +1399,16 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
             }
 
             if (gnutls_privkey_export_x509(key, &x509_key)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey rsa - Error gnutls_privkey_export_x509");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error gnutls_privkey_export_x509");
               ret = RHN_ERROR;
               break;
             }
             if (gnutls_x509_privkey_get_key_id(x509_key, GNUTLS_KEYID_USE_SHA256, kid, &kid_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey rsa - Error gnutls_x509_crt_get_key_id");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error gnutls_x509_crt_get_key_id");
               ret = RHN_ERROR;
             }
             if (!o_base64url_encode(kid, kid_len, kid_b64, &kid_b64_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey rsa - Error o_base64url_encode (5)");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_base64url_encode (5)");
               ret = RHN_ERROR;
             }
             json_object_set_new(jwk, "kid", json_string((const char *)kid_b64));
@@ -1418,7 +1418,7 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
           gnutls_free(k.data);
           gnutls_x509_privkey_deinit(x509_key);
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error gnutls_privkey_export_ecc_raw2");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error gnutls_privkey_export_ecc_raw2");
           ret = RHN_ERROR_PARAM;
         }
         break;
@@ -1431,17 +1431,17 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
           ret = RHN_OK;
           do {
             if (!o_base64url_encode(x.data, x.size, NULL, &b64_enc_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error o_base64url_encode (1)");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_base64url_encode (1)");
               ret = RHN_ERROR;
               break;
             }
             if ((b64_enc = o_malloc((b64_enc_len+4)*sizeof(char))) == NULL) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error o_malloc (1)");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_malloc (1)");
               ret = RHN_ERROR;
               break;
             }
             if (!o_base64url_encode(x.data, x.size, b64_enc, &b64_enc_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error o_base64url_encode (2)");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_base64url_encode (2)");
               ret = RHN_ERROR;
               break;
             }
@@ -1449,17 +1449,17 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
             o_free(b64_enc);
 
             if (!o_base64url_encode(k.data, k.size, NULL, &b64_enc_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error o_base64url_encode (5)");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_base64url_encode (5)");
               ret = RHN_ERROR;
               break;
             }
             if ((b64_enc = o_malloc((b64_enc_len+4)*sizeof(char))) == NULL) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error o_malloc (3)");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_malloc (3)");
               ret = RHN_ERROR;
               break;
             }
             if (!o_base64url_encode(k.data, k.size, b64_enc, &b64_enc_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error o_base64url_encode (6)");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_base64url_encode (6)");
               ret = RHN_ERROR;
               break;
             }
@@ -1471,16 +1471,16 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
             }
 
             if (gnutls_privkey_export_x509(key, &x509_key)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey rsa - Error gnutls_privkey_export_x509");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error gnutls_privkey_export_x509");
               ret = RHN_ERROR;
               break;
             }
             if (gnutls_x509_privkey_get_key_id(x509_key, GNUTLS_KEYID_USE_SHA256, kid, &kid_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey rsa - Error gnutls_x509_crt_get_key_id");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error gnutls_x509_crt_get_key_id");
               ret = RHN_ERROR;
             }
             if (!o_base64url_encode(kid, kid_len, kid_b64, &kid_b64_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey rsa - Error o_base64url_encode (5)");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_base64url_encode (5)");
               ret = RHN_ERROR;
             }
             json_object_set_new(jwk, "kid", json_string((const char *)kid_b64));
@@ -1490,7 +1490,7 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
           gnutls_free(k.data);
           gnutls_x509_privkey_deinit(x509_key);
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey ecdsa - Error gnutls_privkey_export_ecc_raw2");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error gnutls_privkey_export_ecc_raw2");
           ret = RHN_ERROR_PARAM;
         }
         break;

@@ -20,11 +20,15 @@ TARGET_JWT=jwt_core jwt_sign jwt_encrypt jwt_nested
 TARGET=$(TARGET_JWK) $(TARGET_JWS) $(TARGET_JWE) $(TARGET_JWT) misc cookbook
 VERBOSE=0
 MEMCHECK=0
+CERT=cert
 
 all: test
 
 clean:
-	rm -f *.o $(TARGET) *.log valgrind-*.txt
+	rm -f *.o $(TARGET) *.log valgrind-*.txt $(CERT)/*.crt $(CERT)/*.key
+
+$(CERT)/server.key:
+	./$(CERT)/create-cert.sh
 
 $(RHONABWY_LIBRARY): $(RHONABWY_LOCATION)/misc.c $(RHONABWY_LOCATION)/jwk.c $(RHONABWY_LOCATION)/jwks.c $(RHONABWY_LOCATION)/jws.c $(RHONABWY_LOCATION)/jwe.c $(RHONABWY_LOCATION)/jwt.c $(RHONABWY_INCLUDE)/rhonabwy.h
 	cd $(RHONABWY_LOCATION) && $(MAKE) debug  $*
@@ -32,7 +36,7 @@ $(RHONABWY_LIBRARY): $(RHONABWY_LOCATION)/misc.c $(RHONABWY_LOCATION)/jwk.c $(RH
 %: %.c
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-test_%: % $(RHONABWY_LIBRARY)
+test_%: % $(RHONABWY_LIBRARY) $(CERT)/server.key
 	@if [ "$(VERBOSE)" = "0" ] && [ "$(MEMCHECK)" = "0" ]; then \
 		LD_LIBRARY_PATH=$(RHONABWY_LOCATION):${LD_LIBRARY_PATH} ./run_test.sh ./$^; \
 	elif [ "$(MEMCHECK)" = "0" ]; then \

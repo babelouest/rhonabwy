@@ -357,21 +357,27 @@ jwks_t * r_jwks_quick_import(rhn_import type, ...) {
       switch (opt) {
         case R_IMPORT_JSON_STR:
           str = va_arg(vl, const char *);
-          if ((jwk = r_jwk_quick_import(R_IMPORT_JSON_STR, str)) != NULL) {
-            r_jwks_append_jwk(jwks, jwk);
-            r_jwk_free(jwk);
+          j_jwk = json_loads(str, JSON_DECODE_ANY, NULL);
+          if (json_is_array(json_object_get(j_jwk, "keys"))) {
+            r_jwks_import_from_json_t(jwks, j_jwk);
           } else {
-            r_jwks_import_from_json_str(jwks, str);
+            if ((jwk = r_jwk_quick_import(R_IMPORT_JSON_T, j_jwk)) != NULL) {
+              r_jwks_append_jwk(jwks, jwk);
+              r_jwk_free(jwk);
+            }
           }
+          json_decref(j_jwk);
           opt = va_arg(vl, rhn_import);
           break;
         case R_IMPORT_JSON_T:
           j_jwk = va_arg(vl, json_t *);
-          if ((jwk = r_jwk_quick_import(R_IMPORT_JSON_T, j_jwk)) != NULL) {
-            r_jwks_append_jwk(jwks, jwk);
-            r_jwk_free(jwk);
-          } else {
+          if (json_is_array(json_object_get(j_jwk, "keys"))) {
             r_jwks_import_from_json_t(jwks, j_jwk);
+          } else {
+            if ((jwk = r_jwk_quick_import(R_IMPORT_JSON_T, j_jwk)) != NULL) {
+              r_jwks_append_jwk(jwks, jwk);
+              r_jwk_free(jwk);
+            }
           }
           opt = va_arg(vl, rhn_import);
           break;

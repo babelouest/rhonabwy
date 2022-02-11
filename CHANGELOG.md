@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 1.1.3
+
+- Bugfixes
+- Add `r_jwt_token_type` and `r_jwt_token_typen`
+
 ## 1.1.2
 
 - Upgrade rnbyc version to 1.0

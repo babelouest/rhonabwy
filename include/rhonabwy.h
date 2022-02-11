@@ -3321,7 +3321,7 @@ jwt_t * r_jwt_quick_parse(const char * token, uint32_t parse_flags, int x5u_flag
  * If the JWT is signed only, the claims will be available
  * If the JWT is encrypted, the claims will not be accessible until
  * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
- * @param token: the token to parse into a JWT, must end with a NULL string terminator
+ * @param token: the token to parse into a JWT
  * @param token_len: token length
  * @param parse_flags: Flags to set or unset options
  * Flags available are
@@ -3354,6 +3354,29 @@ jwt_t * r_jwt_quick_parsen(const char * token, size_t token_len, uint32_t parse_
  * R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN: A nested JWT first encrypted, then signed
  */
 int r_jwt_get_type(jwt_t * jwt);
+
+/**
+ * Guess the type of JWT based on the
+ * token format, but without parsing the token
+ * @param token: the token to check
+ * @return the type of JWT, values available are
+ * R_JWT_TYPE_NONE: not a JWT
+ * R_JWT_TYPE_SIGN: A signed JWT
+ * R_JWT_TYPE_ENCRYPT: An encrypted JWT
+ */
+int r_jwt_token_type(const char * token);
+
+/**
+ * Guess the type of JWT based on the
+ * token format, but without parsing the token
+ * @param token: the token to check
+ * @param token_len: token length
+ * @return the type of JWT, values available are
+ * R_JWT_TYPE_NONE: not a JWT
+ * R_JWT_TYPE_SIGN: A signed JWT
+ * R_JWT_TYPE_ENCRYPT: An encrypted JWT
+ */
+int r_jwt_token_typen(const char * token, size_t token_len);
 
 /**
  * Verifies the signature of the JWT
@@ -3470,6 +3493,21 @@ int r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_ke
  */
 int r_jwt_validate_claims(jwt_t * jwt, ...);
 
+/**
+ * Set the jwt claims with the list of claims given in parameters
+ * The list must end with the claim type R_JWT_CLAIM_NOP
+ * Claim types available
+ * - R_JWT_CLAIM_ISS: claim "iss", values expected a string or NULL
+ * - R_JWT_CLAIM_SUB: claim "sub", values expected a string or NULL
+ * - R_JWT_CLAIM_AUD: claim "aud", values expected a string or NULL
+ * - R_JWT_CLAIM_EXP: claim "exp", value expected R_JWT_CLAIM_NOW or an positive integer value
+ * - R_JWT_CLAIM_NBF: claim "nbf", value expected R_JWT_CLAIM_NOW or an positive integer value
+ * - R_JWT_CLAIM_IAT: claim "iat", value expected R_JWT_CLAIM_NOW or an positive integer value
+ * - R_JWT_CLAIM_JTI: claim "jti", values expected a string or NULL
+ * - R_JWT_CLAIM_STR: claim name specified, then string value or NULL
+ * - R_JWT_CLAIM_INT: claim name specified, then int value
+ * - R_JWT_CLAIM_JSN: claim name specified, then json_t * value or NULL
+ */
 int r_jwt_set_claims(jwt_t * jwt, ...);
 
 /**

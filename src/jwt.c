@@ -2292,3 +2292,49 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
   }
   return ret;
 }
+
+int r_jwt_token_type(const char * token) {
+  return r_jwt_token_typen(token, o_strlen(token));
+}
+
+int r_jwt_token_typen(const char * token, size_t token_len) {
+  size_t nb_dots = 0, i, token_dup_len = 0;
+  int ret = R_JWT_TYPE_NONE;
+  char * token_dup = NULL, * tmp;
+
+  if (token != NULL && token_len) {
+    token_dup = o_strndup(token, token_len);
+    // Remove whitespaces and newlines
+    tmp = str_replace(token_dup, " ", "");
+    o_free(token_dup);
+    token_dup = tmp;
+    tmp = str_replace(token_dup, "\n", "");
+    o_free(token_dup);
+    token_dup = tmp;
+    tmp = str_replace(token_dup, "\t", "");
+    o_free(token_dup);
+    token_dup = tmp;
+    tmp = str_replace(token_dup, "\v", "");
+    o_free(token_dup);
+    token_dup = tmp;
+    tmp = str_replace(token_dup, "\f", "");
+    o_free(token_dup);
+    token_dup = tmp;
+    tmp = str_replace(token_dup, "\r", "");
+    o_free(token_dup);
+    token_dup = tmp;
+    token_dup_len = o_strlen(token_dup);
+    for (i=0; i<token_dup_len; i++) {
+      if (token_dup[i] == '.') {
+        nb_dots++;
+      }
+    }
+    if (nb_dots == 2) {
+      ret = R_JWT_TYPE_SIGN;
+    } else if (nb_dots == 4) {
+      ret = R_JWT_TYPE_ENCRYPT;
+    }
+    o_free(token_dup);
+  }
+  return ret;
+}

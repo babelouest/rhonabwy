@@ -4,6 +4,7 @@
 
 - Bugfixes
 - Add `r_jwt_token_type` and `r_jwt_token_typen`
+- Replace `uint` with `unsigned int`
 
 ## 1.1.2
 

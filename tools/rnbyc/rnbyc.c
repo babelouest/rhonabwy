@@ -2,7 +2,7 @@
  *
  * rnbyc: Rhonabwy command-line tool
  *
- * Copyright 2020 Nicolas Mora <mail@babelouest.org>
+ * Copyright 2020-2022 Nicolas Mora <mail@babelouest.org>
  *
  * Command-line tool to manipulate JWK, JWKS, JWE, JWS and JWT
  * - Generates random JWK using the specified algorithm
@@ -67,7 +67,7 @@ static void print_help(FILE * output) {
   fprintf(output, "\n");
   fprintf(output, "Version %s\n", _RNBYC_VERSION_);
   fprintf(output, "\n");
-  fprintf(output, "Copyright 2020 Nicolas Mora <mail@babelouest.org>\n");
+  fprintf(output, "Copyright 2020-2022 Nicolas Mora <mail@babelouest.org>\n");
   fprintf(output, "\n");
   fprintf(output, "This program is free software; you can redistribute it and/or\n");
   fprintf(output, "modify it under the terms of the GPL 3\n");

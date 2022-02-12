@@ -4366,7 +4366,7 @@ int r_jwe_set_properties(jwe_t * jwe, ...) {
   int ret = RHN_OK;
   int i_value;
   rhn_int_t r_value;
-  uint ui_value;
+  unsigned int ui_value;
   const char * str_key, * str_value;
   json_t * j_value;
   const unsigned char * ustr_value;
@@ -4423,11 +4423,11 @@ int r_jwe_set_properties(jwe_t * jwe, ...) {
           ret = r_jwe_set_payload(jwe, ustr_value, size_value);
           break;
         case RHN_OPT_ENC_ALG:
-          ui_value = va_arg(vl, uint);
+          ui_value = va_arg(vl, unsigned int);
           ret = r_jwe_set_alg(jwe, (jwa_alg)ui_value);
           break;
         case RHN_OPT_ENC:
-          ui_value = va_arg(vl, uint);
+          ui_value = va_arg(vl, unsigned int);
           ret = r_jwe_set_enc(jwe, (jwa_enc)ui_value);
           break;
         case RHN_OPT_CIPHER_KEY:
@@ -4466,7 +4466,7 @@ int r_jwe_set_properties(jwe_t * jwe, ...) {
           ret = r_jwe_add_keys_json_str(jwe, NULL, str_value);
           break;
         case RHN_OPT_ENCRYPT_KEY_PEM_DER:
-          ui_value = va_arg(vl, uint);
+          ui_value = va_arg(vl, unsigned int);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
           ret = r_jwe_add_keys_pem_der(jwe, ui_value, NULL, 0, ustr_value, size_value);
@@ -4492,7 +4492,7 @@ int r_jwe_set_properties(jwe_t * jwe, ...) {
           ret = r_jwe_add_keys_json_str(jwe, str_value, NULL);
           break;
         case RHN_OPT_DECRYPT_KEY_PEM_DER:
-          ui_value = va_arg(vl, uint);
+          ui_value = va_arg(vl, unsigned int);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
           ret = r_jwe_add_keys_pem_der(jwe, ui_value, ustr_value, size_value, NULL, 0);

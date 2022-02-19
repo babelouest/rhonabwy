@@ -866,7 +866,7 @@ END_TEST
 START_TEST(test_rhonabwy_jwks_search)
 {
   char * jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_x5c_str);
-  jwks_t * jwks = r_jwks_quick_import(R_IMPORT_JSON_STR, jwks_str), * jwks_ret;
+  jwks_t * jwks = r_jwks_quick_import(R_IMPORT_JSON_STR, jwks_str, R_IMPORT_NONE), * jwks_ret;
   json_t * j_match;
   const char match_empty[] = "{}",
              match_invalid[] = "error",

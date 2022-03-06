@@ -510,7 +510,7 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
           if (!gnutls_pubkey_import_privkey(pubkey, privkey, GNUTLS_KEY_DIGITAL_SIGNATURE|GNUTLS_KEY_DATA_ENCIPHERMENT, 0)) {
             if (r_jwk_import_from_gnutls_privkey(jwk_privkey, privkey) == RHN_OK) {
               if (r_jwk_import_from_gnutls_pubkey(jwk_pubkey, pubkey) == RHN_OK) {
-                if (o_strlen(kid)) {
+                if (!o_strnullempty(kid)) {
                   r_jwk_set_property_str(jwk_privkey, "kid", kid);
                   r_jwk_set_property_str(jwk_pubkey, "kid", kid);
                 }
@@ -562,7 +562,7 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
             if (!gnutls_pubkey_import_privkey(pubkey, privkey, GNUTLS_KEY_DIGITAL_SIGNATURE|GNUTLS_KEY_DATA_ENCIPHERMENT, 0)) {
               if (r_jwk_import_from_gnutls_privkey(jwk_privkey, privkey) == RHN_OK) {
                 if (r_jwk_import_from_gnutls_pubkey(jwk_pubkey, pubkey) == RHN_OK) {
-                  if (o_strlen(kid)) {
+                  if (!o_strnullempty(kid)) {
                     r_jwk_set_property_str(jwk_privkey, "kid", kid);
                     r_jwk_set_property_str(jwk_pubkey, "kid", kid);
                   }
@@ -2767,7 +2767,7 @@ int r_jwk_export_to_symmetric_key(jwk_t * jwk, unsigned char * key, size_t * key
 }
 
 const char * r_jwk_get_property_str(jwk_t * jwk, const char * key) {
-  if (jwk != NULL && o_strlen(key)) {
+  if (jwk != NULL && !o_strnullempty(key)) {
     if (json_is_string(json_object_get(jwk, key))) {
       return json_string_value(json_object_get(jwk, key));
     } else {
@@ -2779,7 +2779,7 @@ const char * r_jwk_get_property_str(jwk_t * jwk, const char * key) {
 }
 
 const char * r_jwk_get_property_array(jwk_t * jwk, const char * key, size_t index) {
-  if (jwk != NULL && o_strlen(key)) {
+  if (jwk != NULL && !o_strnullempty(key)) {
     if (json_is_array(json_object_get(jwk, key))) {
       return json_string_value(json_array_get(json_object_get(jwk, key), index));
     } else {
@@ -2792,7 +2792,7 @@ const char * r_jwk_get_property_array(jwk_t * jwk, const char * key, size_t inde
 }
 
 int r_jwk_get_property_array_size(jwk_t * jwk, const char * key) {
-  if (jwk != NULL && o_strlen(key)) {
+  if (jwk != NULL && !o_strnullempty(key)) {
     if (json_is_array(json_object_get(jwk, key))) {
       return (int)json_array_size(json_object_get(jwk, key));
     } else {
@@ -2805,7 +2805,7 @@ int r_jwk_get_property_array_size(jwk_t * jwk, const char * key) {
 }
 
 int r_jwk_set_property_str(jwk_t * jwk, const char * key, const char * value) {
-  if (jwk != NULL && o_strlen(key) && o_strlen(value)) {
+  if (jwk != NULL && !o_strnullempty(key) && !o_strnullempty(value)) {
     if (!json_object_set_new(jwk, key, json_string(value))) {
       return RHN_OK;
     } else {
@@ -2818,7 +2818,7 @@ int r_jwk_set_property_str(jwk_t * jwk, const char * key, const char * value) {
 }
 
 int r_jwk_set_property_array(jwk_t * jwk, const char * key, size_t index, const char * value) {
-  if (jwk != NULL && o_strlen(key) && o_strlen(value)) {
+  if (jwk != NULL && !o_strnullempty(key) && !o_strnullempty(value)) {
     if ((json_object_get(jwk, key) != NULL && !json_is_array(json_object_get(jwk, key))) || (json_is_array(json_object_get(jwk, key)) && json_array_size(json_object_get(jwk, key)) <= index)) {
       return RHN_ERROR_PARAM;
     } else if (json_object_get(jwk, key) == NULL && !index) {
@@ -2842,7 +2842,7 @@ int r_jwk_set_property_array(jwk_t * jwk, const char * key, size_t index, const 
 }
 
 int r_jwk_append_property_array(jwk_t * jwk, const char * key, const char * value) {
-  if (jwk != NULL && o_strlen(key) && o_strlen(value)) {
+  if (jwk != NULL && !o_strnullempty(key) && !o_strnullempty(value)) {
     if (json_object_get(jwk, key) != NULL && !json_is_array(json_object_get(jwk, key))) {
       return RHN_ERROR_PARAM;
     } else if (json_object_get(jwk, key) == NULL) {
@@ -2860,7 +2860,7 @@ int r_jwk_append_property_array(jwk_t * jwk, const char * key, const char * valu
 }
 
 int r_jwk_delete_property_str(jwk_t * jwk, const char * key) {
-  if (jwk != NULL && o_strlen(key)) {
+  if (jwk != NULL && !o_strnullempty(key)) {
     if (!json_object_del(jwk, key)) {
       return RHN_OK;
     } else {
@@ -2873,7 +2873,7 @@ int r_jwk_delete_property_str(jwk_t * jwk, const char * key) {
 }
 
 int r_jwk_delete_property_array_at(jwk_t * jwk, const char * key, size_t index) {
-  if (jwk != NULL && o_strlen(key) && json_is_array(json_object_get(jwk, key)) && json_array_size(json_object_get(jwk, key)) > index) {
+  if (jwk != NULL && !o_strnullempty(key) && json_is_array(json_object_get(jwk, key)) && json_array_size(json_object_get(jwk, key)) > index) {
     if (!json_array_remove(json_object_get(jwk, key), index)) {
       return RHN_OK;
     } else {

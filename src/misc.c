@@ -147,7 +147,7 @@ char * _r_get_http_content(const char * url, int x5u_flags, const char * expecte
           break;
         }
       }
-      if (o_strlen(expected_content_type)) {
+      if (!o_strnullempty(expected_content_type)) {
         if (curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, write_header) != CURLE_OK) {
           break;
         }
@@ -168,7 +168,7 @@ char * _r_get_http_content(const char * url, int x5u_flags, const char * expecte
     curl_slist_free_all(list);
     
     if (status >= 200 && status < 300) {
-      if (!o_strlen(expected_content_type)) {
+      if (o_strnullempty(expected_content_type)) {
         to_return = resp.ptr;
       } else {
         if (ct.found) {
@@ -192,7 +192,7 @@ char * _r_get_http_content(const char * url, int x5u_flags, const char * expecte
 int _r_json_set_str_value(json_t * j_json, const char * key, const char * str_value) {
   int ret;
 
-  if (j_json != NULL && o_strlen(key)) {
+  if (j_json != NULL && !o_strnullempty(key)) {
     if (str_value != NULL) {
       if (!json_object_set_new(j_json, key, json_string(str_value))) {
         ret = RHN_OK;
@@ -213,7 +213,7 @@ int _r_json_set_str_value(json_t * j_json, const char * key, const char * str_va
 int _r_json_set_int_value(json_t * j_json, const char * key, rhn_int_t i_value) {
   int ret;
 
-  if (j_json != NULL && o_strlen(key)) {
+  if (j_json != NULL && !o_strnullempty(key)) {
     if (!json_object_set_new(j_json, key, json_integer(i_value))) {
       ret = RHN_OK;
     } else {
@@ -229,7 +229,7 @@ int _r_json_set_int_value(json_t * j_json, const char * key, rhn_int_t i_value) 
 int _r_json_set_json_t_value(json_t * j_json, const char * key, json_t * j_value) {
   int ret;
 
-  if (j_json != NULL && o_strlen(key)) {
+  if (j_json != NULL && !o_strnullempty(key)) {
     if (j_value != NULL) {
       if (!json_object_set_new(j_json, key, json_deep_copy(j_value))) {
         ret = RHN_OK;
@@ -248,14 +248,14 @@ int _r_json_set_json_t_value(json_t * j_json, const char * key, json_t * j_value
 }
 
 const char * _r_json_get_str_value(json_t * j_json, const char * key) {
-  if (j_json != NULL && o_strlen(key)) {
+  if (j_json != NULL && !o_strnullempty(key)) {
     return json_string_value(json_object_get(j_json, key));
   }
   return NULL;
 }
 
 rhn_int_t _r_json_get_int_value(json_t * j_json, const char * key) {
-  if (j_json != NULL && o_strlen(key)) {
+  if (j_json != NULL && !o_strnullempty(key)) {
     return json_integer_value(json_object_get(j_json, key));
   }
   return 0;
@@ -264,7 +264,7 @@ rhn_int_t _r_json_get_int_value(json_t * j_json, const char * key) {
 json_t * _r_json_get_json_t_value(json_t * j_json, const char * key) {
   json_t * j_value;
 
-  if (j_json != NULL && o_strlen(key) && (j_value = json_object_get(j_json, key)) != NULL) {
+  if (j_json != NULL && !o_strnullempty(key) && (j_value = json_object_get(j_json, key)) != NULL) {
     return json_deep_copy(j_value);
   }
   return NULL;

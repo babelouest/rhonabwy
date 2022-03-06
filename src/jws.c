@@ -1065,7 +1065,7 @@ jwa_alg r_jws_get_alg(jws_t * jws) {
 
 const char * r_jws_get_kid(jws_t * jws) {
   const char * kid = r_jws_get_header_str_value(jws, "kid");
-  if (!o_strlen(kid)) {
+  if (!!o_strnullempty(kid)) {
     if (jws != NULL && jws->token_mode == R_JSON_MODE_FLATTENED) {
       kid = json_string_value(json_object_get(json_object_get(jws->j_json_serialization, "header"), "kid"));
     }
@@ -1899,7 +1899,7 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags) {
           res = r_jws_extract_header(jws, j_header, R_PARSE_NONE, x5u_flags);
           json_decref(j_header);
           if (res == RHN_OK) {
-            if (o_strlen(kid)) {
+            if (!o_strnullempty(kid)) {
               if (jwk_pubkey != NULL) {
                 ret = _r_verify_signature(jws, jwk, jws->alg, x5u_flags);
               } else {

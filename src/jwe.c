@@ -95,7 +95,7 @@ static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnu
     memcpy(kdf->data+kdf->size+4, alg_id, alg_id_len);
     kdf->size += 4+alg_id_len;
 
-    if (o_strlen(apu)) {
+    if (!o_strnullempty(apu)) {
       if ((apu_dec = o_malloc(o_strlen(apu))) == NULL) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_concat_kdf - Error malloc apu_dec");
         ret = RHN_ERROR_MEMORY;
@@ -124,7 +124,7 @@ static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnu
     }
     kdf->size += apu_dec_len+4;
 
-    if (o_strlen(apv)) {
+    if (!o_strnullempty(apv)) {
       if ((apv_dec = o_malloc(o_strlen(apv))) == NULL) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_concat_kdf - Error malloc apv_dec");
         ret = RHN_ERROR_MEMORY;
@@ -2298,7 +2298,7 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
   switch (alg) {
     case R_JWA_ALG_RSA1_5:
       if (r_jwk_key_type(jwk, &bits, x5u_flags) & (R_KEY_TYPE_RSA|R_KEY_TYPE_PRIVATE) && bits >= 2048) {
-        if (jwk != NULL && o_strlen((const char *)jwe->encrypted_key_b64url) && (g_priv = r_jwk_export_to_gnutls_privkey(jwk)) != NULL) {
+        if (jwk != NULL && !o_strnullempty((const char *)jwe->encrypted_key_b64url) && (g_priv = r_jwk_export_to_gnutls_privkey(jwk)) != NULL) {
           if ((cypherkey_dec = o_malloc(o_strlen((const char *)jwe->encrypted_key_b64url))) != NULL) {
             memset(cypherkey_dec, 0, o_strlen((const char *)jwe->encrypted_key_b64url));
             if (o_base64url_decode(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), cypherkey_dec, &cypherkey_dec_len)) {
@@ -2341,7 +2341,7 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
     case R_JWA_ALG_RSA_OAEP:
     case R_JWA_ALG_RSA_OAEP_256:
       if (r_jwk_key_type(jwk, &bits, x5u_flags) & (R_KEY_TYPE_RSA|R_KEY_TYPE_PRIVATE) && bits >= 2048) {
-        if (jwk != NULL && o_strlen((const char *)jwe->encrypted_key_b64url) && (g_priv = r_jwk_export_to_gnutls_privkey(jwk)) != NULL) {
+        if (jwk != NULL && !o_strnullempty((const char *)jwe->encrypted_key_b64url) && (g_priv = r_jwk_export_to_gnutls_privkey(jwk)) != NULL) {
           if ((cypherkey_dec = o_malloc(o_strlen((const char *)jwe->encrypted_key_b64url))) != NULL) {
             if (o_base64url_decode(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), cypherkey_dec, &cypherkey_dec_len)) {
               if ((clearkey = o_malloc(bits+1)) != NULL) {
@@ -3389,7 +3389,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
   size_t tag_len = 0, tag_b64url_len = 0;
   int cipher_cbc;
 
-  if (jwe != NULL && jwe->enc != R_JWA_ENC_UNKNOWN && o_strlen((const char *)jwe->ciphertext_b64url) && o_strlen((const char *)jwe->iv_b64url) && jwe->key != NULL && jwe->key_len && jwe->key_len == _r_get_key_size(jwe->enc)) {
+  if (jwe != NULL && jwe->enc != R_JWA_ENC_UNKNOWN && !o_strnullempty((const char *)jwe->ciphertext_b64url) && !o_strnullempty((const char *)jwe->iv_b64url) && jwe->key != NULL && jwe->key_len && jwe->key_len == _r_get_key_size(jwe->enc)) {
     // Decode iv and payload_b64
     o_free(jwe->iv);
     if ((jwe->iv = o_malloc(o_strlen((const char *)jwe->iv_b64url))) != NULL) {
@@ -3685,7 +3685,7 @@ int r_jwe_advanced_compact_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_
     if (split_string(token, ".", &str_array) == 5) {
       // Check if all elements 0, 2 and 3 are base64url encoded
       if (o_base64url_decode((unsigned char *)str_array[0], o_strlen(str_array[0]), NULL, &header_len) &&
-         (!o_strlen(str_array[1]) || o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), NULL, &cypher_key_len)) &&
+         (o_strnullempty(str_array[1]) || o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), NULL, &cypher_key_len)) &&
           o_base64url_decode((unsigned char *)str_array[2], o_strlen(str_array[2]), NULL, &iv_len) &&
           o_base64url_decode((unsigned char *)str_array[3], o_strlen(str_array[3]), NULL, &cypher_len) &&
           o_base64url_decode((unsigned char *)str_array[4], o_strlen(str_array[4]), NULL, &tag_len)) {

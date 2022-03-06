@@ -267,7 +267,7 @@ int r_jwt_set_full_claims_json_t(jwt_t * jwt, json_t * j_claim) {
 int r_jwt_set_full_claims_json_str(jwt_t * jwt, const char * str_claims) {
   json_t * j_claims;
   int ret;
-  if (jwt != NULL && o_strlen(str_claims)) {
+  if (jwt != NULL && !o_strnullempty(str_claims)) {
     if ((j_claims = json_loads(str_claims, JSON_DECODE_ANY, NULL)) != NULL) {
       ret = r_jwt_set_full_claims_json_t(jwt, j_claims);
       json_decref(j_claims);
@@ -1732,48 +1732,48 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
       switch (option) {
         case R_JWT_CLAIM_ISS:
           str_value = va_arg(vl, const char *);
-          if (o_strlen(str_value)) {
+          if (!o_strnullempty(str_value)) {
             if (0 != o_strcmp(str_value, r_jwt_get_claim_str_value(jwt, "iss"))) {
               ret = RHN_ERROR_PARAM;
             }
           } else {
-            if (!o_strlen(r_jwt_get_claim_str_value(jwt, "iss"))) {
+            if (o_strnullempty(r_jwt_get_claim_str_value(jwt, "iss"))) {
               ret = RHN_ERROR_PARAM;
             }
           }
           break;
         case R_JWT_CLAIM_SUB:
           str_value = va_arg(vl, const char *);
-          if (o_strlen(str_value)) {
+          if (!o_strnullempty(str_value)) {
             if (0 != o_strcmp(str_value, r_jwt_get_claim_str_value(jwt, "sub"))) {
               ret = RHN_ERROR_PARAM;
             }
           } else {
-            if (!o_strlen(r_jwt_get_claim_str_value(jwt, "sub"))) {
+            if (o_strnullempty(r_jwt_get_claim_str_value(jwt, "sub"))) {
               ret = RHN_ERROR_PARAM;
             }
           }
           break;
         case R_JWT_CLAIM_AUD:
           str_value = va_arg(vl, const char *);
-          if (o_strlen(str_value)) {
+          if (!o_strnullempty(str_value)) {
             if (0 != o_strcmp(str_value, r_jwt_get_claim_str_value(jwt, "aud"))) {
               ret = RHN_ERROR_PARAM;
             }
           } else {
-            if (!o_strlen(r_jwt_get_claim_str_value(jwt, "aud"))) {
+            if (o_strnullempty(r_jwt_get_claim_str_value(jwt, "aud"))) {
               ret = RHN_ERROR_PARAM;
             }
           }
           break;
         case R_JWT_CLAIM_JTI:
           str_value = va_arg(vl, const char *);
-          if (o_strlen(str_value)) {
+          if (!o_strnullempty(str_value)) {
             if (0 != o_strcmp(str_value, r_jwt_get_claim_str_value(jwt, "jti"))) {
               ret = RHN_ERROR_PARAM;
             }
           } else {
-            if (!o_strlen(r_jwt_get_claim_str_value(jwt, "jti"))) {
+            if (o_strnullempty(r_jwt_get_claim_str_value(jwt, "jti"))) {
               ret = RHN_ERROR_PARAM;
             }
           }
@@ -1864,24 +1864,24 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
           break;
         case R_JWT_CLAIM_TYP:
           str_value = va_arg(vl, const char *);
-          if (o_strlen(str_value)) {
+          if (!o_strnullempty(str_value)) {
             if (0 != o_strcmp(str_value, r_jwt_get_header_str_value(jwt, "typ"))) {
               ret = RHN_ERROR_PARAM;
             }
           } else {
-            if (!o_strlen(r_jwt_get_header_str_value(jwt, "typ"))) {
+            if (o_strnullempty(r_jwt_get_header_str_value(jwt, "typ"))) {
               ret = RHN_ERROR_PARAM;
             }
           }
           break;
         case R_JWT_CLAIM_CTY:
           str_value = va_arg(vl, const char *);
-          if (o_strlen(str_value)) {
+          if (!o_strnullempty(str_value)) {
             if (0 != o_strcmp(str_value, r_jwt_get_header_str_value(jwt, "cty"))) {
               ret = RHN_ERROR_PARAM;
             }
           } else {
-            if (!o_strlen(r_jwt_get_header_str_value(jwt, "cty"))) {
+            if (o_strnullempty(r_jwt_get_header_str_value(jwt, "cty"))) {
               ret = RHN_ERROR_PARAM;
             }
           }
@@ -1914,7 +1914,7 @@ int r_jwt_set_claims(jwt_t * jwt, ...) {
       switch (option) {
         case R_JWT_CLAIM_ISS:
           str_value = va_arg(vl, const char *);
-          if (o_strlen(str_value)) {
+          if (!o_strnullempty(str_value)) {
             ret = r_jwt_set_claim_str_value(jwt, "iss", str_value);
           } else {
             ret = RHN_ERROR_PARAM;
@@ -1922,7 +1922,7 @@ int r_jwt_set_claims(jwt_t * jwt, ...) {
           break;
         case R_JWT_CLAIM_SUB:
           str_value = va_arg(vl, const char *);
-          if (o_strlen(str_value)) {
+          if (!o_strnullempty(str_value)) {
             ret = r_jwt_set_claim_str_value(jwt, "sub", str_value);
           } else {
             ret = RHN_ERROR_PARAM;
@@ -1930,7 +1930,7 @@ int r_jwt_set_claims(jwt_t * jwt, ...) {
           break;
         case R_JWT_CLAIM_AUD:
           str_value = va_arg(vl, const char *);
-          if (o_strlen(str_value)) {
+          if (!o_strnullempty(str_value)) {
             ret = r_jwt_set_claim_str_value(jwt, "aud", str_value);
           } else {
             ret = RHN_ERROR_PARAM;
@@ -1938,7 +1938,7 @@ int r_jwt_set_claims(jwt_t * jwt, ...) {
           break;
         case R_JWT_CLAIM_JTI:
           str_value = va_arg(vl, const char *);
-          if (o_strlen(str_value)) {
+          if (!o_strnullempty(str_value)) {
             ret = r_jwt_set_claim_str_value(jwt, "jti", str_value);
           } else {
             ret = RHN_ERROR_PARAM;
@@ -1971,7 +1971,7 @@ int r_jwt_set_claims(jwt_t * jwt, ...) {
         case R_JWT_CLAIM_STR:
           str_key = va_arg(vl, const char *);
           str_value = va_arg(vl, const char *);
-          if (o_strlen(str_key) && o_strlen(str_value)) {
+          if (!o_strnullempty(str_key) && !o_strnullempty(str_value)) {
             ret = r_jwt_set_claim_str_value(jwt, str_key, str_value);
           } else {
             ret = RHN_ERROR_PARAM;
@@ -1980,7 +1980,7 @@ int r_jwt_set_claims(jwt_t * jwt, ...) {
         case R_JWT_CLAIM_INT:
           str_key = va_arg(vl, const char *);
           i_value = va_arg(vl, int);
-          if (o_strlen(str_key)) {
+          if (!o_strnullempty(str_key)) {
             ret = r_jwt_set_claim_int_value(jwt, str_key, i_value);
           } else {
             ret = RHN_ERROR_PARAM;
@@ -1989,7 +1989,7 @@ int r_jwt_set_claims(jwt_t * jwt, ...) {
         case R_JWT_CLAIM_JSN:
           str_key = va_arg(vl, const char *);
           j_value = va_arg(vl, json_t *);
-          if (o_strlen(str_key) && j_value != NULL) {
+          if (!o_strnullempty(str_key) && j_value != NULL) {
             ret = r_jwt_set_claim_json_t_value(jwt, str_key, j_value);
           } else {
             ret = RHN_ERROR_PARAM;
@@ -1997,7 +1997,7 @@ int r_jwt_set_claims(jwt_t * jwt, ...) {
           break;
         case R_JWT_CLAIM_TYP:
           str_value = va_arg(vl, const char *);
-          if (o_strlen(str_value)) {
+          if (!o_strnullempty(str_value)) {
             ret = r_jwt_set_header_str_value(jwt, "typ", str_value);
           } else {
             ret = RHN_ERROR_PARAM;
@@ -2005,7 +2005,7 @@ int r_jwt_set_claims(jwt_t * jwt, ...) {
           break;
         case R_JWT_CLAIM_CTY:
           str_value = va_arg(vl, const char *);
-          if (o_strlen(str_value)) {
+          if (!o_strnullempty(str_value)) {
             ret = r_jwt_set_header_str_value(jwt, "cty", str_value);
           } else {
             ret = RHN_ERROR_PARAM;

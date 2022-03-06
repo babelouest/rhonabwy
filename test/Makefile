@@ -11,7 +11,7 @@ RHONABWY_LOCATION=../src
 RHONABWY_LIBRARY=$(RHONABWY_LOCATION)/librhonabwy.so
 CC=gcc
 CFLAGS+=-Wall -D_REENTRANT -I$(RHONABWY_INCLUDE) -DDEBUG -g -O0 $(CPPFLAGS)
-LDFLAGS=-lc -lorcania -lyder -ljansson -lgnutls -lrhonabwy -L$(RHONABWY_LOCATION) $(shell pkg-config --libs check) -lulfius
+LDFLAGS=-lc -L$(RHONABWY_LIBRARY) -lrhonabwy $(shell pkg-config --libs liborcania) $(shell pkg-config --libs libyder) $(shell pkg-config --libs libulfius) $(shell pkg-config --libs jansson) $(shell pkg-config --libs check) $(shell pkg-config --libs gnutls) $(shell pkg-config --libs check)
 VALGRIND_COMMAND=valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all
 TARGET_JWK=jwk_core jwk_import jwk_export jwks_core
 TARGET_JWS=jws_core jws_hmac jws_rsa jws_ecdsa jws_rsapss jws_json

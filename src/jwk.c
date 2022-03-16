@@ -1233,7 +1233,7 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey rsa - Error o_base64url_encode (5)");
               ret = RHN_ERROR;
             }
-            json_object_set_new(jwk, "kid", json_string((const char *)kid_b64));
+            json_object_set_new(jwk, "kid", json_stringn((const char *)kid_b64, kid_b64_len));
           } while (0);
           o_free(b64_enc);
           gnutls_free(m.data);
@@ -1411,7 +1411,7 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_base64url_encode (5)");
               ret = RHN_ERROR;
             }
-            json_object_set_new(jwk, "kid", json_string((const char *)kid_b64));
+            json_object_set_new(jwk, "kid", json_stringn((const char *)kid_b64, kid_b64_len));
           } while (0);
           o_free(b64_enc);
           gnutls_free(x.data);
@@ -1483,7 +1483,7 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_privkey eddsa - Error o_base64url_encode (5)");
               ret = RHN_ERROR;
             }
-            json_object_set_new(jwk, "kid", json_string((const char *)kid_b64));
+            json_object_set_new(jwk, "kid", json_stringn((const char *)kid_b64, kid_b64_len));
           } while (0);
           o_free(b64_enc);
           gnutls_free(x.data);
@@ -1566,7 +1566,7 @@ int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
               ret = RHN_ERROR;
               break;
             }
-            json_object_set_new(jwk, "kid", json_string((const char *)kid_b64));
+            json_object_set_new(jwk, "kid", json_stringn((const char *)kid_b64, kid_b64_len));
           } while (0);
           o_free(b64_enc);
           gnutls_free(m.data);
@@ -1643,7 +1643,7 @@ int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
               ret = RHN_ERROR;
               break;
             }
-            json_object_set_new(jwk, "kid", json_string((const char *)kid_b64));
+            json_object_set_new(jwk, "kid", json_stringn((const char *)kid_b64, kid_b64_len));
           } while (0);
           o_free(b64_enc);
           gnutls_free(x.data);
@@ -1696,7 +1696,7 @@ int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
               ret = RHN_ERROR;
               break;
             }
-            json_object_set_new(jwk, "kid", json_string((const char *)kid_b64));
+            json_object_set_new(jwk, "kid", json_stringn((const char *)kid_b64, kid_b64_len));
           } while (0);
           o_free(b64_enc);
           gnutls_free(x.data);
@@ -1748,7 +1748,7 @@ int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
               ret = RHN_ERROR;
               break;
             }
-            json_object_set_new(jwk, "kid", json_string((const char *)kid_b64));
+            json_object_set_new(jwk, "kid", json_stringn((const char *)kid_b64, kid_b64_len));
           } while (0);
           o_free(b64_enc);
           gnutls_free(x.data);
@@ -1786,7 +1786,7 @@ int r_jwk_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_gnutls_x509_crt x509 - Error o_base64url_encode");
             ret = RHN_ERROR;
           } else {
-            json_object_set_new(jwk, "kid", json_string((const char *)kid_b64));
+            json_object_set_new(jwk, "kid", json_stringn((const char *)kid_b64, kid_b64_len));
           }
         }
       } else {

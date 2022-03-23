@@ -1695,7 +1695,10 @@ START_TEST(test_rhonabwy_jwk_in_header_invalid)
   jwk_t * jwk;
   json_t * j_jwk;
   char * str_jwt;
-  
+  time_t exp;
+
+  time(&exp);
+  exp+=JWT_CLAIM_EXP;
   ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
   ck_assert_int_eq(r_jwt_init(&jwt_parsed), RHN_OK);
   ck_assert_int_eq(r_jwt_set_claims(jwt, R_JWT_CLAIM_ISS, JWT_CLAIM_ISS,

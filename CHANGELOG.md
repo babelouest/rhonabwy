@@ -1,5 +1,9 @@
 # Rhonabwy Changelog
 
+## 1.1.4
+
+- Bugfixes
+
 ## 1.1.3
 
 - Bugfixes

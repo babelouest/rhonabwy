@@ -84,7 +84,7 @@ static int r_jws_extract_header(jws_t * jws, json_t * j_header, uint32_t parse_f
 
     if (json_object_get(j_header, "jwk") != NULL && (parse_flags&R_PARSE_HEADER_JWK)) {
       r_jwk_init(&jwk);
-      if (r_jwk_import_from_json_t(jwk, json_object_get(j_header, "jwk")) == RHN_OK) {
+      if (r_jwk_import_from_json_t(jwk, json_object_get(j_header, "jwk")) == RHN_OK && r_jwk_key_type(jwk, NULL, 0)&R_KEY_TYPE_PUBLIC) {
         if (r_jwks_append_jwk(jws->jwks_pubkey, jwk) != RHN_OK) {
           ret = RHN_ERROR;
         }

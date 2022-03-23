@@ -1689,6 +1689,44 @@ START_TEST(test_rhonabwy_quick_parse)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_jwk_in_header_invalid)
+{
+  jwt_t * jwt, * jwt_parsed;
+  jwk_t * jwk;
+  json_t * j_jwk;
+  char * str_jwt;
+  
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwt_init(&jwt_parsed), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claims(jwt, R_JWT_CLAIM_ISS, JWT_CLAIM_ISS,
+                                         R_JWT_CLAIM_SUB, JWT_CLAIM_SUB,
+                                         R_JWT_CLAIM_AUD, JWT_CLAIM_AUD,
+                                         R_JWT_CLAIM_JTI, JWT_CLAIM_JTI,
+                                         R_JWT_CLAIM_EXP, exp,
+                                         R_JWT_CLAIM_NBF, R_JWT_CLAIM_NOW,
+                                         R_JWT_CLAIM_IAT, R_JWT_CLAIM_NOW,
+                                         R_JWT_CLAIM_STR, "scope", JWT_CLAIM_SCOPE,
+                                         R_JWT_CLAIM_INT, "age", JWT_CLAIM_AGE,
+                                         R_JWT_CLAIM_JSN, "verified", JWT_CLAIM_VERIFIED,
+                                         R_JWT_CLAIM_TYP, JWT_CLAIM_TYP,
+                                         R_JWT_CLAIM_CTY, JWT_CLAIM_CTY,
+                                         R_JWT_CLAIM_NOP), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
+  ck_assert_ptr_ne(NULL, j_jwk = json_loads(jwk_privkey_ecdsa_str, JSON_DECODE_ANY, NULL));
+  ck_assert_int_eq(r_jwt_set_header_json_t_value(jwt, "jwk", j_jwk), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_sign_alg(jwt, R_JWA_ALG_ES256), RHN_OK);
+  ck_assert_ptr_ne(NULL, str_jwt = r_jwt_serialize_signed(jwt, jwk, 0));
+  ck_assert_int_eq(r_jwt_parse(jwt_parsed, str_jwt, 0), RHN_ERROR_PARAM);
+  
+  r_jwt_free(jwt);
+  r_jwt_free(jwt_parsed);
+  r_jwk_free(jwk);
+  json_decref(j_jwk);
+  o_free(str_jwt);
+}
+END_TEST
+
 #endif
 
 START_TEST(test_rhonabwy_token_type)
@@ -1746,6 +1784,7 @@ static Suite *rhonabwy_suite(void)
 #if GNUTLS_VERSION_NUMBER >= 0x030600 && defined(R_WITH_CURL)
   tcase_add_test(tc_core, test_rhonabwy_advanced_parse);
   tcase_add_test(tc_core, test_rhonabwy_quick_parse);
+  tcase_add_test(tc_core, test_rhonabwy_jwk_in_header_invalid);
 #endif
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);

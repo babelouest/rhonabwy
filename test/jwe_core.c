@@ -1091,6 +1091,35 @@ START_TEST(test_rhonabwy_decrypt_key_invalid_encrypted_key)
   r_jwk_free(jwk_privkey_rsa);
 }
 END_TEST
+
+START_TEST(test_rhonabwy_jwk_in_header_invalid)
+{
+  jwe_t * jwe, * jwe_parsed;
+  jwk_t * jwk_pubkey_rsa;
+  json_t * j_jwk;
+  char * str_jwe;
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey_rsa), RHN_OK);
+  ck_assert_int_eq(r_jwe_init(&jwe_parsed), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey_rsa, jwk_pubkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_RSA1_5), RHN_OK);
+  ck_assert_ptr_ne(NULL, j_jwk = json_loads(jwk_privkey_rsa_str, JSON_DECODE_ANY, 0));
+  ck_assert_int_eq(r_jwe_set_header_json_t_value(jwe, "jwk", j_jwk), RHN_OK);
+  ck_assert_ptr_ne(NULL, str_jwe = r_jwe_serialize(jwe, jwk_pubkey_rsa, 0));
+  
+  ck_assert_int_eq(r_jwe_parse(jwe_parsed, str_jwe, 0), RHN_ERROR_PARAM);
+  
+  r_jwe_free(jwe);
+  r_jwe_free(jwe_parsed);
+  r_jwk_free(jwk_pubkey_rsa);
+  json_decref(j_jwk);
+  o_free(str_jwe);
+}
+END_TEST
+
 #endif
 
 START_TEST(test_rhonabwy_decrypt_key_valid)
@@ -1411,6 +1440,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_encrypt_key_valid);
 #if GNUTLS_VERSION_NUMBER >= 0x030600
   tcase_add_test(tc_core, test_rhonabwy_decrypt_key_invalid_encrypted_key);
+  tcase_add_test(tc_core, test_rhonabwy_jwk_in_header_invalid);
 #endif
   tcase_add_test(tc_core, test_rhonabwy_decrypt_key_valid);
   tcase_add_test(tc_core, test_rhonabwy_decrypt_updated_header_cbc);

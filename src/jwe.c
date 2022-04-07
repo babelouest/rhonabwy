@@ -4339,8 +4339,7 @@ int r_jwe_set_full_unprotected_header_json_t(jwe_t * jwe, json_t * j_unprotected
 
   if (jwe != NULL && json_is_object(j_unprotected_header)) {
     json_decref(jwe->j_unprotected_header);
-    if ((jwe->j_unprotected_header = json_deep_copy(j_unprotected_header)) != NULL) {
-    } else {
+    if ((jwe->j_unprotected_header = json_deep_copy(j_unprotected_header)) == NULL) {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_set_full_unprotected_header_json_t - Error setting header");
       ret = RHN_ERROR_MEMORY;
     }

@@ -2110,8 +2110,7 @@ int r_jws_set_full_header_json_t(jws_t * jws, json_t * j_header) {
     }
     if (ret == RHN_OK) {
       json_decref(jws->j_header);
-      if ((jws->j_header = json_deep_copy(j_header)) != NULL) {
-      } else {
+      if ((jws->j_header = json_deep_copy(j_header)) == NULL) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_full_header_json_t - Error setting header");
         ret = RHN_ERROR_MEMORY;
       }

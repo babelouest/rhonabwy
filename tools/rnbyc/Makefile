@@ -100,7 +100,7 @@ test-serialize: debug
 
 test-parse: debug
 	# Parse JWT
-	$(VALGRIND_COMMAND) ./rnbyc -t "error" 2>valgrind-40.txt
+	$(VALGRIND_COMMAND) ./rnbyc -t "error" 2>valgrind-40.txt || true
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token0.jwt) 2>valgrind-41.txt
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token1.jwt) 2>valgrind-42.txt
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token1.jwt) -P pub.jwks 2>valgrind-43.txt

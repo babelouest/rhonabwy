@@ -3,6 +3,7 @@
 ## 1.1.4
 
 - Bugfixes
+- Add `-S --self-signed` option to verify rnbyc signatures when the pubkey is in the header
 
 ## 1.1.3
 

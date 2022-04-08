@@ -699,8 +699,10 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
       }
     } else if (res == RHN_ERROR_PARAM) {
       fprintf(stderr, "Invalid token\n");
+      ret = EINVAL;
     } else {
       fprintf(stderr, "Error parsing token\n");
+      ret = EINVAL;
     }
   }
   r_jwt_free(jwt);

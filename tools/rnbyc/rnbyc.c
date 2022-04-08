@@ -125,7 +125,7 @@ static void print_help(FILE * output) {
   fprintf(output, "\tPublic key must be in JWKS format and can be either a JWKS string or a path to a JWKS file\n");
   fprintf(output, "-S --self-signed\n");
   fprintf(output, "\tVerifies the JWT signature if the signed JWT has its public key included in its header\n");
-  fprintf(output, "\tas 'jwk', 'jku', 'x5c' or 'x5u' parameter\n");
+  fprintf(output, "\tas 'jwk', 'x5c' or 'x5u' parameter\n");
   fprintf(output, "-W --password\n");
   fprintf(output, "\tSpecifies the password for key management encryption/decryption using PBES2 alg or signature generation/verification using HS alg\n");
   fprintf(output, "-u --x5u-flags\n");
@@ -588,7 +588,12 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
   json_t * j_value;
 
   if (r_jwt_init(&jwt) == RHN_OK) {
-    if ((res = r_jwt_parse(jwt, token, x5u_flags)) == RHN_OK) {
+    if (self_signed) {
+      res = r_jwt_advanced_parse(jwt, token, R_PARSE_HEADER_ALL, x5u_flags);
+    } else {
+      res = r_jwt_advanced_parse(jwt, token, R_PARSE_NONE, x5u_flags);
+    }
+    if (res == RHN_OK) {
       type = r_jwt_get_type(jwt);
       if (type == R_JWT_TYPE_SIGN || type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT) {
         if (r_jwks_init(&jwks_pubkey) == RHN_OK) {

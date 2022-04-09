@@ -184,6 +184,10 @@ Functions</h2></td></tr>
 <tr class="separator:gaebd0b0bd152a9c9b89fdef0e14571fc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf46e1784ac6bf7ef66fadadf78496b7b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#gaf46e1784ac6bf7ef66fadadf78496b7b">r_jwt_get_type</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt)</td></tr>
 <tr class="separator:gaf46e1784ac6bf7ef66fadadf78496b7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6ceec173c6f37c819888eb7f6eee31ed"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga6ceec173c6f37c819888eb7f6eee31ed">r_jwt_token_type</a> (const char *token)</td></tr>
+<tr class="separator:ga6ceec173c6f37c819888eb7f6eee31ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga061fe6d537ef8ca554b85d09446e9344"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga061fe6d537ef8ca554b85d09446e9344">r_jwt_token_typen</a> (const char *token, size_t token_len)</td></tr>
+<tr class="separator:ga061fe6d537ef8ca554b85d09446e9344"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2ab2ec575660117efec3e576f189fa67"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga2ab2ec575660117efec3e576f189fa67">r_jwt_verify_signature</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *pubkey, int x5u_flags)</td></tr>
 <tr class="separator:ga2ab2ec575660117efec3e576f189fa67"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6a566b8f9127f997bc02eddf663b585d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__jwt.html#ga6a566b8f9127f997bc02eddf663b585d">r_jwt_decrypt</a> (<a class="el" href="structjwt__t.html">jwt_t</a> *jwt, <a class="el" href="group__type.html#gac7d996dfabdc443bcd0da0b6574e22ef">jwk_t</a> *privkey, int x5u_flags)</td></tr>
@@ -2863,7 +2867,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <p>Parses a serialized JWT If the JWT is signed only, the claims will be available If the JWT is encrypted, the claims will not be accessible until r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">token</td><td>the token to parse into a JWT, must end with a NULL string terminator </td></tr>
+    <tr><td class="paramname">token</td><td>the token to parse into a JWT </td></tr>
     <tr><td class="paramname">token_len</td><td>token length </td></tr>
     <tr><td class="paramname">parse_flags</td><td>Flags to set or unset options Flags available are<ul>
 <li>R_PARSE_NONE</li>
@@ -2911,6 +2915,67 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>the type of JWT, values available are R_JWT_TYPE_NONE: not a JWT R_JWT_TYPE_SIGN: A signed JWT R_JWT_TYPE_ENCRYPT: An encrypted JWT R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT: A nested JWT first signed, then encrypted R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN: A nested JWT first encrypted, then signed </dd></dl>
+
+</div>
+</div>
+<a id="ga6ceec173c6f37c819888eb7f6eee31ed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6ceec173c6f37c819888eb7f6eee31ed">&#9670;&nbsp;</a></span>r_jwt_token_type()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwt_token_type </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>token</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Guess the type of JWT based on the token format, but without parsing the token </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">token</td><td>the token to check </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the type of JWT, values available are R_JWT_TYPE_NONE: not a JWT R_JWT_TYPE_SIGN: A signed JWT R_JWT_TYPE_ENCRYPT: An encrypted JWT </dd></dl>
+
+</div>
+</div>
+<a id="ga061fe6d537ef8ca554b85d09446e9344"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga061fe6d537ef8ca554b85d09446e9344">&#9670;&nbsp;</a></span>r_jwt_token_typen()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int r_jwt_token_typen </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>token</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>token_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Guess the type of JWT based on the token format, but without parsing the token </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">token</td><td>the token to check </td></tr>
+    <tr><td class="paramname">token_len</td><td>token length </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the type of JWT, values available are R_JWT_TYPE_NONE: not a JWT R_JWT_TYPE_SIGN: A signed JWT R_JWT_TYPE_ENCRYPT: An encrypted JWT </dd></dl>
 
 </div>
 </div>
@@ -3238,6 +3303,18 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Set the jwt claims with the list of claims given in parameters The list must end with the claim type R_JWT_CLAIM_NOP Claim types available</p><ul>
+<li>R_JWT_CLAIM_ISS: claim "iss", values expected a string or NULL</li>
+<li>R_JWT_CLAIM_SUB: claim "sub", values expected a string or NULL</li>
+<li>R_JWT_CLAIM_AUD: claim "aud", values expected a string or NULL</li>
+<li>R_JWT_CLAIM_EXP: claim "exp", value expected R_JWT_CLAIM_NOW or an positive integer value</li>
+<li>R_JWT_CLAIM_NBF: claim "nbf", value expected R_JWT_CLAIM_NOW or an positive integer value</li>
+<li>R_JWT_CLAIM_IAT: claim "iat", value expected R_JWT_CLAIM_NOW or an positive integer value</li>
+<li>R_JWT_CLAIM_JTI: claim "jti", values expected a string or NULL</li>
+<li>R_JWT_CLAIM_STR: claim name specified, then string value or NULL</li>
+<li>R_JWT_CLAIM_INT: claim name specified, then int value</li>
+<li>R_JWT_CLAIM_JSN: claim name specified, then json_t * value or NULL </li>
+</ul>
 
 </div>
 </div>

@@ -3682,7 +3682,7 @@ int r_jwe_advanced_compact_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_
     tmp = str_replace(token, "\r", "");
     o_free(token);
     token = tmp;
-    if (split_string(token, ".", &str_array) == 5) {
+    if (split_string(token, ".", &str_array) == 5 && !o_strnullempty(str_array[0]) && !o_strnullempty(str_array[2]) && !o_strnullempty(str_array[3]) && !o_strnullempty(str_array[4])) {
       // Check if all elements 0, 2 and 3 are base64url encoded
       if (o_base64url_decode((unsigned char *)str_array[0], o_strlen(str_array[0]), NULL, &header_len) &&
          (o_strnullempty(str_array[1]) || o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), NULL, &cypher_key_len)) &&
@@ -3752,6 +3752,7 @@ int r_jwe_advanced_compact_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_
           jwe->ciphertext_b64url = (unsigned char *)o_strdup(str_array[3]);
           o_free(jwe->auth_tag_b64url);
           jwe->auth_tag_b64url = (unsigned char *)o_strdup(str_array[4]);
+          
         } while (0);
         json_decref(j_header);
         o_free(str_header);

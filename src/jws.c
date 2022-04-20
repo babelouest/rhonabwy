@@ -555,23 +555,28 @@ static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   }
 
   if (pubkey != NULL && GNUTLS_PK_RSA == gnutls_pubkey_get_pk_algorithm(pubkey, NULL)) {
-    sig = o_malloc(o_strlen((const char *)jws->signature_b64url));
-    if (sig != NULL) {
-      if (o_base64url_decode(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), sig, &sig_len)) {
-        sig_dat.data = sig;
-        sig_dat.size = sig_len;
-        if (gnutls_pubkey_verify_data2(pubkey, alg, flag, &data, &sig_dat)) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Error invalid signature");
-          ret = RHN_ERROR_INVALID;
+    if (!o_strnullempty((const char *)jws->signature_b64url)) {
+      sig = o_malloc(o_strlen((const char *)jws->signature_b64url));
+      if (sig != NULL) {
+        if (o_base64url_decode(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), sig, &sig_len)) {
+          sig_dat.data = sig;
+          sig_dat.size = sig_len;
+          if (gnutls_pubkey_verify_data2(pubkey, alg, flag, &data, &sig_dat)) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Error invalid signature");
+            ret = RHN_ERROR_INVALID;
+          }
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Error o_base64url_decode for sig");
+          ret = RHN_ERROR;
         }
+        o_free(sig);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Error o_base64url_decode for sig");
-        ret = RHN_ERROR;
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Error allocating resources for sig");
+        ret = RHN_ERROR_MEMORY;
       }
-      o_free(sig);
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Error allocating resources for sig");
-      ret = RHN_ERROR_MEMORY;
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Error signature empty");
+      ret = RHN_ERROR_INVALID;
     }
   } else {
     y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Invalid public key");
@@ -608,51 +613,56 @@ static int r_jws_verify_sig_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   }
 
   if (pubkey != NULL && GNUTLS_PK_EC == gnutls_pubkey_get_pk_algorithm(pubkey, NULL)) {
-    sig = o_malloc(o_strlen((const char *)jws->signature_b64url));
-    if (sig != NULL) {
-      if (o_base64url_decode(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), sig, &sig_len)) {
-        if (sig_len == 64) {
-          r.size = 32;
-          r.data = sig;
-          s.size = 32;
-          s.data = sig + 32;
-        } else if (sig_len == 96) {
-          r.size = 48;
-          r.data = sig;
-          s.size = 48;
-          s.data = sig + 48;
-        } else if (sig_len == 132) {
-          r.size = 66;
-          r.data = sig;
-          s.size = 66;
-          s.data = sig + 66;
-        } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error invalid signature length");
-          ret = RHN_ERROR_INVALID;
-        }
-
-        if (ret == RHN_OK) {
-          if (!gnutls_encode_rs_value(&sig_dat, &r, &s)) {
-            if (gnutls_pubkey_verify_data2(pubkey, alg, 0, &data, &sig_dat)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error invalid signature");
-              ret = RHN_ERROR_INVALID;
-            }
-            if (sig_dat.data != NULL) {
-              gnutls_free(sig_dat.data);
-            }
+    if (!o_strnullempty((const char *)jws->signature_b64url)) {
+      sig = o_malloc(o_strlen((const char *)jws->signature_b64url));
+      if (sig != NULL) {
+        if (o_base64url_decode(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), sig, &sig_len)) {
+          if (sig_len == 64) {
+            r.size = 32;
+            r.data = sig;
+            s.size = 32;
+            s.data = sig + 32;
+          } else if (sig_len == 96) {
+            r.size = 48;
+            r.data = sig;
+            s.size = 48;
+            s.data = sig + 48;
+          } else if (sig_len == 132) {
+            r.size = 66;
+            r.data = sig;
+            s.size = 66;
+            s.data = sig + 66;
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error gnutls_encode_rs_value");
-            ret = RHN_ERROR;
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error invalid signature length");
+            ret = RHN_ERROR_INVALID;
           }
+
+          if (ret == RHN_OK) {
+            if (!gnutls_encode_rs_value(&sig_dat, &r, &s)) {
+              if (gnutls_pubkey_verify_data2(pubkey, alg, 0, &data, &sig_dat)) {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error invalid signature");
+                ret = RHN_ERROR_INVALID;
+              }
+              if (sig_dat.data != NULL) {
+                gnutls_free(sig_dat.data);
+              }
+            } else {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error gnutls_encode_rs_value");
+              ret = RHN_ERROR;
+            }
+          }
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error o_base64url_decode for sig");
+          ret = RHN_ERROR;
         }
+        o_free(sig);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error o_base64url_decode for sig");
-        ret = RHN_ERROR;
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error allocating resources for sig");
+        ret = RHN_ERROR_MEMORY;
       }
-      o_free(sig);
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error allocating resources for sig");
-      ret = RHN_ERROR_MEMORY;
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error signature empty");
+      ret = RHN_ERROR_INVALID;
     }
   } else {
     y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Invalid public key");
@@ -681,23 +691,28 @@ static int r_jws_verify_sig_eddsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   data.size = o_strlen((const char *)data.data);
 
   if (pubkey != NULL && GNUTLS_PK_EDDSA_ED25519 == gnutls_pubkey_get_pk_algorithm(pubkey, NULL)) {
-    sig = o_malloc(o_strlen((const char *)jws->signature_b64url));
-    if (sig != NULL) {
-      if (o_base64url_decode(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), sig, &sig_len)) {
-        sig_dat.data = sig;
-        sig_dat.size = sig_len;
-        if (gnutls_pubkey_verify_data2(pubkey, GNUTLS_SIGN_EDDSA_ED25519, 0, &data, &sig_dat)) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_eddsa - Error invalid signature");
-          ret = RHN_ERROR_INVALID;
+    if (!o_strnullempty((const char *)jws->signature_b64url)) {
+      sig = o_malloc(o_strlen((const char *)jws->signature_b64url));
+      if (sig != NULL) {
+        if (o_base64url_decode(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), sig, &sig_len)) {
+          sig_dat.data = sig;
+          sig_dat.size = sig_len;
+          if (gnutls_pubkey_verify_data2(pubkey, GNUTLS_SIGN_EDDSA_ED25519, 0, &data, &sig_dat)) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_eddsa - Error invalid signature");
+            ret = RHN_ERROR_INVALID;
+          }
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_eddsa - Error o_base64url_decode for sig");
+          ret = RHN_ERROR;
         }
+        o_free(sig);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_eddsa - Error o_base64url_decode for sig");
-        ret = RHN_ERROR;
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_eddsa - Error allocating resources for sig");
+        ret = RHN_ERROR_MEMORY;
       }
-      o_free(sig);
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_eddsa - Error allocating resources for sig");
-      ret = RHN_ERROR_MEMORY;
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_eddsa - Error signature empty");
+      ret = RHN_ERROR_INVALID;
     }
   } else {
     y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_eddsa - Invalid public key");
@@ -1587,6 +1602,11 @@ int r_jws_advanced_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_
           jws->signature_b64url = NULL;
           if (str_array[2] != NULL) {
             jws->signature_b64url = (unsigned char *)o_strdup(str_array[2]);
+          }
+          if (r_jws_get_alg(jws) != R_JWA_ALG_NONE && o_strnullempty(str_array[2])) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error invalid signature length");
+            ret = RHN_ERROR_PARAM;
+            break;
           }
         } while (0);
         json_decref(j_header);

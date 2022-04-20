@@ -701,7 +701,7 @@ START_TEST(test_rhonabwy_parse)
   r_jws_free(jws);
   
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
-  ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN_UNSECURE, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN_UNSECURE, 0), RHN_ERROR_PARAM);
   r_jws_free(jws);
   
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
@@ -710,7 +710,7 @@ START_TEST(test_rhonabwy_parse)
   
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
   ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN, 0), RHN_OK);
-  ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN_UNSECURE, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN_UNSECURE, 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN, 0), RHN_OK);
   r_jws_free(jws);
   

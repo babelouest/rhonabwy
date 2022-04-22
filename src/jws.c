@@ -229,21 +229,29 @@ static unsigned char * r_jws_sign_hmac(jws_t * jws, jwk_t * jwk) {
     alg = GNUTLS_DIG_SHA512;
   }
 
-  sig_len = gnutls_hmac_get_len(alg);
-  sig = o_malloc(sig_len);
-  sig_b64 = o_malloc(sig_len*2);
+  if (alg != GNUTLS_DIG_NULL) {
+    sig_len = gnutls_hmac_get_len(alg);
+    sig = o_malloc(sig_len);
+    sig_b64 = o_malloc(sig_len*2);
 
-  key_len = o_strlen(r_jwk_get_property_str(jwk, "k"));
-  key = o_malloc(key_len);
+    key_len = o_strlen(r_jwk_get_property_str(jwk, "k"));
+    if (key_len) {
+      key = o_malloc(key_len);
 
-  if (key != NULL) {
-    if (r_jwk_export_to_symmetric_key(jwk, key, &key_len) != RHN_OK) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_hmac - Error r_jwk_export_to_symmetric_key");
-      o_free(key);
-      key = NULL;
+      if (key != NULL) {
+        if (r_jwk_export_to_symmetric_key(jwk, key, &key_len) != RHN_OK) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_hmac - Error r_jwk_export_to_symmetric_key");
+          o_free(key);
+          key = NULL;
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_hmac - Error allocating resources for key");
+      }
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_hmac - Error key invalid, 'k' empty");
     }
   } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_hmac - Error allocating resources for key");
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_hmac - Error key invalid, 'alg' invalid");
   }
 
   if (key != NULL && sig != NULL && sig_b64 != NULL) {
@@ -742,23 +750,28 @@ static int r_jws_verify_sig_es256k(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   data.size = o_strlen((const char *)data.data);
 
   if (pubkey != NULL && GNUTLS_PK_EC == gnutls_pubkey_get_pk_algorithm(pubkey, NULL)) {
-    sig = o_malloc(o_strlen((const char *)jws->signature_b64url));
-    if (sig != NULL) {
-      if (o_base64url_decode(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), sig, &sig_len)) {
-        sig_dat.data = sig;
-        sig_dat.size = sig_len;
-        if (gnutls_pubkey_verify_data2(pubkey, GNUTLS_SIGN_ECDSA_SHA256, 0, &data, &sig_dat)) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Error invalid signature");
-          ret = RHN_ERROR_INVALID;
+    if (!o_strnullempty((const char *)jws->signature_b64url)) {
+      sig = o_malloc(o_strlen((const char *)jws->signature_b64url));
+      if (sig != NULL) {
+        if (o_base64url_decode(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), sig, &sig_len)) {
+          sig_dat.data = sig;
+          sig_dat.size = sig_len;
+          if (gnutls_pubkey_verify_data2(pubkey, GNUTLS_SIGN_ECDSA_SHA256, 0, &data, &sig_dat)) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Error invalid signature");
+            ret = RHN_ERROR_INVALID;
+          }
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Error o_base64url_decode for sig");
+          ret = RHN_ERROR;
         }
+        o_free(sig);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Error o_base64url_decode for sig");
-        ret = RHN_ERROR;
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Error allocating resources for sig");
+        ret = RHN_ERROR_MEMORY;
       }
-      o_free(sig);
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Error allocating resources for sig");
-      ret = RHN_ERROR_MEMORY;
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Error signature empty");
+      ret = RHN_ERROR_INVALID;
     }
   } else {
     y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Invalid public key");

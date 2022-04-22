@@ -3348,7 +3348,7 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
               ret = RHN_ERROR;
             }
           }
-          if (ret == RHN_OK) {
+          if (ret == RHN_OK && tag_len) {
             if ((tag_b64url = o_malloc(tag_len*2)) != NULL) {
               if (o_base64url_encode(tag, tag_len, tag_b64url, &tag_b64url_len)) {
                 o_free(jwe->auth_tag_b64url);
@@ -3478,7 +3478,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
               ret = RHN_ERROR;
             }
           }
-          if (ret == RHN_OK) {
+          if (ret == RHN_OK && tag_len) {
             if ((tag_b64url = o_malloc(tag_len*2)) != NULL) {
               if (o_base64url_encode(tag, tag_len, tag_b64url, &tag_b64url_len)) {
                 if (tag_b64url_len != o_strlen((const char *)jwe->auth_tag_b64url) || 0 != memcmp(tag_b64url, jwe->auth_tag_b64url, tag_b64url_len)) {

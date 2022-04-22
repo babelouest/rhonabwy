@@ -1,5 +1,9 @@
 # Rhonabwy Changelog
 
+## 1.1.5
+
+- Improve jws and jwe parsing
+
 ## 1.1.4
 
 - Bugfixes

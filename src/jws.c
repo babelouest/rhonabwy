@@ -35,7 +35,7 @@ static json_t * r_jws_parse_protected(const unsigned char * header_b64url) {
   unsigned char * header = NULL;
   size_t header_len = 0;
   json_t * j_return = NULL;
-  
+
   do {
     if (!o_base64url_decode(header_b64url, o_strlen((const char *)header_b64url), NULL, &header_len)) {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_protected - Invalid base64");
@@ -94,7 +94,7 @@ static int r_jws_extract_header(jws_t * jws, json_t * j_header, uint32_t parse_f
       }
       r_jwk_free(jwk);
     }
-    
+
     if (json_object_get(j_header, "x5u") != NULL && (parse_flags&R_PARSE_HEADER_X5U)) {
       r_jwk_init(&jwk);
       if (r_jwk_import_from_x5u(jwk, x5u_flags, json_string_value(json_object_get(j_header, "x5u"))) == RHN_OK) {
@@ -791,7 +791,7 @@ static int r_jws_verify_sig_es256k(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 
 static int _r_verify_signature(jws_t * jws, jwk_t * jwk, jwa_alg alg, int x5u_flags) {
   int ret;
-  
+
   switch (alg) {
     case R_JWA_ALG_HS256:
     case R_JWA_ALG_HS384:
@@ -1459,13 +1459,13 @@ int r_jws_advanced_parse(jws_t * jws, const char * jws_str, uint32_t parse_flags
 int r_jws_advanced_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, uint32_t parse_flags, int x5u_flags) {
   int ret;
   char * str = (char *)jws_str;
-  
+
   if (jws != NULL && str != NULL && jws_str_len) {
     while(isspace((unsigned char)*str) && jws_str_len) {
       str++;
       jws_str_len--;
     }
-    
+
     if (0 == o_strncmp("ey", str, 2)) {
       ret = r_jws_advanced_compact_parsen(jws, jws_str, jws_str_len, parse_flags, x5u_flags);
     } else if (*str == '{') {
@@ -1565,7 +1565,7 @@ int r_jws_advanced_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_
           json_decref(jws->j_header);
 
           jws->j_header = json_incref(j_header);
-          
+
           if (!(parse_flags&R_PARSE_UNSIGNED)) {
             if (r_jws_get_alg(jws) == R_JWA_ALG_NONE) {
               y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_advanced_compact_parsen - error unsigned jws");
@@ -1587,23 +1587,28 @@ int r_jws_advanced_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_
               ret = RHN_ERROR_PARAM;
               break;
             }
-            
+
             if (_r_inflate_payload(payload, payload_len, &jws->payload, &jws->payload_len) != RHN_OK) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error _r_inflate_payload");
               ret = RHN_ERROR_PARAM;
               break;
             }
           } else {
-            o_free(jws->payload);
-            if ((jws->payload = o_malloc(payload_len+4)) == NULL) {
+            if ((payload = o_malloc(payload_len+4)) == NULL) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error allocating resources for payload");
               ret = RHN_ERROR_MEMORY;
               break;
             }
 
-            if (!o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), jws->payload, &jws->payload_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error decoding jws->payload");
+            if (!o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), payload, &payload_len)) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error decoding payload");
               ret = RHN_ERROR_PARAM;
+              break;
+            }
+
+            if (r_jws_set_payload(jws, payload, payload_len) != RHN_OK) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - Error r_jws_set_payload");
+              ret = RHN_ERROR;
               break;
             }
           }
@@ -1648,11 +1653,11 @@ int r_jws_parse_json_t(jws_t * jws, json_t * jws_json, int x5u_flags) {
 int r_jws_parsen_json_str(jws_t * jws, const char * jws_json_str, size_t jws_str_len, int x5u_flags) {
   json_t * jws_json = NULL;
   int ret;
-  
+
   jws_json = json_loadb(jws_json_str, jws_str_len, JSON_DECODE_ANY, NULL);
   ret = r_jws_parse_json_t(jws, jws_json, x5u_flags);
   json_decref(jws_json);
-  
+
   return ret;
 }
 
@@ -1667,11 +1672,11 @@ int r_jws_advanced_parse_json_str(jws_t * jws, const char * jws_json_str, uint32
 int r_jws_advanced_parsen_json_str(jws_t * jws, const char * jws_json_str, size_t jws_json_str_len, uint32_t parse_flags, int x5u_flags) {
   json_t * jws_json = NULL;
   int ret;
-  
+
   jws_json = json_loadb(jws_json_str, jws_json_str_len, JSON_DECODE_ANY, NULL);
   ret = r_jws_advanced_parse_json_t(jws, jws_json, parse_flags, x5u_flags);
   json_decref(jws_json);
-  
+
   return ret;
 }
 
@@ -1680,6 +1685,7 @@ int r_jws_advanced_parse_json_t(jws_t * jws, json_t * jws_json, uint32_t parse_f
   size_t header_len = 0, payload_len = 0, signature_len = 0, index = 0;
   char * str_header = NULL;
   json_t * j_header = NULL, * j_element = NULL;
+  unsigned char * payload = NULL;
 
   if (jws != NULL && json_is_object(jws_json)) {
     if (json_string_length(json_object_get(jws_json, "payload"))) {
@@ -1763,19 +1769,24 @@ int r_jws_advanced_parse_json_t(jws_t * jws, json_t * jws_json, uint32_t parse_f
           jws->j_header = json_incref(j_header);
 
           // Decode payload
-          o_free(jws->payload);
-          if ((jws->payload = o_malloc(payload_len+4)) == NULL) {
+          if ((payload = o_malloc(payload_len+4)) == NULL) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error allocating resources for payload");
             ret = RHN_ERROR_MEMORY;
             break;
           }
 
-          if (!o_base64url_decode((unsigned char *)jws->payload_b64url, o_strlen((const char *)jws->payload_b64url), jws->payload, &jws->payload_len)) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error decoding jws->payload");
+          if (!o_base64url_decode((unsigned char *)jws->payload_b64url, o_strlen((const char *)jws->payload_b64url), payload, &payload_len)) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error decoding payload");
             ret = RHN_ERROR_PARAM;
             break;
           }
-          
+
+          if (r_jws_set_payload(jws, payload, payload_len) != RHN_OK) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error r_jws_set_payload");
+            ret = RHN_ERROR;
+            break;
+          }
+
           if (r_jws_extract_header(jws, json_object_get(jws_json, "header"), parse_flags, x5u_flags) != RHN_OK) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error extracting header params");
             ret = RHN_ERROR_PARAM;
@@ -1784,6 +1795,7 @@ int r_jws_advanced_parse_json_t(jws_t * jws, json_t * jws_json, uint32_t parse_f
         } while (0);
         json_decref(j_header);
         o_free(str_header);
+        o_free(payload);
 
       } else {
         ret = RHN_OK;
@@ -1794,7 +1806,7 @@ int r_jws_advanced_parse_json_t(jws_t * jws, json_t * jws_json, uint32_t parse_f
               ret = RHN_ERROR_PARAM;
               break;
             }
-            
+
             if (json_object_get(j_element, "header") && !json_is_object(json_object_get(j_element, "header"))) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error invalid format, the 'header property in a signature object must be a JSON object");
               ret = RHN_ERROR_PARAM;
@@ -1818,7 +1830,7 @@ int r_jws_advanced_parse_json_t(jws_t * jws, json_t * jws_json, uint32_t parse_f
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error invalid format, signatures must be a JSON array");
           ret = RHN_ERROR_PARAM;
         }
-        
+
         if (ret == RHN_OK) {
           // Mode general - multiple signatures allowed
           jws->token_mode = R_JSON_MODE_GENERAL;
@@ -1828,7 +1840,7 @@ int r_jws_advanced_parse_json_t(jws_t * jws, json_t * jws_json, uint32_t parse_f
             jws->header_b64url = NULL;
             o_free(jws->signature_b64url);
             jws->signature_b64url = NULL;
-            
+
             json_decref(jws->j_json_serialization);
             if ((jws->j_json_serialization = json_deep_copy(jws_json)) == NULL) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error setting j_json_serialization");
@@ -1850,21 +1862,27 @@ int r_jws_advanced_parse_json_t(jws_t * jws, json_t * jws_json, uint32_t parse_f
             }
 
             // Decode payload
-            o_free(jws->payload);
-            if ((jws->payload = o_malloc(payload_len+4)) == NULL) {
+            if ((payload = o_malloc(payload_len+4)) == NULL) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - error allocating resources for payload");
               ret = RHN_ERROR_MEMORY;
               break;
             }
 
-            if (!o_base64url_decode((unsigned char *)jws->payload_b64url, o_strlen((const char *)jws->payload_b64url), jws->payload, &jws->payload_len)) {
+            if (!o_base64url_decode((unsigned char *)jws->payload_b64url, o_strlen((const char *)jws->payload_b64url), payload, &payload_len)) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - error decoding jws->payload");
               ret = RHN_ERROR_PARAM;
+              break;
+            }
+
+            if (r_jws_set_payload(jws, payload, payload_len) != RHN_OK) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error r_jws_set_payload");
+              ret = RHN_ERROR;
               break;
             }
           } while (0);
           json_decref(j_header);
           o_free(str_header);
+          o_free(payload);
         }
 
       }
@@ -1886,7 +1904,7 @@ jws_t * r_jws_quick_parse(const char * jws_str, uint32_t parse_flags, int x5u_fl
 jws_t * r_jws_quick_parsen(const char * jws_str, size_t jws_str_len, uint32_t parse_flags, int x5u_flags) {
   jws_t * jws = NULL;
   int ret;
-  
+
   if (r_jws_init(&jws) == RHN_OK) {
     ret = r_jws_advanced_parsen(jws, jws_str, jws_str_len, parse_flags, x5u_flags);
     if (ret != RHN_OK) {

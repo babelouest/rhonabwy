@@ -3174,7 +3174,7 @@ int r_jwk_match_json_t(jwk_t * jwk, json_t * j_match) {
   int ret;
   json_t * j_value = NULL, * j_jwk = r_jwk_export_to_json_t(jwk);
   const char * key = NULL;
-  
+
   if (j_jwk != NULL && json_object_size(j_match)) {
     ret = RHN_OK;
     json_object_foreach(j_match, key, j_value) {

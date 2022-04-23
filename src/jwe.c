@@ -863,7 +863,7 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
         *ret = RHN_ERROR_PARAM;
         break;
       }
-      
+
       if (!priv_k_size || priv_k_size > _R_CURVE_MAX_SIZE) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Invalid priv_k_size (ecdsa)");
         *ret = RHN_ERROR_PARAM;
@@ -3752,7 +3752,7 @@ int r_jwe_advanced_compact_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_
           jwe->ciphertext_b64url = (unsigned char *)o_strdup(str_array[3]);
           o_free(jwe->auth_tag_b64url);
           jwe->auth_tag_b64url = (unsigned char *)o_strdup(str_array[4]);
-          
+
         } while (0);
         json_decref(j_header);
         o_free(str_header);
@@ -3969,7 +3969,7 @@ jwe_t * r_jwe_quick_parse(const char * jwe_str, uint32_t parse_flags, int x5u_fl
 jwe_t * r_jwe_quick_parsen(const char * jwe_str, size_t jwe_str_len, uint32_t parse_flags, int x5u_flags) {
   jwe_t * jwe = NULL;
   int ret;
-  
+
   if (r_jwe_init(&jwe) == RHN_OK) {
     ret = r_jwe_advanced_parsen(jwe, jwe_str, jwe_str_len, parse_flags, x5u_flags);
     if (ret != RHN_OK) {

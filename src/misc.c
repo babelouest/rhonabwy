@@ -90,7 +90,7 @@ static size_t write_response(char *ptr, size_t size, size_t nmemb, void * userda
 static size_t write_header(void * buffer, size_t size, size_t nitems, void * user_data) {
   const char * header = (const char *)buffer;
   struct _r_expected_content_type * expected_content_type = (struct _r_expected_content_type *)user_data;
-  
+
   if (o_strncasecmp(header, _R_HEADER_CONTENT_TYPE, o_strlen(_R_HEADER_CONTENT_TYPE)) == 0 &&
      o_strstr(header+o_strlen(_R_HEADER_CONTENT_TYPE)+1, expected_content_type->expected)) {
     expected_content_type->found = 1;
@@ -114,7 +114,7 @@ char * _r_get_http_content(const char * url, int x5u_flags, const char * expecte
     resp.len = 0;
     ct.expected = expected_content_type;
     ct.found = 0;
-    
+
     do {
       if (curl_easy_setopt(curl, CURLOPT_URL, url) != CURLE_OK) {
         break;
@@ -166,7 +166,7 @@ char * _r_get_http_content(const char * url, int x5u_flags, const char * expecte
 
     curl_easy_cleanup(curl);
     curl_slist_free_all(list);
-    
+
     if (status >= 200 && status < 300) {
       if (o_strnullempty(expected_content_type)) {
         to_return = resp.ptr;
@@ -339,10 +339,10 @@ gnutls_cipher_algorithm_t _r_get_alg_from_enc(jwa_enc enc) {
 int _r_deflate_payload(const unsigned char * uncompressed, size_t uncompressed_len, unsigned char ** compressed, size_t * compressed_len) {
   int ret = RHN_OK, res;
   z_stream defstream;
-  
+
   *compressed_len = 0;
   *compressed = NULL;
-  
+
   defstream.zalloc = Z_NULL;
   defstream.zfree = Z_NULL;
   defstream.opaque = Z_NULL;
@@ -382,7 +382,7 @@ int _r_deflate_payload(const unsigned char * uncompressed, size_t uncompressed_l
 int _r_inflate_payload(const unsigned char * compressed, size_t compressed_len, unsigned char ** uncompressed, size_t * uncompressed_len) {
   int ret = RHN_OK, res;
   z_stream infstream;
-  
+
   *uncompressed = NULL;
   *uncompressed_len = 0;
   infstream.zalloc = Z_NULL;

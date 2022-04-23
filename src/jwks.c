@@ -472,7 +472,7 @@ jwks_t * r_jwks_search_json_t(jwks_t * jwks, json_t * j_match) {
   jwks_t * jwks_ret = NULL;
   jwk_t * jwk;
   size_t i;
-  
+
   if (r_jwks_init(&jwks_ret) == RHN_OK) {
     if (r_jwks_size(jwks) && json_object_size(j_match)) {
       for (i=0; i<r_jwks_size(jwks); i++) {

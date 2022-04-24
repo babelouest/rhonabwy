@@ -48,7 +48,7 @@
 #include <yder.h>
 #include <rhonabwy.h>
 
-#define _RNBYC_VERSION_ "1.1"
+#define _RNBYC_VERSION_ "1.1.5"
 
 #define R_RSA_DEFAULT_SIZE 4096
 #define R_OCT_DEFAULT_SIZE 128
@@ -63,7 +63,7 @@
 #define RNBYC_FORMAT_DER 2
 
 static void print_help(FILE * output) {
-  fprintf(output, "\nrnbyc - Rhonabwy JWK and JWT parser and generator\n");
+  fprintf(output, "\nrnbyc - JWK/JWKS parser and generator, JWT parser and serializer, supports signed, encrypted and nested JWTs\n");
   fprintf(output, "\n");
   fprintf(output, "Version %s\n", _RNBYC_VERSION_);
   fprintf(output, "\n");

@@ -62,7 +62,8 @@ set(LIBRARY_SOVERSION "${LIBRARY_VERSION_MAJOR}.${LIBRARY_VERSION_MINOR}")
 
 # cmake modules
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
+set(R_CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
+list(APPEND CMAKE_MODULE_PATH "${R_CMAKE_MODULE_PATH}")
 
 include(GNUInstallDirs)
 include(CheckSymbolExists)
@@ -348,7 +349,7 @@ if (BUILD_RHONABWY_TESTING)
         )
 
         configure_file(
-                "${CMAKE_MODULE_PATH}/CTestCustom.cmake.in"
+                "${R_CMAKE_MODULE_PATH}/CTestCustom.cmake.in"
                 "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake"
                 @ONLY)
 
@@ -366,6 +367,18 @@ endif ()
 # install target
 
 option(INSTALL_HEADER "Install the header files" ON) # Install rhonabwy.h or not
+
+if(IS_ABSOLUTE "${CMAKE_INSTALL_INCLUDEDIR}")
+  set(PKGCONFIG_TARGET_INCLUDES "${CMAKE_INSTALL_INCLUDEDIR}")
+else()
+  set(PKGCONFIG_TARGET_INCLUDES "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+endif()
+
+if(IS_ABSOLUTE "${CMAKE_INSTALL_LIBDIR}")
+  set(PKGCONFIG_TARGET_LIBDIR "${CMAKE_INSTALL_LIBDIR}")
+else()
+  set(PKGCONFIG_TARGET_LIBDIR "\${prefix}/${CMAKE_INSTALL_LIBDIR}")
+endif()
 
 configure_file(librhonabwy.pc.in librhonabwy.pc @ONLY)
 
@@ -391,7 +404,7 @@ endif ()
 
 if (NOT TARGET uninstall)
     configure_file(
-            "${CMAKE_MODULE_PATH}/CMakeUninstall.cmake.in"
+            "${R_CMAKE_MODULE_PATH}/CMakeUninstall.cmake.in"
             "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
             IMMEDIATE @ONLY)
     add_custom_target(uninstall

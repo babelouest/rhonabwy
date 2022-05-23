@@ -706,6 +706,7 @@ START_TEST(test_rhonabwy_export_to_symmetric_key)
 
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_key_symmetric), RHN_OK);
+  key_len = 128;
   ck_assert_int_eq(r_jwk_export_to_symmetric_key(jwk, key, &key_len), RHN_OK);
   ck_assert_int_eq(o_strncmp(KEY_DECODED, (const char *)key, key_len), 0);
   r_jwk_free(jwk);

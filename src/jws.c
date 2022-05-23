@@ -32,27 +32,17 @@
 #include <rhonabwy.h>
 
 static json_t * r_jws_parse_protected(const unsigned char * header_b64url) {
-  unsigned char * header = NULL;
-  size_t header_len = 0;
   json_t * j_return = NULL;
+  struct _o_datum dat = {0, NULL};
 
   do {
-    if (!o_base64url_decode(header_b64url, o_strlen((const char *)header_b64url), NULL, &header_len)) {
+    if (!o_base64url_decode_alloc(header_b64url, o_strlen((const char *)header_b64url), &dat)) {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_protected - Invalid base64");
       break;
     }
-    if ((header = o_malloc(header_len+4)) == NULL) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_protected - Error allocating resources for header");
-      break;
-    }
-    if (!o_base64url_decode(header_b64url, o_strlen((const char *)header_b64url), header, &header_len)) {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_protected - Invalid base64 (2)");
-      break;
-    }
-    header[header_len] = '\0';
-    j_return = json_loads((const char *)header, JSON_DECODE_ANY, NULL);
+    j_return = json_loadb((const char *)dat.data, dat.size, JSON_DECODE_ANY, NULL);
   } while(0);
-  o_free(header);
+  o_free(dat.data);
   return j_return;
 }
 
@@ -130,24 +120,18 @@ static int r_jws_extract_header(jws_t * jws, json_t * j_header, uint32_t parse_f
 static int r_jws_set_header_value(jws_t * jws, int force) {
   int ret = RHN_OK;
   char * header_str = NULL;
-  unsigned char * token_b64 = NULL;
-  size_t token_b64_len = 0;
+  struct _o_datum dat = {0, NULL};
 
   if (jws != NULL) {
     if (jws->header_b64url == NULL || force) {
       if ((header_str = json_dumps(jws->j_header, JSON_COMPACT)) != NULL) {
-        if ((token_b64 = o_malloc((2*o_strlen(header_str))+4)) != NULL) {
-          if (o_base64url_encode((const unsigned char *)header_str, o_strlen(header_str), token_b64, &token_b64_len)) {
-            o_free(jws->header_b64url);
-            jws->header_b64url = (unsigned char *)o_strndup((const char *)token_b64, token_b64_len);
-          } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_header_value - Error o_base64url_encode header_str");
-            ret = RHN_ERROR;
-          }
-          o_free(token_b64);
+        if (o_base64url_encode_alloc((const unsigned char *)header_str, o_strlen(header_str), &dat)) {
+          o_free(jws->header_b64url);
+          jws->header_b64url = (unsigned char *)o_strndup((const char *)dat.data, dat.size);
+          o_free(dat.data);
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_header_value - Error allocating resources for token_b64 (1)");
-          ret = RHN_ERROR_MEMORY;
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_header_value - Error o_base64url_encode header_str");
+          ret = RHN_ERROR;
         }
         o_free(header_str);
       } else {
@@ -163,8 +147,9 @@ static int r_jws_set_header_value(jws_t * jws, int force) {
 
 static int r_jws_set_payload_value(jws_t * jws, int force) {
   int ret = RHN_OK, zip = 0;
-  unsigned char * token_b64 = NULL, * payload_to_set = NULL;
-  size_t token_b64_len = 0, payload_to_set_len = 0;
+  unsigned char * payload_to_set = NULL;
+  size_t payload_to_set_len = 0;
+  struct _o_datum dat = {0, NULL};
 
   if (jws != NULL) {
     if (jws->payload_b64url == NULL || force) {
@@ -179,18 +164,13 @@ static int r_jws_set_payload_value(jws_t * jws, int force) {
           payload_to_set_len = jws->payload_len;
         }
         if (ret == RHN_OK) {
-          if ((token_b64 = o_malloc((2*payload_to_set_len)+4)) != NULL) {
-            if (o_base64url_encode(payload_to_set, payload_to_set_len, token_b64, &token_b64_len)) {
-              o_free(jws->payload_b64url);
-              jws->payload_b64url = (unsigned char *)o_strndup((const char *)token_b64, token_b64_len);
-            } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_payload_value - Error o_base64url_encode payload");
-              ret = RHN_ERROR;
-            }
-            o_free(token_b64);
+          if (o_base64url_encode_alloc(payload_to_set, payload_to_set_len, &dat)) {
+            o_free(jws->payload_b64url);
+            jws->payload_b64url = (unsigned char *)o_strndup((const char *)dat.data, dat.size);
+            o_free(dat.data);
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_payload_value - Error allocating resources for token_b64 (2)");
-            ret = RHN_ERROR_MEMORY;
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_payload_value - Error o_base64url_encode payload");
+            ret = RHN_ERROR;
           }
         }
         if (zip) {
@@ -218,8 +198,9 @@ static int r_jws_set_token_values(jws_t * jws, int force) {
 
 static unsigned char * r_jws_sign_hmac(jws_t * jws, jwk_t * jwk) {
   int alg = GNUTLS_DIG_NULL;
-  unsigned char * data = NULL, * key = NULL, * sig = NULL, * sig_b64 = NULL, * to_return = NULL;
-  size_t key_len = 0, sig_len = 0, sig_b64_len = 0;
+  unsigned char * data = NULL, * key = NULL, * sig = NULL, * to_return = NULL;
+  size_t key_len = 0, sig_len = 0;
+  struct _o_datum dat_sig = {0, NULL};
 
   if (jws->alg == R_JWA_ALG_HS256) {
     alg = GNUTLS_DIG_SHA256;
@@ -232,7 +213,6 @@ static unsigned char * r_jws_sign_hmac(jws_t * jws, jwk_t * jwk) {
   if (alg != GNUTLS_DIG_NULL) {
     sig_len = gnutls_hmac_get_len(alg);
     sig = o_malloc(sig_len);
-    sig_b64 = o_malloc(sig_len*2);
 
     key_len = o_strlen(r_jwk_get_property_str(jwk, "k"));
     if (key_len) {
@@ -254,11 +234,12 @@ static unsigned char * r_jws_sign_hmac(jws_t * jws, jwk_t * jwk) {
     y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_hmac - Error key invalid, 'alg' invalid");
   }
 
-  if (key != NULL && sig != NULL && sig_b64 != NULL) {
+  if (key != NULL && sig != NULL) {
     data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
     if (!gnutls_hmac_fast(alg, key, key_len, data, o_strlen((const char *)data), sig)) {
-      if (o_base64url_encode(sig, sig_len, sig_b64, &sig_b64_len)) {
-        to_return = (unsigned char *)o_strndup((const char *)sig_b64, sig_b64_len);
+      if (o_base64url_encode_alloc(sig, sig_len, &dat_sig)) {
+        to_return = (unsigned char*)o_strndup((const char *)dat_sig.data, dat_sig.size);
+        o_free(dat_sig.data);
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_hmac - Error o_base64url_encode sig_b64");
       }
@@ -269,7 +250,6 @@ static unsigned char * r_jws_sign_hmac(jws_t * jws, jwk_t * jwk) {
 
   o_free(data);
   o_free(sig);
-  o_free(sig_b64);
   o_free(key);
 
   return to_return;
@@ -280,7 +260,7 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk) {
   gnutls_datum_t body_dat, sig_dat;
   unsigned char * to_return = NULL;
   int alg = GNUTLS_DIG_NULL, res, flag = 0;
-  size_t ret_size = 0;
+  struct _o_datum dat_sig = {0, NULL};
 
   switch (jws->alg) {
     case R_JWA_ALG_RS256:
@@ -322,16 +302,13 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk) {
                  gnutls_privkey_sign_data
 #endif
                                            (privkey, alg, flag, &body_dat, &sig_dat))) {
-      if ((to_return = o_malloc(sig_dat.size*2)) != NULL) {
-        if (o_base64url_encode(sig_dat.data, sig_dat.size, to_return, &ret_size)) {
-          to_return[ret_size] = '\0';
-        } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_rsa - Error o_base64url_encode for to_return");
-          o_free(to_return);
-          to_return = NULL;
-        }
+      if (o_base64url_encode_alloc(sig_dat.data, sig_dat.size, &dat_sig)) {
+        to_return = (unsigned char*)o_strndup((const char *)dat_sig.data, dat_sig.size);
+        o_free(dat_sig.data);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_rsa - Error allocating resources for to_return");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_rsa - Error o_base64url_encode for to_return");
+        o_free(to_return);
+        to_return = NULL;
       }
       gnutls_free(sig_dat.data);
     } else {
@@ -353,7 +330,8 @@ static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk) {
   int alg = GNUTLS_DIG_NULL, res;
   unsigned int adj = 0;
   int r_padding = 0, s_padding = 0, r_out_padding = 0, s_out_padding = 0;
-  size_t sig_size, ret_size = 0;
+  size_t sig_size;
+  struct _o_datum dat_sig = {0, NULL};
 
   if (jws->alg == R_JWA_ALG_ES256) {
     alg = GNUTLS_DIG_SHA256;
@@ -390,16 +368,11 @@ static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk) {
           memset(binary_sig, 0, sig_size);
           memcpy(binary_sig + r_out_padding, r.data + r_padding, r.size - r_padding);
           memcpy(binary_sig + (r.size - r_padding + r_out_padding) + s_out_padding, s.data + s_padding, (s.size - s_padding));
-          if ((to_return = o_malloc(sig_size*2)) != NULL) {
-            if (o_base64url_encode(binary_sig, sig_size, to_return, &ret_size)) {
-              to_return[ret_size] = '\0';
-            } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_ecdsa - Error o_base64url_encode for to_return");
-              o_free(to_return);
-              to_return = NULL;
-            }
+          if (o_base64url_encode_alloc(binary_sig, sig_size, &dat_sig)) {
+            to_return = (unsigned char*)o_strndup((const char *)dat_sig.data, dat_sig.size);
+            o_free(dat_sig.data);
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_ecdsa - Error allocating resources for to_return");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_ecdsa - Error o_base64url_encode_alloc for dat_sig");
           }
           o_free(binary_sig);
         } else {
@@ -433,23 +406,18 @@ static unsigned char * r_jws_sign_eddsa(jws_t * jws, jwk_t * jwk) {
   gnutls_datum_t body_dat, sig_dat;
   unsigned char * to_return = NULL;
   int res;
-  size_t ret_size = 0;
+  struct _o_datum dat_sig = {0, NULL};
 
   if (privkey != NULL && GNUTLS_PK_EDDSA_ED25519 == gnutls_privkey_get_pk_algorithm(privkey, NULL)) {
     body_dat.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
     body_dat.size = o_strlen((const char *)body_dat.data);
 
     if (!(res = gnutls_privkey_sign_data(privkey, GNUTLS_DIG_SHA512, 0, &body_dat, &sig_dat))) {
-      if ((to_return = o_malloc(sig_dat.size*2)) != NULL) {
-        if (o_base64url_encode(sig_dat.data, sig_dat.size, to_return, &ret_size)) {
-          to_return[ret_size] = '\0';
-        } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_eddsa - Error o_base64url_encode for to_return");
-          o_free(to_return);
-          to_return = NULL;
-        }
+      if (o_base64url_encode_alloc(sig_dat.data, sig_dat.size, &dat_sig)) {
+        to_return = (unsigned char*)o_strndup((const char *)dat_sig.data, dat_sig.size);
+        o_free(dat_sig.data);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_eddsa - Error allocating resources for to_return");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_eddsa - Error o_base64url_encode_alloc for dat_sig");
       }
       gnutls_free(sig_dat.data);
     } else {
@@ -475,23 +443,18 @@ static unsigned char * r_jws_sign_es256k(jws_t * jws, jwk_t * jwk) {
   gnutls_datum_t body_dat, sig_dat;
   unsigned char * to_return = NULL;
   int res;
-  size_t ret_size = 0;
+  struct _o_datum dat_sig = {0, NULL};
 
   if (privkey != NULL && GNUTLS_PK_EC == gnutls_privkey_get_pk_algorithm(privkey, NULL)) {
     body_dat.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
     body_dat.size = o_strlen((const char *)body_dat.data);
 
     if (!(res = gnutls_privkey_sign_data(privkey, GNUTLS_DIG_SHA256, 0, &body_dat, &sig_dat))) {
-      if ((to_return = o_malloc(sig_dat.size*2)) != NULL) {
-        if (o_base64url_encode(sig_dat.data, sig_dat.size, to_return, &ret_size)) {
-          to_return[ret_size] = '\0';
-        } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_es256k - Error o_base64url_encode for to_return");
-          o_free(to_return);
-          to_return = NULL;
-        }
+      if (o_base64url_encode_alloc(sig_dat.data, sig_dat.size, &dat_sig)) {
+        to_return = (unsigned char*)o_strndup((const char *)dat_sig.data, dat_sig.size);
+        o_free(dat_sig.data);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_es256k - Error allocating resources for to_return");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_es256k - Error o_base64url_encode for dat_sig");
       }
       gnutls_free(sig_dat.data);
     } else {
@@ -528,8 +491,7 @@ static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   int alg = GNUTLS_DIG_NULL, ret = RHN_OK, flag = 0;
   gnutls_datum_t sig_dat = {NULL, 0}, data;
   gnutls_pubkey_t pubkey = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags);
-  unsigned char * sig = NULL;
-  size_t sig_len = 0;
+  struct _o_datum dat_sig = {0, NULL};
 
   data.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
   data.size = o_strlen((const char *)data.data);
@@ -564,23 +526,17 @@ static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 
   if (pubkey != NULL && GNUTLS_PK_RSA == gnutls_pubkey_get_pk_algorithm(pubkey, NULL)) {
     if (!o_strnullempty((const char *)jws->signature_b64url)) {
-      sig = o_malloc(o_strlen((const char *)jws->signature_b64url));
-      if (sig != NULL) {
-        if (o_base64url_decode(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), sig, &sig_len)) {
-          sig_dat.data = sig;
-          sig_dat.size = sig_len;
-          if (gnutls_pubkey_verify_data2(pubkey, alg, flag, &data, &sig_dat)) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Error invalid signature");
-            ret = RHN_ERROR_INVALID;
-          }
-        } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Error o_base64url_decode for sig");
-          ret = RHN_ERROR;
+      if (o_base64url_decode_alloc(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), &dat_sig)) {
+        sig_dat.data = dat_sig.data;
+        sig_dat.size = dat_sig.size;
+        if (gnutls_pubkey_verify_data2(pubkey, alg, flag, &data, &sig_dat)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Error invalid signature");
+          ret = RHN_ERROR_INVALID;
         }
-        o_free(sig);
+        o_free(dat_sig.data);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Error allocating resources for sig");
-        ret = RHN_ERROR_MEMORY;
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Error o_base64url_decode_alloc for dat_sig");
+        ret = RHN_ERROR;
       }
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Error signature empty");
@@ -600,8 +556,7 @@ static int r_jws_verify_sig_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   int alg = 0, ret = RHN_OK;
   gnutls_datum_t sig_dat = {NULL, 0}, r, s, data;
   gnutls_pubkey_t pubkey = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags);
-  unsigned char * sig = NULL;
-  size_t sig_len = 0;
+  struct _o_datum dat_sig = {0, NULL};
 
   data.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
   data.size = o_strlen((const char *)data.data);
@@ -622,51 +577,45 @@ static int r_jws_verify_sig_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 
   if (pubkey != NULL && GNUTLS_PK_EC == gnutls_pubkey_get_pk_algorithm(pubkey, NULL)) {
     if (!o_strnullempty((const char *)jws->signature_b64url)) {
-      sig = o_malloc(o_strlen((const char *)jws->signature_b64url));
-      if (sig != NULL) {
-        if (o_base64url_decode(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), sig, &sig_len)) {
-          if (sig_len == 64) {
-            r.size = 32;
-            r.data = sig;
-            s.size = 32;
-            s.data = sig + 32;
-          } else if (sig_len == 96) {
-            r.size = 48;
-            r.data = sig;
-            s.size = 48;
-            s.data = sig + 48;
-          } else if (sig_len == 132) {
-            r.size = 66;
-            r.data = sig;
-            s.size = 66;
-            s.data = sig + 66;
-          } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error invalid signature length");
-            ret = RHN_ERROR_INVALID;
-          }
-
-          if (ret == RHN_OK) {
-            if (!gnutls_encode_rs_value(&sig_dat, &r, &s)) {
-              if (gnutls_pubkey_verify_data2(pubkey, alg, 0, &data, &sig_dat)) {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error invalid signature");
-                ret = RHN_ERROR_INVALID;
-              }
-              if (sig_dat.data != NULL) {
-                gnutls_free(sig_dat.data);
-              }
-            } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error gnutls_encode_rs_value");
-              ret = RHN_ERROR;
-            }
-          }
+      if (o_base64url_decode_alloc(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), &dat_sig)) {
+        if (dat_sig.size == 64) {
+          r.size = 32;
+          r.data = dat_sig.data;
+          s.size = 32;
+          s.data = dat_sig.data + 32;
+        } else if (dat_sig.size == 96) {
+          r.size = 48;
+          r.data = dat_sig.data;
+          s.size = 48;
+          s.data = dat_sig.data + 48;
+        } else if (dat_sig.size == 132) {
+          r.size = 66;
+          r.data = dat_sig.data;
+          s.size = 66;
+          s.data = dat_sig.data + 66;
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error o_base64url_decode for sig");
-          ret = RHN_ERROR;
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error invalid signature length");
+          ret = RHN_ERROR_INVALID;
         }
-        o_free(sig);
+
+        if (ret == RHN_OK) {
+          if (!gnutls_encode_rs_value(&sig_dat, &r, &s)) {
+            if (gnutls_pubkey_verify_data2(pubkey, alg, 0, &data, &sig_dat)) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error invalid signature");
+              ret = RHN_ERROR_INVALID;
+            }
+            if (sig_dat.data != NULL) {
+              gnutls_free(sig_dat.data);
+            }
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error gnutls_encode_rs_value");
+            ret = RHN_ERROR;
+          }
+        }
+        o_free(dat_sig.data);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error allocating resources for sig");
-        ret = RHN_ERROR_MEMORY;
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error o_base64url_decode_alloc for dat_sig");
+        ret = RHN_ERROR;
       }
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error signature empty");
@@ -692,31 +641,24 @@ static int r_jws_verify_sig_eddsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   int ret = RHN_OK;
   gnutls_datum_t sig_dat = {NULL, 0}, data;
   gnutls_pubkey_t pubkey = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags);
-  unsigned char * sig = NULL;
-  size_t sig_len = 0;
+  struct _o_datum dat_sig = {0, NULL};
 
   data.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
   data.size = o_strlen((const char *)data.data);
 
   if (pubkey != NULL && GNUTLS_PK_EDDSA_ED25519 == gnutls_pubkey_get_pk_algorithm(pubkey, NULL)) {
     if (!o_strnullempty((const char *)jws->signature_b64url)) {
-      sig = o_malloc(o_strlen((const char *)jws->signature_b64url));
-      if (sig != NULL) {
-        if (o_base64url_decode(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), sig, &sig_len)) {
-          sig_dat.data = sig;
-          sig_dat.size = sig_len;
-          if (gnutls_pubkey_verify_data2(pubkey, GNUTLS_SIGN_EDDSA_ED25519, 0, &data, &sig_dat)) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_eddsa - Error invalid signature");
-            ret = RHN_ERROR_INVALID;
-          }
-        } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_eddsa - Error o_base64url_decode for sig");
-          ret = RHN_ERROR;
+      if (o_base64url_decode_alloc(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), &dat_sig)) {
+        sig_dat.data = dat_sig.data;
+        sig_dat.size = dat_sig.size;
+        if (gnutls_pubkey_verify_data2(pubkey, GNUTLS_SIGN_EDDSA_ED25519, 0, &data, &sig_dat)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_eddsa - Error invalid signature");
+          ret = RHN_ERROR_INVALID;
         }
-        o_free(sig);
+        o_free(dat_sig.data);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_eddsa - Error allocating resources for sig");
-        ret = RHN_ERROR_MEMORY;
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_eddsa - Error o_base64url_decode for dat_sig");
+        ret = RHN_ERROR;
       }
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_eddsa - Error signature empty");
@@ -743,31 +685,24 @@ static int r_jws_verify_sig_es256k(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   int ret = RHN_OK;
   gnutls_datum_t sig_dat = {NULL, 0}, data;
   gnutls_pubkey_t pubkey = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags);
-  unsigned char * sig = NULL;
-  size_t sig_len = 0;
+  struct _o_datum dat_sig = {0, NULL};
 
   data.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
   data.size = o_strlen((const char *)data.data);
 
   if (pubkey != NULL && GNUTLS_PK_EC == gnutls_pubkey_get_pk_algorithm(pubkey, NULL)) {
     if (!o_strnullempty((const char *)jws->signature_b64url)) {
-      sig = o_malloc(o_strlen((const char *)jws->signature_b64url));
-      if (sig != NULL) {
-        if (o_base64url_decode(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), sig, &sig_len)) {
-          sig_dat.data = sig;
-          sig_dat.size = sig_len;
-          if (gnutls_pubkey_verify_data2(pubkey, GNUTLS_SIGN_ECDSA_SHA256, 0, &data, &sig_dat)) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Error invalid signature");
-            ret = RHN_ERROR_INVALID;
-          }
-        } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Error o_base64url_decode for sig");
-          ret = RHN_ERROR;
+      if (o_base64url_decode_alloc(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), &dat_sig)) {
+        sig_dat.data = dat_sig.data;
+        sig_dat.size = dat_sig.size;
+        if (gnutls_pubkey_verify_data2(pubkey, GNUTLS_SIGN_ECDSA_SHA256, 0, &data, &sig_dat)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Error invalid signature");
+          ret = RHN_ERROR_INVALID;
         }
-        o_free(sig);
+        o_free(dat_sig.data);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Error allocating resources for sig");
-        ret = RHN_ERROR_MEMORY;
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Error o_base64url_decode_alloc for dat_sig");
+        ret = RHN_ERROR;
       }
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_es256k - Error signature empty");
@@ -1511,10 +1446,10 @@ int r_jws_advanced_compact_parse(jws_t * jws, const char * jws_str, uint32_t par
 int r_jws_advanced_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, uint32_t parse_flags, int x5u_flags) {
   int ret;
   char ** str_array = NULL;
-  char * str_header = NULL, * token = NULL, * tmp;
-  unsigned char * payload = NULL;
-  size_t header_len = 0, payload_len = 0, split_size = 0;
+  char * token = NULL, * tmp;
+  size_t split_size = 0;
   json_t * j_header = NULL;
+  struct _o_datum dat_header = {0, NULL}, dat_payload = {0, NULL};
 
   if (jws != NULL && jws_str != NULL && jws_str_len) {
     token = o_strndup(jws_str, jws_str_len);
@@ -1539,24 +1474,12 @@ int r_jws_advanced_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_
     token = tmp;
     if ((split_size = split_string(token, ".", &str_array)) == 2 || split_size == 3) {
       // Check if all first 2 elements are base64url
-      if (o_base64url_decode((unsigned char *)str_array[0], o_strlen(str_array[0]), NULL, &header_len) && o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), NULL, &payload_len)) {
+      if (o_base64url_decode_alloc((unsigned char *)str_array[0], o_strlen(str_array[0]), &dat_header) &&
+          o_base64url_decode_alloc((unsigned char *)str_array[1], o_strlen(str_array[1]), &dat_payload)) {
         ret = RHN_OK;
         do {
           // Decode header
-          if ((str_header = o_malloc(header_len+4)) == NULL) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error allocating resources for str_header");
-            ret = RHN_ERROR_MEMORY;
-            break;
-          }
-
-          if (!o_base64url_decode((unsigned char *)str_array[0], o_strlen(str_array[0]), (unsigned char *)str_header, &header_len)) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error decoding str_header");
-            ret = RHN_ERROR_PARAM;
-            break;
-          }
-          str_header[header_len] = '\0';
-
-          j_header = json_loads(str_header, JSON_DECODE_ANY, NULL);
+          j_header = json_loadb((const char*)dat_header.data, dat_header.size, JSON_DECODE_ANY, NULL);
           if (r_jws_extract_header(jws, j_header, parse_flags, x5u_flags) != RHN_OK) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error extracting header params");
             ret = RHN_ERROR_PARAM;
@@ -1576,37 +1499,13 @@ int r_jws_advanced_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_
 
           // Decode payload
           if (0 == o_strcmp("DEF", r_jws_get_header_str_value(jws, "zip"))) {
-            if ((payload = o_malloc(payload_len+4)) == NULL) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error allocating resources for payload (zip)");
-              ret = RHN_ERROR_MEMORY;
-              break;
-            }
-
-            if (!o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), payload, &payload_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error decoding jws->payload (zip)");
-              ret = RHN_ERROR_PARAM;
-              break;
-            }
-
-            if (_r_inflate_payload(payload, payload_len, &jws->payload, &jws->payload_len) != RHN_OK) {
+            if (_r_inflate_payload(dat_payload.data, dat_payload.size, &jws->payload, &jws->payload_len) != RHN_OK) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error _r_inflate_payload");
               ret = RHN_ERROR_PARAM;
               break;
             }
           } else {
-            if ((payload = o_malloc(payload_len+4)) == NULL) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error allocating resources for payload");
-              ret = RHN_ERROR_MEMORY;
-              break;
-            }
-
-            if (!o_base64url_decode((unsigned char *)str_array[1], o_strlen(str_array[1]), payload, &payload_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error decoding payload");
-              ret = RHN_ERROR_PARAM;
-              break;
-            }
-
-            if (r_jws_set_payload(jws, payload, payload_len) != RHN_OK) {
+            if (r_jws_set_payload(jws, dat_payload.data, dat_payload.size) != RHN_OK) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - Error r_jws_set_payload");
               ret = RHN_ERROR;
               break;
@@ -1628,12 +1527,12 @@ int r_jws_advanced_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_
           }
         } while (0);
         json_decref(j_header);
-        o_free(str_header);
-        o_free(payload);
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error decoding jws from base64url format");
         ret = RHN_ERROR_PARAM;
       }
+      o_free(dat_header.data);
+      o_free(dat_payload.data);
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - jws_str invalid format");
       ret = RHN_ERROR_PARAM;
@@ -1682,10 +1581,10 @@ int r_jws_advanced_parsen_json_str(jws_t * jws, const char * jws_json_str, size_
 
 int r_jws_advanced_parse_json_t(jws_t * jws, json_t * jws_json, uint32_t parse_flags, int x5u_flags) {
   int ret;
-  size_t header_len = 0, payload_len = 0, signature_len = 0, index = 0;
+  size_t index = 0, signature_len = 0, header_len = 0;
   char * str_header = NULL;
   json_t * j_header = NULL, * j_element = NULL;
-  unsigned char * payload = NULL;
+  struct _o_datum dat_header = {0, NULL}, dat_payload = {0, NULL};
 
   if (jws != NULL && json_is_object(jws_json)) {
     if (json_string_length(json_object_get(jws_json, "payload"))) {
@@ -1732,33 +1631,14 @@ int r_jws_advanced_parse_json_t(jws_t * jws, json_t * jws_json, uint32_t parse_f
             jws->signature_b64url = NULL;
           }
 
-          if (!o_base64url_decode((unsigned char *)jws->header_b64url, o_strlen((const char *)jws->header_b64url), NULL, &header_len)) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Invalid JWS, header not valid base64url format");
-            ret = RHN_ERROR_PARAM;
-            break;
-          }
-
-          if (!o_base64url_decode((unsigned char *)jws->payload_b64url, o_strlen((const char *)jws->payload_b64url), NULL, &payload_len)) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Invalid JWS, payload not valid base64url format");
-            ret = RHN_ERROR_PARAM;
-            break;
-          }
-
           // Decode header
-          if ((str_header = o_malloc(header_len+4)) == NULL) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error allocating resources for str_header");
-            ret = RHN_ERROR_MEMORY;
-            break;
-          }
-
-          if (!o_base64url_decode((unsigned char *)jws->header_b64url, o_strlen((const char *)jws->header_b64url), (unsigned char *)str_header, &header_len)) {
+          if (!o_base64url_decode_alloc((unsigned char *)jws->header_b64url, o_strlen((const char *)jws->header_b64url), &dat_header)) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error decoding str_header");
             ret = RHN_ERROR_PARAM;
             break;
           }
-          str_header[header_len] = '\0';
 
-          j_header = json_loads(str_header, JSON_DECODE_ANY, NULL);
+          j_header = json_loadb((const char*)dat_header.data, dat_header.size, JSON_DECODE_ANY, NULL);
           if (r_jws_extract_header(jws, j_header, parse_flags, x5u_flags) != RHN_OK) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error extracting header params");
             ret = RHN_ERROR_PARAM;
@@ -1769,19 +1649,13 @@ int r_jws_advanced_parse_json_t(jws_t * jws, json_t * jws_json, uint32_t parse_f
           jws->j_header = json_incref(j_header);
 
           // Decode payload
-          if ((payload = o_malloc(payload_len+4)) == NULL) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error allocating resources for payload");
-            ret = RHN_ERROR_MEMORY;
-            break;
-          }
-
-          if (!o_base64url_decode((unsigned char *)jws->payload_b64url, o_strlen((const char *)jws->payload_b64url), payload, &payload_len)) {
+          if (!o_base64url_decode_alloc((unsigned char *)jws->payload_b64url, o_strlen((const char *)jws->payload_b64url), &dat_payload)) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error decoding payload");
             ret = RHN_ERROR_PARAM;
             break;
           }
 
-          if (r_jws_set_payload(jws, payload, payload_len) != RHN_OK) {
+          if (r_jws_set_payload(jws, dat_payload.data, dat_payload.size) != RHN_OK) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error r_jws_set_payload");
             ret = RHN_ERROR;
             break;
@@ -1794,8 +1668,8 @@ int r_jws_advanced_parse_json_t(jws_t * jws, json_t * jws_json, uint32_t parse_f
           }
         } while (0);
         json_decref(j_header);
-        o_free(str_header);
-        o_free(payload);
+        o_free(dat_header.data);
+        o_free(dat_payload.data);
 
       } else {
         ret = RHN_OK;
@@ -1855,26 +1729,14 @@ int r_jws_advanced_parse_json_t(jws_t * jws, json_t * jws_json, uint32_t parse_f
               break;
             }
 
-            if (!o_base64url_decode((unsigned char *)jws->payload_b64url, o_strlen((const char *)jws->payload_b64url), NULL, &payload_len)) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Invalid JWS, payload not valid base64url format");
-              ret = RHN_ERROR_PARAM;
-              break;
-            }
-
             // Decode payload
-            if ((payload = o_malloc(payload_len+4)) == NULL) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - error allocating resources for payload");
-              ret = RHN_ERROR_MEMORY;
-              break;
-            }
-
-            if (!o_base64url_decode((unsigned char *)jws->payload_b64url, o_strlen((const char *)jws->payload_b64url), payload, &payload_len)) {
+            if (!o_base64url_decode_alloc((unsigned char *)jws->payload_b64url, o_strlen((const char *)jws->payload_b64url), &dat_payload)) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - error decoding jws->payload");
               ret = RHN_ERROR_PARAM;
               break;
             }
 
-            if (r_jws_set_payload(jws, payload, payload_len) != RHN_OK) {
+            if (r_jws_set_payload(jws, dat_payload.data, dat_payload.size) != RHN_OK) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_parse_json_t - Error r_jws_set_payload");
               ret = RHN_ERROR;
               break;
@@ -1882,7 +1744,7 @@ int r_jws_advanced_parse_json_t(jws_t * jws, json_t * jws_json, uint32_t parse_f
           } while (0);
           json_decref(j_header);
           o_free(str_header);
-          o_free(payload);
+          o_free(dat_payload.data);
         }
 
       }

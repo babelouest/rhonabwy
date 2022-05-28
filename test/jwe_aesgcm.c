@@ -21,6 +21,7 @@
 #define TOKEN_INVALID_CIPHER_B64 "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJTTWdHekVEMHBNY05wQk00IiwidGFnIjoiclYwdnZPX1JMZTBJRDNuam5wcklLZyJ9.xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.;error;.8v_65BtY-tYA1QzBaqUcKA"
 #define TOKEN_INVALID_TAG_B64 "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJTTWdHekVEMHBNY05wQk00IiwidGFnIjoiclYwdnZPX1JMZTBJRDNuam5wcklLZyJ9.xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFFsoUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.;error;"
 #define TOKEN_INVALID_DOTS "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJTTWdHekVEMHBNY05wQk00IiwidGFnIjoiclYwdnZPX1JMZTBJRDNuam5wcklLZyJ9xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFFsoUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.8v_65BtY-tYA1QzBaqUcKA"
+#define TOKEN_INVALID_HEADER_IV_TAG "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eUNnIiwidGFnIjoiWlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlDZyJ9Cg.xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFFsoUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.8v_65BtY-tYA1QzBaqUcKA"
 
 const char jwk_key_128_1[] = "{\"kty\":\"oct\",\"k\":\"Zd3bPKCfbPc2A6sh3M7dIQ\"}";
 const char jwk_key_128_2[] = "{\"kty\":\"oct\",\"k\":\"ELG-YDhuRKg-6zH2QTR7Tg\"}";
@@ -46,6 +47,7 @@ START_TEST(test_rhonabwy_decrypt_token_invalid)
 {
   jwe_t * jwe_decrypt;
   jwk_t * jwk_privkey;
+  jwk_t * jwk;
   
   ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
   ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
@@ -67,6 +69,12 @@ START_TEST(test_rhonabwy_decrypt_token_invalid)
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_TAG_LEN, 0), RHN_OK);
   ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_ERROR_INVALID);
   
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_key_128_1), RHN_OK);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_HEADER_IV_TAG, 0), RHN_OK);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk, 0), RHN_ERROR_INVALID);
+  r_jwk_free(jwk);
+
   r_jwk_free(jwk_privkey);
   r_jwe_free(jwe_decrypt);
 }

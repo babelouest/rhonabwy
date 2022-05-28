@@ -25,6 +25,9 @@ Aenean vitae tortor quam. Praesent pulvinar nulla a nisi egestas, laoreet tempus
 #define HS256_TOKEN_INVALID_HEADER_B64 ";error;.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.PdtqfpescIy_55JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
 #define HS256_TOKEN_INVALID_PAYLOAD_B64 "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.;error;.PdtqfpescIy_55JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
 #define HS256_TOKEN_INVALID_DOTS "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQVGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.PdtqfpescIy_55JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
+#define HS256_TOKEN_EMPTY_HEADER ".VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.PdtqfpescIy_55JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
+#define HS256_TOKEN_EMPTY_PAYLOAD "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ..PdtqfpescIy_55JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
+#define HS256_TOKEN_EMPTY_SIGNATURE "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u."
 
 #define UNSECURE_TOKEN "eyJhbGciOiJub25lIn0.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u."
 
@@ -702,6 +705,18 @@ START_TEST(test_rhonabwy_parse)
   
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
   ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN_UNSECURE, 0), RHN_ERROR_PARAM);
+  r_jws_free(jws);
+  
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN_EMPTY_HEADER, 0), RHN_ERROR_PARAM);
+  r_jws_free(jws);
+  
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN_EMPTY_PAYLOAD, 0), RHN_ERROR_PARAM);
+  r_jws_free(jws);
+  
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN_EMPTY_SIGNATURE, 0), RHN_ERROR_PARAM);
   r_jws_free(jws);
   
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);

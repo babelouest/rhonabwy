@@ -33,6 +33,7 @@ pbkdf2_hmac_sha512 (size_t key_length, const uint8_t *key,
 #define TOKEN_INVALID_CIPHER_B64 "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiTGZfbk9xdU9TM1UiLCJwMmMiOjQwOTZ9.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.;error;mfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
 #define TOKEN_INVALID_TAG_B64 "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiTGZfbk9xdU9TM1UiLCJwMmMiOjQwOTZ9.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R;error;"
 #define TOKEN_INVALID_DOTS "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiTGZfbk9xdU9TM1UiLCJwMmMiOjQwOTZ9vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
+#define TOKEN_OVERSIZE_P2S "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiWlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlDZyIsInAyYyI6NDA5Nn0K.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
 
 const char jwk_key_128_1[] = "{\"kty\":\"oct\",\"k\":\"AAECAwQFBgcICQoLDA0ODw\"}";
 const char jwk_key_128_2[] = "{\"kty\":\"oct\",\"k\":\"CAkKCwwNDg8QERITFBUWFw\"}";
@@ -62,28 +63,40 @@ START_TEST(test_rhonabwy_decrypt_token_invalid)
   jwe_t * jwe_decrypt;
   jwk_t * jwk_privkey;
   
-  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
   ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey, jwk_key_128_1), RHN_OK);
-  ck_assert_int_eq(r_jwe_add_keys(jwe_decrypt, jwk_privkey, NULL), RHN_OK);
   
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_ENCRYPTED_KEY, 0), RHN_OK);
-  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_ERROR_INVALID);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_decrypt);
   
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_IV, 0), RHN_OK);
-  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_ERROR_INVALID);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_decrypt);
   
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_CIPHER, 0), RHN_OK);
-  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_ERROR_INVALID);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_decrypt);
   
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_TAG, 0), RHN_OK);
-  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_ERROR_INVALID);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_decrypt);
   
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_TAG_LEN, 0), RHN_OK);
-  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_ERROR_INVALID);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_decrypt);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_OVERSIZE_P2S, 0), RHN_OK);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_decrypt);
   
   r_jwk_free(jwk_privkey);
-  r_jwe_free(jwe_decrypt);
 }
 END_TEST
 

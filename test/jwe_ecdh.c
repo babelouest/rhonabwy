@@ -24,6 +24,8 @@
 #define TOKEN_INVALID_IV_B64 "eyJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImVuYyI6IkExMjhDQkMtSFMyNTYiLCJhcHUiOiJjR3h2Y0FvIiwiYXB2IjoiWjNKMWRBbyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiQU13cm02anpoX2d3M1Zmb0xZNE4zSmktSU55aU9NNEZYbnJHODhqOUdodWEiLCJ5IjoiUlJOUFV3dlhDRUV3TVhmOElOcW9GYnYwWHpaNTVGSEN3dEV5cGhReFIwMCIsImNydiI6IlAtMjU2In19.Izru9wTpv5FPlPp7jpDZkueMZ3luMjXBaI2s0YgUtMiDPBAgXw8_GA.;error;.3syjxFimN-u5zY8t-mwIcZwVshIfYbzcxXID7FTbqdAKPWKlWfOdkXpk6V_u5p25U73Izv9qgr1UaWQAzaLli-LqFXptmCyciipYJc2BRhw.OwcQLpd3_PZ8wi2GGHqzww"
 #define TOKEN_INVALID_CIPHER_B64 "eyJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImVuYyI6IkExMjhDQkMtSFMyNTYiLCJhcHUiOiJjR3h2Y0FvIiwiYXB2IjoiWjNKMWRBbyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiQU13cm02anpoX2d3M1Zmb0xZNE4zSmktSU55aU9NNEZYbnJHODhqOUdodWEiLCJ5IjoiUlJOUFV3dlhDRUV3TVhmOElOcW9GYnYwWHpaNTVGSEN3dEV5cGhReFIwMCIsImNydiI6IlAtMjU2In19.Izru9wTpv5FPlPp7jpDZkueMZ3luMjXBaI2s0YgUtMiDPBAgXw8_GA.aKgPGQYvpPwHsQiDOeTFoQ.;error;.OwcQLpd3_PZ8wi2GGHqzww"
 #define TOKEN_INVALID_TAG_B64 "eyJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImVuYyI6IkExMjhDQkMtSFMyNTYiLCJhcHUiOiJjR3h2Y0FvIiwiYXB2IjoiWjNKMWRBbyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiQU13cm02anpoX2d3M1Zmb0xZNE4zSmktSU55aU9NNEZYbnJHODhqOUdodWEiLCJ5IjoiUlJOUFV3dlhDRUV3TVhmOElOcW9GYnYwWHpaNTVGSEN3dEV5cGhReFIwMCIsImNydiI6IlAtMjU2In19.Izru9wTpv5FPlPp7jpDZkueMZ3luMjXBaI2s0YgUtMiDPBAgXw8_GA.aKgPGQYvpPwHsQiDOeTFoQ.3syjxFimN-u5zY8t-mwIcZwVshIfYbzcxXID7FTbqdAKPWKlWfOdkXpk6V_u5p25U73Izv9qgr1UaWQAzaLli-LqFXptmCyciipYJc2BRhw.;error;"
+#define TOKEN_OVERSIZE_APU "eyJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImVuYyI6IkExMjhDQkMtSFMyNTYiLCJhcHUiOiJaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eUNnIiwiYXB2IjoiWjNKMWRBbyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiQU13cm02anpoX2d3M1Zmb0xZNE4zSmktSU55aU9NNEZYbnJHODhqOUdodWEiLCJ5IjoiUlJOUFV3dlhDRUV3TVhmOElOcW9GYnYwWHpaNTVGSEN3dEV5cGhReFIwMCIsImNydiI6IlAtMjU2In19Cg.Izru9wTpv5FPlPp7jpDZkueMZ3luMjXBaI2s0YgUtMiDPBAgXw8_GA.aKgPGQYvpPwHsQiDOeTFoQ.3syjxFimN-u5zY8t-mwIcZwVshIfYbzcxXID7FTbqdAKPWKlWfOdkXpk6V_u5p25U73Izv9qgr1UaWQAzaLli-LqFXptmCyciipYJc2BRhw.OwcQLpd3_PZ8wi2GGHqzww"
+#define TOKEN_OVERSIZE_APV "eyJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImVuYyI6IkExMjhDQkMtSFMyNTYiLCJhcHUiOiJjR3h2Y0FvIiwiYXB2IjoiWlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlDZyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiQU13cm02anpoX2d3M1Zmb0xZNE4zSmktSU55aU9NNEZYbnJHODhqOUdodWEiLCJ5IjoiUlJOUFV3dlhDRUV3TVhmOElOcW9GYnYwWHpaNTVGSEN3dEV5cGhReFIwMCIsImNydiI6IlAtMjU2In19Cg.Izru9wTpv5FPlPp7jpDZkueMZ3luMjXBaI2s0YgUtMiDPBAgXw8_GA.aKgPGQYvpPwHsQiDOeTFoQ.3syjxFimN-u5zY8t-mwIcZwVshIfYbzcxXID7FTbqdAKPWKlWfOdkXpk6V_u5p25U73Izv9qgr1UaWQAzaLli-LqFXptmCyciipYJc2BRhw.OwcQLpd3_PZ8wi2GGHqzww"
 
 const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                     "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\",\"alg\":\"ES256\"}";
@@ -395,24 +397,40 @@ START_TEST(test_rhonabwy_decrypt_token_invalid)
   jwe_t * jwe_decrypt;
   jwk_t * jwk_privkey;
   
-  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
   ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey, jwk_privkey_ecdsa_str), RHN_OK);
   
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_IV, 0), RHN_OK);
   ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_decrypt);
   
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_CIPHER, 0), RHN_OK);
   ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_decrypt);
   
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_TAG, 0), RHN_OK);
   ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_decrypt);
   
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_TAG_LEN, 0), RHN_OK);
   ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_decrypt);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_OVERSIZE_APU, 0), RHN_OK);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_decrypt);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_OVERSIZE_APV, 0), RHN_OK);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_decrypt);
   
   r_jwk_free(jwk_privkey);
-  r_jwe_free(jwe_decrypt);
 }
 END_TEST
 

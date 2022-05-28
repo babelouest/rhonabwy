@@ -1,5 +1,11 @@
 # Rhonabwy Changelog
 
+## 1.1.6
+
+- Fix pkg-config file with absolute path for `CMAKE_INSTALL_{INCLUDE,LIB}DIR`
+- Fix `CMAKE_MODULE_PATH` who was used as single value
+- Security: Fix possible buffer overflow on Key wrapping with AES GCM decryption
+
 ## 1.1.5
 
 - Improve jws and jwe parsing

@@ -4,7 +4,7 @@
 
 - Fix pkg-config file with absolute path for `CMAKE_INSTALL_{INCLUDE,LIB}DIR`
 - Fix `CMAKE_MODULE_PATH` who was used as single value
-- Security: Fix possible buffer overflow on Key wrapping with AES GCM decryption
+- Security: Fix possible buffer overflow on Key unwrapping with JWE AES GCM
 
 ## 1.1.5
 

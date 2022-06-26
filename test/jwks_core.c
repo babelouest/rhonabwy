@@ -805,6 +805,34 @@ START_TEST(test_rhonabwy_jwks_quick_import)
   ck_assert_int_eq(0, r_jwks_size(jwks));
   r_jwks_free(jwks);
   
+  ck_assert_ptr_ne(NULL, jwks = r_jwks_quick_import(R_IMPORT_JSON_STR, NULL, R_IMPORT_NONE));
+  ck_assert_int_eq(0, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  ck_assert_ptr_ne(NULL, jwks = r_jwks_quick_import(R_IMPORT_JSON_STR, "{\"error", R_IMPORT_NONE));
+  ck_assert_int_eq(0, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  ck_assert_ptr_ne(NULL, jwks = r_jwks_quick_import(R_IMPORT_JSON_STR, "{\"error\":\"error\"", R_IMPORT_NONE));
+  ck_assert_int_eq(0, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  ck_assert_ptr_ne(NULL, jwks = r_jwks_quick_import(R_IMPORT_JSON_STR, "{\"error\":\"error\"}", R_IMPORT_NONE));
+  ck_assert_int_eq(0, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  ck_assert_ptr_ne(NULL, jwks = r_jwks_quick_import(R_IMPORT_JSON_STR, "{\"error\":42}", R_IMPORT_NONE));
+  ck_assert_int_eq(0, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  ck_assert_ptr_ne(NULL, jwks = r_jwks_quick_import(R_IMPORT_JSON_STR, "[\"error\",\"error\"]", R_IMPORT_NONE));
+  ck_assert_int_eq(0, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
+  ck_assert_ptr_ne(NULL, jwks = r_jwks_quick_import(R_IMPORT_JSON_STR, "[\"error\",\"error\"]", R_IMPORT_JSON_STR, jwks_str, R_IMPORT_JSON_STR, jwk_pubkey_ecdsa_str, R_IMPORT_NONE));
+  ck_assert_int_eq(5, r_jwks_size(jwks));
+  r_jwks_free(jwks);
+  
 #ifdef R_WITH_CURL
 
   ck_assert_ptr_ne(NULL, jwks = r_jwks_quick_import(R_IMPORT_X5U, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7463/x5u_rsa_crt", R_IMPORT_NONE));

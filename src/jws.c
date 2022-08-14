@@ -781,7 +781,7 @@ static int _r_verify_signature(jws_t * jws, jwk_t * jwk, jwa_alg alg, int x5u_fl
   return ret;
 }
 
-static unsigned char * r_generate_signature(jws_t * jws, jwk_t * jwk, jwa_alg alg, int x5u_flags) {
+static unsigned char * _r_generate_signature(jws_t * jws, jwk_t * jwk, jwa_alg alg, int x5u_flags) {
   unsigned char * str_ret = NULL;
 
   if (jws != NULL && (jwk != NULL || alg == R_JWA_ALG_NONE)) {
@@ -826,11 +826,11 @@ static unsigned char * r_generate_signature(jws_t * jws, jwk_t * jwk, jwa_alg al
         break;
 #endif
       default:
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_generate_signature - Unsupported algorithm");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_generate_signature - Unsupported algorithm");
         break;
     }
   } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "r_generate_signature - Error input parameters");
+    y_log_message(Y_LOG_LEVEL_ERROR, "_r_generate_signature - Error input parameters");
   }
   return str_ret;
 }
@@ -1908,7 +1908,7 @@ char * r_jws_serialize_unsecure(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags)
 
     o_free(jws->signature_b64url);
     if (r_jws_set_token_values(jws, 1) == RHN_OK) {
-      jws->signature_b64url = r_generate_signature(jws, jwk, jws->alg, x5u_flags);
+      jws->signature_b64url = _r_generate_signature(jws, jwk, jws->alg, x5u_flags);
       if (jws->signature_b64url != NULL) {
         jws_str = msprintf("%s.%s.%s", jws->header_b64url, jws->payload_b64url, jws->signature_b64url);
       } else {
@@ -1956,13 +1956,13 @@ json_t * r_jws_serialize_json_t(jws_t * jws, jwks_t * jwks_privkey, int x5u_flag
         r_jws_set_alg(jws, alg);
       }
       if (r_jws_set_token_values(jws, 1) == RHN_OK) {
-        if ((signature = r_generate_signature(jws, jwk, alg, x5u_flags)) != NULL) {
+        if ((signature = _r_generate_signature(jws, jwk, alg, x5u_flags)) != NULL) {
           j_return = json_pack("{ssssss}", "payload", jws->payload_b64url, "protected", jws->header_b64url, "signature", signature);
           if (kid != NULL) {
             json_object_set_new(j_return, "header", json_pack("{ss}", "kid", kid));
           }
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_serialize_json_t - Error r_generate_signature");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_serialize_json_t - Error _r_generate_signature");
         }
         o_free(signature);
       } else {
@@ -1978,14 +1978,14 @@ json_t * r_jws_serialize_json_t(jws_t * jws, jwks_t * jwks_privkey, int x5u_flag
             kid = r_jwk_get_property_str(jwk, "kid");
             r_jws_set_alg(jws, alg);
             if (r_jws_set_header_value(jws, 1) == RHN_OK) {
-              if ((signature = r_generate_signature(jws, jwk, alg, x5u_flags)) != NULL) {
+              if ((signature = _r_generate_signature(jws, jwk, alg, x5u_flags)) != NULL) {
                 j_signature = json_pack("{ssss}", "protected", jws->header_b64url, "signature", signature);
                 if (kid != NULL) {
                   json_object_set_new(j_signature, "header", json_pack("{ss}", "kid", kid));
                 }
                 json_array_append_new(json_object_get(j_return, "signatures"), j_signature);
               } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_serialize_json_t - Error r_generate_signature");
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_serialize_json_t - Error _r_generate_signature");
               }
               o_free(signature);
             } else {

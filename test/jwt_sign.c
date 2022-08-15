@@ -287,10 +287,10 @@ START_TEST(test_rhonabwy_verify_signature_with_whitespaces)
   ck_assert_int_eq(r_jwk_init(&jwk_pubkey_ecdsa), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey_ecdsa, jwk_pubkey_sign_str), RHN_OK);
   
-  ck_assert_int_eq(r_jwt_parse(jwt, TOKEN_WITH_WHITESPACES, 0), RHN_OK);
-  ck_assert_int_eq(r_jwt_get_type(jwt), R_JWT_TYPE_SIGN);
+  ck_assert_int_eq(r_jwt_parse(jwt, TOKEN_WITH_WHITESPACES, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_get_type(jwt), R_JWT_TYPE_NONE);
   
-  ck_assert_int_eq(r_jwt_verify_signature(jwt, jwk_pubkey_ecdsa, 0), RHN_OK);
+  ck_assert_int_eq(r_jwt_verify_signature(jwt, jwk_pubkey_ecdsa, 0), RHN_ERROR_PARAM);
   
   r_jwk_free(jwk_pubkey_ecdsa);
   r_jwt_free(jwt);

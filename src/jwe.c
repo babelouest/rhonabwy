@@ -3607,32 +3607,13 @@ int r_jwe_advanced_compact_parse(jwe_t * jwe, const char * jwe_str, uint32_t par
 int r_jwe_advanced_compact_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_str_len, uint32_t parse_flags, int x5u_flags) {
   int ret;
   char ** str_array = NULL;
-  char * token = NULL, * tmp;
+  char * token = NULL;
   size_t cypher_key_len = 0, cypher_len = 0, tag_len = 0;
   json_t * j_header = NULL;
   struct _o_datum dat_header = {0, NULL}, dat_iv = {0, NULL};
 
   if (jwe != NULL && jwe_str != NULL && jwe_str_len) {
     token = o_strndup(jwe_str, jwe_str_len);
-    // Remove whitespaces and newlines
-    tmp = str_replace(token, " ", "");
-    o_free(token);
-    token = tmp;
-    tmp = str_replace(token, "\n", "");
-    o_free(token);
-    token = tmp;
-    tmp = str_replace(token, "\t", "");
-    o_free(token);
-    token = tmp;
-    tmp = str_replace(token, "\v", "");
-    o_free(token);
-    token = tmp;
-    tmp = str_replace(token, "\f", "");
-    o_free(token);
-    token = tmp;
-    tmp = str_replace(token, "\r", "");
-    o_free(token);
-    token = tmp;
     if (split_string(token, ".", &str_array) == 5 && !o_strnullempty(str_array[0]) && !o_strnullempty(str_array[2]) && !o_strnullempty(str_array[3]) && !o_strnullempty(str_array[4])) {
       // Check if all elements 0, 2 and 3 are base64url encoded
       if (o_base64url_decode_alloc((unsigned char *)str_array[0], o_strlen(str_array[0]), &dat_header) &&

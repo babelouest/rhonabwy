@@ -48,7 +48,7 @@
 #include <yder.h>
 #include <rhonabwy.h>
 
-#define _RNBYC_VERSION_ "1.1.5"
+#define _RNBYC_VERSION_ "1.1.6"
 
 #define R_RSA_DEFAULT_SIZE 4096
 #define R_OCT_DEFAULT_SIZE 128
@@ -581,17 +581,34 @@ static void get_jwks_out(json_t * j_arguments, int split_keys, int x5u_flags, in
 
 static int parse_token(const char * token, int indent, int x5u_flags, const char * str_jwks_pubkey, const char * str_jwks_privkey, const char * password, int show_header, int show_claims, int self_signed) {
   int ret = 0, type, res;
-  char * content, * str_value;
+  char * content, * str_value, * token_dup = NULL, * tmp = NULL;
   jwt_t * jwt = NULL;
   jwks_t * jwks_pubkey = NULL, * jwks_privkey = NULL;
   jwk_t * jwk_password;
   json_t * j_value;
 
   if (r_jwt_init(&jwt) == RHN_OK) {
+    tmp = str_replace(token, " ", "");
+    token_dup = tmp;
+    tmp = str_replace(token_dup, "\n", "");
+    o_free(token_dup);
+    token_dup = tmp;
+    tmp = str_replace(token_dup, "\t", "");
+    o_free(token_dup);
+    token_dup = tmp;
+    tmp = str_replace(token_dup, "\v", "");
+    o_free(token_dup);
+    token_dup = tmp;
+    tmp = str_replace(token_dup, "\f", "");
+    o_free(token_dup);
+    token_dup = tmp;
+    tmp = str_replace(token_dup, "\r", "");
+    o_free(token_dup);
+    token_dup = tmp;
     if (self_signed) {
-      res = r_jwt_advanced_parse(jwt, token, R_PARSE_HEADER_ALL, x5u_flags);
+      res = r_jwt_advanced_parse(jwt, token_dup, R_PARSE_HEADER_ALL, x5u_flags);
     } else {
-      res = r_jwt_advanced_parse(jwt, token, R_PARSE_NONE, x5u_flags);
+      res = r_jwt_advanced_parse(jwt, token_dup, R_PARSE_NONE, x5u_flags);
     }
     if (res == RHN_OK) {
       type = r_jwt_get_type(jwt);
@@ -708,6 +725,7 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
   r_jwt_free(jwt);
   r_jwks_free(jwks_pubkey);
   r_jwks_free(jwks_privkey);
+  o_free(token_dup);
   return ret;
 }
 

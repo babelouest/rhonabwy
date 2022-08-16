@@ -2097,7 +2097,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
   switch (alg) {
     case R_JWA_ALG_RSA1_5:
       res = r_jwk_key_type(jwk, &bits, x5u_flags);
-      if (res & (R_KEY_TYPE_RSA|R_KEY_TYPE_PUBLIC) && bits >= 2048) {
+      if (res & R_KEY_TYPE_RSA && bits >= 2048) {
         if (jwk != NULL && (g_pub = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags)) != NULL) {
           plainkey.data = jwe->key;
           plainkey.size = jwe->key_len;
@@ -2129,7 +2129,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
     case R_JWA_ALG_RSA_OAEP:
     case R_JWA_ALG_RSA_OAEP_256:
       res = r_jwk_key_type(jwk, &bits, x5u_flags);
-      if (res & (R_KEY_TYPE_RSA|R_KEY_TYPE_PUBLIC) && bits >= 2048) {
+      if (res & R_KEY_TYPE_RSA && bits >= 2048) {
         if (jwk != NULL && (g_pub = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags)) != NULL) {
           if ((cyphertext = o_malloc(bits+1)) != NULL) {
             cyphertext_len = bits+1;
@@ -2196,16 +2196,26 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
     case R_JWA_ALG_A192GCMKW:
 #endif
     case R_JWA_ALG_A256GCMKW:
-      if ((j_return = r_jwe_aesgcm_key_wrap(jwe, alg, jwk, x5u_flags, ret)) == NULL) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error r_jwe_aesgcm_key_wrap");
+      if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
+        if ((j_return = r_jwe_aesgcm_key_wrap(jwe, alg, jwk, x5u_flags, ret)) == NULL) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error r_jwe_aesgcm_key_wrap");
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error invalid key type");
+        *ret = RHN_ERROR_PARAM;
       }
       break;
 #if NETTLE_VERSION_NUMBER >= 0x030400
     case R_JWA_ALG_A128KW:
     case R_JWA_ALG_A192KW:
     case R_JWA_ALG_A256KW:
-      if ((j_return = r_jwe_aes_key_wrap(jwe, alg, jwk, x5u_flags, ret)) == NULL) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error r_jwe_aes_key_wrap");
+      if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
+        if ((j_return = r_jwe_aes_key_wrap(jwe, alg, jwk, x5u_flags, ret)) == NULL) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error r_jwe_aes_key_wrap");
+        }
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error invalid key type");
+        *ret = RHN_ERROR_PARAM;
       }
       break;
 #endif
@@ -2224,7 +2234,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
     case R_JWA_ALG_ECDH_ES_A192KW:
     case R_JWA_ALG_ECDH_ES_A256KW:
       res = r_jwk_key_type(jwk, &bits, x5u_flags);
-      if (res & (R_KEY_TYPE_EC|R_KEY_TYPE_PUBLIC)) {
+      if ((res & R_KEY_TYPE_ECDH || res & R_KEY_TYPE_EC) && res & R_KEY_TYPE_PUBLIC) {
         if (r_jwks_size(jwe->jwks_privkey) == 1) {
           jwk_priv = r_jwks_get_at(jwe->jwks_privkey, 0);
         }
@@ -2278,7 +2288,8 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
 
   switch (alg) {
     case R_JWA_ALG_RSA1_5:
-      if (r_jwk_key_type(jwk, &bits, x5u_flags) & (R_KEY_TYPE_RSA|R_KEY_TYPE_PRIVATE) && bits >= 2048) {
+      res = r_jwk_key_type(jwk, &bits, x5u_flags);
+      if (res & R_KEY_TYPE_RSA && res & R_KEY_TYPE_PRIVATE && bits >= 2048) {
         if (jwk != NULL && !o_strnullempty((const char *)jwe->encrypted_key_b64url) && (g_priv = r_jwk_export_to_gnutls_privkey(jwk)) != NULL) {
             if (o_base64url_decode_alloc(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), &dat)) {
               cypherkey.size = dat.size;
@@ -2316,7 +2327,8 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
 #if NETTLE_VERSION_NUMBER >= 0x030400
     case R_JWA_ALG_RSA_OAEP:
     case R_JWA_ALG_RSA_OAEP_256:
-      if (r_jwk_key_type(jwk, &bits, x5u_flags) & (R_KEY_TYPE_RSA|R_KEY_TYPE_PRIVATE) && bits >= 2048) {
+      res = r_jwk_key_type(jwk, &bits, x5u_flags);
+      if (res & R_KEY_TYPE_RSA && res & R_KEY_TYPE_PRIVATE && bits >= 2048) {
         if (jwk != NULL && !o_strnullempty((const char *)jwe->encrypted_key_b64url) && (g_priv = r_jwk_export_to_gnutls_privkey(jwk)) != NULL) {
           if (o_base64url_decode_alloc(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), &dat)) {
             if ((clearkey = o_malloc(bits+1)) != NULL) {
@@ -2380,8 +2392,8 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
             ret = RHN_ERROR_MEMORY;
           }
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key type");
-          ret = RHN_ERROR_PARAM;
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key type DIR");
+          ret = RHN_ERROR_INVALID;
         }
       } else if (jwe->key != NULL && jwe->key_len > 0) {
         ret = RHN_OK;
@@ -2395,22 +2407,32 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
     case R_JWA_ALG_A192GCMKW:
 #endif
     case R_JWA_ALG_A256GCMKW:
-      if ((res = r_jwe_aesgcm_key_unwrap(jwe, alg, jwk, x5u_flags)) == RHN_OK) {
-        ret = RHN_OK;
+      if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
+        if ((res = r_jwe_aesgcm_key_unwrap(jwe, alg, jwk, x5u_flags)) == RHN_OK) {
+          ret = RHN_OK;
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error r_jwe_aesgcm_key_unwrap");
+          ret = res;
+        }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error r_jwe_aesgcm_key_unwrap");
-        ret = res;
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key type AESGCM");
+        ret = RHN_ERROR_INVALID;
       }
       break;
 #if NETTLE_VERSION_NUMBER >= 0x030400
     case R_JWA_ALG_A128KW:
     case R_JWA_ALG_A192KW:
     case R_JWA_ALG_A256KW:
-      if ((res = r_jwe_aes_key_unwrap(jwe, alg, jwk, x5u_flags)) == RHN_OK) {
-        ret = RHN_OK;
+      if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
+        if ((res = r_jwe_aes_key_unwrap(jwe, alg, jwk, x5u_flags)) == RHN_OK) {
+          ret = RHN_OK;
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error r_jwe_aes_key_unwrap");
+          ret = res;
+        }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error r_jwe_aes_key_unwrap");
-        ret = res;
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key type KeyWrap");
+        ret = RHN_ERROR_INVALID;
       }
       break;
 #endif
@@ -2418,11 +2440,16 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
     case R_JWA_ALG_PBES2_H256:
     case R_JWA_ALG_PBES2_H384:
     case R_JWA_ALG_PBES2_H512:
-      if ((res = r_jwe_pbes2_key_unwrap(jwe, alg, jwk, x5u_flags)) == RHN_OK) {
-        ret = RHN_OK;
+      if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
+        if ((res = r_jwe_pbes2_key_unwrap(jwe, alg, jwk, x5u_flags)) == RHN_OK) {
+          ret = RHN_OK;
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error r_jwe_pbes2_key_unwrap");
+          ret = res;
+        }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error r_jwe_pbes2_key_unwrap");
-        ret = res;
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key type PBES");
+        ret = RHN_ERROR_INVALID;
       }
       break;
 #endif
@@ -2432,7 +2459,7 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
     case R_JWA_ALG_ECDH_ES_A192KW:
     case R_JWA_ALG_ECDH_ES_A256KW:
       res = r_jwk_key_type(jwk, &bits, x5u_flags);
-      if (res & (R_KEY_TYPE_EC|R_KEY_TYPE_PRIVATE) || res & (R_KEY_TYPE_EDDSA|R_KEY_TYPE_PRIVATE)) {
+      if ((res & (R_KEY_TYPE_EC) || res & (R_KEY_TYPE_ECDH)) && res & R_KEY_TYPE_PRIVATE) {
         if ((res = _r_jwe_ecdh_decrypt(jwe, alg, jwk, res, bits, x5u_flags)) == RHN_OK) {
           ret = RHN_OK;
         } else {
@@ -2442,7 +2469,7 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
           ret = res;
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - invalid key type %d", res);
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key type ECDH");
         ret = RHN_ERROR_INVALID;
       }
       break;

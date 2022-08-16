@@ -783,6 +783,7 @@ static int _r_verify_signature(jws_t * jws, jwk_t * jwk, jwa_alg alg, int x5u_fl
 
 static unsigned char * _r_generate_signature(jws_t * jws, jwk_t * jwk, jwa_alg alg, int x5u_flags) {
   unsigned char * str_ret = NULL;
+  int res;
 
   if (jws != NULL && (jwk != NULL || alg == R_JWA_ALG_NONE)) {
     switch (alg) {
@@ -799,19 +800,22 @@ static unsigned char * _r_generate_signature(jws_t * jws, jwk_t * jwk, jwa_alg a
       case R_JWA_ALG_PS256:
       case R_JWA_ALG_PS384:
       case R_JWA_ALG_PS512:
-        if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_RSA) {
+        res = r_jwk_key_type(jwk, NULL, x5u_flags);
+        if (res & R_KEY_TYPE_RSA && res &R_KEY_TYPE_PRIVATE) {
           str_ret = r_jws_sign_rsa(jws, jwk);
         }
         break;
       case R_JWA_ALG_ES256:
       case R_JWA_ALG_ES384:
       case R_JWA_ALG_ES512:
-        if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_EC) {
+        res = r_jwk_key_type(jwk, NULL, x5u_flags);
+        if (res & R_KEY_TYPE_EC && res & R_KEY_TYPE_PRIVATE) {
           str_ret = r_jws_sign_ecdsa(jws, jwk);
         }
         break;
       case R_JWA_ALG_EDDSA:
-        if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_EDDSA) {
+        res = r_jwk_key_type(jwk, NULL, x5u_flags);
+        if (res & R_KEY_TYPE_EDDSA && res & R_KEY_TYPE_PRIVATE) {
           str_ret = r_jws_sign_eddsa(jws, jwk);
         }
         break;
@@ -820,7 +824,8 @@ static unsigned char * _r_generate_signature(jws_t * jws, jwk_t * jwk, jwa_alg a
         break;
 #if 0
       case R_JWA_ALG_ES256K:
-        if (r_jwk_key_type(jwk, NULL, x5u_flags) & R_KEY_TYPE_EC) {
+        res = r_jwk_key_type(jwk, NULL, x5u_flags);
+        if (res & R_KEY_TYPE_EC && res & R_KEY_TYPE_PRIVATE) {
           str_ret = r_jws_sign_es256k(jws, jwk);
         }
         break;

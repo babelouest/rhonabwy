@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 1.1.7
+
+- Do not ignore whitespaces when parsing tokens
+- Enforce key verification
+
 ## 1.1.6
 
 - Fix pkg-config file with absolute path for `CMAKE_INSTALL_{INCLUDE,LIB}DIR`

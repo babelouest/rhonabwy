@@ -1084,7 +1084,7 @@ START_TEST(test_rhonabwy_decrypt_key_invalid_encrypted_key)
   ck_assert_int_eq(o_strlen((const char *)jwe->encrypted_key_b64url), 0);
   ck_assert_int_eq(r_jwe_encrypt_key(jwe, jwk_pubkey_rsa, 0), RHN_OK);
   ck_assert_int_gt(o_strlen((const char *)jwe->encrypted_key_b64url), 0);
-  ck_assert_int_eq(r_jwe_decrypt_key(jwe, jwk_pubkey_rsa, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_decrypt_key(jwe, jwk_pubkey_rsa, 0), RHN_ERROR_INVALID);
   if (jwe->encrypted_key_b64url[2] == 'a') {
     jwe->encrypted_key_b64url[2] = 'e';
   } else {

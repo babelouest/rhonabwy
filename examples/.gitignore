@@ -1,0 +1,4 @@
+jwt-sign-rs256
+jwt-verify-es256
+jwt-encrypt-pbes2-h256
+jwt-decrypt-rsa-oaep256

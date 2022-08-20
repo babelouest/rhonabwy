@@ -1,5 +1,5 @@
 #
-# Iddawc library
+# Rhonabwy library
 #
 # Makefile used to build the tests
 #
@@ -31,7 +31,7 @@ $(CERT)/server.key:
 	./$(CERT)/create-cert.sh
 
 $(RHONABWY_LIBRARY): $(RHONABWY_LOCATION)/misc.c $(RHONABWY_LOCATION)/jwk.c $(RHONABWY_LOCATION)/jwks.c $(RHONABWY_LOCATION)/jws.c $(RHONABWY_LOCATION)/jwe.c $(RHONABWY_LOCATION)/jwt.c $(RHONABWY_INCLUDE)/rhonabwy.h
-	cd $(RHONABWY_LOCATION) && $(MAKE) debug  $*
+	cd $(RHONABWY_LOCATION) && $(MAKE) debug $*
 
 %: %.c
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)

@@ -23,6 +23,18 @@ const unsigned char symmetric_key_b64url[] = "c2VjcmV0";
 
 const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                     "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\"}";
+const char jwk_privkey_ecdsa_p384_str[] = "{\"crv\":\"P-384\",\"d\":\"IKRyzFYbvLo4JoBMlPPTdIE8mLlcCO03XLh-97aNT3sQ9cT4vb3nSjWCecTUvjW6\","\
+                                          "\"kty\":\"EC\",\"x\":\"Nx2Wxf0o6A01m6ymiD7YIfmWkyBrySWzq5N85bMUs_9G8D_l4RRxLj4i7z1_5Rvo\","\
+                                          "\"y\":\"c4iG6Gp5vEcoyuGREu40AejY-fkg0K_iYEic1sME-VphV8L94IWJU3EbhA_zEQhb\"}";
+const char jwk_pubkey_ecdsa_p384_str[] = "{\"crv\":\"P-384\",\"kty\":\"EC\","\
+                                         "\"x\":\"Nx2Wxf0o6A01m6ymiD7YIfmWkyBrySWzq5N85bMUs_9G8D_l4RRxLj4i7z1_5Rvo\","\
+                                         "\"y\":\"c4iG6Gp5vEcoyuGREu40AejY-fkg0K_iYEic1sME-VphV8L94IWJU3EbhA_zEQhb\"}";
+const char jwk_privkey_ecdsa_p521_str[] = "{\"crv\":\"P-521\",\"d\":\"cz-Y7wdU6n3j6QB5J-KtVg1ozfir1yuRsWBMZ2NvZytGRj0V-41c92HxrsOC-Ia--0sK_ATpnRKlgS5jo286c6o\","\
+                                          "\"kty\":\"EC\",\"x\":\"Adt3Ill4dNKRMdrDM4GYt-49GFmRcRYLiJveIzg1YkOduLHtoxQ4UQ5GpPZNfoJE3YBQkwoZIUKpG8WHKTHqYtM3\","\
+                                          "\"y\":\"Aen_lIXMdZhFBSkgPdXGsyNTh6XEDDk74-08nawnxO1YblVM-Rp7FbumjBbCpA7jPxRxKO1h3VJFP93uvqw16RIE\"}";
+const char jwk_pubkey_ecdsa_p521_str[] = "{\"crv\":\"P-521\",\"kty\":\"EC\","\
+                                         "\"x\":\"Adt3Ill4dNKRMdrDM4GYt-49GFmRcRYLiJveIzg1YkOduLHtoxQ4UQ5GpPZNfoJE3YBQkwoZIUKpG8WHKTHqYtM3\","\
+                                         "\"y\":\"Aen_lIXMdZhFBSkgPdXGsyNTh6XEDDk74-08nawnxO1YblVM-Rp7FbumjBbCpA7jPxRxKO1h3VJFP93uvqw16RIE\"}";
 const char jwk_pubkey_ecdsa_str_invalid_kty[] = "{\"kty\":\"ECC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                                 "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\"}";
 const char jwk_pubkey_ecdsa_str_invalid_crv[] = "{\"kty\":\"EC\",\"crv\":\"P-256C\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
@@ -714,6 +726,14 @@ START_TEST(test_rhonabwy_import_from_json_str)
   r_jwk_free(jwk);
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_p384_str), RHN_OK);
+  r_jwk_free(jwk);
+  
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_p521_str), RHN_OK);
+  r_jwk_free(jwk);
+  
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_secp256k1_str), RHN_OK);
   r_jwk_free(jwk);
   
@@ -759,6 +779,14 @@ START_TEST(test_rhonabwy_import_from_json_str)
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
+  r_jwk_free(jwk);
+  
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_p384_str), RHN_OK);
+  r_jwk_free(jwk);
+  
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_p521_str), RHN_OK);
   r_jwk_free(jwk);
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);

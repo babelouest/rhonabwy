@@ -261,6 +261,61 @@ START_TEST(test_rhonabwy_flood_ok)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_check_key_length)
+{
+  jwe_t * jwe_enc_1, * jwe_enc_2, * jwe_dec_1, * jwe_dec_2;
+  jwk_t * jwk_rsa2048_pub, * jwk_rsa2048_priv, * jwk_rsa4096_pub, * jwk_rsa4096_priv;
+  char * token_1, * token_2;
+  
+  ck_assert_int_eq(r_jwk_init(&jwk_rsa2048_pub), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_rsa2048_priv), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_rsa4096_pub), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_rsa4096_priv), RHN_OK);
+  ck_assert_int_eq(r_jwe_init(&jwe_enc_1), RHN_OK);
+  ck_assert_int_eq(r_jwe_init(&jwe_enc_2), RHN_OK);
+
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_rsa2048_pub, jwk_pubkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_rsa2048_priv, jwk_privkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_rsa4096_pub, jwk_pubkey_rsa_str_2), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_rsa4096_priv, jwk_privkey_rsa_str_2), RHN_OK);
+
+  ck_assert_int_eq(r_jwe_set_payload(jwe_enc_1, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_alg(jwe_enc_1, R_JWA_ALG_RSA1_5), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe_enc_1, R_JWA_ENC_A256CBC), RHN_OK);
+  ck_assert_ptr_ne((token_1 = r_jwe_serialize(jwe_enc_1, jwk_rsa2048_pub, 0)), NULL);
+
+  ck_assert_int_eq(r_jwe_set_payload(jwe_enc_2, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_alg(jwe_enc_2, R_JWA_ALG_RSA1_5), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe_enc_2, R_JWA_ENC_A256CBC), RHN_OK);
+  ck_assert_ptr_ne((token_2 = r_jwe_serialize(jwe_enc_2, jwk_rsa4096_pub, 0)), NULL);
+  
+  ck_assert_ptr_ne((jwe_dec_1 = r_jwe_quick_parse(token_1, R_PARSE_NONE, 0)), NULL);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_dec_1, jwk_rsa2048_priv, 0), RHN_OK);
+  r_jwe_free(jwe_dec_1);
+
+  ck_assert_ptr_ne((jwe_dec_2 = r_jwe_quick_parse(token_2, R_PARSE_NONE, 0)), NULL);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_dec_2, jwk_rsa4096_priv, 0), RHN_OK);
+  r_jwe_free(jwe_dec_2);
+  
+  ck_assert_ptr_ne((jwe_dec_1 = r_jwe_quick_parse(token_1, R_PARSE_NONE, 0)), NULL);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_dec_1, jwk_rsa4096_priv, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_dec_1);
+
+  ck_assert_ptr_ne((jwe_dec_2 = r_jwe_quick_parse(token_2, R_PARSE_NONE, 0)), NULL);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_dec_2, jwk_rsa2048_priv, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_dec_2);
+  
+  r_jwk_free(jwk_rsa2048_pub);
+  r_jwk_free(jwk_rsa2048_priv);
+  r_jwk_free(jwk_rsa4096_pub);
+  r_jwk_free(jwk_rsa4096_priv);
+  r_jwe_free(jwe_enc_1);
+  r_jwe_free(jwe_enc_2);
+  r_free(token_1);
+  r_free(token_2);
+}
+END_TEST
+
 /**
  * Test decrypting the JWE in the RFC 7516
  * A.2.  Example JWE using RSAES-PKCS1-v1_5 and AES_128_CBC_HMAC_SHA_256
@@ -337,6 +392,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_ok);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_2_ok);
   tcase_add_test(tc_core, test_rhonabwy_flood_ok);
+  tcase_add_test(tc_core, test_rhonabwy_check_key_length);
   tcase_add_test(tc_core, test_rhonabwy_decrypt_rfc_ok);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);

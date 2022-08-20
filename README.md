@@ -155,6 +155,10 @@ int main(void) {
 }
 ```
 
+# Examples
+
+Some example programs are available in the [examples](examples/) directory.
+
 # Installation
 
 Rhonabwy is available in the following distributions.

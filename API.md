@@ -317,6 +317,429 @@ int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int flags);
 jwks_t * r_jwks_quick_import(rhn_import, ...);
 ```
 
+## JWT
+
+Finally, a JWT (JSON Web Token) is a JSON content signed and/or encrypted and serialized in a compact format that can be easily transferred in HTTP requests. Technically, a JWT is a JWS or a JWE which payload is a stringified JSON and has the property `"type":"JWT"` in the header.
+
+A JWT can be nested, which means signed and encrypted, in which case the payload is signed as a JWS first, then the serialized signed token is used as the payload in a JWE, or the opposite.
+
+### Set values
+
+To set the values of the JWT (header, keys, payload, etc.), you can use the dedicated functions (see the documentation), or use the function `r_jwt_set_properties` to set multiple properties at once. The option list MUST end with the option `RHN_OPT_NONE`.
+
+```C
+/**
+ * Add multiple properties to the jwt_t *
+ * @param jwt: the jwt_t to set values
+ * @param ...: set of values using a rhn_opt and following values
+ */
+int r_jwt_set_properties(jwt_t * jwt, ...);
+```
+
+The available `rhn_opt` and their following values for a `jwt_t` are:
+
+```C
+RHN_OPT_HEADER_INT_VALUE, const char *, int
+RHN_OPT_HEADER_RHN_INT_VALUE, const char *, rhn_int_t
+RHN_OPT_HEADER_STR_VALUE, const char * const char *
+RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
+RHN_OPT_HEADER_FULL_JSON_T, json_t *
+RHN_OPT_HEADER_FULL_JSON_STR, const char *
+RHN_OPT_CLAIM_INT_VALUE, const char *, int
+RHN_OPT_CLAIM_RHN_INT_VALUE, const char *, rhn_int_t
+RHN_OPT_CLAIM_STR_VALUE, const char * const char *
+RHN_OPT_CLAIM_JSON_T_VALUE, const char *, json_t *
+RHN_OPT_CLAIM_FULL_JSON_T, json_t *
+RHN_OPT_CLAIM_FULL_JSON_STR, const char *
+RHN_OPT_SIG_ALG, jwa_alg
+RHN_OPT_ENC_ALG, jwa_alg
+RHN_OPT_ENC, jwa_enc
+RHN_OPT_CIPHER_KEY, const unsigned char *, size_t
+RHN_OPT_IV, const unsigned char *, size_t
+RHN_OPT_SIGN_KEY_JWK, jwk_t *
+RHN_OPT_SIGN_KEY_JWKS, jwks_t *
+RHN_OPT_SIGN_KEY_GNUTLS, gnutls_privkey_t
+RHN_OPT_SIGN_KEY_JSON_T, json_t *
+RHN_OPT_SIGN_KEY_JSON_STR, const char *
+RHN_OPT_SIGN_KEY_PEM_DER, uint, const unsigned char *, size_t
+RHN_OPT_VERIFY_KEY_JWK, jwk_t *
+RHN_OPT_VERIFY_KEY_JWKS, jwks_t *
+RHN_OPT_VERIFY_KEY_GNUTLS, gnutls_pubkey_t
+RHN_OPT_VERIFY_KEY_JSON_T, json_t *
+RHN_OPT_VERIFY_KEY_JSON_STR, const char *
+RHN_OPT_VERIFY_KEY_PEM_DER, uint, const unsigned char *, size_t
+RHN_OPT_ENCRYPT_KEY_JWK, jwk_t *
+RHN_OPT_ENCRYPT_KEY_JWKS, jwks_t *
+RHN_OPT_ENCRYPT_KEY_GNUTLS, gnutls_pubkey_t
+RHN_OPT_ENCRYPT_KEY_JSON_T, json_t *
+RHN_OPT_ENCRYPT_KEY_JSON_STR, const char *
+RHN_OPT_ENCRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+RHN_OPT_DECRYPT_KEY_JWK, jwk_t *
+RHN_OPT_DECRYPT_KEY_JWKS, jwks_t *
+RHN_OPT_DECRYPT_KEY_GNUTLS, gnutls_privkey_t
+RHN_OPT_DECRYPT_KEY_JSON_T, json_t *
+RHN_OPT_DECRYPT_KEY_JSON_STR, const char *
+RHN_OPT_DECRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+```
+
+Example of usage for `r_jwt_set_properties`:
+
+```C
+jwt_t * jwt;
+jwk_t * jwk; // Set a private RSA key in this value
+r_jwt_set_properties(jwt, RHN_OPT_HEADER_INT_VALUE, "int", 42,
+                          RHN_OPT_HEADER_STR_VALUE, "str", "a value",
+                          RHN_OPT_HEADER_JSON_T_VALUE, "json", json_true(),
+                          RHN_OPT_CLAIM_FULL_JSON_STR, "{\"str\":\"grut\",\"int\":42,\"obj\":true}",
+                          RHN_OPT_SIG_ALG, R_JWA_ALG_RS256,
+                          RHN_OPT_SIGN_KEY_JWK, jwk,
+                          RHN_OPT_NONE); // Test if return value is RHN_OK
+char * token = r_jwt_serialize_signed(jwt, NULL, 0);
+}
+```
+
+### Verify a list of claims in the JWT
+
+The function int `int r_jwt_validate_claims(jwt_t * jwt, ...)` will help you verify the validity of some claims in the JWT.
+
+Claim types available
+- `R_JWT_CLAIM_ISS`: claim `"iss"`, values expected a string or `NULL` to validate the presence of the claim
+- `R_JWT_CLAIM_SUB`: claim `"sub"`, values expected a string or `NULL` to validate the presence of the claim
+- `R_JWT_CLAIM_AUD`: claim `"aud"`, values expected a string or `NULL` to validate the presence of the claim
+- `R_JWT_CLAIM_EXP`: claim `"exp"`, value expected `R_JWT_CLAIM_NOW` or an positive integer value or `R_JWT_CLAIM_PRESENT` to validate the presence of the claim
+- `R_JWT_CLAIM_NBF`: claim `"nbf"`, value expected `R_JWT_CLAIM_NOW` or an positive integer value or `R_JWT_CLAIM_PRESENT` to validate the presence of the claim
+- `R_JWT_CLAIM_IAT`: claim `"iat"`, value expected `R_JWT_CLAIM_NOW` or an positive integer value or `R_JWT_CLAIM_PRESENT` to validate the presence of the claim
+- `R_JWT_CLAIM_JTI`: claim `"jti"`, values expected a string or `NULL` to validate the presence of the claim
+- `R_JWT_CLAIM_STR`: the claim name specified must have the string value expected or `NULL` to validate the presence of the claim
+- `R_JWT_CLAIM_INT`: the claim name specified must have the integer value expected
+- `R_JWT_CLAIM_JSN`: the claim name specified must have the json_t * value expected or `NULL` to validate the presence of the claim
+- `R_JWT_CLAIM_TYP`: header parameter `"typ"` (type), values expected a string or `NULL` to validate the presence of the header parameter
+- `R_JWT_CLAIM_CTY`: header parameter `"cty"` (Content Type), values expected a string or `NULL` to validate the presence of the header parameter
+
+For example, the following code will check the jwt against the claim `iss` has the value `"https://example.com"`, the claim `sub` has the value `"client_1"`, the presence of the claim `aud`, the claim `exp` is after now, the claim `nbf` is before now, the claim `scope` has the value `"scope1"`, the claim `age` has the value `42` and the claim `verified` has the JSON value `true`:
+
+```C
+if (r_jwt_validate_claims(jwt, R_JWT_CLAIM_ISS, "https://example.com", 
+                               R_JWT_CLAIM_SUB, "client_1", 
+                               R_JWT_CLAIM_AUD, NULL, 
+                               R_JWT_CLAIM_EXP, R_JWT_CLAIM_NOW, 
+                               R_JWT_CLAIM_NBF, R_JWT_CLAIM_NOW, 
+                               R_JWT_CLAIM_STR, "scope", "scope1",
+                               R_JWT_CLAIM_INT, "age", 42,
+                               R_JWT_CLAIM_JSN, "verified", json_true(),
+                               R_JWT_CLAIM_NOP) == RHN_OK)
+```
+
+### Serialize a JWT using Rhonabwy
+
+Let's use the following JSON object in a JWT:
+
+```JSON
+{
+  "iss":"joe",
+  "exp":1300819380,
+  "http://example.com/is_root":true
+}
+```
+
+The JWT can be signed using the algorithm `HS256` and the following key:
+
+```JSON
+{
+  "kty":"oct",
+  "k":"AyM1SysPpbyDfgZld3umj1qzKObwVMkoqQ-EstJQLr_T-1qS0gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr1Z9CAow"
+}
+```
+
+The signed JWT serialized will be:
+
+```
+eyJ0eXAiOiJKV1QiLA0KICJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ.dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
+```
+
+#### Signed JWT
+
+The signed JWT above can be created with the following sample code:
+
+```C
+#include <rhonabwy.h>
+
+jwt_t * jwt = NULL;
+jwk_t * jwk_key = NULL;
+const char payload[] = "{\"iss\":\"joe\",\"exp\":1300819380,\"http://example.com/is_root\":true}",
+           jwk_key_str[] = "{\"kty\":\"oct\",\"k\":\"AyM1SysPpbyDfgZld3umj1qzKObwVMkoqQ-EstJQLr_T-1qS0gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr1Z9CAow\"}";
+char * token = NULL;
+
+if (r_jwk_init(&jwk_key) == RHN_OK && 
+    r_jwt_init(&jwt) == RHN_OK &&
+    r_jwk_import_from_json_str(jwk_key, jwk_key_str) == RHN_OK && 
+    r_jwt_set_sign_alg(jwt, R_JWA_ALG_HS256) == RHN_OK &&
+    r_jwt_set_full_claims_json_str(jwt, payload) == RHN_OK) {
+  token = r_jwt_serialize_signed(jwt, jwk_key, 0); // token will store the signed token
+}
+
+r_free(token);
+r_jwt_free(jwt);
+r_jwk_free(jwk_key);
+```
+
+The same payload can be encrypted and serialized in an encrypted JWT using `RSA1_5` as key encryption algorithm and `A128CBC-HS256` as content encryption algorithm.
+
+The encrypted JWT of the payload above can be the following:
+
+```
+eyJhbGciOiJSU0ExXzUiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.QR1Owv2ug2WyPBnbQrRARTeEk9kDO2w8qDcjiHnSJflSdv1iNqhWXaKH4MqAkQtMoNfABIPJaZm0HaA415sv3aeuBWnD8J-Ui7Ah6cWafs3ZwwFKDFUUsWHSK-IPKxLGTkND09XyjORj_CHAgOPJ-Sd8ONQRnJvWn_hXV1BNMHzUjPyYwEsRhDhzjAD26imasOTsgruobpYGoQcXUwFDn7moXPRfDE8-NoQX7N7ZYMmpUDkR-Cx9obNGwJQ3nM52YCitxoQVPzjbl7WBuB7AohdBoZOdZ24WlN1lVIeh8v1K4krB8xgKvRU8kgFrEn_a1rZgN5TiysnmzTROF869lQ.AxY8DCtDaGlsbGljb3RoZQ.MKOle7UQrG6nSxTLX6Mqwt0orbHvAKeWnDYvpIAeZ72deHxz3roJDXQyhxx0wKaMHDjUEOKIwrtkHthpqEanSBNYHZgmNOV7sln1Eu9g3J8.fiK51VwhsxJ-siBMR-YFiA
+```
+
+#### Encrypted JWT
+
+An encrypted JWT can be created with Rhonabwy using the following sample code:
+
+```C
+#include <rhonabwy.h>
+
+jwt_t * jwt = NULL;
+jwk_t * jwk_key = NULL;
+const char payload[] = "{\"iss\":\"joe\",\"exp\":1300819380,\"http://example.com/is_root\":true}",
+jwk_pubkey_rsa_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
+                      "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
+                      "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\""\
+                      ",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2011-04-29\"}";
+char * token = NULL;
+
+if (r_jwk_init(&jwk_key) == RHN_OK && 
+    r_jwt_init(&jwt) == RHN_OK &&
+    r_jwk_import_from_json_str(jwk_key, jwk_pubkey_rsa_str) == RHN_OK && 
+    r_jwt_set_enc_alg(jwt, R_JWA_ALG_RSA1_5) == RHN_OK &&
+    r_jwt_set_enc(jwt, R_JWA_ENC_A128CBC) == RHN_OK &&
+    r_jwt_set_full_claims_json_str(jwt, payload) == RHN_OK) {
+  token = r_jwt_serialize_encrypted(jwt, jwk_key, 0); // token will store the encrypted token
+}
+
+r_free(token);
+r_jwt_free(jwt);
+r_jwk_free(jwk_key);
+```
+
+#### Nested JWT
+
+A nested JWT can be created with Rhonabwy using the following sample code:
+
+```C
+#include <rhonabwy.h>
+
+jwt_t * jwt = NULL;
+jwk_t * jwk_key = NULL, * jwk_key_sign = NULL;
+const char payload[] = "{\"iss\":\"joe\",\"exp\":1300819380,\"http://example.com/is_root\":true}",
+jwk_pubkey_rsa_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
+                      "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
+                      "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\""\
+                      ",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2011-04-29\"}",
+jwk_key_str[] = "{\"kty\":\"oct\",\"k\":\"AyM1SysPpbyDfgZld3umj1qzKObwVMkoqQ-EstJQLr_T-1qS0gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr1Z9CAow\"}";
+char * token = NULL;
+
+if (r_jwk_init(&jwk_key) == RHN_OK && 
+    r_jwk_init(&jwk_key_sign) == RHN_OK &&
+    r_jwt_init(&jwt) == RHN_OK &&
+    r_jwk_import_from_json_str(jwk_key, jwk_pubkey_rsa_str) == RHN_OK && 
+    r_jwk_import_from_json_str(jwk_key_sign, jwk_key_str) == RHN_OK && 
+    r_jwt_set_enc_alg(jwt, R_JWA_ALG_RSA1_5) == RHN_OK &&
+    r_jwt_set_enc(jwt, R_JWA_ENC_A128CBC) == RHN_OK &&
+    r_jwt_set_sign_alg(jwt, R_JWA_ALG_HS256) == RHN_OK &&
+    r_jwt_set_sign_alg(jwt, R_JWA_ALG_HS256) == RHN_OK &&
+    r_jwt_set_full_claims_json_str(jwt, payload) == RHN_OK) {
+  token = r_jwt_serialize_nested(jwt, R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT, jwk_key_sign, 0, jwk_key, 0); // token will store the nested token
+}
+
+r_free(token);
+r_jwt_free(jwt);
+r_jwk_free(jwk_key);
+```
+
+### Parse a JWT
+
+The functions `r_jwt_parse` and `r_jwt_parsen` will parse a serialized JWT. If public keys are present in the header, they will be added to the public keys list and can be used to verify the token signature.
+
+```C
+/**
+ * Parses the serialized JWT in all modes (compact, flattened or general)
+ * @param jwt: the jwt_t to update
+ * @param jwt_str: the serialized JWT to parse, must end with a NULL string terminator
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_parse(jwt_t * jwt, const char * jwt_str, int x5u_flags);
+
+/**
+ * Parses the serialized JWT in all modes (compact, flattened or general)
+ * @param jwt: the jwt_t to update
+ * @param jwt_str: the serialized JWT to parse
+ * @param jwt_str_len: the length of jwt_str to parse
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_parsen(jwt_t * jwt, const char * jwt_str, size_t jwt_str_len, int x5u_flags);
+```
+
+### Advanced parsing
+
+JWT standard allows to add in the JWT header a public key in several forms:
+- `jwk`: a public key in JWK format
+- `jku`: an url to a JWK Set
+- `x5c`: an array of X509 certificates
+- `x5u`: an url to a X509 certificate
+
+When using the functions `r_jwt_parse`, `r_jwt_parsen`, `r_jwt_compact_parse`, `r_jwt_compact_parsen`, `r_jwt_parse_unsecure`, `r_jwt_parsen_unsecure`, `r_jwt_compact_parsen_unsecure` and `r_jwt_compact_parse_unsecure`, by default, if a public key is mentionned in the header, it will be added to the `jwt->jwks_pubkey`, so the signature verification will not need to specify a key. This can be dangerous if the token comes from a untrustworthy source and if the token isn't checked properly.
+
+To simplify secure token parsing, you should use the functions `r_jwt_advanced_parse[n]`:
+
+```C
+/**
+ * Parses a serialized JWT
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
+ * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
+ * @param jwt: the jwt that will contain the parsed token
+ * @param token: the token to parse into a JWT, must end with a NULL string terminator
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_advanced_parse(jwt_t * jwt, const char * token, uint32_t parse_flags, int x5u_flags);
+
+/**
+ * Parses a serialized JWT
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
+ * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
+ * @param jwt: the jwt that will contain the parsed token
+ * @param token: the token to parse into a JWT
+ * @param token_len: token length
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_advanced_parsen(jwt_t * jwt, const char * token, size_t token_len, uint32_t parse_flags, int x5u_flags);
+```
+
+### Quick parsing
+
+The quick parsing functions can be used to parse a JWT in one line:
+
+```C
+/**
+ * Parses a serialized JWT
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
+ * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
+ * @param token: the token to parse into a JWT, must end with a NULL string terminator
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return a new jwt_t * on success, NULL on error
+ */
+jwt_t * r_jwt_quick_parse(const char * token, uint32_t parse_flags, int x5u_flags);
+
+/**
+ * Parses a serialized JWT
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
+ * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
+ * @param token: the token to parse into a JWT, must end with a NULL string terminator
+ * @param token_len: token length
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return a new jwt_t * on success, NULL on error
+ */
+jwt_t * r_jwt_quick_parsen(const char * token, size_t token_len, uint32_t parse_flags, int x5u_flags);
+```
+
+### Unsecured JWT
+
+It's possible to use Rhonabwy for unsecured JWT, with the header `alg:"none"` and an empty signature, using a dedicated set of functions: `r_jwt_parse_unsecure`, `r_jwt_parsen_unsecure` and `r_jwt_serialize_signed_unsecure`, or using `r_jwt_advanced_parse` with the `parse_flags` value `R_PARSE_UNSIGNED` set.
+
+#### Parse a unsecured JWT
+
+By default, the functions `r_jwt_parse` and `r_jwt_parsen` will return `RHN_ERROR_INVALID` if the parsed JWT is unsigned.
+To parse any JWT, signed or unsigned, you must use the functions `r_jwt_parse_unsecure` and `r_jwt_parsen_unsecure`, or using `r_jwt_advanced_parse` with the `parse_flags` value `R_PARSE_UNSIGNED` set.
+
+#### Serialize an unsecured JWT
+
+Use the function `r_jwt_serialize_signed_unsecure` to serialize an unsecured JWT.
+
+#### Signature verification
+
+The function `r_jwt_verify_signature` will return `RHN_ERROR_INVALID` if the JWT is unsecured.
+
+#### Nested JWT with an unsecured signature
+
+It's not possible to serialize or parse a nested JWT with an unsecured signature.
+
 ## JWS
 
 A JWS (JSON Web Signature) is a content digitally signed and serialized in a compact or JSON format that can be easily transferred in HTTP requests.
@@ -976,427 +1399,3 @@ jwe_t * r_jwe_quick_parse(const char * jwe_str, uint32_t parse_flags, int x5u_fl
  */
 jwe_t * r_jwe_quick_parsen(const char * jwe_str, size_t jwe_str_len, uint32_t parse_flags, int x5u_flags);
 ```
-
-## JWT
-
-Finally, a JWT (JSON Web Token) is a JSON content signed and/or encrypted and serialized in a compact format that can be easily transferred in HTTP requests. Technically, a JWT is a JWS or a JWE which payload is a stringified JSON and has the property `"type":"JWT"` in the header.
-
-A JWT can be nested, which means signed and encrypted, in which case the payload is signed as a JWS first, then the serialized signed token is used as the payload in a JWE, or the opposite.
-
-### Set values
-
-To set the values of the JWT (header, keys, payload, etc.), you can use the dedicated functions (see the documentation), or use the function `r_jwt_set_properties` to set multiple properties at once. The option list MUST end with the option `RHN_OPT_NONE`.
-
-```C
-/**
- * Add multiple properties to the jwt_t *
- * @param jwt: the jwt_t to set values
- * @param ...: set of values using a rhn_opt and following values
- */
-int r_jwt_set_properties(jwt_t * jwt, ...);
-```
-
-The available `rhn_opt` and their following values for a `jwt_t` are:
-
-```C
-RHN_OPT_HEADER_INT_VALUE, const char *, int
-RHN_OPT_HEADER_RHN_INT_VALUE, const char *, rhn_int_t
-RHN_OPT_HEADER_STR_VALUE, const char * const char *
-RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
-RHN_OPT_HEADER_FULL_JSON_T, json_t *
-RHN_OPT_HEADER_FULL_JSON_STR, const char *
-RHN_OPT_CLAIM_INT_VALUE, const char *, int
-RHN_OPT_CLAIM_RHN_INT_VALUE, const char *, rhn_int_t
-RHN_OPT_CLAIM_STR_VALUE, const char * const char *
-RHN_OPT_CLAIM_JSON_T_VALUE, const char *, json_t *
-RHN_OPT_CLAIM_FULL_JSON_T, json_t *
-RHN_OPT_CLAIM_FULL_JSON_STR, const char *
-RHN_OPT_SIG_ALG, jwa_alg
-RHN_OPT_ENC_ALG, jwa_alg
-RHN_OPT_ENC, jwa_enc
-RHN_OPT_CIPHER_KEY, const unsigned char *, size_t
-RHN_OPT_IV, const unsigned char *, size_t
-RHN_OPT_SIGN_KEY_JWK, jwk_t *
-RHN_OPT_SIGN_KEY_JWKS, jwks_t *
-RHN_OPT_SIGN_KEY_GNUTLS, gnutls_privkey_t
-RHN_OPT_SIGN_KEY_JSON_T, json_t *
-RHN_OPT_SIGN_KEY_JSON_STR, const char *
-RHN_OPT_SIGN_KEY_PEM_DER, uint, const unsigned char *, size_t
-RHN_OPT_VERIFY_KEY_JWK, jwk_t *
-RHN_OPT_VERIFY_KEY_JWKS, jwks_t *
-RHN_OPT_VERIFY_KEY_GNUTLS, gnutls_pubkey_t
-RHN_OPT_VERIFY_KEY_JSON_T, json_t *
-RHN_OPT_VERIFY_KEY_JSON_STR, const char *
-RHN_OPT_VERIFY_KEY_PEM_DER, uint, const unsigned char *, size_t
-RHN_OPT_ENCRYPT_KEY_JWK, jwk_t *
-RHN_OPT_ENCRYPT_KEY_JWKS, jwks_t *
-RHN_OPT_ENCRYPT_KEY_GNUTLS, gnutls_pubkey_t
-RHN_OPT_ENCRYPT_KEY_JSON_T, json_t *
-RHN_OPT_ENCRYPT_KEY_JSON_STR, const char *
-RHN_OPT_ENCRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
-RHN_OPT_DECRYPT_KEY_JWK, jwk_t *
-RHN_OPT_DECRYPT_KEY_JWKS, jwks_t *
-RHN_OPT_DECRYPT_KEY_GNUTLS, gnutls_privkey_t
-RHN_OPT_DECRYPT_KEY_JSON_T, json_t *
-RHN_OPT_DECRYPT_KEY_JSON_STR, const char *
-RHN_OPT_DECRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
-```
-
-Example of usage for `r_jwt_set_properties`:
-
-```C
-jwt_t * jwt;
-const unsigned char payload[] = {4, 8, 15, 16, 23, 42};
-jwk_t * jwk; // Set a private RSA key in this value
-r_jwt_set_properties(jwt, RHN_OPT_HEADER_INT_VALUE, "int", 42,
-                          RHN_OPT_HEADER_STR_VALUE, "str", "a value",
-                          RHN_OPT_HEADER_JSON_T_VALUE, "json", json_true(),
-                          RHN_OPT_CLAIM_FULL_JSON_STR, "{\"str\":\"grut\",\"int\":42,\"obj\":true}",
-                          RHN_OPT_SIG_ALG, R_JWA_ALG_RS256,
-                          RHN_OPT_SIGN_KEY_JWK, jwk,
-                          RHN_OPT_NONE); // Test if return value is RHN_OK
-char * token = r_jwt_serialize_signed(jwt, NULL, 0);
-}
-```
-
-### Verify a list of claims in the JWT
-
-The function int `int r_jwt_validate_claims(jwt_t * jwt, ...)` will help you verify the validity of some claims in the JWT.
-
-Claim types available
-- `R_JWT_CLAIM_ISS`: claim `"iss"`, values expected a string or `NULL` to validate the presence of the claim
-- `R_JWT_CLAIM_SUB`: claim `"sub"`, values expected a string or `NULL` to validate the presence of the claim
-- `R_JWT_CLAIM_AUD`: claim `"aud"`, values expected a string or `NULL` to validate the presence of the claim
-- `R_JWT_CLAIM_EXP`: claim `"exp"`, value expected `R_JWT_CLAIM_NOW` or an positive integer value or `R_JWT_CLAIM_PRESENT` to validate the presence of the claim
-- `R_JWT_CLAIM_NBF`: claim `"nbf"`, value expected `R_JWT_CLAIM_NOW` or an positive integer value or `R_JWT_CLAIM_PRESENT` to validate the presence of the claim
-- `R_JWT_CLAIM_IAT`: claim `"iat"`, value expected `R_JWT_CLAIM_NOW` or an positive integer value or `R_JWT_CLAIM_PRESENT` to validate the presence of the claim
-- `R_JWT_CLAIM_JTI`: claim `"jti"`, values expected a string or `NULL` to validate the presence of the claim
-- `R_JWT_CLAIM_STR`: the claim name specified must have the string value expected or `NULL` to validate the presence of the claim
-- `R_JWT_CLAIM_INT`: the claim name specified must have the integer value expected
-- `R_JWT_CLAIM_JSN`: the claim name specified must have the json_t * value expected or `NULL` to validate the presence of the claim
-- `R_JWT_CLAIM_TYP`: header parameter `"typ"` (type), values expected a string or `NULL` to validate the presence of the header parameter
-- `R_JWT_CLAIM_CTY`: header parameter `"cty"` (Content Type), values expected a string or `NULL` to validate the presence of the header parameter
-
-For example, the following code will check the jwt against the claim `iss` has the value `"https://example.com"`, the claim `sub` has the value `"client_1"`, the presence of the claim `aud`, the claim `exp` is after now, the claim `nbf` is before now, the claim `scope` has the value `"scope1"`, the claim `age` has the value `42` and the claim `verified` has the JSON value `true`:
-
-```C
-if (r_jwt_validate_claims(jwt, R_JWT_CLAIM_ISS, "https://example.com", 
-                               R_JWT_CLAIM_SUB, "client_1", 
-                               R_JWT_CLAIM_AUD, NULL, 
-                               R_JWT_CLAIM_EXP, R_JWT_CLAIM_NOW, 
-                               R_JWT_CLAIM_NBF, R_JWT_CLAIM_NOW, 
-                               R_JWT_CLAIM_STR, "scope", "scope1",
-                               R_JWT_CLAIM_INT, "age", 42,
-                               R_JWT_CLAIM_JSN, "verified", json_true(),
-                               R_JWT_CLAIM_NOP) == RHN_OK)
-```
-
-### Serialize a JWT using Rhonabwy
-
-Let's use the following JSON object in a JWT:
-
-```JSON
-{
-  "iss":"joe",
-  "exp":1300819380,
-  "http://example.com/is_root":true
-}
-```
-
-The JWT can be signed using the algorithm `HS256` and the following key:
-
-```JSON
-{
-  "kty":"oct",
-  "k":"AyM1SysPpbyDfgZld3umj1qzKObwVMkoqQ-EstJQLr_T-1qS0gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr1Z9CAow"
-}
-```
-
-The signed JWT serialized will be:
-
-```
-eyJ0eXAiOiJKV1QiLA0KICJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ.dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
-```
-
-#### Signed JWT
-
-The signed JWT above can be created with the following sample code:
-
-```C
-#include <rhonabwy.h>
-
-jwt_t * jwt = NULL;
-jwk_t * jwk_key = NULL;
-const char payload[] = "{\"iss\":\"joe\",\"exp\":1300819380,\"http://example.com/is_root\":true}",
-           jwk_key_str[] = "{\"kty\":\"oct\",\"k\":\"AyM1SysPpbyDfgZld3umj1qzKObwVMkoqQ-EstJQLr_T-1qS0gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr1Z9CAow\"}";
-char * token = NULL;
-
-if (r_jwk_init(&jwk_key) == RHN_OK && 
-    r_jwt_init(&jwt) == RHN_OK &&
-    r_jwk_import_from_json_str(jwk_key, jwk_key_str) == RHN_OK && 
-    r_jwt_set_sign_alg(jwt, R_JWA_ALG_HS256) == RHN_OK &&
-    r_jwt_set_full_claims_json_str(jwt, payload) == RHN_OK) {
-  token = r_jwt_serialize_signed(jwt, jwk_key, 0); // token will store the signed token
-}
-
-r_free(token);
-r_jwt_free(jwt);
-r_jwk_free(jwk_key);
-```
-
-The same payload can be encrypted and serialized in an encrypted JWT using `RSA1_5` as key encryption algorithm and `A128CBC-HS256` as content encryption algorithm.
-
-The encrypted JWT of the payload above can be the following:
-
-```
-eyJhbGciOiJSU0ExXzUiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.QR1Owv2ug2WyPBnbQrRARTeEk9kDO2w8qDcjiHnSJflSdv1iNqhWXaKH4MqAkQtMoNfABIPJaZm0HaA415sv3aeuBWnD8J-Ui7Ah6cWafs3ZwwFKDFUUsWHSK-IPKxLGTkND09XyjORj_CHAgOPJ-Sd8ONQRnJvWn_hXV1BNMHzUjPyYwEsRhDhzjAD26imasOTsgruobpYGoQcXUwFDn7moXPRfDE8-NoQX7N7ZYMmpUDkR-Cx9obNGwJQ3nM52YCitxoQVPzjbl7WBuB7AohdBoZOdZ24WlN1lVIeh8v1K4krB8xgKvRU8kgFrEn_a1rZgN5TiysnmzTROF869lQ.AxY8DCtDaGlsbGljb3RoZQ.MKOle7UQrG6nSxTLX6Mqwt0orbHvAKeWnDYvpIAeZ72deHxz3roJDXQyhxx0wKaMHDjUEOKIwrtkHthpqEanSBNYHZgmNOV7sln1Eu9g3J8.fiK51VwhsxJ-siBMR-YFiA
-```
-
-#### Encrypted JWT
-
-An encrypted JWT can be created with Rhonabwy using the following sample code:
-
-```C
-#include <rhonabwy.h>
-
-jwt_t * jwt = NULL;
-jwk_t * jwk_key = NULL;
-const char payload[] = "{\"iss\":\"joe\",\"exp\":1300819380,\"http://example.com/is_root\":true}",
-jwk_pubkey_rsa_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
-                      "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
-                      "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\""\
-                      ",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2011-04-29\"}";
-char * token = NULL;
-
-if (r_jwk_init(&jwk_key) == RHN_OK && 
-    r_jwt_init(&jwt) == RHN_OK &&
-    r_jwk_import_from_json_str(jwk_key, jwk_pubkey_rsa_str) == RHN_OK && 
-    r_jwt_set_enc_alg(jwt, R_JWA_ALG_RSA1_5) == RHN_OK &&
-    r_jwt_set_enc(jwt, R_JWA_ENC_A128CBC) == RHN_OK &&
-    r_jwt_set_full_claims_json_str(jwt, payload) == RHN_OK) {
-  token = r_jwt_serialize_encrypted(jwt, jwk_key, 0); // token will store the encrypted token
-}
-
-r_free(token);
-r_jwt_free(jwt);
-r_jwk_free(jwk_key);
-```
-
-#### Nested JWT
-
-A nested JWT can be created with Rhonabwy using the following sample code:
-
-```C
-#include <rhonabwy.h>
-
-jwt_t * jwt = NULL;
-jwk_t * jwk_key = NULL, * jwk_key_sign = NULL;
-const char payload[] = "{\"iss\":\"joe\",\"exp\":1300819380,\"http://example.com/is_root\":true}",
-jwk_pubkey_rsa_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
-                      "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
-                      "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\""\
-                      ",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2011-04-29\"}",
-jwk_key_str[] = "{\"kty\":\"oct\",\"k\":\"AyM1SysPpbyDfgZld3umj1qzKObwVMkoqQ-EstJQLr_T-1qS0gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr1Z9CAow\"}";
-char * token = NULL;
-
-if (r_jwk_init(&jwk_key) == RHN_OK && 
-    r_jwk_init(&jwk_key_sign) == RHN_OK &&
-    r_jwt_init(&jwt) == RHN_OK &&
-    r_jwk_import_from_json_str(jwk_key, jwk_pubkey_rsa_str) == RHN_OK && 
-    r_jwk_import_from_json_str(jwk_key_sign, jwk_key_str) == RHN_OK && 
-    r_jwt_set_enc_alg(jwt, R_JWA_ALG_RSA1_5) == RHN_OK &&
-    r_jwt_set_enc(jwt, R_JWA_ENC_A128CBC) == RHN_OK &&
-    r_jwt_set_sign_alg(jwt, R_JWA_ALG_HS256) == RHN_OK &&
-    r_jwt_set_sign_alg(jwt, R_JWA_ALG_HS256) == RHN_OK &&
-    r_jwt_set_full_claims_json_str(jwt, payload) == RHN_OK) {
-  token = r_jwt_serialize_nested(jwt, R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT, jwk_key_sign, 0, jwk_key, 0); // token will store the nested token
-}
-
-r_free(token);
-r_jwt_free(jwt);
-r_jwk_free(jwk_key);
-```
-
-### Parse a JWT
-
-The functions `r_jwt_parse` and `r_jwt_parsen` will parse a serialized JWT. If public keys are present in the header, they will be added to the public keys list and can be used to verify the token signature.
-
-```C
-/**
- * Parses the serialized JWT in all modes (compact, flattened or general)
- * @param jwt: the jwt_t to update
- * @param jwt_str: the serialized JWT to parse, must end with a NULL string terminator
- * @param x5u_flags: Flags to retrieve x5u certificates
- * pointed by x5u if necessary, could be 0 if not needed
- * Flags available are 
- * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
- * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
- * @return RHN_OK on success, an error value on error
- */
-int r_jwt_parse(jwt_t * jwt, const char * jwt_str, int x5u_flags);
-
-/**
- * Parses the serialized JWT in all modes (compact, flattened or general)
- * @param jwt: the jwt_t to update
- * @param jwt_str: the serialized JWT to parse
- * @param jwt_str_len: the length of jwt_str to parse
- * @param x5u_flags: Flags to retrieve x5u certificates
- * pointed by x5u if necessary, could be 0 if not needed
- * Flags available are 
- * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
- * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
- * @return RHN_OK on success, an error value on error
- */
-int r_jwt_parsen(jwt_t * jwt, const char * jwt_str, size_t jwt_str_len, int x5u_flags);
-```
-
-### Advanced parsing
-
-JWT standard allows to add in the JWT header a public key in several forms:
-- `jwk`: a public key in JWK format
-- `jku`: an url to a JWK Set
-- `x5c`: an array of X509 certificates
-- `x5u`: an url to a X509 certificate
-
-When using the functions `r_jwt_parse`, `r_jwt_parsen`, `r_jwt_compact_parse`, `r_jwt_compact_parsen`, `r_jwt_parse_unsecure`, `r_jwt_parsen_unsecure`, `r_jwt_compact_parsen_unsecure` and `r_jwt_compact_parse_unsecure`, by default, if a public key is mentionned in the header, it will be added to the `jwt->jwks_pubkey`, so the signature verification will not need to specify a key. This can be dangerous if the token comes from a untrustworthy source and if the token isn't checked properly.
-
-To simplify secure token parsing, you should use the functions `r_jwt_advanced_parse[n]`:
-
-```C
-/**
- * Parses a serialized JWT
- * If the JWT is signed only, the claims will be available
- * If the JWT is encrypted, the claims will not be accessible until
- * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
- * @param jwt: the jwt that will contain the parsed token
- * @param token: the token to parse into a JWT, must end with a NULL string terminator
- * @param parse_flags: Flags to set or unset options
- * Flags available are
- * - R_PARSE_NONE
- * - R_PARSE_HEADER_JWK
- * - R_PARSE_HEADER_JKU
- * - R_PARSE_HEADER_X5C
- * - R_PARSE_HEADER_X5U
- * - R_PARSE_HEADER_ALL
- * - R_PARSE_UNSIGNED
- * - R_PARSE_ALL
- * @param x5u_flags: Flags to retrieve x5u certificates
- * pointed by x5u if necessary, could be 0 if not needed
- * Flags available are 
- * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
- * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
- * @return RHN_OK on success, an error value on error
- */
-int r_jwt_advanced_parse(jwt_t * jwt, const char * token, uint32_t parse_flags, int x5u_flags);
-
-/**
- * Parses a serialized JWT
- * If the JWT is signed only, the claims will be available
- * If the JWT is encrypted, the claims will not be accessible until
- * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
- * @param jwt: the jwt that will contain the parsed token
- * @param token: the token to parse into a JWT
- * @param token_len: token length
- * @param parse_flags: Flags to set or unset options
- * Flags available are
- * - R_PARSE_NONE
- * - R_PARSE_HEADER_JWK
- * - R_PARSE_HEADER_JKU
- * - R_PARSE_HEADER_X5C
- * - R_PARSE_HEADER_X5U
- * - R_PARSE_HEADER_ALL
- * - R_PARSE_UNSIGNED
- * - R_PARSE_ALL
- * @param x5u_flags: Flags to retrieve x5u certificates
- * pointed by x5u if necessary, could be 0 if not needed
- * Flags available are 
- * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
- * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
- * @return RHN_OK on success, an error value on error
- */
-int r_jwt_advanced_parsen(jwt_t * jwt, const char * token, size_t token_len, uint32_t parse_flags, int x5u_flags);
-```
-
-### Quick parsing
-
-The quick parsing functions can be used to parse a JWT in one line:
-
-```C
-/**
- * Parses a serialized JWT
- * If the JWT is signed only, the claims will be available
- * If the JWT is encrypted, the claims will not be accessible until
- * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
- * @param token: the token to parse into a JWT, must end with a NULL string terminator
- * @param parse_flags: Flags to set or unset options
- * Flags available are
- * - R_PARSE_NONE
- * - R_PARSE_HEADER_JWK
- * - R_PARSE_HEADER_JKU
- * - R_PARSE_HEADER_X5C
- * - R_PARSE_HEADER_X5U
- * - R_PARSE_HEADER_ALL
- * - R_PARSE_UNSIGNED
- * - R_PARSE_ALL
- * @param x5u_flags: Flags to retrieve x5u certificates
- * pointed by x5u if necessary, could be 0 if not needed
- * Flags available are 
- * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
- * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
- * @return a new jwt_t * on success, NULL on error
- */
-jwt_t * r_jwt_quick_parse(const char * token, uint32_t parse_flags, int x5u_flags);
-
-/**
- * Parses a serialized JWT
- * If the JWT is signed only, the claims will be available
- * If the JWT is encrypted, the claims will not be accessible until
- * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
- * @param token: the token to parse into a JWT, must end with a NULL string terminator
- * @param token_len: token length
- * @param parse_flags: Flags to set or unset options
- * Flags available are
- * - R_PARSE_NONE
- * - R_PARSE_HEADER_JWK
- * - R_PARSE_HEADER_JKU
- * - R_PARSE_HEADER_X5C
- * - R_PARSE_HEADER_X5U
- * - R_PARSE_HEADER_ALL
- * - R_PARSE_UNSIGNED
- * - R_PARSE_ALL
- * @param x5u_flags: Flags to retrieve x5u certificates
- * pointed by x5u if necessary, could be 0 if not needed
- * Flags available are 
- * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
- * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
- * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
- * @return a new jwt_t * on success, NULL on error
- */
-jwt_t * r_jwt_quick_parsen(const char * token, size_t token_len, uint32_t parse_flags, int x5u_flags);
-```
-
-### Unsecured JWT
-
-It's possible to use Rhonabwy for unsecured JWT, with the header `alg:"none"` and an empty signature, using a dedicated set of functions: `r_jwt_parse_unsecure`, `r_jwt_parsen_unsecure` and `r_jwt_serialize_signed_unsecure`, or using `r_jwt_advanced_parse` with the `parse_flags` value `R_PARSE_UNSIGNED` set.
-
-#### Parse a unsecured JWT
-
-By default, the functions `r_jwt_parse` and `r_jwt_parsen` will return `RHN_ERROR_INVALID` if the parsed JWT is unsigned.
-To parse any JWT, signed or unsigned, you must use the functions `r_jwt_parse_unsecure` and `r_jwt_parsen_unsecure`, or using `r_jwt_advanced_parse` with the `parse_flags` value `R_PARSE_UNSIGNED` set.
-
-#### Serialize an unsecured JWT
-
-Use the function `r_jwt_serialize_signed_unsecure` to serialize an unsecured JWT.
-
-#### Signature verification
-
-The function `r_jwt_verify_signature` will return `RHN_ERROR_INVALID` if the JWT is unsecured.
-
-#### Nested JWT with an unsecured signature
-
-It's not possible to serialize or parse a nested JWT with an unsecured signature.

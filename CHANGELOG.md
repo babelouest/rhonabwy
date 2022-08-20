@@ -4,6 +4,8 @@
 
 - Do not ignore whitespaces when parsing tokens
 - Enforce key verification
+- Security: Fix RSA-OAEP decryption key length check
+- Add examples
 
 ## 1.1.6
 

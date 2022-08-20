@@ -216,9 +216,6 @@ pkcs1_eme_oaep_encode (size_t key_size,
   uint8_t lHash[hlen], k[hlen], seedMask[hlen], maskedSeed[hlen];
   int ret = 1;
 
-  if (label_length > 2305843009213693951)
-    return 0;
-
   if (key_size < (2*hlen) - 2 || message_length > key_size - (2*hlen) - 2)
     {
       return 0;

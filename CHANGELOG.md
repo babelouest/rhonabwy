@@ -4,7 +4,7 @@
 
 - Do not ignore whitespaces when parsing tokens
 - Enforce key verification
-- Security: Fix RSA-OAEP decryption key length check
+- Security: Fix RSA-OAEP decryption key length check ([CVE-2022-38493](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-38493))
 - Add examples
 
 ## 1.1.6

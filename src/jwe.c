@@ -37,8 +37,9 @@
 
 #define _R_PBES_DEFAULT_ITERATION 4096
 #define _R_PBES_DEFAULT_SALT_LENGTH 8
-#define _R_CURVE_MAX_SIZE 64
+#define _R_CURVE_MAX_SIZE 66
 
+// AES KeyWrap (includes)
 #if NETTLE_VERSION_NUMBER >= 0x030400
 #include <nettle/hmac.h>
 #include <nettle/aes.h>
@@ -46,11 +47,13 @@
 #include <nettle/bignum.h>
 #endif
 
+// RSA OAEP (includes)
 #if NETTLE_VERSION_NUMBER >= 0x030400
 #include <nettle/pss-mgf1.h>
 #include <nettle/rsa.h>
 #endif
 
+// ECDH key management (includes)
 #if NETTLE_VERSION_NUMBER >= 0x030600
 #include <nettle/curve25519.h>
 #include <nettle/curve448.h>
@@ -60,8 +63,633 @@
 #include <nettle/ecc-curve.h>
 #endif
 
-#if NETTLE_VERSION_NUMBER >= 0x030600
+// RSA OAEP
+// https://git.lysator.liu.se/nettle/nettle/-/merge_requests/20
+#if NETTLE_VERSION_NUMBER >= 0x030400
+int
+pkcs1_eme_oaep_decode (size_t key_size,
+	       const mpz_t m,
+	       /* Hash function */
+	       size_t hlen,
+	       void * ctx, const struct nettle_hash *hash, nettle_hash_init_func *hash_init, nettle_hash_update_func *hash_update, nettle_hash_digest_func *hash_digest,
+	       size_t label_length, const uint8_t *label,
+	       size_t *length, uint8_t *message)
+{
+  int ret = 1;
+  size_t dbMask_len = key_size-1-hlen, i;
+  uint8_t lHash[hlen], k[hlen], seedMask[hlen], maskedSeed[hlen];
 
+  uint8_t *em, *maskedDB, *dbMask, *db;
+
+  em = o_malloc(key_size);
+  maskedDB = o_malloc(dbMask_len);
+  dbMask = o_malloc(dbMask_len);
+  db = o_malloc(dbMask_len);
+
+  // lHash = Hash(L)
+  hash_init(ctx);
+  hash_update(ctx, label_length, label);
+  hash_digest(ctx, hlen, lHash);
+
+  nettle_mpz_get_str_256(key_size, em, m);
+
+  if (em[0])
+    {
+      ret = 0;
+    }
+
+  memcpy(maskedSeed, em+1, hlen);
+  memcpy(maskedDB, em+1+hlen, key_size-1-hlen);
+
+  // seedMask = MGF(maskedDB, hLen).
+  hash_init(ctx);
+  hash_update(ctx, dbMask_len, maskedDB);
+  pss_mgf1(ctx, hash, hlen, seedMask);
+
+  // seed = maskedSeed \xor seedMask.
+  for (i=0; i<hlen; i++)
+    {
+      k[i] = maskedSeed[i]^seedMask[i];
+    }
+
+  // dbMask = MGF(seed, k - hLen - 1).
+  hash_init(ctx);
+  hash_update(ctx, hlen, k);
+  pss_mgf1(ctx, hash, dbMask_len, dbMask);
+
+  // DB = maskedDB \xor dbMask.
+  for (i=0; i<dbMask_len; i++)
+    {
+      db[i] = maskedDB[i]^dbMask[i];
+    }
+
+  if (!memeql_sec(db, lHash, hlen))
+    {
+      ret = 0;
+    }
+
+  for (i=hlen; i<dbMask_len-1; i++)
+    {
+      if (db[i] == 0x01)
+      {
+        break;
+      }
+    }
+
+  if (i < dbMask_len-1 && *length >= dbMask_len-i-1 && i < dbMask_len-1)
+  {
+    *length = dbMask_len-i-1;
+    memcpy(message, db+i+1, *length);
+  }
+  else
+  {
+    ret = 0;
+  }
+
+  o_free(em);
+  o_free(maskedDB);
+  o_free(dbMask);
+  o_free(db);
+
+  return ret;
+}
+
+int
+rsaes_oaep_sha1_decrypt(const struct rsa_private_key *key,
+	    size_t label_length, const uint8_t *label,
+	    size_t *length, uint8_t *message,
+	    const mpz_t gibberish)
+{
+  mpz_t m;
+  int res;
+  struct sha1_ctx ctx;
+
+  if (nettle_mpz_sizeinbase_256_u (gibberish) > key->size ||
+      key->size < (2*SHA1_DIGEST_SIZE)+2) {
+    return 0;
+  }
+  mpz_init(m);
+  rsa_compute_root(key, m, gibberish);
+
+  res = pkcs1_eme_oaep_decode (key->size, m, SHA1_DIGEST_SIZE,
+                            &ctx, &nettle_sha1, (nettle_hash_init_func*)&sha1_init, (nettle_hash_update_func*)&sha1_update, (nettle_hash_digest_func*)&sha1_digest,
+                            label_length, label, length, message);
+  mpz_clear(m);
+  return res;
+}
+
+int
+rsaes_oaep_sha256_decrypt(const struct rsa_private_key *key,
+	    size_t label_length, const uint8_t *label,
+	    size_t *length, uint8_t *message,
+	    const mpz_t gibberish)
+{
+  mpz_t m;
+  int res;
+  struct sha256_ctx ctx;
+
+  if (nettle_mpz_sizeinbase_256_u (gibberish) > key->size ||
+      key->size < (2*SHA256_DIGEST_SIZE)+2) {
+    return 0;
+  }
+  mpz_init(m);
+  rsa_compute_root(key, m, gibberish);
+
+  res = pkcs1_eme_oaep_decode (key->size, m, SHA256_DIGEST_SIZE,
+                            &ctx, &nettle_sha256, (nettle_hash_init_func*)&sha256_init, (nettle_hash_update_func*)&sha256_update, (nettle_hash_digest_func*)&sha256_digest,
+                            label_length, label, length, message);
+  mpz_clear(m);
+  return res;
+}
+
+int
+pkcs1_eme_oaep_encode (size_t key_size,
+	       void *random_ctx, nettle_random_func *random,
+	       /* Hash function */
+	       size_t hlen,
+	       void * ctx, const struct nettle_hash *hash, nettle_hash_init_func *hash_init, nettle_hash_update_func *hash_update, nettle_hash_digest_func *hash_digest,
+	       size_t label_length, const uint8_t *label,
+	       size_t message_length, const uint8_t *message,
+	       mpz_t m)
+{
+  size_t ps_len = key_size - message_length - (2*hlen) - 2, dbMask_len = key_size - hlen - 1, i;
+  uint8_t lHash[hlen], k[hlen], seedMask[hlen], maskedSeed[hlen];
+  int ret = 1;
+
+  if (label_length > 2305843009213693951)
+    return 0;
+
+  if (key_size < (2*hlen) - 2 || message_length > key_size - (2*hlen) - 2)
+    {
+      return 0;
+    }
+  uint8_t *em, *maskedDB, *dbMask, *db;
+
+  em = o_malloc(dbMask_len + hlen + 1);
+  maskedDB = o_malloc(dbMask_len);
+  dbMask = o_malloc(dbMask_len);
+  db = o_malloc(dbMask_len);
+
+  // lHash = Hash(L)
+  hash_init(ctx);
+  hash_update(ctx, label_length, label);
+  hash_digest(ctx, hlen, lHash);
+
+  // DB = lHash || PS || 0x01 || M.
+
+  memcpy(db, lHash, hlen);
+  memset(db+hlen, 0, ps_len);
+  memset(db+hlen+ps_len, 1, 1);
+  memcpy(db+hlen+ps_len+1, message, message_length);
+
+  random(random_ctx, hlen, k);
+
+  // dbMask = MGF(seed, k - hLen - 1).
+  hash_init(ctx);
+  hash_update(ctx, hlen, k);
+  pss_mgf1(ctx, hash, dbMask_len, dbMask);
+
+  // maskedDB = DB \xor dbMask.
+  for (i=0; i<dbMask_len; i++)
+    {
+      maskedDB[i] = db[i]^dbMask[i];
+    }
+
+  // seedMask = MGF(maskedDB, hLen).
+  memset(seedMask, 0, hlen);
+  hash_init(ctx);
+  hash_update(ctx, dbMask_len, maskedDB);
+  pss_mgf1(ctx, hash, hlen, seedMask);
+
+  // maskedSeed = seed \xor seedMask.
+  for (i=0; i<hlen; i++)
+    {
+      maskedSeed[i] = k[i]^seedMask[i];
+    }
+
+  // EM = 0x00 || maskedSeed || maskedDB.
+
+  em[0] = 0;
+  memcpy(em+1, maskedSeed, hlen);
+  memcpy(em+1+hlen, maskedDB, dbMask_len);
+
+  nettle_mpz_set_str_256_u(m, dbMask_len + hlen + 1, em);
+
+  o_free(db);
+  o_free(dbMask);
+  o_free(maskedDB);
+  o_free(em);
+
+  return ret;
+}
+
+int
+rsaes_oaep_sha1_encrypt(const struct rsa_public_key *key,
+	    void *random_ctx, nettle_random_func *random,
+	    size_t label_length, const uint8_t *label,
+	    size_t length, const uint8_t *message,
+	    mpz_t gibberish)
+{
+  struct sha1_ctx ctx;
+  if (pkcs1_eme_oaep_encode (key->size, random_ctx, random,
+         SHA1_DIGEST_SIZE,
+         &ctx, &nettle_sha1, (nettle_hash_init_func*)&sha1_init, (nettle_hash_update_func*)&sha1_update, (nettle_hash_digest_func*)&sha1_digest,
+         label_length, label,
+		     length, message, gibberish))
+    {
+      mpz_powm(gibberish, gibberish, key->e, key->n);
+      return 1;
+    }
+  else
+    return 0;
+}
+
+int
+rsaes_oaep_sha256_encrypt(const struct rsa_public_key *key,
+	    void *random_ctx, nettle_random_func *random,
+	    size_t label_length, const uint8_t *label,
+	    size_t length, const uint8_t *message,
+	    mpz_t gibberish)
+{
+  struct sha256_ctx ctx;
+  if (pkcs1_eme_oaep_encode (key->size, random_ctx, random,
+         SHA256_DIGEST_SIZE,
+         &ctx, &nettle_sha256, (nettle_hash_init_func*)&sha256_init, (nettle_hash_update_func*)&sha256_update, (nettle_hash_digest_func*)&sha256_digest,
+         label_length, label,
+		     length, message, gibberish))
+    {
+      mpz_powm(gibberish, gibberish, key->e, key->n);
+      return 1;
+    }
+  else
+    return 0;
+}
+
+static void rnd_nonce_func(void *_ctx, size_t length, uint8_t * data)
+{
+  (void)_ctx;
+	gnutls_rnd(GNUTLS_RND_NONCE, data, length);
+}
+
+static int _r_rsa_oaep_encrypt(gnutls_pubkey_t g_pub, jwa_alg alg, uint8_t * cleartext, size_t cleartext_len, uint8_t * ciphertext, size_t * cyphertext_len) {
+  struct rsa_public_key pub;
+  gnutls_datum_t m = {NULL, 0}, e = {NULL, 0};
+  int ret = RHN_OK;
+  mpz_t gibberish;
+
+  rsa_public_key_init(&pub);
+  mpz_init(gibberish);
+  if (gnutls_pubkey_export_rsa_raw(g_pub, &m, &e) == GNUTLS_E_SUCCESS) {
+    mpz_import(pub.n, m.size, 1, 1, 0, 0, m.data);
+    mpz_import(pub.e, e.size, 1, 1, 0, 0, e.data);
+    rsa_public_key_prepare(&pub);
+    if (*cyphertext_len >= pub.size) {
+      if (alg == R_JWA_ALG_RSA_OAEP) {
+        if (!rsaes_oaep_sha1_encrypt(&pub, NULL, rnd_nonce_func, 0, NULL, cleartext_len, cleartext, gibberish)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error rsaes_oaep_sha1_encrypt");
+          ret = RHN_ERROR;
+        }
+      } else {
+        if (!rsaes_oaep_sha256_encrypt(&pub, NULL, rnd_nonce_func, 0, NULL, cleartext_len, cleartext, gibberish)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error rsaes_oaep_sha256_encrypt");
+          ret = RHN_ERROR;
+        }
+      }
+      if (ret == RHN_OK) {
+        nettle_mpz_get_str_256(pub.size, ciphertext, gibberish);
+        *cyphertext_len = pub.size;
+      }
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error cyphertext to small");
+      ret = RHN_ERROR_PARAM;
+    }
+    gnutls_free(m.data);
+    gnutls_free(e.data);
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error gnutls_pubkey_export_rsa_raw");
+    ret = RHN_ERROR;
+  }
+  rsa_public_key_clear(&pub);
+  mpz_clear(gibberish);
+
+  return ret;
+}
+
+static int _r_rsa_oaep_decrypt(gnutls_privkey_t g_priv, jwa_alg alg, uint8_t * ciphertext, size_t cyphertext_len, uint8_t * cleartext, size_t * cleartext_len) {
+  struct rsa_private_key priv;
+  gnutls_datum_t m = {NULL, 0}, e = {NULL, 0}, d = {NULL, 0}, p = {NULL, 0}, q = {NULL, 0}, u = {NULL, 0}, e1 = {NULL, 0}, e2 = {NULL, 0};
+  int ret = RHN_OK;
+  mpz_t gibberish;
+
+  rsa_private_key_init(&priv);
+  mpz_init(gibberish);
+  nettle_mpz_set_str_256_u(gibberish, cyphertext_len, ciphertext);
+  if (gnutls_privkey_export_rsa_raw(g_priv, &m, &e, &d, &p, &q, &u, &e1, &e2) == GNUTLS_E_SUCCESS) {
+    mpz_import(priv.d, d.size, 1, 1, 0, 0, d.data);
+    mpz_import(priv.p, p.size, 1, 1, 0, 0, p.data);
+    mpz_import(priv.q, q.size, 1, 1, 0, 0, q.data);
+    mpz_import(priv.a, e1.size, 1, 1, 0, 0, e1.data);
+    mpz_import(priv.b, e2.size, 1, 1, 0, 0, e2.data);
+    mpz_import(priv.c, u.size, 1, 1, 0, 0, u.data);
+    rsa_private_key_prepare(&priv);
+    if (cyphertext_len >= priv.size) {
+      if (alg == R_JWA_ALG_RSA_OAEP) {
+        if (!rsaes_oaep_sha1_decrypt(&priv, 0, NULL, cleartext_len, cleartext, gibberish)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_decrypt - Error rsaes_oaep_sha1_decrypt");
+          ret = RHN_ERROR;
+        }
+      } else {
+        if (!rsaes_oaep_sha256_decrypt(&priv, 0, NULL, cleartext_len, cleartext, gibberish)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_decrypt - Error rsaes_oaep_sha256_decrypt");
+          ret = RHN_ERROR;
+        }
+      }
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_decrypt - Error cyphertext to small");
+      ret = RHN_ERROR_PARAM;
+    }
+    gnutls_free(m.data);
+    gnutls_free(e.data);
+    gnutls_free(d.data);
+    gnutls_free(p.data);
+    gnutls_free(q.data);
+    gnutls_free(u.data);
+    gnutls_free(e1.data);
+    gnutls_free(e2.data);
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error gnutls_pubkey_export_rsa_raw");
+    ret = RHN_ERROR;
+  }
+  rsa_private_key_clear(&priv);
+  mpz_clear(gibberish);
+
+  return ret;
+}
+#endif
+
+// AES KeyWrap
+// https://git.lysator.liu.se/nettle/nettle/-/merge_requests/19
+#if NETTLE_VERSION_NUMBER >= 0x030400
+static void
+nist_keywrap16(const void *ctx, nettle_cipher_func *encrypt,
+               const uint8_t *iv, size_t ciphertext_length,
+               uint8_t *ciphertext, const uint8_t *cleartext) {
+  uint8_t * R = NULL, A[8] = {0}, I[16] = {0}, B[16] = {0};
+  uint64_t A64;
+  size_t i, j, n;
+
+  if ((R = o_malloc(ciphertext_length-8)) == NULL)
+    return;
+
+  n = (ciphertext_length-8)/8;
+  memcpy(R, cleartext, (ciphertext_length-8));
+  memcpy(A, iv, 8);
+
+  for (j=0; j<6; j++) {
+    for (i=0; i<n; i++) {
+      // I = A | R[1]
+      memcpy(I, A, 8);
+      memcpy(I+8, R+(i*8), 8);
+
+      // B = AES(K, I)
+      encrypt(ctx, 16, B, I);
+
+      // A = MSB(64, B) ^ t where t = (n*j)+i
+      A64 = ((uint64_t)B[0] << 56) | ((uint64_t)B[1] << 48) | ((uint64_t)B[2] << 40) | ((uint64_t)B[3] << 32) | ((uint64_t)B[4] << 24) | ((uint64_t)B[5] << 16) | ((uint64_t)B[6] << 8) | (uint64_t)B[7];
+      A64 ^= (n*j)+(i+1);
+      A[7] = (uint8_t)A64;
+      A[6] = (uint8_t)(A64 >> 8);
+      A[5] = (uint8_t)(A64 >> 16);
+      A[4] = (uint8_t)(A64 >> 24);
+      A[3] = (uint8_t)(A64 >> 32);
+      A[2] = (uint8_t)(A64 >> 40);
+      A[1] = (uint8_t)(A64 >> 48);
+      A[0] = (uint8_t)(A64 >> 56);
+
+      //  R[i] = LSB(64, B)
+      memcpy(R+(i*8), B+8, 8);
+
+    }
+  }
+
+  memcpy(ciphertext, A, 8);
+  memcpy(ciphertext+8, R, (ciphertext_length-8));
+  o_free(R);
+}
+
+static int
+nist_keyunwrap16(const void *ctx, nettle_cipher_func *decrypt,
+                 const uint8_t *iv, size_t cleartext_length,
+                 uint8_t *cleartext, const uint8_t *ciphertext) {
+  uint8_t * R = NULL, A[8] = {0}, I[16] = {0}, B[16] = {0};
+  uint64_t A64;
+  int i, j, ret;
+  size_t n;
+
+  if ((R = o_malloc(cleartext_length)) == NULL)
+    return 0;
+
+  n = (cleartext_length/8);
+  memcpy(A, ciphertext, 8);
+  memcpy(R, ciphertext+8, cleartext_length);
+
+  for (j=5; j>=0; j--) {
+    for (i=n-1; i>=0; i--) {
+
+      // B = AES-1(K, (A ^ t) | R[i]) where t = n*j+i
+      A64 = ((uint64_t)A[0] << 56) | ((uint64_t)A[1] << 48) | ((uint64_t)A[2] << 40) | ((uint64_t)A[3] << 32) | ((uint64_t)A[4] << 24) | ((uint64_t)A[5] << 16) | ((uint64_t)A[6] << 8) | (uint64_t)A[7];
+      A64 ^= (n*j)+(i+1);
+      I[7] = (uint8_t)A64;
+      I[6] = (uint8_t)(A64 >> 8);
+      I[5] = (uint8_t)(A64 >> 16);
+      I[4] = (uint8_t)(A64 >> 24);
+      I[3] = (uint8_t)(A64 >> 32);
+      I[2] = (uint8_t)(A64 >> 40);
+      I[1] = (uint8_t)(A64 >> 48);
+      I[0] = (uint8_t)(A64 >> 56);
+      memcpy(I+8, R+(i*8), 8);
+      decrypt(ctx, 16, B, I);
+
+      // A = MSB(64, B)
+      memcpy(A, B, 8);
+
+      // R[i] = LSB(64, B)
+      memcpy(R+(i*8), B+8, 8);
+    }
+  }
+
+  if (memeql_sec(A, iv, 8)) {
+    memcpy(cleartext, R, cleartext_length);
+    ret = 1;
+  } else {
+    ret = 0;
+  }
+  o_free(R);
+  return ret;
+}
+
+static void _r_aes_key_wrap(uint8_t * kek, size_t kek_len, uint8_t * key, size_t key_len, uint8_t * wrapped_key) {
+  struct aes128_ctx ctx_128;
+  struct aes192_ctx ctx_192;
+  struct aes256_ctx ctx_256;
+  void * ctx = NULL;
+  nettle_cipher_func * encrypt = NULL;
+  const uint8_t default_iv[] = {0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6};
+
+  if (kek_len == 16) {
+    aes128_set_encrypt_key(&ctx_128, kek);
+    ctx = (void*)&ctx_128;
+    encrypt = (nettle_cipher_func*)&aes128_encrypt;
+  }
+  if (kek_len == 24) {
+    aes192_set_encrypt_key(&ctx_192, kek);
+    ctx = (void*)&ctx_192;
+    encrypt = (nettle_cipher_func*)&aes192_encrypt;
+  }
+  if (kek_len == 32) {
+    aes256_set_encrypt_key(&ctx_256, kek);
+    ctx = (void*)&ctx_256;
+    encrypt = (nettle_cipher_func*)&aes256_encrypt;
+  }
+  nist_keywrap16(ctx, encrypt, default_iv, key_len+8, wrapped_key, key);
+}
+
+static int _r_aes_key_unwrap(uint8_t * kek, size_t kek_len, uint8_t * key, size_t key_len, uint8_t * wrapped_key) {
+  struct aes128_ctx ctx_128;
+  struct aes192_ctx ctx_192;
+  struct aes256_ctx ctx_256;
+  void * ctx = NULL;
+  nettle_cipher_func * decrypt = NULL;
+  const uint8_t default_iv[] = {0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6};
+
+  if (kek_len == 16) {
+    aes128_set_decrypt_key(&ctx_128, kek);
+    ctx = (void*)&ctx_128;
+    decrypt = (nettle_cipher_func*)&aes128_decrypt;
+  }
+  if (kek_len == 24) {
+    aes192_set_decrypt_key(&ctx_192, kek);
+    ctx = (void*)&ctx_192;
+    decrypt = (nettle_cipher_func*)&aes192_decrypt;
+  }
+  if (kek_len == 32) {
+    aes256_set_decrypt_key(&ctx_256, kek);
+    ctx = (void*)&ctx_256;
+    decrypt = (nettle_cipher_func*)&aes256_decrypt;
+  }
+  return nist_keyunwrap16(ctx, decrypt, default_iv, key_len, key, wrapped_key);
+}
+
+static json_t * r_jwe_aes_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u_flags, int * ret) {
+  uint8_t kek[32] = {0}, wrapped_key[72] = {0};
+  unsigned char cipherkey_b64url[256] = {0};
+  size_t kek_len = 32, cipherkey_b64url_len = 0;
+  unsigned int bits = 0;
+  json_t * j_return = NULL;
+
+  if (r_jwk_key_type(jwk, &bits, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
+    do {
+      if (alg == R_JWA_ALG_A128KW && bits != 128) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error invalid key size, expected 128 bits");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+      if (alg == R_JWA_ALG_A192KW && bits != 192) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error invalid key size, expected 192 bits");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+      if (alg == R_JWA_ALG_A256KW && bits != 256) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error invalid key size, expected 256 bits");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+      if (r_jwk_export_to_symmetric_key(jwk, kek, &kek_len) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error r_jwk_export_to_symmetric_key");
+        *ret = RHN_ERROR;
+        break;
+      }
+      _r_aes_key_wrap(kek, kek_len, jwe->key, jwe->key_len, wrapped_key);
+      if (!o_base64url_encode(wrapped_key, jwe->key_len+8, cipherkey_b64url, &cipherkey_b64url_len)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error o_base64url_encode wrapped_key");
+        *ret = RHN_ERROR;
+        break;
+      }
+      j_return = json_pack("{ss%s{ss}}", "encrypted_key", cipherkey_b64url, cipherkey_b64url_len, "header", "alg", r_jwa_alg_to_str(alg));
+      o_free(jwe->encrypted_key_b64url);
+      jwe->encrypted_key_b64url = (unsigned char *)o_strndup((const char *)cipherkey_b64url, cipherkey_b64url_len);
+    } while (0);
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error invalid key");
+    *ret = RHN_ERROR_PARAM;
+  }
+  return j_return;
+}
+
+static int r_jwe_aes_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u_flags) {
+  int ret;
+  uint8_t kek[32] = {0}, key_data[64], cipherkey[128] = {0};
+  size_t kek_len = 32, cipherkey_len = 0;
+  unsigned int bits = 0;
+
+  if (r_jwk_key_type(jwk, &bits, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
+    ret = RHN_OK;
+
+    do {
+      if (alg == R_JWA_ALG_A128KW && bits != 128) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error invalid key size, expected 128 bits");
+        ret = RHN_ERROR_INVALID;
+        break;
+      }
+      if (alg == R_JWA_ALG_A192KW && bits != 192) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error invalid key size, expected 192 bits");
+        ret = RHN_ERROR_INVALID;
+        break;
+      }
+      if (alg == R_JWA_ALG_A256KW && bits != 256) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error invalid key size, expected 256 bits");
+        ret = RHN_ERROR_INVALID;
+        break;
+      }
+      if (r_jwk_export_to_symmetric_key(jwk, kek, &kek_len) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error r_jwk_export_to_symmetric_key");
+        ret = RHN_ERROR;
+        break;
+      }
+      if (!o_base64url_decode(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), NULL, &cipherkey_len)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error o_base64url_decode cipherkey");
+        ret = RHN_ERROR_INVALID;
+        break;
+      }
+      if (cipherkey_len > 72) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error invalid cipherkey len");
+        ret = RHN_ERROR_INVALID;
+        break;
+      }
+      if (!o_base64url_decode(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), cipherkey, &cipherkey_len)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error o_base64url_decode cipherkey");
+        ret = RHN_ERROR_INVALID;
+        break;
+      }
+      if (!_r_aes_key_unwrap(kek, kek_len, key_data, cipherkey_len-8, cipherkey)) {
+        ret = RHN_ERROR_INVALID;
+        break;
+      }
+      if (r_jwe_set_cypher_key(jwe, key_data, cipherkey_len-8) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error r_jwe_set_cypher_key");
+        ret = RHN_ERROR;
+      }
+    } while (0);
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error invalid key");
+    ret = RHN_ERROR_INVALID;
+  }
+  return ret;
+}
+#endif
+
+// ECDH key management
+#if NETTLE_VERSION_NUMBER >= 0x030600
 static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnutls_datum_t * kdf) {
   int ret = RHN_OK;
   struct _o_datum dat_apu = {0, NULL}, dat_apv = {0, NULL};
@@ -183,7 +811,7 @@ static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnu
   return ret;
 }
 
-static int _r_ecdh_compute(uint8_t * priv_d, size_t pub_d_size, uint8_t * pub_x, size_t pub_x_size, uint8_t * pub_y, size_t pub_y_size, const struct ecc_curve * curve, gnutls_datum_t * Z) {
+static int _r_ecdh_compute(uint8_t * priv_d, size_t priv_d_size, uint8_t * pub_x, size_t pub_x_size, uint8_t * pub_y, size_t pub_y_size, const struct ecc_curve * curve, gnutls_datum_t * Z) {
   int ret = RHN_OK;
   struct ecc_scalar priv;
   struct ecc_point pub, r;
@@ -200,10 +828,10 @@ static int _r_ecdh_compute(uint8_t * priv_d, size_t pub_d_size, uint8_t * pub_x,
   ecc_point_init(&pub, curve);
   ecc_point_init(&r, curve);
   do {
-    mpz_import(z_priv_d, pub_d_size, 1, 1, 0, 0, priv_d);
+    mpz_import(z_priv_d, priv_d_size, 1, 1, 0, 0, priv_d);
     if (!ecc_scalar_set(&priv, z_priv_d)) {
       y_log_message(Y_LOG_LEVEL_ERROR, "_r_ecdh_compute - Error ecc_scalar_set");
-      ret = RHN_ERROR;
+      ret = RHN_ERROR_INVALID;
       break;
     }
 
@@ -262,518 +890,11 @@ static int _r_dh_compute(uint8_t * priv_k, uint8_t * pub_x, size_t crv_size, gnu
 
   return ret;
 }
-#endif
 
-// https://git.lysator.liu.se/nettle/nettle/-/merge_requests/20
-#if NETTLE_VERSION_NUMBER >= 0x030400
-int
-pkcs1_oaep_decrypt (size_t key_size,
-	       const mpz_t m,
-	       /* Hash function */
-	       size_t hlen,
-	       void * ctx, const struct nettle_hash *hash, nettle_hash_init_func *hash_init, nettle_hash_update_func *hash_update, nettle_hash_digest_func *hash_digest,
-	       size_t label_length, const uint8_t *label,
-	       size_t *length, uint8_t *message)
-{
-  int ret = 1;
-  size_t dbMask_len = key_size-1-hlen, i;
-  uint8_t lHash[hlen], k[hlen], seedMask[hlen], maskedSeed[hlen];
-
-  uint8_t *em, *maskedDB, *dbMask, *db;
-
-  em = o_malloc(key_size);
-  maskedDB = o_malloc(dbMask_len);
-  dbMask = o_malloc(dbMask_len);
-  db = o_malloc(dbMask_len);
-
-  // lHash = Hash(L)
-  hash_init(ctx);
-  hash_update(ctx, label_length, label);
-  hash_digest(ctx, hlen, lHash);
-
-  nettle_mpz_get_str_256(key_size, em, m);
-
-  if (em[0])
-    {
-      ret = 0;
-    }
-
-  memcpy(maskedSeed, em+1, hlen);
-  memcpy(maskedDB, em+1+hlen, key_size-1-hlen);
-
-  // seedMask = MGF(maskedDB, hLen).
-  hash_init(ctx);
-  hash_update(ctx, dbMask_len, maskedDB);
-  pss_mgf1(ctx, hash, hlen, seedMask);
-
-  // seed = maskedSeed \xor seedMask.
-  for (i=0; i<hlen; i++)
-    {
-      k[i] = maskedSeed[i]^seedMask[i];
-    }
-
-  // dbMask = MGF(seed, k - hLen - 1).
-  hash_init(ctx);
-  hash_update(ctx, hlen, k);
-  pss_mgf1(ctx, hash, dbMask_len, dbMask);
-
-  // DB = maskedDB \xor dbMask.
-  for (i=0; i<dbMask_len; i++)
-    {
-      db[i] = maskedDB[i]^dbMask[i];
-    }
-
-  if (!memeql_sec(db, lHash, hlen))
-    {
-      ret = 0;
-    }
-
-  for (i=hlen; i<dbMask_len-1; i++)
-    {
-      if (db[i] == 0x01)
-      {
-        break;
-      }
-    }
-
-  if (i < dbMask_len-1 && *length >= dbMask_len-i-1 && i < dbMask_len-1)
-  {
-    *length = dbMask_len-i-1;
-    memcpy(message, db+i+1, *length);
-  }
-  else
-  {
-    ret = 0;
-  }
-
-  o_free(em);
-  o_free(maskedDB);
-  o_free(dbMask);
-  o_free(db);
-
-  return ret;
+static int _r_compare_likely(size_t src, size_t around) {
+  return ((around && src == around-1) || src == around || src == around+1);
 }
 
-int
-rsa_oaep_sha1_decrypt(const struct rsa_private_key *key,
-	    size_t label_length, const uint8_t *label,
-	    size_t *length, uint8_t *message,
-	    const mpz_t gibberish)
-{
-  mpz_t m;
-  int res;
-  struct sha1_ctx ctx;
-
-  mpz_init(m);
-  rsa_compute_root(key, m, gibberish);
-
-  res = pkcs1_oaep_decrypt (key->size, m, SHA1_DIGEST_SIZE,
-                            &ctx, &nettle_sha1, (nettle_hash_init_func*)&sha1_init, (nettle_hash_update_func*)&sha1_update, (nettle_hash_digest_func*)&sha1_digest,
-                            label_length, label, length, message);
-  mpz_clear(m);
-  return res;
-}
-
-int
-rsa_oaep_sha256_decrypt(const struct rsa_private_key *key,
-	    size_t label_length, const uint8_t *label,
-	    size_t *length, uint8_t *message,
-	    const mpz_t gibberish)
-{
-  mpz_t m;
-  int res;
-  struct sha256_ctx ctx;
-
-  mpz_init(m);
-  rsa_compute_root(key, m, gibberish);
-
-  res = pkcs1_oaep_decrypt (key->size, m, SHA256_DIGEST_SIZE,
-                            &ctx, &nettle_sha256, (nettle_hash_init_func*)&sha256_init, (nettle_hash_update_func*)&sha256_update, (nettle_hash_digest_func*)&sha256_digest,
-                            label_length, label, length, message);
-  mpz_clear(m);
-  return res;
-}
-
-int
-pkcs1_oaep_encrypt (size_t key_size,
-	       void *random_ctx, nettle_random_func *random,
-	       /* Hash function */
-	       size_t hlen,
-	       void * ctx, const struct nettle_hash *hash, nettle_hash_init_func *hash_init, nettle_hash_update_func *hash_update, nettle_hash_digest_func *hash_digest,
-	       size_t label_length, const uint8_t *label,
-	       size_t message_length, const uint8_t *message,
-	       mpz_t m)
-{
-  size_t ps_len = key_size - message_length - (2*hlen) - 2, dbMask_len = key_size - hlen - 1, i;
-  uint8_t lHash[hlen], k[hlen], seedMask[hlen], maskedSeed[hlen];
-  int ret = 1;
-
-  if (key_size < (2*hlen) - 2 || message_length > key_size - (2*hlen) - 2)
-    {
-      return 0;
-    }
-  uint8_t *em, *maskedDB, *dbMask, *db;
-
-  em = o_malloc(dbMask_len + hlen + 1);
-  maskedDB = o_malloc(dbMask_len);
-  dbMask = o_malloc(dbMask_len);
-  db = o_malloc(dbMask_len);
-
-  // lHash = Hash(L)
-  hash_init(ctx);
-  hash_update(ctx, label_length, label);
-  hash_digest(ctx, hlen, lHash);
-
-  // DB = lHash || PS || 0x01 || M.
-
-  memcpy(db, lHash, hlen);
-  memset(db+hlen, 0, ps_len);
-  memset(db+hlen+ps_len, 1, 1);
-  memcpy(db+hlen+ps_len+1, message, message_length);
-
-  random(random_ctx, hlen, k);
-
-  // dbMask = MGF(seed, k - hLen - 1).
-  hash_init(ctx);
-  hash_update(ctx, hlen, k);
-  pss_mgf1(ctx, hash, dbMask_len, dbMask);
-
-  // maskedDB = DB \xor dbMask.
-  for (i=0; i<dbMask_len; i++)
-    {
-      maskedDB[i] = db[i]^dbMask[i];
-    }
-
-  // seedMask = MGF(maskedDB, hLen).
-  memset(seedMask, 0, hlen);
-  hash_init(ctx);
-  hash_update(ctx, dbMask_len, maskedDB);
-  pss_mgf1(ctx, hash, hlen, seedMask);
-
-  // maskedSeed = seed \xor seedMask.
-  for (i=0; i<hlen; i++)
-    {
-      maskedSeed[i] = k[i]^seedMask[i];
-    }
-
-  // EM = 0x00 || maskedSeed || maskedDB.
-
-  em[0] = 0;
-  memcpy(em+1, maskedSeed, hlen);
-  memcpy(em+1+hlen, maskedDB, dbMask_len);
-
-  nettle_mpz_set_str_256_u(m, dbMask_len + hlen + 1, em);
-
-  o_free(db);
-  o_free(dbMask);
-  o_free(maskedDB);
-  o_free(em);
-
-  return ret;
-}
-
-int
-rsa_oaep_sha1_encrypt(const struct rsa_public_key *key,
-	    void *random_ctx, nettle_random_func *random,
-	    size_t label_length, const uint8_t *label,
-	    size_t length, const uint8_t *message,
-	    mpz_t gibberish)
-{
-  struct sha1_ctx ctx;
-  if (pkcs1_oaep_encrypt (key->size, random_ctx, random,
-         SHA1_DIGEST_SIZE,
-         &ctx, &nettle_sha1, (nettle_hash_init_func*)&sha1_init, (nettle_hash_update_func*)&sha1_update, (nettle_hash_digest_func*)&sha1_digest,
-         label_length, label,
-		     length, message, gibberish))
-    {
-      mpz_powm(gibberish, gibberish, key->e, key->n);
-      return 1;
-    }
-  else
-    return 0;
-}
-
-int
-rsa_oaep_sha256_encrypt(const struct rsa_public_key *key,
-	    void *random_ctx, nettle_random_func *random,
-	    size_t label_length, const uint8_t *label,
-	    size_t length, const uint8_t *message,
-	    mpz_t gibberish)
-{
-  struct sha256_ctx ctx;
-  if (pkcs1_oaep_encrypt (key->size, random_ctx, random,
-         SHA256_DIGEST_SIZE,
-         &ctx, &nettle_sha256, (nettle_hash_init_func*)&sha256_init, (nettle_hash_update_func*)&sha256_update, (nettle_hash_digest_func*)&sha256_digest,
-         label_length, label,
-		     length, message, gibberish))
-    {
-      mpz_powm(gibberish, gibberish, key->e, key->n);
-      return 1;
-    }
-  else
-    return 0;
-}
-
-static void rnd_nonce_func(void *_ctx, size_t length, uint8_t * data)
-{
-  (void)_ctx;
-	gnutls_rnd(GNUTLS_RND_NONCE, data, length);
-}
-#endif
-
-// https://git.lysator.liu.se/nettle/nettle/-/merge_requests/19
-#if NETTLE_VERSION_NUMBER >= 0x030400
-static void
-nist_keywrap16(const void *ctx, nettle_cipher_func *encrypt,
-               const uint8_t *iv, size_t ciphertext_length,
-               uint8_t *ciphertext, const uint8_t *cleartext) {
-  uint8_t * R = NULL, A[8] = {0}, I[16] = {0}, B[16] = {0};
-  uint64_t A64;
-  size_t i, j, n;
-
-  if ((R = o_malloc(ciphertext_length-8)) == NULL)
-    return;
-
-  n = (ciphertext_length-8)/8;
-  memcpy(R, cleartext, (ciphertext_length-8));
-  memcpy(A, iv, 8);
-
-  for (j=0; j<6; j++) {
-    for (i=0; i<n; i++) {
-      // I = A | R[1]
-      memcpy(I, A, 8);
-      memcpy(I+8, R+(i*8), 8);
-
-      // B = AES(K, I)
-      encrypt(ctx, 16, B, I);
-
-      // A = MSB(64, B) ^ t where t = (n*j)+i
-      A64 = ((uint64_t)B[0] << 56) | ((uint64_t)B[1] << 48) | ((uint64_t)B[2] << 40) | ((uint64_t)B[3] << 32) | ((uint64_t)B[4] << 24) | ((uint64_t)B[5] << 16) | ((uint64_t)B[6] << 8) | (uint64_t)B[7];
-      A64 ^= (n*j)+(i+1);
-      A[7] = (uint8_t)A64;
-      A[6] = (uint8_t)(A64 >> 8);
-      A[5] = (uint8_t)(A64 >> 16);
-      A[4] = (uint8_t)(A64 >> 24);
-      A[3] = (uint8_t)(A64 >> 32);
-      A[2] = (uint8_t)(A64 >> 40);
-      A[1] = (uint8_t)(A64 >> 48);
-      A[0] = (uint8_t)(A64 >> 56);
-
-      //  R[i] = LSB(64, B)
-      memcpy(R+(i*8), B+8, 8);
-
-    }
-  }
-
-  memcpy(ciphertext, A, 8);
-  memcpy(ciphertext+8, R, (ciphertext_length-8));
-  o_free(R);
-}
-
-static int
-nist_keyunwrap16(const void *ctx, nettle_cipher_func *decrypt,
-                 const uint8_t *iv, size_t cleartext_length,
-                 uint8_t *cleartext, const uint8_t *ciphertext) {
-  uint8_t * R = NULL, A[8] = {0}, I[16] = {0}, B[16] = {0};
-  uint64_t A64;
-  int i, j, ret;
-  size_t n;
-
-  if ((R = o_malloc(cleartext_length)) == NULL)
-    return 0;
-
-  n = (cleartext_length/8);
-  memcpy(A, ciphertext, 8);
-  memcpy(R, ciphertext+8, cleartext_length);
-
-  for (j=5; j>=0; j--) {
-    for (i=n-1; i>=0; i--) {
-
-      // B = AES-1(K, (A ^ t) | R[i]) where t = n*j+i
-      A64 = ((uint64_t)A[0] << 56) | ((uint64_t)A[1] << 48) | ((uint64_t)A[2] << 40) | ((uint64_t)A[3] << 32) | ((uint64_t)A[4] << 24) | ((uint64_t)A[5] << 16) | ((uint64_t)A[6] << 8) | (uint64_t)A[7];
-      A64 ^= (n*j)+(i+1);
-      I[7] = (uint8_t)A64;
-      I[6] = (uint8_t)(A64 >> 8);
-      I[5] = (uint8_t)(A64 >> 16);
-      I[4] = (uint8_t)(A64 >> 24);
-      I[3] = (uint8_t)(A64 >> 32);
-      I[2] = (uint8_t)(A64 >> 40);
-      I[1] = (uint8_t)(A64 >> 48);
-      I[0] = (uint8_t)(A64 >> 56);
-      memcpy(I+8, R+(i*8), 8);
-      decrypt(ctx, 16, B, I);
-
-      // A = MSB(64, B)
-      memcpy(A, B, 8);
-
-      // R[i] = LSB(64, B)
-      memcpy(R+(i*8), B+8, 8);
-    }
-  }
-
-  if (memeql_sec(A, iv, 8)) {
-    memcpy(cleartext, R, cleartext_length);
-    ret = 1;
-  } else {
-    ret = 0;
-  }
-  o_free(R);
-  return ret;
-}
-#endif
-
-#if NETTLE_VERSION_NUMBER >= 0x030400
-static int _r_rsa_oaep_encrypt(gnutls_pubkey_t g_pub, jwa_alg alg, uint8_t * cleartext, size_t cleartext_len, uint8_t * ciphertext, size_t * cyphertext_len) {
-  struct rsa_public_key pub;
-  gnutls_datum_t m = {NULL, 0}, e = {NULL, 0};
-  int ret = RHN_OK;
-  mpz_t gibberish;
-
-  rsa_public_key_init(&pub);
-  mpz_init(gibberish);
-  if (gnutls_pubkey_export_rsa_raw(g_pub, &m, &e) == GNUTLS_E_SUCCESS) {
-    mpz_import(pub.n, m.size, 1, 1, 0, 0, m.data);
-    mpz_import(pub.e, e.size, 1, 1, 0, 0, e.data);
-    rsa_public_key_prepare(&pub);
-    if (*cyphertext_len >= pub.size) {
-      if (alg == R_JWA_ALG_RSA_OAEP) {
-        if (!rsa_oaep_sha1_encrypt(&pub, NULL, rnd_nonce_func, 0, NULL, cleartext_len, cleartext, gibberish)) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error rsa_oaep_sha1_encrypt");
-          ret = RHN_ERROR;
-        }
-      } else {
-        if (!rsa_oaep_sha256_encrypt(&pub, NULL, rnd_nonce_func, 0, NULL, cleartext_len, cleartext, gibberish)) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error rsa_oaep_sha256_encrypt");
-          ret = RHN_ERROR;
-        }
-      }
-      if (ret == RHN_OK) {
-        nettle_mpz_get_str_256(pub.size, ciphertext, gibberish);
-        *cyphertext_len = pub.size;
-      }
-    } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error cyphertext to small");
-      ret = RHN_ERROR_PARAM;
-    }
-    gnutls_free(m.data);
-    gnutls_free(e.data);
-  } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error gnutls_pubkey_export_rsa_raw");
-    ret = RHN_ERROR;
-  }
-  rsa_public_key_clear(&pub);
-  mpz_clear(gibberish);
-
-  return ret;
-}
-
-static int _r_rsa_oaep_decrypt(gnutls_privkey_t g_priv, jwa_alg alg, uint8_t * ciphertext, size_t cyphertext_len, uint8_t * cleartext, size_t * cleartext_len) {
-  struct rsa_private_key priv;
-  gnutls_datum_t m = {NULL, 0}, e = {NULL, 0}, d = {NULL, 0}, p = {NULL, 0}, q = {NULL, 0}, u = {NULL, 0}, e1 = {NULL, 0}, e2 = {NULL, 0};
-  int ret = RHN_OK;
-  mpz_t gibberish;
-
-  rsa_private_key_init(&priv);
-  mpz_init(gibberish);
-  nettle_mpz_set_str_256_u(gibberish, cyphertext_len, ciphertext);
-  if (gnutls_privkey_export_rsa_raw(g_priv, &m, &e, &d, &p, &q, &u, &e1, &e2) == GNUTLS_E_SUCCESS) {
-    mpz_import(priv.d, d.size, 1, 1, 0, 0, d.data);
-    mpz_import(priv.p, p.size, 1, 1, 0, 0, p.data);
-    mpz_import(priv.q, q.size, 1, 1, 0, 0, q.data);
-    mpz_import(priv.a, e1.size, 1, 1, 0, 0, e1.data);
-    mpz_import(priv.b, e2.size, 1, 1, 0, 0, e2.data);
-    mpz_import(priv.c, u.size, 1, 1, 0, 0, u.data);
-    rsa_private_key_prepare(&priv);
-    if (cyphertext_len >= priv.size) {
-      if (alg == R_JWA_ALG_RSA_OAEP) {
-        if (!rsa_oaep_sha1_decrypt(&priv, 0, NULL, cleartext_len, cleartext, gibberish)) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_decrypt - Error rsa_oaep_sha1_decrypt");
-          ret = RHN_ERROR;
-        }
-      } else {
-        if (!rsa_oaep_sha256_decrypt(&priv, 0, NULL, cleartext_len, cleartext, gibberish)) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_decrypt - Error rsa_oaep_sha256_decrypt");
-          ret = RHN_ERROR;
-        }
-      }
-    } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error cyphertext to small");
-      ret = RHN_ERROR_PARAM;
-    }
-    gnutls_free(m.data);
-    gnutls_free(e.data);
-    gnutls_free(d.data);
-    gnutls_free(p.data);
-    gnutls_free(q.data);
-    gnutls_free(u.data);
-    gnutls_free(e1.data);
-    gnutls_free(e2.data);
-  } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error gnutls_pubkey_export_rsa_raw");
-    ret = RHN_ERROR;
-  }
-  rsa_private_key_clear(&priv);
-  mpz_clear(gibberish);
-
-  return ret;
-}
-#endif
-
-#if NETTLE_VERSION_NUMBER >= 0x030400
-static void _r_aes_key_wrap(uint8_t * kek, size_t kek_len, uint8_t * key, size_t key_len, uint8_t * wrapped_key) {
-  struct aes128_ctx ctx_128;
-  struct aes192_ctx ctx_192;
-  struct aes256_ctx ctx_256;
-  void * ctx = NULL;
-  nettle_cipher_func * encrypt = NULL;
-  const uint8_t default_iv[] = {0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6};
-
-  if (kek_len == 16) {
-    aes128_set_encrypt_key(&ctx_128, kek);
-    ctx = (void*)&ctx_128;
-    encrypt = (nettle_cipher_func*)&aes128_encrypt;
-  }
-  if (kek_len == 24) {
-    aes192_set_encrypt_key(&ctx_192, kek);
-    ctx = (void*)&ctx_192;
-    encrypt = (nettle_cipher_func*)&aes192_encrypt;
-  }
-  if (kek_len == 32) {
-    aes256_set_encrypt_key(&ctx_256, kek);
-    ctx = (void*)&ctx_256;
-    encrypt = (nettle_cipher_func*)&aes256_encrypt;
-  }
-  nist_keywrap16(ctx, encrypt, default_iv, key_len+8, wrapped_key, key);
-}
-
-static int _r_aes_key_unwrap(uint8_t * kek, size_t kek_len, uint8_t * key, size_t key_len, uint8_t * wrapped_key) {
-  struct aes128_ctx ctx_128;
-  struct aes192_ctx ctx_192;
-  struct aes256_ctx ctx_256;
-  void * ctx = NULL;
-  nettle_cipher_func * decrypt = NULL;
-  const uint8_t default_iv[] = {0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6};
-
-  if (kek_len == 16) {
-    aes128_set_decrypt_key(&ctx_128, kek);
-    ctx = (void*)&ctx_128;
-    decrypt = (nettle_cipher_func*)&aes128_decrypt;
-  }
-  if (kek_len == 24) {
-    aes192_set_decrypt_key(&ctx_192, kek);
-    ctx = (void*)&ctx_192;
-    decrypt = (nettle_cipher_func*)&aes192_decrypt;
-  }
-  if (kek_len == 32) {
-    aes256_set_decrypt_key(&ctx_256, kek);
-    ctx = (void*)&ctx_256;
-    decrypt = (nettle_cipher_func*)&aes256_decrypt;
-  }
-  return nist_keyunwrap16(ctx, decrypt, default_iv, key_len, key, wrapped_key);
-}
-#endif
-
-#if NETTLE_VERSION_NUMBER >= 0x030600
 static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, jwk_t * jwk_priv, int type, unsigned int bits, int x5u_flags, int * ret) {
   int type_priv = 0;
   unsigned int bits_priv = 0;
@@ -785,6 +906,7 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
   const char * key = NULL;
   json_t * j_return = NULL;
   const struct ecc_curve * nettle_curve;
+  gnutls_ecc_curve_t curve = GNUTLS_ECC_CURVE_INVALID;
 
   do {
     if (r_jwk_init(&jwk_ephemeral_pub) != RHN_OK) {
@@ -910,8 +1032,10 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
     } else {
       if (bits == 256) {
         crv_size = CURVE25519_SIZE;
+        curve = GNUTLS_ECC_CURVE_X25519;
       } else {
         crv_size = CURVE448_SIZE;
+        curve = GNUTLS_ECC_CURVE_X448;
       }
 
       if (jwk_priv != NULL) {
@@ -937,6 +1061,12 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
         break;
       }
 
+      if (!_r_compare_likely(priv_k_size, (size_t)gnutls_ecc_curve_get_size(curve))) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error invalid priv_k_size (eddsa)");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+
       pub_x_size = CURVE448_SIZE;
       key = r_jwk_get_property_str(jwk_pub, "x");
       if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), NULL, &pub_x_size)) {
@@ -953,6 +1083,12 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
 
       if (!o_base64url_decode((const unsigned char *)key, o_strlen(key), pub_x, &pub_x_size)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error o_base64url_decode x (eddsa)");
+        *ret = RHN_ERROR_PARAM;
+        break;
+      }
+
+      if (!_r_compare_likely(pub_x_size, (size_t)gnutls_ecc_curve_get_size(curve))) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error invalid pub_x_size (eddsa)");
         *ret = RHN_ERROR_PARAM;
         break;
       }
@@ -1124,7 +1260,7 @@ static int _r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, 
 
       if (_r_ecdh_compute(priv_k, priv_k_size, pub_x, pub_x_size, pub_y, pub_y_size, nettle_curve, &Z) != RHN_OK) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error _r_ecdh_compute (ecdsa)");
-        ret = RHN_ERROR;
+        ret = RHN_ERROR_INVALID;
         break;
       }
     } else {
@@ -1234,115 +1370,7 @@ static int _r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, 
 }
 #endif
 
-#if NETTLE_VERSION_NUMBER >= 0x030400
-static json_t * r_jwe_aes_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u_flags, int * ret) {
-  uint8_t kek[32] = {0}, wrapped_key[72] = {0};
-  unsigned char cipherkey_b64url[256] = {0};
-  size_t kek_len = 32, cipherkey_b64url_len = 0;
-  unsigned int bits = 0;
-  json_t * j_return = NULL;
-
-  if (r_jwk_key_type(jwk, &bits, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
-    do {
-      if (alg == R_JWA_ALG_A128KW && bits != 128) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error invalid key size, expected 128 bits");
-        *ret = RHN_ERROR_PARAM;
-        break;
-      }
-      if (alg == R_JWA_ALG_A192KW && bits != 192) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error invalid key size, expected 192 bits");
-        *ret = RHN_ERROR_PARAM;
-        break;
-      }
-      if (alg == R_JWA_ALG_A256KW && bits != 256) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error invalid key size, expected 256 bits");
-        *ret = RHN_ERROR_PARAM;
-        break;
-      }
-      if (r_jwk_export_to_symmetric_key(jwk, kek, &kek_len) != RHN_OK) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error r_jwk_export_to_symmetric_key");
-        *ret = RHN_ERROR;
-        break;
-      }
-      _r_aes_key_wrap(kek, kek_len, jwe->key, jwe->key_len, wrapped_key);
-      if (!o_base64url_encode(wrapped_key, jwe->key_len+8, cipherkey_b64url, &cipherkey_b64url_len)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error o_base64url_encode wrapped_key");
-        *ret = RHN_ERROR;
-        break;
-      }
-      j_return = json_pack("{ss%s{ss}}", "encrypted_key", cipherkey_b64url, cipherkey_b64url_len, "header", "alg", r_jwa_alg_to_str(alg));
-      o_free(jwe->encrypted_key_b64url);
-      jwe->encrypted_key_b64url = (unsigned char *)o_strndup((const char *)cipherkey_b64url, cipherkey_b64url_len);
-    } while (0);
-  } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_wrap - Error invalid key");
-    *ret = RHN_ERROR_PARAM;
-  }
-  return j_return;
-}
-
-static int r_jwe_aes_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u_flags) {
-  int ret;
-  uint8_t kek[32] = {0}, key_data[64], cipherkey[128] = {0};
-  size_t kek_len = 32, cipherkey_len = 0;
-  unsigned int bits = 0;
-
-  if (r_jwk_key_type(jwk, &bits, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
-    ret = RHN_OK;
-
-    do {
-      if (alg == R_JWA_ALG_A128KW && bits != 128) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error invalid key size, expected 128 bits");
-        ret = RHN_ERROR_INVALID;
-        break;
-      }
-      if (alg == R_JWA_ALG_A192KW && bits != 192) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error invalid key size, expected 192 bits");
-        ret = RHN_ERROR_INVALID;
-        break;
-      }
-      if (alg == R_JWA_ALG_A256KW && bits != 256) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error invalid key size, expected 256 bits");
-        ret = RHN_ERROR_INVALID;
-        break;
-      }
-      if (r_jwk_export_to_symmetric_key(jwk, kek, &kek_len) != RHN_OK) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error r_jwk_export_to_symmetric_key");
-        ret = RHN_ERROR;
-        break;
-      }
-      if (!o_base64url_decode(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), NULL, &cipherkey_len)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error o_base64url_decode cipherkey");
-        ret = RHN_ERROR_INVALID;
-        break;
-      }
-      if (cipherkey_len > 72) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error invalid cipherkey len");
-        ret = RHN_ERROR_INVALID;
-        break;
-      }
-      if (!o_base64url_decode(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), cipherkey, &cipherkey_len)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error o_base64url_decode cipherkey");
-        ret = RHN_ERROR_INVALID;
-        break;
-      }
-      if (!_r_aes_key_unwrap(kek, kek_len, key_data, cipherkey_len-8, cipherkey)) {
-        ret = RHN_ERROR_INVALID;
-        break;
-      }
-      if (r_jwe_set_cypher_key(jwe, key_data, cipherkey_len-8) != RHN_OK) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error r_jwe_set_cypher_key");
-        ret = RHN_ERROR;
-      }
-    } while (0);
-  } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aes_key_unwrap - Error invalid key");
-    ret = RHN_ERROR_INVALID;
-  }
-  return ret;
-}
-#endif
-
+// PBES2
 #if GNUTLS_VERSION_NUMBER >= 0x03060d
 static json_t * r_jwe_pbes2_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u_flags, int * ret) {
   unsigned char salt_seed[_R_PBES_DEFAULT_SALT_LENGTH] = {0}, salt_seed_b64[_R_PBES_DEFAULT_SALT_LENGTH*2], * salt = NULL, kek[64] = {0}, * key = NULL, wrapped_key[72] = {0}, cipherkey_b64url[256] = {0};
@@ -2121,7 +2149,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
         }
         gnutls_pubkey_deinit(g_pub);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error invalid key type");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error invalid key type (rsa)");
         *ret = RHN_ERROR_PARAM;
       }
       break;
@@ -2158,7 +2186,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
         }
         gnutls_pubkey_deinit(g_pub);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error invalid key type");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error invalid key type (rsa oaep)");
         *ret = RHN_ERROR_PARAM;
       }
       break;
@@ -2181,7 +2209,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
             }
           }
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error invalid key type");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error invalid key type (dir)");
           *ret = RHN_ERROR_PARAM;
         }
       } else if (jwe->key != NULL && jwe->key_len > 0) {
@@ -2201,7 +2229,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error r_jwe_aesgcm_key_wrap");
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error invalid key type");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error invalid key type (AES-GCM)");
         *ret = RHN_ERROR_PARAM;
       }
       break;
@@ -2214,7 +2242,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error r_jwe_aes_key_wrap");
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error invalid key type");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error invalid key type (AES KeyWrap)");
         *ret = RHN_ERROR_PARAM;
       }
       break;
@@ -2273,7 +2301,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
   return j_return;
 }
 
-static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u_flags) {
+static int _r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u_flags) {
   int ret, res;
   gnutls_datum_t plainkey = {NULL, 0}, cypherkey;
   gnutls_privkey_t g_priv = NULL;
@@ -2298,29 +2326,29 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
                 if (r_jwe_set_cypher_key(jwe, plainkey.data, plainkey.size) == RHN_OK) {
                   ret = RHN_OK;
                 } else {
-                  y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error r_jwe_set_cypher_key (RSA1_5)");
+                  y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error r_jwe_set_cypher_key (RSA1_5)");
                   ret = RHN_ERROR;
                 }
                 gnutls_free(plainkey.data);
               } else if (res == GNUTLS_E_DECRYPTION_FAILED) {
                 ret = RHN_ERROR_INVALID;
               } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error gnutls_privkey_decrypt_data: %s", gnutls_strerror(res));
+                y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error gnutls_privkey_decrypt_data: %s", gnutls_strerror(res));
                 ret = RHN_ERROR;
               }
               o_free(dat.data);
               dat.data = NULL;
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error o_base64url_decode_alloc encrypted_key_b64url");
+              y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error o_base64url_decode_alloc encrypted_key_b64url");
               ret = RHN_ERROR_PARAM;
             }
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid RSA1_5 input parameters");
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid RSA1_5 input parameters");
           ret = RHN_ERROR_PARAM;
         }
         gnutls_privkey_deinit(g_priv);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key size RSA1_5");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key size RSA1_5");
         ret = RHN_ERROR_INVALID;
       }
       break;
@@ -2338,35 +2366,35 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
                   if (r_jwe_set_cypher_key(jwe, clearkey, clearkey_len) == RHN_OK) {
                     ret = RHN_OK;
                   } else {
-                    y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error r_jwe_set_cypher_key (RSA_OAEP)");
+                    y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error r_jwe_set_cypher_key (RSA_OAEP)");
                     ret = RHN_ERROR;
                   }
                 } else {
-                  y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key length");
+                  y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key length");
                   ret = RHN_ERROR_PARAM;
                 }
               } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error _r_rsa_oaep_decrypt");
+                y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error _r_rsa_oaep_decrypt");
                 ret = RHN_ERROR_INVALID;
               }
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error o_malloc clearkey");
+              y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error o_malloc clearkey");
               ret = RHN_ERROR_MEMORY;
             }
             o_free(clearkey);
             o_free(dat.data);
             dat.data = NULL;
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error o_base64url_decode_alloc encrypted_key_b64url");
+            y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error o_base64url_decode_alloc encrypted_key_b64url");
             ret = RHN_ERROR_PARAM;
           }
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid RSA1-OAEP input parameters");
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid RSA1-OAEP input parameters");
           ret = RHN_ERROR_PARAM;
         }
         gnutls_privkey_deinit(g_priv);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key size RSA_OAEP");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key size RSA_OAEP");
         ret = RHN_ERROR_INVALID;
       }
       break;
@@ -2383,22 +2411,22 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
               jwe->encrypted_key_b64url = NULL;
               ret = r_jwe_set_cypher_key(jwe, key, key_len);
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error r_jwk_export_to_symmetric_key");
+              y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error r_jwk_export_to_symmetric_key");
               ret = RHN_ERROR_MEMORY;
             }
             o_free(key);
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error allocating resources for key");
+            y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error allocating resources for key");
             ret = RHN_ERROR_MEMORY;
           }
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key type DIR");
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key type DIR");
           ret = RHN_ERROR_INVALID;
         }
       } else if (jwe->key != NULL && jwe->key_len > 0) {
         ret = RHN_OK;
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error no key available for alg 'dir'");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error no key available for alg 'dir'");
         ret = RHN_ERROR_INVALID;
       }
       break;
@@ -2411,11 +2439,11 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
         if ((res = r_jwe_aesgcm_key_unwrap(jwe, alg, jwk, x5u_flags)) == RHN_OK) {
           ret = RHN_OK;
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error r_jwe_aesgcm_key_unwrap");
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error r_jwe_aesgcm_key_unwrap");
           ret = res;
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key type AESGCM");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key type AESGCM");
         ret = RHN_ERROR_INVALID;
       }
       break;
@@ -2427,11 +2455,11 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
         if ((res = r_jwe_aes_key_unwrap(jwe, alg, jwk, x5u_flags)) == RHN_OK) {
           ret = RHN_OK;
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error r_jwe_aes_key_unwrap");
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error r_jwe_aes_key_unwrap");
           ret = res;
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key type KeyWrap");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key type KeyWrap");
         ret = RHN_ERROR_INVALID;
       }
       break;
@@ -2444,11 +2472,11 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
         if ((res = r_jwe_pbes2_key_unwrap(jwe, alg, jwk, x5u_flags)) == RHN_OK) {
           ret = RHN_OK;
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error r_jwe_pbes2_key_unwrap");
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error r_jwe_pbes2_key_unwrap");
           ret = res;
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key type PBES");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key type PBES");
         ret = RHN_ERROR_INVALID;
       }
       break;
@@ -2459,23 +2487,23 @@ static int r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x
     case R_JWA_ALG_ECDH_ES_A192KW:
     case R_JWA_ALG_ECDH_ES_A256KW:
       res = r_jwk_key_type(jwk, &bits, x5u_flags);
-      if ((res & (R_KEY_TYPE_EC) || res & (R_KEY_TYPE_ECDH)) && res & R_KEY_TYPE_PRIVATE) {
+      if (res & (R_KEY_TYPE_EC|R_KEY_TYPE_ECDH) && res & R_KEY_TYPE_PRIVATE) {
         if ((res = _r_jwe_ecdh_decrypt(jwe, alg, jwk, res, bits, x5u_flags)) == RHN_OK) {
           ret = RHN_OK;
         } else {
           if (res != RHN_ERROR_INVALID) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error _r_jwe_ecdh_decrypt");
+            y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error _r_jwe_ecdh_decrypt");
           }
           ret = res;
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error invalid key type ECDH");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key type ECDH");
         ret = RHN_ERROR_INVALID;
       }
       break;
 #endif
     default:
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_preform_key_decryption - Error unsupported algorithm");
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error unsupported algorithm");
       ret = RHN_ERROR_INVALID;
       break;
   }
@@ -3556,7 +3584,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
   }
 
   if (jwe != NULL && jwe->alg != R_JWA_ALG_UNKNOWN && jwe->alg != R_JWA_ALG_NONE) {
-    ret = r_preform_key_decryption(jwe, jwe->alg, jwk, x5u_flags);
+    ret = _r_preform_key_decryption(jwe, jwe->alg, jwk, x5u_flags);
   } else {
     ret = RHN_ERROR_PARAM;
   }
@@ -3931,7 +3959,7 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
         if (alg != R_JWA_ALG_UNKNOWN && alg != R_JWA_ALG_ECDH_ES) {
           if (jwk_privkey != NULL) {
             if (r_jwk_get_property_str(jwk_privkey, "kid") == NULL || json_object_get(json_object_get(j_recipient, "header"), "kid") == NULL || 0 == o_strcmp(json_string_value(json_object_get(json_object_get(j_recipient, "header"), "kid")), r_jwk_get_property_str(jwk_privkey, "kid"))) {
-              if ((res = r_preform_key_decryption(jwe, alg, jwk_privkey, x5u_flags)) != RHN_ERROR_INVALID) {
+              if ((res = _r_preform_key_decryption(jwe, alg, jwk_privkey, x5u_flags)) != RHN_ERROR_INVALID) {
                 ret = res;
                 break;
               }
@@ -3939,7 +3967,7 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
           } else {
             if (json_object_get(json_object_get(j_recipient, "header"), "kid") != NULL) {
               cur_jwk = r_jwks_get_by_kid(jwe->jwks_privkey, json_string_value(json_object_get(json_object_get(j_recipient, "header"), "kid")));
-              if ((res = r_preform_key_decryption(jwe, alg, cur_jwk, x5u_flags)) != RHN_ERROR_INVALID) {
+              if ((res = _r_preform_key_decryption(jwe, alg, cur_jwk, x5u_flags)) != RHN_ERROR_INVALID) {
                 ret = res;
                 r_jwk_free(cur_jwk);
                 break;
@@ -3948,7 +3976,7 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
             } else {
               for (i=0; i<r_jwks_size(jwe->jwks_privkey); i++) {
                 cur_jwk = r_jwks_get_at(jwe->jwks_privkey, i);
-                if ((res = r_preform_key_decryption(jwe, alg, cur_jwk, x5u_flags)) != RHN_ERROR_INVALID) {
+                if ((res = _r_preform_key_decryption(jwe, alg, cur_jwk, x5u_flags)) != RHN_ERROR_INVALID) {
                   ret = res;
                   r_jwk_free(cur_jwk);
                   break;

@@ -218,7 +218,7 @@ int r_jwk_is_valid(jwk_t * jwk) {
 
       // JWA parameters validation
       if (0 == o_strcmp(json_string_value(json_object_get(jwk, "kty")), "EC")) {
-        if (json_object_get(jwk, "crv")) {
+        if (json_object_get(jwk, "crv") != NULL) {
           if (0 != o_strcmp("P-256", json_string_value(json_object_get(jwk, "crv"))) &&
               0 != o_strcmp("P-384", json_string_value(json_object_get(jwk, "crv"))) &&
               0 != o_strcmp("P-521", json_string_value(json_object_get(jwk, "crv"))) &&

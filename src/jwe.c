@@ -2102,8 +2102,8 @@ static int r_jwe_compute_hmac_tag(jwe_t * jwe, unsigned char * ciphertext, size_
 
 static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u_flags, int * ret) {
   json_t * j_return = NULL;
-  int res, res_priv;
-  unsigned int bits = 0, bits_priv = 0;
+  int res;
+  unsigned int bits = 0;
   gnutls_pubkey_t g_pub = NULL;
   gnutls_datum_t plainkey, cypherkey = {NULL, 0};
   unsigned char key[128] = {0};
@@ -2117,6 +2117,8 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
 #endif
 #if NETTLE_VERSION_NUMBER >= 0x030600
   json_t * jwk_priv = NULL;
+  unsigned int bits_priv = 0;
+  int res_priv;
 #endif
 
   switch (alg) {

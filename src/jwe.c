@@ -1181,7 +1181,7 @@ static int _r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, 
     }
 
     if (type & R_KEY_TYPE_EC) {
-      if (!(r_jwk_key_type(jwk_ephemeral_pub, &epk_bits, x5u_flags) & (R_KEY_TYPE_EC|R_KEY_TYPE_PUBLIC)) || epk_bits != bits) {
+      if (!(r_jwk_key_type(jwk_ephemeral_pub, &epk_bits, x5u_flags) & (R_KEY_TYPE_EC|R_KEY_TYPE_PUBLIC)) || epk_bits != bits || epk_bits > 384) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error invalid private key type (ecc)");
         ret = RHN_ERROR_PARAM;
         break;
@@ -2102,8 +2102,8 @@ static int r_jwe_compute_hmac_tag(jwe_t * jwe, unsigned char * ciphertext, size_
 
 static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u_flags, int * ret) {
   json_t * j_return = NULL;
-  int res;
-  unsigned int bits = 0;
+  int res, res_priv;
+  unsigned int bits = 0, bits_priv = 0;
   gnutls_pubkey_t g_pub = NULL;
   gnutls_datum_t plainkey, cypherkey = {NULL, 0};
   unsigned char key[128] = {0};
@@ -2259,12 +2259,20 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
     case R_JWA_ALG_ECDH_ES_A192KW:
     case R_JWA_ALG_ECDH_ES_A256KW:
       res = r_jwk_key_type(jwk, &bits, x5u_flags);
-      if ((res & R_KEY_TYPE_ECDH || res & R_KEY_TYPE_EC) && res & R_KEY_TYPE_PUBLIC) {
+      if ((res & R_KEY_TYPE_ECDH || res & R_KEY_TYPE_EC) && res & R_KEY_TYPE_PUBLIC && bits < 521) {
+        *ret = RHN_OK;
         if (r_jwks_size(jwe->jwks_privkey) == 1) {
           jwk_priv = r_jwks_get_at(jwe->jwks_privkey, 0);
+          res_priv = r_jwk_key_type(jwk_priv, &bits_priv, x5u_flags);
+          if (!(res_priv & R_KEY_TYPE_PRIVATE) || (res & R_KEY_TYPE_ECDH && !(res_priv & R_KEY_TYPE_ECDH)) || (res & R_KEY_TYPE_EC && !(res_priv & R_KEY_TYPE_EC)) || bits != bits_priv) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - invalid private key");
+            *ret = RHN_ERROR_PARAM;
+          }
         }
-        if ((j_return = _r_jwe_ecdh_encrypt(jwe, alg, jwk, jwk_priv, res, bits, x5u_flags, ret)) == NULL) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error _r_jwe_ecdh_encrypt");
+        if (*ret == RHN_OK) {
+          if ((j_return = _r_jwe_ecdh_encrypt(jwe, alg, jwk, jwk_priv, res, bits, x5u_flags, ret)) == NULL) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_perform_key_encryption - Error _r_jwe_ecdh_encrypt");
+          }
         }
         r_jwk_free(jwk_priv);
       } else {
@@ -2484,7 +2492,7 @@ static int _r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int 
     case R_JWA_ALG_ECDH_ES_A192KW:
     case R_JWA_ALG_ECDH_ES_A256KW:
       res = r_jwk_key_type(jwk, &bits, x5u_flags);
-      if (res & (R_KEY_TYPE_EC|R_KEY_TYPE_ECDH) && res & R_KEY_TYPE_PRIVATE) {
+      if (res & (R_KEY_TYPE_EC|R_KEY_TYPE_ECDH) && res & R_KEY_TYPE_PRIVATE && bits < 521) {
         if ((res = _r_jwe_ecdh_decrypt(jwe, alg, jwk, res, bits, x5u_flags)) == RHN_OK) {
           ret = RHN_OK;
         } else {

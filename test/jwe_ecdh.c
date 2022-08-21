@@ -386,19 +386,36 @@ END_TEST
 START_TEST(test_rhonabwy_encrypt_invalid_key_type)
 {
   jwe_t * jwe;
-  jwk_t * jwk_pubkey;
+  jwk_t * jwk_pubkey, * jwk_privkey;
   
-  ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey, jwk_privkey_ecdsa_p521_str), RHN_OK);
   ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_pubkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
-  ck_assert_int_eq(r_jwe_add_keys(jwe, NULL, jwk_pubkey), RHN_OK);
 
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_pubkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_ECDH_ES_A128KW), RHN_OK);
   ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
-  ck_assert_ptr_eq(r_jwe_serialize(jwe, NULL, 0), NULL);
-  
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk_pubkey, 0), NULL);
   r_jwk_free(jwk_pubkey);
+  
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_pubkey_ecdsa_p521_str), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_ECDH_ES_A128KW), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk_pubkey, 0), NULL);
+  r_jwk_free(jwk_pubkey);
+  
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_pubkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_ECDH_ES_A128KW), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
+  ck_assert_int_eq(r_jwe_add_keys(jwe, jwk_privkey, NULL), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk_pubkey, 0), NULL);
+  r_jwk_free(jwk_pubkey);
+  
+  r_jwk_free(jwk_privkey);
   r_jwe_free(jwe);
 }
 END_TEST
@@ -748,8 +765,8 @@ START_TEST(test_rhonabwy_check_key_length_ecdh_es_ecdsa)
 
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk1_pub, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk1_priv, jwk_privkey_ecdsa_str), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_json_str(jwk2_pub, jwk_pubkey_ecdsa_p521_str), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_json_str(jwk2_priv, jwk_privkey_ecdsa_p521_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk2_pub, jwk_pubkey_ecdsa_p384_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk2_priv, jwk_privkey_ecdsa_p384_str), RHN_OK);
 
   ck_assert_int_eq(r_jwe_set_payload(jwe_enc_1, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
   ck_assert_int_eq(r_jwe_set_alg(jwe_enc_1, R_JWA_ALG_ECDH_ES), RHN_OK);

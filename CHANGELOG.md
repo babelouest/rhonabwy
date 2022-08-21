@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 1.1.8
+
+- Fix build for 32 bits architectures
+- Remove EC P-521 support for JWE ECDH-ES key management
+
 ## 1.1.7
 
 - Do not ignore whitespaces when parsing tokens

@@ -1151,7 +1151,7 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
 }
 
 static int _r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, unsigned int bits, int x5u_flags) {
-  int ret = RHN_OK;
+  int ret = RHN_OK, key_type = 0;
   jwk_t * jwk_ephemeral_pub = NULL;
   json_t * j_epk = NULL;
   unsigned int epk_bits = 0;
@@ -1181,7 +1181,8 @@ static int _r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, 
     }
 
     if (type & R_KEY_TYPE_EC) {
-      if (!(r_jwk_key_type(jwk_ephemeral_pub, &epk_bits, x5u_flags) & (R_KEY_TYPE_EC|R_KEY_TYPE_PUBLIC)) || epk_bits != bits || epk_bits > 384) {
+      key_type = r_jwk_key_type(jwk_ephemeral_pub, &epk_bits, x5u_flags);
+      if (!(key_type & R_KEY_TYPE_EC) || !(key_type & R_KEY_TYPE_PUBLIC) || epk_bits != bits || epk_bits > 384) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error invalid private key type (ecc)");
         ret = RHN_ERROR_PARAM;
         break;
@@ -1261,7 +1262,8 @@ static int _r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, 
         break;
       }
     } else {
-      if (!(r_jwk_key_type(jwk_ephemeral_pub, &epk_bits, x5u_flags) & (R_KEY_TYPE_ECDH|R_KEY_TYPE_PUBLIC)) || epk_bits != bits) {
+      key_type = r_jwk_key_type(jwk_ephemeral_pub, &epk_bits, x5u_flags);
+      if (!(key_type & R_KEY_TYPE_ECDH) || !(key_type & R_KEY_TYPE_PUBLIC) || epk_bits != bits) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_decrypt - Error invalid private key type (eddsa)");
         ret = RHN_ERROR_INVALID;
         break;
@@ -1500,7 +1502,7 @@ static int r_jwe_pbes2_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u
         ret = RHN_ERROR_PARAM;
         break;
       }
-      if (o_strlen(r_jwe_get_header_str_value(jwe, "p2s")) < 8) {
+      if (!o_strlen(r_jwe_get_header_str_value(jwe, "p2s"))) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error invalid p2s");
         ret = RHN_ERROR_PARAM;
         break;
@@ -1508,7 +1510,12 @@ static int r_jwe_pbes2_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u
       p2s = r_jwe_get_header_str_value(jwe, "p2s");
       if (!o_base64url_decode_alloc((const unsigned char *)p2s, o_strlen(p2s), &dat_dec)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error o_base64url_decode_alloc p2s");
-        ret = RHN_ERROR;
+        ret = RHN_ERROR_PARAM;
+        break;
+      }
+      if (dat_dec.size < 8) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error invalid p2s size");
+        ret = RHN_ERROR_PARAM;
         break;
       }
       salt_len = dat_dec.size + alg_len + 1;
@@ -1857,6 +1864,11 @@ static int r_jwe_aesgcm_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5
         ret = RHN_ERROR_INVALID;
         break;
       }
+      if (dat_iv.size != 12) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error invalid iv");
+        ret = RHN_ERROR_INVALID;
+        break;
+      }
       if (!o_base64url_decode_alloc((const unsigned char *)jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), &dat_key)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error o_base64url_decode cipherkey");
         ret = RHN_ERROR_INVALID;
@@ -1948,8 +1960,11 @@ static int r_jwe_set_ptext_with_block(unsigned char * data, size_t data_len, uns
 }
 
 static int r_jwe_extract_header(jwe_t * jwe, json_t * j_header, uint32_t parse_flags, int x5u_flags) {
-  int ret;
+  int ret, key_type;
   jwk_t * jwk;
+  const char * apu = NULL, * apv = NULL, * iv = NULL, * tag = NULL, * p2s = NULL;
+  size_t apu_size = 0, apv_size = 0, iv_size = 0, tag_size = 0, p2s_size = 0;
+  json_int_t p2c = 0;
 
   if (json_is_object(j_header)) {
     ret = RHN_OK;
@@ -2036,6 +2051,123 @@ static int r_jwe_extract_header(jwe_t * jwe, json_t * j_header, uint32_t parse_f
         ret = RHN_ERROR_PARAM;
       }
       r_jwk_free(jwk);
+    }
+    
+    if (jwe->alg == R_JWA_ALG_ECDH_ES || jwe->alg == R_JWA_ALG_ECDH_ES_A128KW || jwe->alg == R_JWA_ALG_ECDH_ES_A192KW || jwe->alg == R_JWA_ALG_ECDH_ES_A256KW) {
+      if (json_object_get(j_header, "epk") == NULL) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - No epk header");
+        ret = RHN_ERROR_PARAM;
+      }
+      r_jwk_init(&jwk);
+      if (r_jwk_import_from_json_t(jwk, json_object_get(j_header, "epk")) != RHN_OK) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error header epk invalid");
+        ret = RHN_ERROR_PARAM;
+      }
+      key_type = r_jwk_key_type(jwk, NULL, 0);
+      if (!(key_type & R_KEY_TYPE_PUBLIC) || !(key_type&(R_KEY_TYPE_EC|R_KEY_TYPE_ECDH))) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error header epk invalid type");
+        ret = RHN_ERROR_PARAM;
+      }
+      r_jwk_free(jwk);
+
+      if (json_object_get(j_header, "apu") != NULL) {
+        if (!json_is_string(json_object_get(j_header, "apu"))) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error invalid apu");
+          ret = RHN_ERROR_PARAM;
+        } else {
+          apu = json_string_value(json_object_get(j_header, "apu"));
+          if (!o_strnullempty(apu)) {
+            if (!o_base64url_decode((const unsigned char *)apu, o_strlen(apu), NULL, &apu_size)) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error o_base64url_decode_alloc apu");
+              ret = RHN_ERROR_PARAM;
+            }
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error invalid apu size");
+            ret = RHN_ERROR_PARAM;
+          }
+        }
+      }
+
+      if (json_object_get(j_header, "apv") != NULL) {
+        if (!json_is_string(json_object_get(j_header, "apv"))) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error invalid apv");
+          ret = RHN_ERROR_PARAM;
+        } else {
+          apv = json_string_value(json_object_get(j_header, "apv"));
+          if (!o_strnullempty(apv)) {
+            if (!o_base64url_decode((const unsigned char *)apv, o_strlen(apv), NULL, &apv_size)) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error o_base64url_decode apv");
+              ret = RHN_ERROR_PARAM;
+            }
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error invalid apv size");
+            ret = RHN_ERROR_PARAM;
+          }
+        }
+      }
+    }
+
+    if (jwe->alg == R_JWA_ALG_A128GCMKW || jwe->alg == R_JWA_ALG_A192GCMKW || jwe->alg == R_JWA_ALG_A256GCMKW) {
+      if (!json_is_string(json_object_get(j_header, "iv"))) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error invalid iv");
+        ret = RHN_ERROR_PARAM;
+      } else {
+        iv = json_string_value(json_object_get(j_header, "iv"));
+        if (!o_strnullempty(iv)) {
+          if (!o_base64url_decode((const unsigned char *)iv, o_strlen(iv), NULL, &iv_size) || iv_size != 12) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error o_base64url_decode iv");
+            ret = RHN_ERROR_PARAM;
+          }
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error invalid iv size");
+          ret = RHN_ERROR_PARAM;
+        }
+      }
+
+      if (!json_is_string(json_object_get(j_header, "tag"))) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error invalid tag");
+        ret = RHN_ERROR_PARAM;
+      } else {
+        tag = json_string_value(json_object_get(j_header, "tag"));
+        if (!o_strnullempty(tag)) {
+          if (!o_base64url_decode((const unsigned char *)tag, o_strlen(tag), NULL, &tag_size) || tag_size != 16) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error o_base64url_decode tag %zu", tag_size);
+            ret = RHN_ERROR_PARAM;
+          }
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error invalid tag size");
+          ret = RHN_ERROR_PARAM;
+        }
+      }
+    }
+
+    if (jwe->alg == R_JWA_ALG_PBES2_H256 || jwe->alg == R_JWA_ALG_PBES2_H384 || jwe->alg == R_JWA_ALG_PBES2_H512) {
+      if (!json_is_string(json_object_get(j_header, "p2s"))) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error invalid p2s");
+        ret = RHN_ERROR_PARAM;
+      } else {
+        p2s = json_string_value(json_object_get(j_header, "p2s"));
+        if (!o_strnullempty(p2s)) {
+          if (!o_base64url_decode((const unsigned char *)p2s, o_strlen(p2s), NULL, &p2s_size) || p2s_size < 8) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error o_base64url_decode p2s");
+            ret = RHN_ERROR_PARAM;
+          }
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error invalid p2s size");
+          ret = RHN_ERROR_PARAM;
+        }
+      }
+
+      if (!json_is_integer(json_object_get(j_header, "p2c"))) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error invalid p2c");
+        ret = RHN_ERROR_PARAM;
+      } else {
+        p2c = json_integer_value(json_object_get(j_header, "p2c"));
+        if (p2c <= 0) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error invalid p2c value");
+          ret = RHN_ERROR_PARAM;
+        }
+      }
     }
   } else {
     ret = RHN_ERROR_PARAM;

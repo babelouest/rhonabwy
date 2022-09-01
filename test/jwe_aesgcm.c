@@ -71,7 +71,7 @@ START_TEST(test_rhonabwy_decrypt_token_invalid)
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_key_128_1), RHN_OK);
-  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_HEADER_IV_TAG, 0), RHN_OK);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_HEADER_IV_TAG, 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk, 0), RHN_ERROR_INVALID);
   r_jwk_free(jwk);
 

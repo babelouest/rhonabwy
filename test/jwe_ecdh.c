@@ -479,7 +479,7 @@ START_TEST(test_rhonabwy_decrypt_token_invalid)
   r_jwe_free(jwe_decrypt);
   
   ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
-  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_OVERSIZE_MISSING_EPK, 0), RHN_OK);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_OVERSIZE_MISSING_EPK, 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_PARAM);
   r_jwe_free(jwe_decrypt);
   

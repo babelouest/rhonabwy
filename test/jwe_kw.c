@@ -21,6 +21,7 @@
 #define TOKEN_INVALID_CIPHER_B64 "eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.S7OUaa-1ekDy8cPPo1Rzq81vwaEfk3yBL5Xw9FnfRtGikBSwH0OC6Q.29q9_PdnK2jXwG4gJvgDoQ.;error;czZ_XqNm8JwoW_B8rczVdVYO4o7pflVAcT0ojJg_m8Eo79F2W7FgLUEKVxrOoOz6-tuQjCzWfZkrE3g.p28K0cxZ3gDEpAMD_79pOw"
 #define TOKEN_INVALID_TAG_B64 "eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.S7OUaa-1ekDy8cPPo1Rzq81vwaEfk3yBL5Xw9FnfRtGikBSwH0OC6Q.29q9_PdnK2jXwG4gJvgDoQ.BuhbHPZczZ_XqNm8JwoW_B8rczVdVYO4o7pflVAcT0ojJg_m8Eo79F2W7FgLUEKVxrOoOz6-tuQjCzWfZkrE3g.;error;Z3gDEpAMD_79pOw"
 #define TOKEN_INVALID_DOTS "eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0S7OUaa-1ekDy8cPPo1Rzq81vwaEfk3yBL5Xw9FnfRtGikBSwH0OC6Q.29q9_PdnK2jXwG4gJvgDoQ.BuhbHPZczZ_XqNm8JwoW_B8rczVdVYO4o7pflVAcT0ojJg_m8Eo79F2W7FgLUEKVxrOoOz6-tuQjCzWfZkrE3g.p28K0cxZ3gDEpAMD_79pOw"
+#define TOKEN_INVALID_ENC "eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIn0.S7OUaa-1ekDy8cPPo1Rzq81vwaEfk3yBL5Xw9FnfRtGikBSwH0OC6Q.29q9_PdnK2jXwG4gJvgDoQ.BuhbHPZczZ_XqNm8JwoW_B8rczVdVYO4o7pflVAcT0ojJg_m8Eo79F2W7FgLUEKVxrOoOz6-tuQjCzWfZkrE3g.p28K0cxZ3gDEpAMD_79pOw"
 
 const char jwk_key_invalid_small[] = "{\"kty\":\"oct\",\"k\":\"Z3J1dAo\"}";
 const char jwk_key_invalid_large[] = "{\"kty\":\"oct\",\"k\":\"Z3J1dHBsb3Bjb2luZ25hYWdydXRwbG9wY29pbmduYWFncnV0cGxvcGNvaW5nbmFhZ3J1dHBsb3Bjb2luZ25hYQo\"}";
@@ -71,6 +72,9 @@ START_TEST(test_rhonabwy_decrypt_token_invalid)
   
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_TAG_LEN, 0), RHN_OK);
   ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_ERROR_INVALID);
+  
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_ENC, 0), RHN_OK);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_ERROR_PARAM);
   
   r_jwk_free(jwk_privkey);
   r_jwe_free(jwe_decrypt);

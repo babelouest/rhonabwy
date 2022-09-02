@@ -34,6 +34,7 @@ pbkdf2_hmac_sha512 (size_t key_length, const uint8_t *key,
 #define TOKEN_INVALID_TAG_B64 "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiTGZfbk9xdU9TM1UiLCJwMmMiOjQwOTZ9.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R;error;"
 #define TOKEN_INVALID_DOTS "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiTGZfbk9xdU9TM1UiLCJwMmMiOjQwOTZ9vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
 #define TOKEN_OVERSIZE_P2S "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiWlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlDZyIsInAyYyI6NDA5Nn0K.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
+#define TOKEN_INVALID_ENC "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTkyQ0JDLUhTMzg0IiwicDJzIjoiTGZfbk9xdU9TM1UiLCJwMmMiOjQwOTZ9.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
 
 const char jwk_key_128_1[] = "{\"kty\":\"oct\",\"k\":\"AAECAwQFBgcICQoLDA0ODw\"}";
 const char jwk_key_128_2[] = "{\"kty\":\"oct\",\"k\":\"CAkKCwwNDg8QERITFBUWFw\"}";
@@ -93,6 +94,11 @@ START_TEST(test_rhonabwy_decrypt_token_invalid)
   
   ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_OVERSIZE_P2S, 0), RHN_OK);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_decrypt);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_ENC, 0), RHN_OK);
   ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
   r_jwe_free(jwe_decrypt);
   
@@ -309,14 +315,14 @@ static Suite *rhonabwy_suite(void)
   s = suite_create("Rhonabwy JWE PBES2 encryption tests");
   tc_core = tcase_create("test_rhonabwy_pbes");
 #if GNUTLS_VERSION_NUMBER >= 0x03060e
-  tcase_add_test(tc_core, test_rhonabwy_parse_token_invalid);
+  //tcase_add_test(tc_core, test_rhonabwy_parse_token_invalid);
   tcase_add_test(tc_core, test_rhonabwy_decrypt_token_invalid);
-  tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_invalid_privkey);
+  /*tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_invalid_privkey);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_pbes2_hs256_ok);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_pbes2_hs384_ok);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_pbes2_hs512_ok);
   tcase_add_test(tc_core, test_rhonabwy_flood_ok);
-  tcase_add_test(tc_core, test_rhonabwy_rfc_example);
+  tcase_add_test(tc_core, test_rhonabwy_rfc_example);*/
 #endif
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
@@ -329,7 +335,7 @@ int main(int argc, char *argv[])
   int number_failed;
   Suite *s;
   SRunner *sr;
-  //y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWE PBES2 encryption tests");
+  y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWE PBES2 encryption tests");
   r_global_init();
   s = rhonabwy_suite();
   sr = srunner_create(s);
@@ -339,6 +345,6 @@ int main(int argc, char *argv[])
   srunner_free(sr);
   
   r_global_close();
-  //y_close_logs();
+  y_close_logs();
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

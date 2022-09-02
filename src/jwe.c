@@ -1564,6 +1564,7 @@ static int r_jwe_pbes2_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u
         break;
       }
       if (!_r_aes_key_unwrap(kek, kek_len, key_data, cipherkey_len-8, cipherkey)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error _r_aes_key_unwrap");
         ret = RHN_ERROR_INVALID;
         break;
       }

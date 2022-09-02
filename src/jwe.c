@@ -1378,12 +1378,21 @@ static json_t * r_jwe_pbes2_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int 
   unsigned int p2c = 0, bits = 0;
   gnutls_datum_t password = {NULL, 0}, g_salt = {NULL, 0};
   gnutls_mac_algorithm_t mac = GNUTLS_MAC_UNKNOWN;
-  json_t * j_return = NULL;
+  json_t * j_return = NULL, * j_p2s = NULL, * j_p2c = NULL;
   struct _o_datum dat_dec = {0, NULL};
 
   if (r_jwk_key_type(jwk, &bits, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
     do {
       alg_len = o_strlen(r_jwa_alg_to_str(alg));
+      
+      j_p2s = r_jwe_get_header_json_t_value(jwe, "p2s");
+      if (j_p2s != NULL) {
+        if (!json_is_string(j_p2s) || !json_string_length(j_p2s)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error p2s type");
+          *ret = RHN_ERROR_PARAM;
+          break;
+        }
+      }
       if ((p2s = r_jwe_get_header_str_value(jwe, "p2s")) != NULL) {
         if (!o_base64url_decode_alloc((const unsigned char *)p2s, o_strlen(p2s), &dat_dec)) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error o_base64url_decode_alloc p2s");
@@ -1426,6 +1435,16 @@ static json_t * r_jwe_pbes2_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int 
         memcpy(salt, r_jwa_alg_to_str(alg), alg_len);
         memset(salt+alg_len, 0, 1);
         memcpy(salt+alg_len+1, salt_seed, _R_PBES_DEFAULT_SALT_LENGTH);
+      }
+      
+      
+      j_p2c = r_jwe_get_header_json_t_value(jwe, "p2c");
+      if (j_p2c != NULL) {
+        if (!json_is_integer(j_p2c) || json_integer_value(j_p2c) <= 0) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error p2c");
+          *ret = RHN_ERROR_PARAM;
+          break;
+        }
       }
       if ((p2c = (unsigned int)r_jwe_get_header_int_value(jwe, "p2c")) <= 0) {
         p2c = _R_PBES_DEFAULT_ITERATION;
@@ -1476,6 +1495,8 @@ static json_t * r_jwe_pbes2_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int 
     o_free(key);
     o_free(salt);
     o_free(dat_dec.data);
+    json_decref(j_p2s);
+    json_decref(j_p2c);
   } else {
     y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error invalid key");
   }
@@ -1644,7 +1665,7 @@ static json_t * r_jwe_aesgcm_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int
   unsigned int bits = 0;
   gnutls_datum_t key_g, iv_g;
   gnutls_cipher_hd_t handle = NULL;
-  json_t * j_return = NULL;
+  json_t * j_return = NULL, * j_iv = NULL;
   struct _o_datum dat_iv_enc = {0, NULL}, dat_iv_dec = {0, NULL};
 
   if (r_jwk_key_type(jwk, &bits, x5u_flags) & R_KEY_TYPE_SYMMETRIC) {
@@ -1660,6 +1681,14 @@ static json_t * r_jwe_aesgcm_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error r_jwk_export_to_symmetric_key");
         *ret = RHN_ERROR_PARAM;
         break;
+      }
+      j_iv = r_jwe_get_header_json_t_value(jwe, "iv");
+      if (j_iv != NULL) {
+        if (!json_is_string(j_iv) || !json_string_length(j_iv)) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error invalid iv");
+          *ret = RHN_ERROR;
+          break;
+        }
       }
       if (r_jwe_get_header_str_value(jwe, "iv") == NULL) {
         if (gnutls_rnd(GNUTLS_RND_NONCE, iv, iv_size)) {
@@ -1734,6 +1763,7 @@ static json_t * r_jwe_aesgcm_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int
     o_free(key);
     o_free(dat_iv_enc.data);
     o_free(dat_iv_dec.data);
+    json_decref(j_iv);
     if (handle != NULL) {
       gnutls_cipher_deinit(handle);
     }

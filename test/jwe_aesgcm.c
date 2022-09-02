@@ -16,8 +16,12 @@
 #define TOKEN_INVALID_CIPHER "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJTTWdHekVEMHBNY05wQk00IiwidGFnIjoiclYwdnZPX1JMZTBJRDNuam5wcklLZyJ9.xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFF6oUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.8v_65BtY-tYA1QzBaqUcKA"
 #define TOKEN_INVALID_TAG "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJTTWdHekVEMHBNY05wQk00IiwidGFnIjoiclYwdnZPX1JMZTBJRDNuam5wcklLZyJ9.xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFFsoUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.86_65BtY-tYA1QzBaqUcKA"
 #define TOKEN_INVALID_TAG_LEN "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJTTWdHekVEMHBNY05wQk00IiwidGFnIjoiclYwdnZPX1JMZTBJRDNuam5wcklLZyJ9.xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFFsoUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.8v_65BtY-tYA1QzBaq"
+#define TOKEN_INVALID_TAG_SMALL "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJTTWdHekVEMHBNY05wQk00IiwidGFnIjoiclYwdiJ9.xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFFsoUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.8v_65BtY-tYA1QzBaq"
+#define TOKEN_INVALID_TAG_TYPE "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJTTWdHekVEMHBNY05wQk00IiwidGFnIjo0Mn0.xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFFsoUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.8v_65BtY-tYA1QzBaqUcKA"
 #define TOKEN_INVALID_HEADER_B64 ";error;.xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFFsoUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.8v_65BtY-tYA1QzBaqUcKA"
 #define TOKEN_INVALID_IV_B64 "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJTTWdHekVEMHBNY05wQk00IiwidGFnIjoiclYwdnZPX1JMZTBJRDNuam5wcklLZyJ9.xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.;error;.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFFsoUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.8v_65BtY-tYA1QzBaqUcKA"
+#define TOKEN_INVALID_IV_LEN "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJjR3h2Y0FvIiwidGFnIjoiclYwdnZPX1JMZTBJRDNuam5wcklLZyJ9.xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFFsoUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.8v_65BtY-tYA1QzBaqUcKA"
+#define TOKEN_INVALID_IV_TYPE "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOjQyLCJ0YWciOiJyVjB2dk9fUkxlMElEM25qbnBySUtnIn0.xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFFsoUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.8v_65BtY-tYA1QzBaqUcKA"
 #define TOKEN_INVALID_CIPHER_B64 "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJTTWdHekVEMHBNY05wQk00IiwidGFnIjoiclYwdnZPX1JMZTBJRDNuam5wcklLZyJ9.xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.;error;.8v_65BtY-tYA1QzBaqUcKA"
 #define TOKEN_INVALID_TAG_B64 "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJTTWdHekVEMHBNY05wQk00IiwidGFnIjoiclYwdnZPX1JMZTBJRDNuam5wcklLZyJ9.xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFFsoUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.;error;"
 #define TOKEN_INVALID_DOTS "eyJhbGciOiJBMTI4R0NNS1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwiaXYiOiJTTWdHekVEMHBNY05wQk00IiwidGFnIjoiclYwdnZPX1JMZTBJRDNuam5wcklLZyJ9xB-j-EVsBqwgxSMQEfsJzGfCuvsbw9ZmcbrYKFmeHiQ.XWChRAUirGixPLf5_-Pa3Q.Ck5akPNhJPlTKH30kFuadoOwcQuV1AUmLtOYjGFFsoUEr1U2H0y49zrNc6TTmlkX1T2TRTOPAaTqtb1_1YEg8A.8v_65BtY-tYA1QzBaqUcKA"
@@ -38,6 +42,11 @@ START_TEST(test_rhonabwy_parse_token_invalid)
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_CIPHER_B64, 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_TAG_B64, 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_DOTS, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_HEADER_IV_TAG, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_IV_LEN, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_IV_TYPE, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_TAG_SMALL, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_TAG_TYPE, 0), RHN_ERROR_PARAM);
   
   r_jwe_free(jwe_decrypt);
 }
@@ -71,7 +80,6 @@ START_TEST(test_rhonabwy_decrypt_token_invalid)
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_key_128_1), RHN_OK);
-  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_HEADER_IV_TAG, 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk, 0), RHN_ERROR_INVALID);
   r_jwk_free(jwk);
 
@@ -212,6 +220,36 @@ START_TEST(test_rhonabwy_flood_ok)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_serialize_invalid_iv)
+{
+  jwe_t * jwe;
+  jwk_t * jwk;
+  
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_key_128_1), RHN_OK);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_A128GCMKW), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "iv", ""), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk, 0), NULL);
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "iv", ";error;"), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk, 0), NULL);
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "iv", "cGxvcA"), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk, 0), NULL);
+  
+  ck_assert_int_eq(r_jwe_set_header_int_value(jwe, "iv", 42), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk, 0), NULL);
+  r_jwe_free(jwe);
+  
+  r_jwk_free(jwk);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -225,6 +263,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_ok);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_2_ok);
   tcase_add_test(tc_core, test_rhonabwy_flood_ok);
+  tcase_add_test(tc_core, test_rhonabwy_serialize_invalid_iv);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

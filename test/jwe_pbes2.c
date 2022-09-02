@@ -35,11 +35,17 @@ pbkdf2_hmac_sha512 (size_t key_length, const uint8_t *key,
 #define TOKEN_INVALID_DOTS "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiTGZfbk9xdU9TM1UiLCJwMmMiOjQwOTZ9vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
 #define TOKEN_OVERSIZE_P2S "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiWlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlaWEp5YjNKbGNuSnZjbVZ5Y205eVpYSnliM0psY25KdmNtVnljbTl5WlhKeWIzSmxjbkp2Y21WeWNtOXlDZyIsInAyYyI6NDA5Nn0K.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
 #define TOKEN_INVALID_ENC "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTkyQ0JDLUhTMzg0IiwicDJzIjoiTGZfbk9xdU9TM1UiLCJwMmMiOjQwOTZ9.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
+#define TOKEN_SMALL_P2S "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiTGZfbk8iLCJwMmMiOjQwOTZ9.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
+#define TOKEN_INVALID_P2S_B64 "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiO2Vycm9yOyIsInAyYyI6NDA5Nn0.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
+#define TOKEN_INVALID_P2S_TYPE "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjo0MiwicDJjIjo0MDk2fQ.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
+#define TOKEN_INVALID_P2C_NEG "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiTGZfbk9xdU9TM1UiLCJwMmMiOi00Mn0.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
+#define TOKEN_INVALID_P2C_STRING "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiTGZfbk9xdU9TM1UiLCJwMmMiOiIxMDAwIn0.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
 
 const char jwk_key_128_1[] = "{\"kty\":\"oct\",\"k\":\"AAECAwQFBgcICQoLDA0ODw\"}";
 const char jwk_key_128_2[] = "{\"kty\":\"oct\",\"k\":\"CAkKCwwNDg8QERITFBUWFw\"}";
 const char jwk_key_192_1[] = "{\"kty\":\"oct\",\"k\":\"AAECAwQFBgcICQoLDA0ODxAREhMUFRYX\"}";
 const char jwk_key_256_1[] = "{\"kty\":\"oct\",\"k\":\"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8\"}";
+const char password[] = "secret_password";
 
 #if GNUTLS_VERSION_NUMBER >= 0x03060e
 START_TEST(test_rhonabwy_parse_token_invalid)
@@ -54,6 +60,10 @@ START_TEST(test_rhonabwy_parse_token_invalid)
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_CIPHER_B64, 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_TAG_B64, 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_DOTS, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_P2S_B64, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_P2S_TYPE, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_P2C_NEG, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_P2C_STRING, 0), RHN_ERROR_PARAM);
   
   r_jwe_free(jwe_decrypt);
 }
@@ -141,8 +151,9 @@ START_TEST(test_rhonabwy_encrypt_decrypt_pbes2_hs256_ok)
   jwk_t * jwk;
   char * token = NULL;
   
-  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_key_128_1), RHN_OK);
+  /*ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_key_128_1), RHN_OK);*/
+  ck_assert_ptr_ne(jwk = r_jwk_quick_import(R_IMPORT_PASSWORD, password), NULL);
   
   ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
@@ -266,6 +277,48 @@ START_TEST(test_rhonabwy_flood_ok)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_flood_serialize_invalid_p2s_p2c)
+{
+  jwe_t * jwe;
+  jwk_t * jwk;
+  
+  ck_assert_ptr_ne(jwk = r_jwk_quick_import(R_IMPORT_PASSWORD, password), NULL);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_PBES2_H256), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "p2s", "cGxvcA"), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk, 0), NULL);
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "p2s", ";error;"), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk, 0), NULL);
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "p2s", ""), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk, 0), NULL);
+  
+  ck_assert_int_eq(r_jwe_set_header_int_value(jwe, "p2s", 42), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk, 0), NULL);
+  r_jwe_free(jwe);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_PBES2_H256), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "p2c", "error"), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk, 0), NULL);
+  
+  ck_assert_int_eq(r_jwe_set_header_int_value(jwe, "p2c", -42), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk, 0), NULL);
+  
+  r_jwe_free(jwe);
+  
+  r_jwk_free(jwk);
+}
+END_TEST
+
 START_TEST(test_rhonabwy_rfc_example)
 {
   const char jwe_a_c[] = 
@@ -322,6 +375,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_pbes2_hs384_ok);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_pbes2_hs512_ok);
   tcase_add_test(tc_core, test_rhonabwy_flood_ok);
+  tcase_add_test(tc_core, test_rhonabwy_flood_serialize_invalid_p2s_p2c);
   tcase_add_test(tc_core, test_rhonabwy_rfc_example);
 #endif
   tcase_set_timeout(tc_core, 30);

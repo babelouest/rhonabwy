@@ -11,6 +11,12 @@
 
 #if NETTLE_VERSION_NUMBER >= 0x030600
 
+#define HUGE_DATA "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis efficitur lectus sit amet libero gravida eleifend. Nulla aliquam accumsan erat, quis tincidunt purus ultricies eu. Aenean eu dui ac diam placerat mollis. Duis eget tempor ipsum, vel ullamcorper purus. Ut eget quam vehicula, congue urna vel, dictum risus. Duis tristique est sed diam lobortis commodo. Proin et urna in odio malesuada sagittis. Donec lectus ligula, porttitor sed lorem ut, malesuada posuere neque. Nullam et nisl a felis congue mattis id non lectus.\
+Quisque viverra hendrerit malesuada. Integer sollicitudin magna purus, in dignissim eros ullamcorper et. Praesent dignissim metus neque, eget tempor dolor tincidunt egestas. Nulla odio risus, tincidunt et egestas aliquet, pellentesque et eros. Etiam mattis orci a dui efficitur pharetra. Donec fermentum sem sed lacus finibus, nec luctus nisl vulputate. Donec sodales, nisi sed posuere maximus, lectus elit fermentum sapien, quis volutpat risus nisl vel dui. In vitae ante diam.\
+Vivamus a nisl quam. Proin in lectus nunc. Aliquam condimentum tellus non feugiat aliquam. Nulla eu mi ligula. Proin auctor varius massa sed consectetur. Nulla et ligula pellentesque, egestas dui eu, gravida arcu. Maecenas vehicula feugiat tincidunt. Aenean sed sollicitudin ex. Cras luctus facilisis erat eu pharetra. Vestibulum interdum consequat tellus nec sagittis. Aliquam tincidunt eget lectus non bibendum. Mauris ut consectetur diam.\
+Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed lorem lectus, ullamcorper consectetur quam ut, pharetra consectetur diam. Suspendisse eu erat quis nunc imperdiet lacinia vitae id arcu. Fusce non euismod urna. Aenean lacinia porta tellus nec rutrum. Aliquam est magna, aliquam non hendrerit eget, scelerisque quis sapien. Quisque consectetur et lacus non dapibus. Duis diam purus, vulputate convallis faucibus in, rutrum quis mi. Sed sed magna eget tellus semper suscipit a in augue.\
+Aenean vitae tortor quam. Praesent pulvinar nulla a nisi egestas, laoreet tempus mauris ullamcorper. Nam vulputate molestie velit, quis laoreet felis suscipit euismod. Pellentesque a enim dapibus, tincidunt lorem vel, suscipit turpis. Phasellus id metus vehicula, luctus sem nec, maximus purus. Duis dictum elit quam, quis rhoncus ex ullamcorper ut. Donec fringilla augue vitae vestibulum maximus. Mauris vel arcu eget arcu bibendum ornare."
+
 #define TOKEN "eyJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImVuYyI6IkExMjhDQkMtSFMyNTYiLCJhcHUiOiJjR3h2Y0FvIiwiYXB2IjoiWjNKMWRBbyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiQU13cm02anpoX2d3M1Zmb0xZNE4zSmktSU55aU9NNEZYbnJHODhqOUdodWEiLCJ5IjoiUlJOUFV3dlhDRUV3TVhmOElOcW9GYnYwWHpaNTVGSEN3dEV5cGhReFIwMCIsImNydiI6IlAtMjU2In19.Izru9wTpv5FPlPp7jpDZkueMZ3luMjXBaI2s0YgUtMiDPBAgXw8_GA.aKgPGQYvpPwHsQiDOeTFoQ.3syjxFimN-u5zY8t-mwIcZwVshIfYbzcxXID7FTbqdAKPWKlWfOdkXpk6V_u5p25U73Izv9qgr1UaWQAzaLli-LqFXptmCyciipYJc2BRhw.OwcQLpd3_PZ8wi2GGHqzww"
 #define TOKEN_INVALID_HEADER "eyJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImVuYyI6IkExMjhDQkMtSFMyNTYiLCJhcHUiOiJjR3h2Y0FvIiwiYXB2IjoiWjNKMWRBbyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiQU13cm02anpoX2d3M1Zmb0xZNE4zSmktSU55aU9NNEZYbnJHODhqOUdodWEiLCJ5IjoiUlJOUFV3dlhDRUV3TVhmOElOcW9GYnYwWHpaNTVGSEN3dEV5cGhReFIwMCIsImNydiI6IlAtMgo.Izru9wTpv5FPlPp7jpDZkueMZ3luMjXBaI2s0YgUtMiDPBAgXw8_GA.aKgPGQYvpPwHsQiDOeTFoQ.3syjxFimN-u5zY8t-mwIcZwVshIfYbzcxXID7FTbqdAKPWKlWfOdkXpk6V_u5p25U73Izv9qgr1UaWQAzaLli-LqFXptmCyciipYJc2BRhw.OwcQLpd3_PZ8wi2GGHqzww"
 #define TOKEN_INVALID_DOTS "eyJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImVuYyI6IkExMjhDQkMtSFMyNTYiLCJhcHUiOiJjR3h2Y0FvIiwiYXB2IjoiWjNKMWRBbyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiQU13cm02anpoX2d3M1Zmb0xZNE4zSmktSU55aU9NNEZYbnJHODhqOUdodWEiLCJ5IjoiUlJOUFV3dlhDRUV3TVhmOElOcW9GYnYwWHpaNTVGSEN3dEV5cGhReFIwMCIsImNydiI6IlAtMjU2In19Izru9wTpv5FPlPp7jpDZkueMZ3luMjXBaI2s0YgUtMiDPBAgXw8_GA.aKgPGQYvpPwHsQiDOeTFoQ.3syjxFimN-u5zY8t-mwIcZwVshIfYbzcxXID7FTbqdAKPWKlWfOdkXpk6V_u5p25U73Izv9qgr1UaWQAzaLli-LqFXptmCyciipYJc2BRhw.OwcQLpd3_PZ8wi2GGHqzww"
@@ -29,6 +35,8 @@
 #define TOKEN_OVERSIZE_MISSING_EPK "eyJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImVuYyI6IkExMjhDQkMtSFMyNTYiLCJhcHUiOiJjR3h2Y0FvIiwiYXB2IjoiWjNKMWRBbyIsImtpZCI6IjEiLCJlcGt1Ijp7Imt0eSI6IkVDIiwieCI6IkFNd3JtNmp6aF9ndzNWZm9MWTROM0ppLUlOeWlPTTRGWG5yRzg4ajlHaHVhIiwieSI6IlJSTlBVd3ZYQ0VFd01YZjhJTnFvRmJ2MFh6WjU1RkhDd3RFeXBoUXhSMDAiLCJjcnYiOiJQLTI1NiJ9fQo.Izru9wTpv5FPlPp7jpDZkueMZ3luMjXBaI2s0YgUtMiDPBAgXw8_GA.aKgPGQYvpPwHsQiDOeTFoQ.3syjxFimN-u5zY8t-mwIcZwVshIfYbzcxXID7FTbqdAKPWKlWfOdkXpk6V_u5p25U73Izv9qgr1UaWQAzaLli-LqFXptmCyciipYJc2BRhw.OwcQLpd3_PZ8wi2GGHqzww"
 #define TOKEN_OVERSIZE_INVALID_EPK "eyJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImVuYyI6IkExMjhDQkMtSFMyNTYiLCJhcHUiOiJjR3h2Y0FvIiwiYXB2IjoiWjNKMWRBbyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiY0d4dmNBbyIsInkiOiJaM0oxZEFvIiwiY3J2IjoiUC0yNTYifX0K.Izru9wTpv5FPlPp7jpDZkueMZ3luMjXBaI2s0YgUtMiDPBAgXw8_GA.aKgPGQYvpPwHsQiDOeTFoQ.3syjxFimN-u5zY8t-mwIcZwVshIfYbzcxXID7FTbqdAKPWKlWfOdkXpk6V_u5p25U73Izv9qgr1UaWQAzaLli-LqFXptmCyciipYJc2BRhw.OwcQLpd3_PZ8wi2GGHqzww"
 #define TOKEN_INVALID_ENC "eyJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImVuYyI6IkExOTJDQkMtSFMzODQiLCJhcHUiOiJjR3h2Y0FvIiwiYXB2IjoiWjNKMWRBbyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiQU13cm02anpoX2d3M1Zmb0xZNE4zSmktSU55aU9NNEZYbnJHODhqOUdodWEiLCJ5IjoiUlJOUFV3dlhDRUV3TVhmOElOcW9GYnYwWHpaNTVGSEN3dEV5cGhReFIwMCIsImNydiI6IlAtMjU2In19.Izru9wTpv5FPlPp7jpDZkueMZ3luMjXBaI2s0YgUtMiDPBAgXw8_GA.aKgPGQYvpPwHsQiDOeTFoQ.3syjxFimN-u5zY8t-mwIcZwVshIfYbzcxXID7FTbqdAKPWKlWfOdkXpk6V_u5p25U73Izv9qgr1UaWQAzaLli-LqFXptmCyciipYJc2BRhw.OwcQLpd3_PZ8wi2GGHqzww"
+#define TOKEN_INVALID_APU "eyJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImVuYyI6IkExMjhDQkMtSFMyNTYiLCJhcHUiOiI7ZXJyb3I7IiwiYXB2IjoiWjNKMWRBbyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiQU13cm02anpoX2d3M1Zmb0xZNE4zSmktSU55aU9NNEZYbnJHODhqOUdodWEiLCJ5IjoiUlJOUFV3dlhDRUV3TVhmOElOcW9GYnYwWHpaNTVGSEN3dEV5cGhReFIwMCIsImNydiI6IlAtMjU2In19.Izru9wTpv5FPlPp7jpDZkueMZ3luMjXBaI2s0YgUtMiDPBAgXw8_GA.aKgPGQYvpPwHsQiDOeTFoQ.3syjxFimN-u5zY8t-mwIcZwVshIfYbzcxXID7FTbqdAKPWKlWfOdkXpk6V_u5p25U73Izv9qgr1UaWQAzaLli-LqFXptmCyciipYJc2BRhw.OwcQLpd3_PZ8wi2GGHqzww"
+#define TOKEN_INVALID_APV "eyJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImVuYyI6IkExMjhDQkMtSFMyNTYiLCJhcHUiOiJjR3h2Y0FvIiwiYXB2IjoiO2Vycm9yOyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiQU13cm02anpoX2d3M1Zmb0xZNE4zSmktSU55aU9NNEZYbnJHODhqOUdodWEiLCJ5IjoiUlJOUFV3dlhDRUV3TVhmOElOcW9GYnYwWHpaNTVGSEN3dEV5cGhReFIwMCIsImNydiI6IlAtMjU2In19.Izru9wTpv5FPlPp7jpDZkueMZ3luMjXBaI2s0YgUtMiDPBAgXw8_GA.aKgPGQYvpPwHsQiDOeTFoQ.3syjxFimN-u5zY8t-mwIcZwVshIfYbzcxXID7FTbqdAKPWKlWfOdkXpk6V_u5p25U73Izv9qgr1UaWQAzaLli-LqFXptmCyciipYJc2BRhw.OwcQLpd3_PZ8wi2GGHqzww"
 
 const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                     "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\",\"alg\":\"ES256\"}";
@@ -494,6 +502,16 @@ START_TEST(test_rhonabwy_decrypt_token_invalid)
   ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_INVALID);
   r_jwe_free(jwe_decrypt);
   
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_APU, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_PARAM);
+  r_jwe_free(jwe_decrypt);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_APV, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, jwk_privkey, 0), RHN_ERROR_PARAM);
+  r_jwe_free(jwe_decrypt);
+  
   r_jwk_free(jwk_privkey);
 }
 END_TEST
@@ -925,6 +943,138 @@ START_TEST(test_rhonabwy_check_key_length_invalid_eddsa_key)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_check_apu)
+{
+  jwe_t * jwe, * jwe_decrypt;
+  jwk_t * jwk_privkey, * jwk_pubkey;
+  char * token = NULL;
+  struct _o_datum apv = {0, NULL}, apu = {0, NULL};
+  
+  ck_assert_int_eq(o_base64_encode_alloc((const unsigned char *)HUGE_DATA, o_strlen(HUGE_DATA)-20, &apu), 1);
+  apu.data[apu.size] = '\0';
+  
+  ck_assert_int_eq(o_base64_encode_alloc((const unsigned char *)HUGE_DATA, o_strlen(HUGE_DATA), &apv), 1);
+  apv.data[apv.size] = '\0';
+  
+  ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey, jwk_privkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_pubkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_int_eq(r_jwe_add_keys(jwe, NULL, jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jwe_add_keys(jwe_decrypt, jwk_privkey, NULL), RHN_OK);
+
+  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_ECDH_ES_A128KW), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A256CBC), RHN_OK);
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apu", (const char *)apu.data), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apv", "Z3J1dAo"), RHN_OK);
+  ck_assert_ptr_ne((token = r_jwe_serialize(jwe, NULL, 0)), NULL);
+  
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, token, 0), RHN_OK);
+  o_free(token);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_OK);
+  ck_assert_int_eq(0, memcmp(jwe_decrypt->payload, PAYLOAD, jwe_decrypt->payload_len));
+  
+  ck_assert_int_eq(r_jwe_set_header_int_value(jwe, "apu", 42), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apv", "Z3J1dAo"), RHN_OK);
+  ck_assert_ptr_ne((token = r_jwe_serialize(jwe, NULL, 0)), NULL);
+  
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, token, 0), RHN_ERROR_PARAM);
+  o_free(token);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_OK);
+  ck_assert_int_eq(0, memcmp(jwe_decrypt->payload, PAYLOAD, jwe_decrypt->payload_len));
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apu", ""), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apv", "Z3J1dAo"), RHN_OK);
+  ck_assert_ptr_ne((token = r_jwe_serialize(jwe, NULL, 0)), NULL);
+  
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, token, 0), RHN_ERROR_PARAM);
+  o_free(token);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_OK);
+  ck_assert_int_eq(0, memcmp(jwe_decrypt->payload, PAYLOAD, jwe_decrypt->payload_len));
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apu", ";error;"), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apv", "Z3J1dAo"), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, NULL, 0), NULL);
+  
+  o_free(apu.data);
+  o_free(apv.data);
+  r_jwk_free(jwk_privkey);
+  r_jwk_free(jwk_pubkey);
+  r_jwe_free(jwe);
+  r_jwe_free(jwe_decrypt);
+}
+END_TEST
+
+START_TEST(test_rhonabwy_check_apv)
+{
+  jwe_t * jwe, * jwe_decrypt;
+  jwk_t * jwk_privkey, * jwk_pubkey;
+  char * token = NULL;
+  struct _o_datum apv = {0, NULL}, apu = {0, NULL};
+  
+  ck_assert_int_eq(o_base64_encode_alloc((const unsigned char *)HUGE_DATA, o_strlen(HUGE_DATA)-20, &apu), 1);
+  apu.data[apu.size] = '\0';
+  
+  ck_assert_int_eq(o_base64_encode_alloc((const unsigned char *)HUGE_DATA, o_strlen(HUGE_DATA), &apv), 1);
+  apv.data[apv.size] = '\0';
+  
+  ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_init(&jwe_decrypt), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey, jwk_privkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_pubkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_int_eq(r_jwe_add_keys(jwe, NULL, jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jwe_add_keys(jwe_decrypt, jwk_privkey, NULL), RHN_OK);
+
+  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_ECDH_ES_A128KW), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A256CBC), RHN_OK);
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apv", (const char *)apu.data), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apu", "cGxvcAo"), RHN_OK);
+  ck_assert_ptr_ne((token = r_jwe_serialize(jwe, NULL, 0)), NULL);
+  
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, token, 0), RHN_OK);
+  o_free(token);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_OK);
+  ck_assert_int_eq(0, memcmp(jwe_decrypt->payload, PAYLOAD, jwe_decrypt->payload_len));
+  
+  ck_assert_int_eq(r_jwe_set_header_int_value(jwe, "apv", 42), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apu", "cGxvcAo"), RHN_OK);
+  ck_assert_ptr_ne((token = r_jwe_serialize(jwe, NULL, 0)), NULL);
+  
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, token, 0), RHN_ERROR_PARAM);
+  o_free(token);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_OK);
+  ck_assert_int_eq(0, memcmp(jwe_decrypt->payload, PAYLOAD, jwe_decrypt->payload_len));
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apv", ""), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apu", "cGxvcAo"), RHN_OK);
+  ck_assert_ptr_ne((token = r_jwe_serialize(jwe, NULL, 0)), NULL);
+  
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, token, 0), RHN_ERROR_PARAM);
+  o_free(token);
+  ck_assert_int_eq(r_jwe_decrypt(jwe_decrypt, NULL, 0), RHN_OK);
+  ck_assert_int_eq(0, memcmp(jwe_decrypt->payload, PAYLOAD, jwe_decrypt->payload_len));
+  
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apv", ";error;"), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "apu", "cGxvcAo"), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, NULL, 0), NULL);
+  
+  o_free(apu.data);
+  o_free(apv.data);
+  r_jwk_free(jwk_privkey);
+  r_jwk_free(jwk_pubkey);
+  r_jwe_free(jwe);
+  r_jwe_free(jwe_decrypt);
+}
+END_TEST
+
 START_TEST(test_rhonabwy_rfc_ok)
 {
   const char eph[] = " {\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"gI0GAILBdu7T53akrFmMyGcsF3n5dO7MmwNBHKW5SV0\",\"y\":\"SLW_xSffzlPWrHEVI30DHM_4egVwt3NQqeUD7nMFpps\",\"d\":\"0_NxaRPUMQoAJt50Gz8YiTr8gRTwyEaCumd-MToTmIo\"}",
@@ -987,6 +1137,8 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_check_key_length_ecdh_es_ecdsa);
   tcase_add_test(tc_core, test_rhonabwy_check_key_length_invalid_ecddsa_key);
   tcase_add_test(tc_core, test_rhonabwy_check_key_length_invalid_eddsa_key);
+  tcase_add_test(tc_core, test_rhonabwy_check_apu);
+  tcase_add_test(tc_core, test_rhonabwy_check_apv);
   tcase_add_test(tc_core, test_rhonabwy_rfc_ok);
 #endif
   tcase_set_timeout(tc_core, 30);

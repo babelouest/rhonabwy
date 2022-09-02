@@ -315,14 +315,14 @@ static Suite *rhonabwy_suite(void)
   s = suite_create("Rhonabwy JWE PBES2 encryption tests");
   tc_core = tcase_create("test_rhonabwy_pbes");
 #if GNUTLS_VERSION_NUMBER >= 0x03060e
-  //tcase_add_test(tc_core, test_rhonabwy_parse_token_invalid);
+  tcase_add_test(tc_core, test_rhonabwy_parse_token_invalid);
   tcase_add_test(tc_core, test_rhonabwy_decrypt_token_invalid);
-  /*tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_invalid_privkey);
+  tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_invalid_privkey);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_pbes2_hs256_ok);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_pbes2_hs384_ok);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_decrypt_pbes2_hs512_ok);
   tcase_add_test(tc_core, test_rhonabwy_flood_ok);
-  tcase_add_test(tc_core, test_rhonabwy_rfc_example);*/
+  tcase_add_test(tc_core, test_rhonabwy_rfc_example);
 #endif
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
   int number_failed;
   Suite *s;
   SRunner *sr;
-  y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWE PBES2 encryption tests");
+  //y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWE PBES2 encryption tests");
   r_global_init();
   s = rhonabwy_suite();
   sr = srunner_create(s);
@@ -345,6 +345,6 @@ int main(int argc, char *argv[])
   srunner_free(sr);
   
   r_global_close();
-  y_close_logs();
+  //y_close_logs();
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

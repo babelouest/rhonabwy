@@ -151,8 +151,6 @@ START_TEST(test_rhonabwy_encrypt_decrypt_pbes2_hs256_ok)
   jwk_t * jwk;
   char * token = NULL;
   
-  /*ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_key_128_1), RHN_OK);*/
   ck_assert_ptr_ne(jwk = r_jwk_quick_import(R_IMPORT_PASSWORD, password), NULL);
   
   ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);

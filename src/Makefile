@@ -37,7 +37,7 @@ OBJECTS=jwk.o jwks.o jws.o jwe.o jwt.o misc.o
 OUTPUT=librhonabwy.so
 VERSION_MAJOR=1
 VERSION_MINOR=1
-VERSION_PATCH=8
+VERSION_PATCH=9
 
 ifdef DISABLE_CURL
 R_WITH_CURL=0

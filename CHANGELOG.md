@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 1.1.9
+
+- Minor bugfixes
+- Add test cases
+
 ## 1.1.8
 
 - Fix build for 32 bits architectures

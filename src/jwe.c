@@ -491,11 +491,11 @@ nist_keyunwrap16(const void *ctx, nettle_cipher_func *decrypt,
   memcpy(R, ciphertext+8, cleartext_length);
 
   for (j=5; j>=0; j--) {
-    for (i=n-1; i>=0; i--) {
+    for (i=(int)n-1; i>=0; i--) {
 
       // B = AES-1(K, (A ^ t) | R[i]) where t = n*j+i
       A64 = ((uint64_t)A[0] << 56) | ((uint64_t)A[1] << 48) | ((uint64_t)A[2] << 40) | ((uint64_t)A[3] << 32) | ((uint64_t)A[4] << 24) | ((uint64_t)A[5] << 16) | ((uint64_t)A[6] << 8) | (uint64_t)A[7];
-      A64 ^= (n*j)+(i+1);
+      A64 ^= (uint64_t)((n*(size_t)j)+(size_t)(i+1));
       I[7] = (uint8_t)A64;
       I[6] = (uint8_t)(A64 >> 8);
       I[5] = (uint8_t)(A64 >> 16);
@@ -718,7 +718,7 @@ static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnu
     memset(kdf->data+kdf->size, 0, 3);
     memset(kdf->data+kdf->size+3, (uint8_t)alg_id_len, 1);
     memcpy(kdf->data+kdf->size+4, alg_id, alg_id_len);
-    kdf->size += 4+alg_id_len;
+    kdf->size += 4+(unsigned int)alg_id_len;
 
     if (!o_strnullempty(apu)) {
       if (!o_base64url_decode_alloc((const unsigned char *)apu, o_strlen(apu), &dat_apu)) {
@@ -741,7 +741,7 @@ static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnu
     if (dat_apu.size) {
       memcpy(kdf->data+kdf->size+4, dat_apu.data, dat_apu.size);
     }
-    kdf->size += dat_apu.size+4;
+    kdf->size += (unsigned int)dat_apu.size+4;
 
     if (!o_strnullempty(apv)) {
       if (!o_base64url_decode_alloc((const unsigned char *)apv, o_strlen(apv), &dat_apv)) {
@@ -764,7 +764,7 @@ static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnu
     if (dat_apv.size) {
       memcpy(kdf->data+kdf->size+4, dat_apv.data, dat_apv.size);
     }
-    kdf->size += dat_apv.size+4;
+    kdf->size += (unsigned int)dat_apv.size+4;
 
     if (alg == R_JWA_ALG_ECDH_ES) {
       key_data_len = _r_get_key_size(jwe->enc)*8;
@@ -851,7 +851,7 @@ static int _r_ecdh_compute(uint8_t * priv_d, size_t priv_d_size, uint8_t * pub_x
       break;
     }
     memcpy(Z->data, r_x_u, r_x_u_len);
-    Z->size = r_x_u_len;
+    Z->size = (unsigned int)r_x_u_len;
     ret = RHN_OK;
   } while (0);
   mpz_clear(z_priv_d);
@@ -878,7 +878,7 @@ static int _r_dh_compute(uint8_t * priv_k, uint8_t * pub_x, size_t crv_size, gnu
 
   if ((Z->data = gnutls_malloc(crv_size)) != NULL) {
     memcpy(Z->data, q, crv_size);
-    Z->size = crv_size;
+    Z->size = (unsigned int)crv_size;
     ret = RHN_OK;
   } else {
     y_log_message(Y_LOG_LEVEL_ERROR, "_r_dh_compute - Error gnutls_malloc");
@@ -915,7 +915,7 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
     if (jwk_priv != NULL) {
       type_priv = r_jwk_key_type(jwk_priv, &bits_priv, x5u_flags);
 
-      if ((type_priv & 0xffffff00) != (type & 0xffffff00)) {
+      if (((unsigned int)type_priv & 0xffffff00) != ((unsigned int)type & 0xffffff00)) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_jwe_ecdh_encrypt - Error invalid ephemeral key");
         *ret = RHN_ERROR_PARAM;
         break;
@@ -1462,9 +1462,9 @@ static json_t * r_jwe_pbes2_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int 
         break;
       }
       password.data = key;
-      password.size = key_len;
+      password.size = (unsigned int)key_len;
       g_salt.data = salt;
-      g_salt.size = salt_len;
+      g_salt.size = (unsigned int)salt_len;
       if (alg == R_JWA_ALG_PBES2_H256) {
         kek_len = 16;
         mac = GNUTLS_MAC_SHA256;
@@ -1561,9 +1561,9 @@ static int r_jwe_pbes2_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u
         break;
       }
       password.data = key;
-      password.size = key_len;
+      password.size = (unsigned int)key_len;
       g_salt.data = salt;
-      g_salt.size = salt_len;
+      g_salt.size = (unsigned int)salt_len;
       if (alg == R_JWA_ALG_PBES2_H256) {
         kek_len = 16;
         mac = GNUTLS_MAC_SHA256;
@@ -1720,9 +1720,9 @@ static json_t * r_jwe_aesgcm_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int
         }
       }
       key_g.data = key;
-      key_g.size = key_len;
+      key_g.size = (unsigned int)key_len;
       iv_g.data = iv;
-      iv_g.size = iv_size;
+      iv_g.size = (unsigned int)iv_size;
       if ((res = gnutls_cipher_init(&handle, r_jwe_get_alg_from_alg(alg), &key_g, &iv_g))) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error gnutls_cipher_init: '%s'", gnutls_strerror(res));
         y_log_message(Y_LOG_LEVEL_DEBUG, "%zu - %zu", key_g.size, iv_g.size);
@@ -1906,9 +1906,9 @@ static int r_jwe_aesgcm_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5
         break;
       }
       key_g.data = key;
-      key_g.size = key_len;
+      key_g.size = (unsigned int)key_len;
       iv_g.data = dat_iv.data;
-      iv_g.size = dat_iv.size;
+      iv_g.size = (unsigned int)dat_iv.size;
       if ((res = gnutls_cipher_init(&handle, r_jwe_get_alg_from_alg(alg), &key_g, &iv_g))) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error gnutls_cipher_init: '%s'", gnutls_strerror(res));
         ret = RHN_ERROR_INVALID;
@@ -1968,7 +1968,7 @@ static int r_jwe_set_ptext_with_block(unsigned char * data, size_t data_len, uns
     if (*ptext_len) {
       if ((*ptext = o_malloc(*ptext_len)) != NULL) {
         memcpy(*ptext, data, data_len);
-        memset(*ptext+data_len, (*ptext_len)-data_len, (*ptext_len)-data_len);
+        memset(*ptext+data_len, (int)((*ptext_len)-data_len), (*ptext_len)-data_len);
         ret = RHN_OK;
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_set_ptext_with_block - Error allocating resources for ptext (1)");
@@ -2290,7 +2290,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
       if (res & R_KEY_TYPE_RSA && bits >= 2048) {
         if (jwk != NULL && (g_pub = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags)) != NULL) {
           plainkey.data = jwe->key;
-          plainkey.size = jwe->key_len;
+          plainkey.size = (unsigned int)jwe->key_len;
           if (!(res = gnutls_pubkey_encrypt_data(g_pub, 0, &plainkey, &cypherkey))) {
             if (o_base64url_encode_alloc(cypherkey.data, cypherkey.size, &dat)) {
               j_return = json_pack("{ss%s{ss}}", "encrypted_key", dat.data, dat.size, "header", "alg", r_jwa_alg_to_str(alg));
@@ -2490,7 +2490,7 @@ static int _r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int 
       if (res & R_KEY_TYPE_RSA && res & R_KEY_TYPE_PRIVATE && bits >= 2048) {
         if (jwk != NULL && !o_strnullempty((const char *)jwe->encrypted_key_b64url) && (g_priv = r_jwk_export_to_gnutls_privkey(jwk)) != NULL) {
             if (o_base64url_decode_alloc(jwe->encrypted_key_b64url, o_strlen((const char *)jwe->encrypted_key_b64url), &dat)) {
-              cypherkey.size = dat.size;
+              cypherkey.size = (unsigned int)dat.size;
               cypherkey.data = dat.data;
               if (!(res = gnutls_privkey_decrypt_data(g_priv, 0, &cypherkey, &plainkey))) {
                 if (r_jwe_set_cypher_key(jwe, plainkey.data, plainkey.size) == RHN_OK) {
@@ -3470,13 +3470,13 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
     if (ret == RHN_OK) {
       if (cipher_cbc) {
         key.data = jwe->key+(jwe->key_len/2);
-        key.size = jwe->key_len/2;
+        key.size = (unsigned int)jwe->key_len/2;
       } else {
         key.data = jwe->key;
-        key.size = jwe->key_len;
+        key.size = (unsigned int)jwe->key_len;
       }
       iv.data = jwe->iv;
-      iv.size = jwe->iv_len;
+      iv.size = (unsigned int)jwe->iv_len;
       if (!(res = gnutls_cipher_init(&handle, _r_get_alg_from_enc(jwe->enc), &key, &iv))) {
         if (jwe->aad_b64url == NULL || jwe->token_mode == R_JSON_MODE_COMPACT) {
           aad = (unsigned char *)o_strdup((const char *)jwe->header_b64url);
@@ -3597,15 +3597,15 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
     if (ret == RHN_OK) {
       if (jwe->enc == R_JWA_ENC_A128CBC || jwe->enc == R_JWA_ENC_A192CBC || jwe->enc == R_JWA_ENC_A256CBC) {
         key.data = jwe->key+(jwe->key_len/2);
-        key.size = jwe->key_len/2;
+        key.size = (unsigned int)jwe->key_len/2;
         cipher_cbc = 1;
       } else {
         key.data = jwe->key;
-        key.size = jwe->key_len;
+        key.size = (unsigned int)jwe->key_len;
         cipher_cbc = 0;
       }
       iv.data = jwe->iv;
-      iv.size = jwe->iv_len;
+      iv.size = (unsigned int)jwe->iv_len;
       payload_enc_len = dat_ciph.size;
       if (!(res = gnutls_cipher_init(&handle, _r_get_alg_from_enc(jwe->enc), &key, &iv))) {
         if (jwe->aad_b64url == NULL || jwe->token_mode == R_JSON_MODE_COMPACT) {
@@ -4575,7 +4575,7 @@ int r_jwe_set_properties(jwe_t * jwe, ...) {
           ui_value = va_arg(vl, unsigned int);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jwe_add_keys_pem_der(jwe, ui_value, NULL, 0, ustr_value, size_value);
+          ret = r_jwe_add_keys_pem_der(jwe, (int)ui_value, NULL, 0, ustr_value, size_value);
           break;
         case RHN_OPT_DECRYPT_KEY_JWK:
           jwk = va_arg(vl, jwk_t *);
@@ -4601,7 +4601,7 @@ int r_jwe_set_properties(jwe_t * jwe, ...) {
           ui_value = va_arg(vl, unsigned int);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jwe_add_keys_pem_der(jwe, ui_value, ustr_value, size_value, NULL, 0);
+          ret = r_jwe_add_keys_pem_der(jwe, (int)ui_value, ustr_value, size_value, NULL, 0);
           break;
         default:
           ret = RHN_ERROR_PARAM;

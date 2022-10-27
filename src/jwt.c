@@ -1692,7 +1692,7 @@ int r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_ke
 
 int r_jwt_validate_claims(jwt_t * jwt, ...) {
   rhn_claim_opt option;
-  unsigned int ret = RHN_OK;
+  int ret = RHN_OK;
   int i_value;
   const char * str_key, * str_value;
   json_t * j_value, * j_expected_value;
@@ -1874,7 +1874,7 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
 
 int r_jwt_set_claims(jwt_t * jwt, ...) {
   rhn_claim_opt option;
-  unsigned int ret = RHN_OK;
+  int ret = RHN_OK;
   int i_value;
   const char * str_key, * str_value;
   json_t * j_value;
@@ -2173,7 +2173,7 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
           ui_value = va_arg(vl, unsigned int);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jwt_add_enc_keys_pem_der(jwt, ui_value, NULL, 0, ustr_value, size_value);
+          ret = r_jwt_add_enc_keys_pem_der(jwt, (int)ui_value, NULL, 0, ustr_value, size_value);
           break;
         case RHN_OPT_DECRYPT_KEY_JWK:
           jwk = va_arg(vl, jwk_t *);
@@ -2199,7 +2199,7 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
           ui_value = va_arg(vl, unsigned int);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jwt_add_enc_keys_pem_der(jwt, ui_value, ustr_value, size_value, NULL, 0);
+          ret = r_jwt_add_enc_keys_pem_der(jwt, (int)ui_value, ustr_value, size_value, NULL, 0);
           break;
         case RHN_OPT_VERIFY_KEY_JWK:
           jwk = va_arg(vl, jwk_t *);
@@ -2225,7 +2225,7 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
           ui_value = va_arg(vl, unsigned int);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jwt_add_sign_keys_pem_der(jwt, ui_value, NULL, 0, ustr_value, size_value);
+          ret = r_jwt_add_sign_keys_pem_der(jwt, (int)ui_value, NULL, 0, ustr_value, size_value);
           break;
         case RHN_OPT_SIGN_KEY_JWK:
           jwk = va_arg(vl, jwk_t *);
@@ -2251,7 +2251,7 @@ int r_jwt_set_properties(jwt_t * jwt, ...) {
           ui_value = va_arg(vl, unsigned int);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jwt_add_sign_keys_pem_der(jwt, ui_value, ustr_value, size_value, NULL, 0);
+          ret = r_jwt_add_sign_keys_pem_der(jwt, (int)ui_value, ustr_value, size_value, NULL, 0);
           break;
         default:
           ret = RHN_ERROR_PARAM;

@@ -259,7 +259,8 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk) {
   gnutls_privkey_t privkey = r_jwk_export_to_gnutls_privkey(jwk);
   gnutls_datum_t body_dat, sig_dat;
   unsigned char * to_return = NULL;
-  int alg = GNUTLS_DIG_NULL, res, flag = 0;
+  int alg = GNUTLS_DIG_NULL, res;
+  unsigned int flag = 0;
   struct _o_datum dat_sig = {0, NULL};
 
   switch (jws->alg) {
@@ -293,7 +294,7 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk) {
 
   if (privkey != NULL && GNUTLS_PK_RSA == gnutls_privkey_get_pk_algorithm(privkey, NULL)) {
     body_dat.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
-    body_dat.size = o_strlen((const char *)body_dat.data);
+    body_dat.size = (unsigned int)o_strlen((const char *)body_dat.data);
 
     if (!(res =
 #if GNUTLS_VERSION_NUMBER >= 0x030600
@@ -329,7 +330,7 @@ static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk) {
   unsigned char * binary_sig = NULL, * to_return = NULL;
   int alg = GNUTLS_DIG_NULL, res;
   unsigned int adj = 0;
-  int r_padding = 0, s_padding = 0, r_out_padding = 0, s_out_padding = 0;
+  unsigned int r_padding = 0, s_padding = 0, r_out_padding = 0, s_out_padding = 0;
   size_t sig_size;
   struct _o_datum dat_sig = {0, NULL};
 
@@ -346,7 +347,7 @@ static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk) {
 
   if (privkey != NULL && GNUTLS_PK_EC == gnutls_privkey_get_pk_algorithm(privkey, NULL)) {
     body_dat.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
-    body_dat.size = o_strlen((const char *)body_dat.data);
+    body_dat.size = (unsigned int)o_strlen((const char *)body_dat.data);
 
     if (!(res = gnutls_privkey_sign_data(privkey, alg, 0, &body_dat, &sig_dat))) {
       if (!gnutls_decode_rs_value(&sig_dat, &r, &s)) {
@@ -410,7 +411,7 @@ static unsigned char * r_jws_sign_eddsa(jws_t * jws, jwk_t * jwk) {
 
   if (privkey != NULL && GNUTLS_PK_EDDSA_ED25519 == gnutls_privkey_get_pk_algorithm(privkey, NULL)) {
     body_dat.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
-    body_dat.size = o_strlen((const char *)body_dat.data);
+    body_dat.size = (unsigned int)o_strlen((const char *)body_dat.data);
 
     if (!(res = gnutls_privkey_sign_data(privkey, GNUTLS_DIG_SHA512, 0, &body_dat, &sig_dat))) {
       if (o_base64url_encode_alloc(sig_dat.data, sig_dat.size, &dat_sig)) {
@@ -488,13 +489,14 @@ static int r_jws_verify_sig_hmac(jws_t * jws, jwk_t * jwk) {
 }
 
 static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
-  int alg = GNUTLS_DIG_NULL, ret = RHN_OK, flag = 0;
+  int alg = GNUTLS_DIG_NULL, ret = RHN_OK;
+  unsigned int flag = 0;
   gnutls_datum_t sig_dat = {NULL, 0}, data;
   gnutls_pubkey_t pubkey = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags);
   struct _o_datum dat_sig = {0, NULL};
 
   data.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
-  data.size = o_strlen((const char *)data.data);
+  data.size = (unsigned int)o_strlen((const char *)data.data);
 
   switch (jws->alg) {
     case R_JWA_ALG_RS256:
@@ -528,7 +530,7 @@ static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
     if (!o_strnullempty((const char *)jws->signature_b64url)) {
       if (o_base64url_decode_alloc(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), &dat_sig)) {
         sig_dat.data = dat_sig.data;
-        sig_dat.size = dat_sig.size;
+        sig_dat.size = (unsigned int)dat_sig.size;
         if (gnutls_pubkey_verify_data2(pubkey, alg, flag, &data, &sig_dat)) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Error invalid signature");
           ret = RHN_ERROR_INVALID;
@@ -559,7 +561,7 @@ static int r_jws_verify_sig_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   struct _o_datum dat_sig = {0, NULL};
 
   data.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
-  data.size = o_strlen((const char *)data.data);
+  data.size = (unsigned int)o_strlen((const char *)data.data);
 
   switch (jws->alg) {
     case R_JWA_ALG_ES256:
@@ -644,13 +646,13 @@ static int r_jws_verify_sig_eddsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
   struct _o_datum dat_sig = {0, NULL};
 
   data.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
-  data.size = o_strlen((const char *)data.data);
+  data.size = (unsigned int)o_strlen((const char *)data.data);
 
   if (pubkey != NULL && GNUTLS_PK_EDDSA_ED25519 == gnutls_pubkey_get_pk_algorithm(pubkey, NULL)) {
     if (!o_strnullempty((const char *)jws->signature_b64url)) {
       if (o_base64url_decode_alloc(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), &dat_sig)) {
         sig_dat.data = dat_sig.data;
-        sig_dat.size = dat_sig.size;
+        sig_dat.size = (unsigned int)dat_sig.size;
         if (gnutls_pubkey_verify_data2(pubkey, GNUTLS_SIGN_EDDSA_ED25519, 0, &data, &sig_dat)) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_eddsa - Error invalid signature");
           ret = RHN_ERROR_INVALID;
@@ -2112,7 +2114,7 @@ int r_jws_set_properties(jws_t * jws, ...) {
           ui_value = va_arg(vl, unsigned int);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jws_add_keys_pem_der(jws, ui_value, NULL, 0, ustr_value, size_value);
+          ret = r_jws_add_keys_pem_der(jws, (int)ui_value, NULL, 0, ustr_value, size_value);
           break;
         case RHN_OPT_SIGN_KEY_JWK:
           jwk = va_arg(vl, jwk_t *);
@@ -2138,7 +2140,7 @@ int r_jws_set_properties(jws_t * jws, ...) {
           ui_value = va_arg(vl, unsigned int);
           ustr_value = va_arg(vl, const unsigned char *);
           size_value = va_arg(vl, size_t);
-          ret = r_jws_add_keys_pem_der(jws, ui_value, ustr_value, size_value, NULL, 0);
+          ret = r_jws_add_keys_pem_der(jws, (int)ui_value, ustr_value, size_value, NULL, 0);
           break;
         default:
           ret = RHN_ERROR_PARAM;

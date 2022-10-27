@@ -23,7 +23,7 @@ RHONABWY_INCLUDE=../../include
 RHONABWY_LOCATION=../../src
 DESTDIR=/usr/local
 
-CFLAGS+=-Wall -I$(RHONABWY_INCLUDE) $(ADDITIONALFLAGS) $(CPPFLAGS)
+CFLAGS+=-Wall -Werror -Wextra -Wconversion -I$(RHONABWY_INCLUDE) $(ADDITIONALFLAGS) $(CPPFLAGS)
 LIBS=-lc -lrhonabwy -lorcania -lyder -ljansson -lgnutls -L$(RHONABWY_LOCATION)
 RHONABWY_LIBRARY=../../src/librhonabwy.so
 VALGRIND_COMMAND=valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes

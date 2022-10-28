@@ -7,6 +7,18 @@
 #include <orcania.h>
 #include <rhonabwy.h>
 
+int _r_deflate_payload(const unsigned char * uncompressed, size_t uncompressed_len, unsigned char ** compressed, size_t * compressed_len);
+
+int _r_inflate_payload(const unsigned char * compressed, size_t compressed_len, unsigned char ** uncompressed, size_t * uncompressed_len);
+
+#define PAYLOAD "The true sign of intelligence is not knowledge but imagination."
+
+#define HUGE_PAYLOAD "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis efficitur lectus sit amet libero gravida eleifend. Nulla aliquam accumsan erat, quis tincidunt purus ultricies eu. Aenean eu dui ac diam placerat mollis. Duis eget tempor ipsum, vel ullamcorper purus. Ut eget quam vehicula, congue urna vel, dictum risus. Duis tristique est sed diam lobortis commodo. Proin et urna in odio malesuada sagittis. Donec lectus ligula, porttitor sed lorem ut, malesuada posuere neque. Nullam et nisl a felis congue mattis id non lectus.\
+Quisque viverra hendrerit malesuada. Integer sollicitudin magna purus, in dignissim eros ullamcorper et. Praesent dignissim metus neque, eget tempor dolor tincidunt egestas. Nulla odio risus, tincidunt et egestas aliquet, pellentesque et eros. Etiam mattis orci a dui efficitur pharetra. Donec fermentum sem sed lacus finibus, nec luctus nisl vulputate. Donec sodales, nisi sed posuere maximus, lectus elit fermentum sapien, quis volutpat risus nisl vel dui. In vitae ante diam.\
+Vivamus a nisl quam. Proin in lectus nunc. Aliquam condimentum tellus non feugiat aliquam. Nulla eu mi ligula. Proin auctor varius massa sed consectetur. Nulla et ligula pellentesque, egestas dui eu, gravida arcu. Maecenas vehicula feugiat tincidunt. Aenean sed sollicitudin ex. Cras luctus facilisis erat eu pharetra. Vestibulum interdum consequat tellus nec sagittis. Aliquam tincidunt eget lectus non bibendum. Mauris ut consectetur diam.\
+Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed lorem lectus, ullamcorper consectetur quam ut, pharetra consectetur diam. Suspendisse eu erat quis nunc imperdiet lacinia vitae id arcu. Fusce non euismod urna. Aenean lacinia porta tellus nec rutrum. Aliquam est magna, aliquam non hendrerit eget, scelerisque quis sapien. Quisque consectetur et lacus non dapibus. Duis diam purus, vulputate convallis faucibus in, rutrum quis mi. Sed sed magna eget tellus semper suscipit a in augue.\
+Aenean vitae tortor quam. Praesent pulvinar nulla a nisi egestas, laoreet tempus mauris ullamcorper. Nam vulputate molestie velit, quis laoreet felis suscipit euismod. Pellentesque a enim dapibus, tincidunt lorem vel, suscipit turpis. Phasellus id metus vehicula, luctus sem nec, maximus purus. Duis dictum elit quam, quis rhoncus ex ullamcorper ut. Donec fringilla augue vitae vestibulum maximus. Mauris vel arcu eget arcu bibendum ornare."
+
 START_TEST(test_rhonabwy_info_json_t)
 {
   json_t * j_info_control = r_library_info_json_t();
@@ -236,6 +248,32 @@ START_TEST(test_rhonabwy_enc_conversion)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_inflate)
+{
+  unsigned char in_1[] = PAYLOAD, in_2[] = HUGE_PAYLOAD, * out_1 = NULL, * out_2 = NULL;
+  size_t out_1_len = 0, out_2_len = 0;
+
+  ck_assert_int_eq(_r_deflate_payload(in_1, sizeof(in_1), &out_1, &out_1_len), RHN_OK);
+  ck_assert_int_eq(_r_inflate_payload(out_1, out_1_len, &out_2, &out_2_len), RHN_OK);
+  ck_assert_int_eq(sizeof(in_1), out_2_len);
+  ck_assert_int_eq(0, memcmp(in_1, out_2, out_2_len));
+  r_free(out_1);
+  r_free(out_2);
+
+  ck_assert_int_eq(_r_deflate_payload(in_2, sizeof(in_2), &out_1, &out_1_len), RHN_OK);
+  ck_assert_int_eq(_r_inflate_payload(out_1, out_1_len, &out_2, &out_2_len), RHN_OK);
+  ck_assert_int_eq(sizeof(in_2), out_2_len);
+  ck_assert_int_eq(0, memcmp(in_2, out_2, out_2_len));
+  r_free(out_1);
+  r_free(out_2);
+
+  ck_assert_int_ne(_r_inflate_payload(in_1, sizeof(in_1), &out_1, &out_1_len), RHN_OK);
+  r_free(out_1);
+  ck_assert_int_ne(_r_inflate_payload(in_2, sizeof(in_2), &out_1, &out_1_len), RHN_OK);
+  r_free(out_1);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -247,6 +285,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_info_str);
   tcase_add_test(tc_core, test_rhonabwy_alg_conversion);
   tcase_add_test(tc_core, test_rhonabwy_enc_conversion);
+  tcase_add_test(tc_core, test_rhonabwy_inflate);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

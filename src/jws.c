@@ -1454,9 +1454,10 @@ int r_jws_advanced_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_
   int ret;
   char ** str_array = NULL;
   char * token = NULL;
-  size_t split_size = 0;
+  size_t split_size = 0, unzip_len = 0;
   json_t * j_header = NULL;
   struct _o_datum dat_header = {0, NULL}, dat_payload = {0, NULL};
+  unsigned char * unzip = NULL;
 
   if (jws != NULL && jws_str != NULL && jws_str_len) {
     token = o_strndup(jws_str, jws_str_len);
@@ -1487,8 +1488,13 @@ int r_jws_advanced_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_
 
           // Decode payload
           if (0 == o_strcmp("DEF", r_jws_get_header_str_value(jws, "zip"))) {
-            if (_r_inflate_payload(dat_payload.data, dat_payload.size, &jws->payload, &jws->payload_len) != RHN_OK) {
+            if (_r_inflate_payload(dat_payload.data, dat_payload.size, &unzip, &unzip_len) != RHN_OK) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error _r_inflate_payload");
+              ret = RHN_ERROR_PARAM;
+              break;
+            }
+            if (r_jws_set_payload(jws, unzip, unzip_len) != RHN_OK) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error r_jws_set_payload");
               ret = RHN_ERROR_PARAM;
               break;
             }
@@ -1515,6 +1521,7 @@ int r_jws_advanced_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_
           }
         } while (0);
         json_decref(j_header);
+        o_free(unzip);
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error decoding jws from base64url format");
         ret = RHN_ERROR_PARAM;

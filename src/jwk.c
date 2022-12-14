@@ -488,7 +488,7 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
   int ret;
   gnutls_privkey_t privkey;
   gnutls_pubkey_t pubkey;
-#if GNUTLS_VERSION_NUMBER >= 0x030400
+#ifdef GNUTLS_PK_EC
   int res;
   unsigned int ec_bits = 0;
   gnutls_pk_algorithm_t alg = GNUTLS_PK_UNKNOWN;
@@ -527,7 +527,7 @@ int r_jwk_generate_key_pair(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int type, u
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_generate_key_pair - Error gnutls_privkey_generate RSA");
           ret = RHN_ERROR;
         }
-#if GNUTLS_VERSION_NUMBER >= 0x030400
+#ifdef GNUTLS_PK_EC
       } else if (type == R_KEY_TYPE_EC || type == R_KEY_TYPE_EDDSA || type == R_KEY_TYPE_ECDH) {
         if (type == R_KEY_TYPE_EC) {
           if (bits == 256) {
@@ -1045,20 +1045,24 @@ int r_jwk_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned 
 }
 
 int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
-  int ret, res, pk_type;
+  int ret, pk_type;
   unsigned int bits = 0;
+#ifdef GNUTLS_SIGN_CB_FLAG_RSA_DIGESTINFO
+  int res;
   gnutls_x509_privkey_t x509_key = NULL;
   gnutls_datum_t m, e, d, p, q, u, e1, e2;
   unsigned char kid[64], kid_b64[128];
   size_t kid_len = 64, kid_b64_len = 128;
   struct _o_datum dat = {0, NULL};
-#if GNUTLS_VERSION_NUMBER >= 0x030600
+#endif
+#if GNUTLS_PK_EC
   gnutls_datum_t x, y, k;
   gnutls_ecc_curve_t curve;
 #endif
 
   if (jwk != NULL && key != NULL) {
     switch ((pk_type = gnutls_privkey_get_pk_algorithm(key, &bits))) {
+#ifdef GNUTLS_SIGN_CB_FLAG_RSA_DIGESTINFO
       case GNUTLS_PK_RSA:
         if ((res = gnutls_privkey_export_rsa_raw2(key, &m, &e, &d, &p, &q, &u, &e1, &e2, GNUTLS_EXPORT_FLAG_NO_LZ)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("RSA"));
@@ -1165,7 +1169,8 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
           ret = RHN_ERROR_PARAM;
         }
         break;
-#if GNUTLS_VERSION_NUMBER >= 0x030600
+#endif
+#if GNUTLS_PK_EC
       case GNUTLS_PK_ECDSA:
         if ((res = gnutls_privkey_export_ecc_raw2(key, &curve, &x, &y, &k, GNUTLS_EXPORT_FLAG_NO_LZ)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("EC"));
@@ -1358,19 +1363,23 @@ int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key) {
 }
 
 int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
-  int ret, res, pk_type;
+  int ret, pk_type;
   unsigned int bits = 0;
+#ifdef GNUTLS_SIGN_CB_FLAG_RSA_DIGESTINFO
+  int res;
   gnutls_datum_t m, e;
   unsigned char kid[64], kid_b64[128];
   size_t kid_len = 64, kid_b64_len = 128;
   struct _o_datum dat = {0, NULL};
-#if GNUTLS_VERSION_NUMBER >= 0x030600
+#endif
+#ifdef GNUTLS_PK_EC
   gnutls_datum_t x, y;
   gnutls_ecc_curve_t curve;
 #endif
 
   if (jwk != NULL && pub != NULL) {
     switch ((pk_type = gnutls_pubkey_get_pk_algorithm(pub, &bits))) {
+#ifdef GNUTLS_SIGN_CB_FLAG_RSA_DIGESTINFO
       case GNUTLS_PK_RSA:
         if ((res = gnutls_pubkey_export_rsa_raw2(pub, &m, &e, GNUTLS_EXPORT_FLAG_NO_LZ)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("RSA"));
@@ -1413,7 +1422,8 @@ int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub) {
           ret = RHN_ERROR_PARAM;
         }
         break;
-#if GNUTLS_VERSION_NUMBER >= 0x030600
+#endif
+#ifdef GNUTLS_PK_EC
       case GNUTLS_PK_ECDSA:
         if ((res = gnutls_pubkey_export_ecc_raw2(pub, &curve, &x, &y, GNUTLS_EXPORT_FLAG_NO_LZ)) == GNUTLS_E_SUCCESS) {
           json_object_set_new(jwk, "kty", json_string("EC"));

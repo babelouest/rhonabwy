@@ -211,7 +211,7 @@ static unsigned char * r_jws_sign_hmac(jws_t * jws, jwk_t * jwk) {
   }
 
   if (alg != GNUTLS_DIG_NULL) {
-    sig_len = gnutls_hmac_get_len(alg);
+    sig_len = (unsigned)gnutls_hmac_get_len(alg);
     sig = o_malloc(sig_len);
 
     key_len = o_strlen(r_jwk_get_property_str(jwk, "k"));

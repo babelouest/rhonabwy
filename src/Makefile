@@ -30,7 +30,7 @@ DESTDIR=/usr/local
 CONFIG_FILE=$(RHONABWY_INCLUDE)/rhonabwy-cfg.h
 CONFIG_TEMPLATE=$(RHONABWY_INCLUDE)/rhonabwy-cfg.h.in
 CC=gcc
-CFLAGS+=-c -pedantic -std=gnu99 -fPIC -Wall -Werror -Wextra -Wconversion -D_REENTRANT -I$(RHONABWY_INCLUDE) $(ADDITIONALFLAGS) $(CPPFLAGS)
+CFLAGS+=-c -pedantic -std=gnu99 -fPIC -Wall -Werror -Wextra -Wconversion -Werror=sign-conversion -D_REENTRANT -I$(RHONABWY_INCLUDE) $(ADDITIONALFLAGS) $(CPPFLAGS)
 LIBS=-L$(DESTDIR)/lib -lc $(shell pkg-config --libs liborcania) $(shell pkg-config --libs libyder) $(LCURL) $(shell pkg-config --libs jansson) $(shell pkg-config --libs gnutls) $(shell pkg-config --libs zlib) $(LDFLAGS)
 SONAME=-soname
 OBJECTS=jwk.o jwks.o jws.o jwe.o jwt.o misc.o

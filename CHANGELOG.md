@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 1.1.10
+
+- Build with flag `-Wconversion`
+- Small refactor
+
 ## 1.1.9
 
 - Minor bugfixes

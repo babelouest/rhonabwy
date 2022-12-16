@@ -1661,7 +1661,7 @@ static gnutls_cipher_algorithm_t r_jwe_get_alg_from_alg(jwa_alg alg) {
 static json_t * r_jwe_aesgcm_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u_flags, int * ret) {
   int res;
   unsigned char iv[96] = {0}, * key = NULL, cipherkey[64] = {0}, cipherkey_b64url[128] = {0}, tag[128] = {0}, tag_b64url[256] = {0};
-  size_t key_len = 0, cipherkey_b64url_len = 0, tag_b64url_len = 0, iv_size = gnutls_cipher_get_iv_size(r_jwe_get_alg_from_alg(alg)), tag_len = gnutls_cipher_get_tag_size(r_jwe_get_alg_from_alg(alg));
+  size_t key_len = 0, cipherkey_b64url_len = 0, tag_b64url_len = 0, iv_size = (unsigned)gnutls_cipher_get_iv_size(r_jwe_get_alg_from_alg(alg)), tag_len = (unsigned)gnutls_cipher_get_tag_size(r_jwe_get_alg_from_alg(alg));
   unsigned int bits = 0;
   gnutls_datum_t key_g, iv_g;
   gnutls_cipher_hd_t handle = NULL;
@@ -1713,7 +1713,7 @@ static json_t * r_jwe_aesgcm_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int
           break;
         }
         memcpy(iv, dat_iv_dec.data, dat_iv_dec.size);
-        if (iv_size != gnutls_cipher_get_iv_size(r_jwe_get_alg_from_alg(alg))) {
+        if (iv_size != (unsigned)gnutls_cipher_get_iv_size(r_jwe_get_alg_from_alg(alg))) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error invalid iv size");
           *ret = RHN_ERROR_PARAM;
           break;
@@ -1869,7 +1869,7 @@ static int r_jwe_set_enc_header(jwe_t * jwe, json_t * j_header) {
 static int r_jwe_aesgcm_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u_flags) {
   int ret, res;
   unsigned char * key = NULL, tag[128] = {0}, tag_b64url[256] = {0};
-  size_t key_len = 0, tag_b64url_len = 0, tag_len = gnutls_cipher_get_tag_size(r_jwe_get_alg_from_alg(alg));
+  size_t key_len = 0, tag_b64url_len = 0, tag_len = (unsigned)gnutls_cipher_get_tag_size(r_jwe_get_alg_from_alg(alg));
   unsigned int bits = 0;
   gnutls_datum_t key_g, iv_g;
   gnutls_cipher_hd_t handle = NULL;
@@ -2249,7 +2249,7 @@ static int r_jwe_compute_hmac_tag(jwe_t * jwe, unsigned char * ciphertext, size_
     hmac_size += 8;
 
     if (!(res = gnutls_hmac_fast(mac, jwe->key, jwe->key_len/2, compute_hmac, hmac_size, tag))) {
-      *tag_len = gnutls_hmac_get_len(mac)/2;
+      *tag_len = (unsigned)gnutls_hmac_get_len(mac)/2;
       ret = RHN_OK;
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_compute_hmac_tag - Error gnutls_hmac_fast: '%s'", gnutls_strerror(res));
@@ -2987,7 +2987,7 @@ int r_jwe_generate_iv(jwe_t * jwe) {
   if (jwe != NULL && jwe->enc != R_JWA_ENC_UNKNOWN) {
     o_free(jwe->iv_b64url);
     jwe->iv_b64url = NULL;
-    jwe->iv_len = gnutls_cipher_get_iv_size(_r_get_alg_from_enc(jwe->enc));
+    jwe->iv_len = (unsigned)gnutls_cipher_get_iv_size(_r_get_alg_from_enc(jwe->enc));
     o_free(jwe->iv);
     jwe->iv = NULL;
     if (jwe->iv_len) {
@@ -3448,7 +3448,7 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
       ret = RHN_ERROR;
     }
 
-    ptext_len = gnutls_cipher_get_block_size(_r_get_alg_from_enc(jwe->enc));
+    ptext_len = (unsigned)gnutls_cipher_get_block_size(_r_get_alg_from_enc(jwe->enc));
     if (0 == o_strcmp("DEF", r_jwe_get_header_str_value(jwe, "zip"))) {
       if (_r_deflate_payload(jwe->payload, jwe->payload_len, &text_zip, &text_zip_len) == RHN_OK) {
         if (r_jwe_set_ptext_with_block(text_zip, text_zip_len, &ptext, &ptext_len, _r_get_alg_from_enc(jwe->enc), cipher_cbc) != RHN_OK) {
@@ -3517,7 +3517,7 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
               ret = RHN_ERROR;
             }
           } else {
-            tag_len = gnutls_cipher_get_tag_size(_r_get_alg_from_enc(jwe->enc));
+            tag_len = (unsigned)gnutls_cipher_get_tag_size(_r_get_alg_from_enc(jwe->enc));
             memset(tag, 0, tag_len);
             if ((res = gnutls_cipher_tag(handle, tag, tag_len))) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_encrypt_payload - Error gnutls_cipher_tag: '%s'", gnutls_strerror(res));
@@ -3619,7 +3619,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
         }
         if (!(res = gnutls_cipher_decrypt2(handle, dat_ciph.data, dat_ciph.size, payload_enc, payload_enc_len))) {
           if (cipher_cbc) {
-            r_jwe_remove_padding(payload_enc, &payload_enc_len, gnutls_cipher_get_block_size(_r_get_alg_from_enc(jwe->enc)));
+            r_jwe_remove_padding(payload_enc, &payload_enc_len, (unsigned)gnutls_cipher_get_block_size(_r_get_alg_from_enc(jwe->enc)));
           }
           if (0 == o_strcmp("DEF", r_jwe_get_header_str_value(jwe, "zip"))) {
             if (_r_inflate_payload(payload_enc, payload_enc_len, &unzip, &unzip_len) == RHN_OK) {
@@ -3652,7 +3652,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
               ret = RHN_ERROR;
             }
           } else {
-            tag_len = gnutls_cipher_get_tag_size(_r_get_alg_from_enc(jwe->enc));
+            tag_len = (unsigned)gnutls_cipher_get_tag_size(_r_get_alg_from_enc(jwe->enc));
             memset(tag, 0, tag_len);
             if ((res = gnutls_cipher_tag(handle, tag, tag_len))) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_tag: '%s'", gnutls_strerror(res));

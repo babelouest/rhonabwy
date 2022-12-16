@@ -963,7 +963,7 @@ int r_jwt_generate_enc_iv(jwt_t * jwt) {
   int ret;
 
   if (jwt != NULL && jwt->enc != R_JWA_ENC_UNKNOWN) {
-    jwt->iv_len = gnutls_cipher_get_iv_size(_r_get_alg_from_enc(jwt->enc));
+    jwt->iv_len = (unsigned)gnutls_cipher_get_iv_size(_r_get_alg_from_enc(jwt->enc));
     o_free(jwt->iv);
     jwt->iv = NULL;
     if (jwt->iv_len) {

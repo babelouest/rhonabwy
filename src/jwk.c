@@ -2708,7 +2708,7 @@ char * r_jwk_thumbprint(jwk_t * jwk, int hash, int x5u_flags) {
         key_dump = json_dumps(key_members, JSON_COMPACT|JSON_SORT_KEYS);
         if (key_dump != NULL) {
           if (!gnutls_hash_fast(alg, key_dump, o_strlen(key_dump), jwk_hash)) {
-            if (o_base64url_encode(jwk_hash, gnutls_hash_get_len(alg), jwk_hash_b64, &jwk_hash_b64_len)) {
+            if (o_base64url_encode(jwk_hash, (unsigned)gnutls_hash_get_len(alg), jwk_hash_b64, &jwk_hash_b64_len)) {
               thumb = o_strndup((const char *)jwk_hash_b64, jwk_hash_b64_len);
             } else {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_thumbprint, error o_base64url_encode");

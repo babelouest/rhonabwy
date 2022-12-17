@@ -167,7 +167,7 @@ endif ()
 
 add_library(rhonabwy SHARED ${LIB_SRC})
 set_target_properties(rhonabwy PROPERTIES
-        COMPILE_OPTIONS "-Wextra;-Wconversion;-Werror=sign-conversion"
+        COMPILE_OPTIONS "-Wextra;-Wconversion"
         PUBLIC_HEADER "${INC_DIR}/rhonabwy.h;${PROJECT_BINARY_DIR}/rhonabwy-cfg.h"
         VERSION "${LIBRARY_VERSION}"
         SOVERSION "${LIBRARY_SOVERSION}")
@@ -253,7 +253,7 @@ option(BUILD_RNBYC "Build rnbyc application." ON)
 
 if (BUILD_RNBYC)
     add_executable(rnbyc ${RNBYC_DIR}/rnbyc.c ${INC_DIR}/rhonabwy.h ${PROJECT_BINARY_DIR}/rhonabwy-cfg.h)
-    set_target_properties(rnbyc PROPERTIES SKIP_BUILD_RPATH TRUE COMPILE_OPTIONS "-Wextra;-Wconversion;-Werror=sign-conversion")
+    set_target_properties(rnbyc PROPERTIES SKIP_BUILD_RPATH TRUE COMPILE_OPTIONS "-Wextra;-Wconversion")
     add_dependencies(rnbyc rhonabwy)
     target_link_libraries(rnbyc rhonabwy ${LIBS})
     install(TARGETS rnbyc RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

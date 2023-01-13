@@ -1,0 +1,1460 @@
+
+Generate Rhonabwy test certificates
+
+Generating a 3072 bit RSA private key...
+Generating a self signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 5fdc9c961e07e7c103c5764efd861657e75b1a1c
+	Validity:
+		Not Before: Fri Oct 28 12:44:32 UTC 2022
+		Not After: Fri Sep 27 12:44:32 UTC 2024
+	Subject: CN=rhonabwy_www,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:b7:db:99:03:1d:ad:f0:3f:49:cd:bc:2e:16:c1:c9
+			54:a3:04:fa:80:7f:19:20:09:a6:9a:9f:3d:38:cc:94
+			c1:55:4a:7c:28:7a:c7:fd:08:e9:2d:01:79:f4:19:ae
+			43:06:93:fc:2b:83:67:06:fc:44:94:9b:ab:27:23:5c
+			6b:29:f7:0b:fc:36:a2:14:f9:b7:06:57:ad:fe:cb:42
+			2c:0b:e7:47:39:1d:4b:7e:1b:ac:b9:c7:a9:66:a6:c7
+			63:f1:28:de:4f:60:57:4b:43:f6:23:d9:9d:3b:89:06
+			3e:5d:72:7b:55:dd:a5:60:b4:9e:94:51:f6:69:8b:83
+			db:73:d2:d8:0c:77:e2:a4:7b:ec:04:fd:79:63:32:ba
+			c5:b0:c9:75:d8:7b:7c:d2:da:f6:6c:a0:9c:d7:fa:16
+			05:df:92:57:8b:6a:49:d9:db:87:63:b8:29:26:ec:cc
+			b8:8b:1f:98:8f:09:23:3e:ac:7c:cd:19:f8:79:14:b8
+			b0:27:8f:5b:0f:5f:f6:de:87:59:c8:cc:db:a5:f9:31
+			55:ac:61:de:75:f6:ab:e5:6d:12:0f:bd:1d:bd:e5:8e
+			91:0f:74:3e:d5:2e:66:86:73:ce:f3:83:74:a1:5e:e3
+			fa:b5:c2:0b:fc:d4:95:ed:32:4a:2c:4e:28:db:86:65
+			e6:8a:71:e4:a2:a4:59:e0:ee:30:6b:30:25:cd:74:05
+			b6:27:38:5b:e8:3e:07:aa:9c:7f:43:5c:d8:37:57:33
+			8a:66:85:e3:5c:78:71:45:ba:cf:10:bf:14:c5:43:a4
+			1f:dd:0a:1d:7c:be:2f:5b:4c:c1:ab:f8:60:47:25:34
+			73:16:f8:7b:da:16:6e:c4:d5:1f:c2:b5:3e:d1:09:8e
+			40:2f:32:aa:b8:96:b9:07:79:d1:7b:a3:3b:10:a0:8e
+			5e:87:01:5a:0f:e3:c5:70:39:ae:e8:f0:53:02:2f:3b
+			cb:b6:05:4e:30:c1:f4:c7:20:58:c6:d9:53:2d:6c:cb
+			2b
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): FALSE
+		Key Usage (critical):
+			Digital signature.
+			Key encipherment.
+		Subject Key Identifier (not critical):
+			b7c438d3663262dfec7be15f869c21bd5cde7bc8
+Other Information:
+	Public Key ID:
+		sha1:b7c438d3663262dfec7be15f869c21bd5cde7bc8
+		sha256:41da60d725339522e91c9d24aa474d2673e2e4f87a6aa16e355059f9b664b141
+	Public Key PIN:
+		pin-sha256:Qdpg1yUzlSLpHJ0kqkdNJnPi5Ph6aqFuNVBZ+bZksUE=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a self signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 58d671fed54a4e7eae18ef89692bd04642c8fea3
+	Validity:
+		Not Before: Fri Oct 28 12:44:32 UTC 2022
+		Not After: Fri Sep 27 12:44:32 UTC 2024
+	Subject: CN=rhonabwy_1,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:c0:9e:eb:c8:3d:5e:e0:41:d4:29:3e:1e:ba:64:37
+			7c:a9:fd:3f:16:51:8f:51:e6:f7:5d:b2:1d:74:3a:5f
+			ec:ee:31:a1:27:61:c8:31:b7:35:7a:33:80:65:11:a6
+			11:89:46:7e:88:f4:02:5c:94:d8:25:df:8d:4c:85:28
+			b4:25:8e:01:6d:d0:5b:5f:2f:40:ca:53:ca:70:dc:48
+			98:b9:1a:4e:0d:28:be:6c:7d:0a:48:6e:b5:60:da:e8
+			f5:62:90:5a:e6:4f:bf:c1:70:48:c5:eb:73:93:bc:e7
+			53:e2:e7:83:d4:bd:e2:26:15:79:dc:d0:61:6a:61:8e
+			7b:bc:c4:38:90:f4:36:f2:5d:7f:c0:88:c7:ab:79:e4
+			44:f9:ac:ef:6d:35:86:73:d6:be:7b:60:0e:24:65:68
+			fe:ec:67:78:3c:97:03:8f:fb:fe:a6:8f:1a:2a:a8:c9
+			37:f3:64:9c:0a:75:07:c0:15:62:01:df:f7:02:04:3c
+			b9:3e:62:24:16:e9:8b:df:94:c1:1d:a4:db:c8:45:ec
+			6d:80:30:0d:02:9a:d5:a0:ed:8e:8e:3f:19:62:0e:f5
+			a7:61:63:f7:f5:b5:58:43:18:12:f2:be:a0:d1:c6:ce
+			6d:40:48:03:a5:a8:41:80:2e:b1:2c:20:70:68:60:07
+			ae:94:f1:10:d3:ab:72:bc:59:66:fc:bb:fc:a8:fc:dc
+			5b:bc:b4:06:08:a1:33:fa:ac:8c:d9:1e:be:8e:dd:9b
+			d1:3d:c3:12:b5:e8:3a:eb:d8:3e:91:60:df:93:f9:29
+			1f:4e:2e:25:3a:3f:26:04:d7:a8:25:d8:4f:1e:f5:0b
+			3b:98:7b:bd:95:3e:1b:87:73:77:53:3f:83:f0:e7:28
+			7b:9b:f7:04:2e:59:1c:ec:34:b4:ec:fe:ef:a9:d5:e6
+			82:b6:b2:00:e1:bb:af:60:16:e4:2a:01:2f:64:7d:14
+			da:4f:0c:94:58:47:ab:97:ea:01:75:f6:c8:6d:9e:11
+			fb
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): TRUE
+		Key Usage (critical):
+			Digital signature.
+			Certificate signing.
+		Subject Key Identifier (not critical):
+			0b3f62588e91328557fcc5646c682958ac90dd08
+Other Information:
+	Public Key ID:
+		sha1:0b3f62588e91328557fcc5646c682958ac90dd08
+		sha256:0c365ece947fa20e76d428160c03c8d2d854a7b273c44be690f89d048a9484f7
+	Public Key PIN:
+		pin-sha256:DDZezpR/og521CgWDAPI0thUp7JzxEvmkPidBIqUhPc=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 31881e65032d4b3b7cfab9d200493b6f874fd2ec
+	Validity:
+		Not Before: Fri Oct 28 12:44:33 UTC 2022
+		Not After: Fri Oct 13 12:44:33 UTC 2023
+	Subject: CN=Dave Lopper,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:9c:75:ca:d5:b5:f5:22:a0:ca:29:de:d3:dd:2f:11
+			27:6b:6c:8e:68:32:8f:2f:a6:11:f0:82:1b:b5:7e:70
+			d4:7b:54:b3:e6:64:f5:22:ff:85:f7:4c:b3:ea:48:8b
+			c8:b2:32:bb:dc:79:b2:06:9d:cf:61:24:ca:b8:7f:f1
+			26:15:51:e2:0d:a1:b2:34:c0:6c:7b:90:ab:02:27:e5
+			bb:8f:35:30:fd:dc:27:ed:89:c9:dc:71:8d:0d:dd:8d
+			bd:bf:c7:60:9c:22:af:8a:a7:c8:ff:5d:1b:ec:66:d6
+			c0:9a:71:44:7d:eb:9e:b1:13:5c:1a:d2:4d:40:ad:d6
+			48:21:d1:e6:6a:69:1e:8e:1d:ae:9d:33:45:09:09:2f
+			2f:77:ec:fd:a3:1e:b0:e6:27:48:64:8d:64:d0:1f:c2
+			14:67:cc:6c:24:15:d8:dd:d6:a9:6d:25:43:73:1b:70
+			28:b6:56:f5:90:ae:19:18:bf:23:21:d7:ee:7c:7e:a0
+			e2:d8:25:f0:fd:9e:58:65:3e:42:04:99:33:30:47:e6
+			a1:3c:fc:54:74:fa:a6:e2:7e:a0:d3:b9:4a:ff:59:db
+			37:15:b7:e7:6d:8d:fa:dd:03:f7:b1:47:3d:69:29:e5
+			16:72:84:d3:44:51:26:4b:55:12:64:55:42:7e:e6:c1
+			4e:0f:9f:6b:52:81:a4:2b:b0:76:c7:7b:1a:63:03:4f
+			17:0a:d6:e0:f7:5f:f2:3c:f7:56:bf:1c:f8:cd:06:20
+			f6:6e:8d:18:17:7c:d8:22:25:c0:b0:da:de:ca:75:16
+			74:22:50:ac:3e:80:e5:e4:1b:c2:eb:ad:24:90:34:70
+			84:7e:e9:47:0f:6c:28:92:6a:cc:ae:fc:9f:35:2e:76
+			17:78:df:47:41:e9:f5:a5:77:f2:9e:2d:23:c7:95:77
+			7d:b3:8a:ad:e1:11:ce:d1:fd:e7:a5:d2:bc:9e:27:d3
+			3c:e2:2c:87:2c:f9:ef:eb:61:46:75:e0:8a:c1:ca:16
+			13
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): FALSE
+		Key Usage (critical):
+			Digital signature.
+			Key encipherment.
+		Subject Key Identifier (not critical):
+			322f9175d24f6d149b749d00072f54d557c522f8
+		Authority Key Identifier (not critical):
+			0b3f62588e91328557fcc5646c682958ac90dd08
+Other Information:
+	Public Key ID:
+		sha1:322f9175d24f6d149b749d00072f54d557c522f8
+		sha256:01151d5d358cda9286c16fb1745dfe5b98ab4bffc536243b6972937a4a68a15a
+	Public Key PIN:
+		pin-sha256:ARUdXTWM2pKGwW+xdF3+W5irS//FNiQ7aXKTekpooVo=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a self signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 7d7926f760667b85cd776989114129df7e62093d
+	Validity:
+		Not Before: Fri Oct 28 12:44:33 UTC 2022
+		Not After: Fri Sep 27 12:44:33 UTC 2024
+	Subject: CN=rhonabwy_2,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:a9:c0:7a:ee:ff:b4:a6:a8:45:45:59:5f:de:0b:ea
+			e7:2f:81:83:79:74:b5:3a:bf:52:6b:cc:d2:42:5a:d4
+			89:10:5c:70:53:3b:d8:a2:02:21:4d:39:7c:db:23:ea
+			5b:4f:9a:c9:90:51:48:c7:9a:a8:7f:c2:2d:c9:8e:ad
+			49:be:65:84:12:60:a1:f8:ef:48:69:67:da:31:ee:2d
+			a7:26:00:a9:06:df:83:e0:4d:6c:1f:a8:e7:24:ca:f8
+			28:a0:51:b0:71:52:ed:de:06:34:76:ed:b3:5b:cf:f4
+			b2:7a:d1:4b:39:27:15:13:40:32:fb:3e:ee:9d:90:81
+			0f:a7:dc:f5:6f:79:48:eb:4b:e5:98:ee:de:d4:4f:81
+			8b:b0:bf:79:1d:05:63:22:1a:55:9a:a8:53:55:48:bb
+			e2:88:29:6d:8f:c3:f0:e1:ec:23:8a:e4:14:e2:12:07
+			35:81:35:52:32:9e:48:ed:a6:52:8d:b3:dc:cc:7b:bd
+			fd:90:aa:d3:c2:b3:fd:a7:99:21:a7:c6:f8:55:48:2e
+			93:91:97:6c:32:43:60:fe:80:6a:54:b0:53:cb:c9:50
+			65:91:05:90:57:68:9b:ff:bc:87:80:8e:1f:22:b1:48
+			7f:a2:fe:75:47:6e:32:2a:6d:ed:fc:87:a6:4d:b0:36
+			d9:8a:54:8a:d9:46:29:ad:e5:98:bb:2c:0f:8c:f4:f8
+			7c:70:f9:36:ad:c0:0d:47:0e:80:5a:1a:42:fd:26:24
+			82:b9:f2:48:ec:bb:a1:6c:39:f2:1e:ea:6c:7b:77:9a
+			32:80:61:c8:bd:8b:3a:1d:c8:99:0c:52:f8:b5:11:f6
+			bf:ea:2a:1b:26:53:98:00:1e:99:9e:85:3e:c0:3d:61
+			0e:1d:5e:1b:ca:92:d4:6f:d5:6a:b4:9d:77:fd:a0:2b
+			18:b1:7e:09:fe:b7:ae:0c:d3:81:53:09:44:b2:12:5f
+			21:60:b0:9e:db:4b:96:30:52:8a:f5:a4:a0:54:2b:d1
+			bf
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): TRUE
+		Key Usage (critical):
+			Digital signature.
+			Certificate signing.
+		Subject Key Identifier (not critical):
+			e91ee5b2803078214570bc77b75d365fdd20e3dc
+Other Information:
+	Public Key ID:
+		sha1:e91ee5b2803078214570bc77b75d365fdd20e3dc
+		sha256:ff5c14e93b5fa7e409b45c6e114162ded6c3a2756f1d2776d7fe43296e42fd6e
+	Public Key PIN:
+		pin-sha256:/1wU6Ttfp+QJtFxuEUFi3tbDonVvHSd21/5DKW5C/W4=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 341787bb3cf237450b0c90433e2893add068fc35
+	Validity:
+		Not Before: Fri Oct 28 12:44:34 UTC 2022
+		Not After: Fri Oct 13 12:44:34 UTC 2023
+	Subject: CN=Dave Lopper,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:d5:fe:c7:de:73:09:38:4e:8c:16:73:12:40:e7:c8
+			db:70:e5:79:99:2b:94:14:9a:5b:09:16:bd:d9:a2:16
+			90:a6:24:33:cd:01:77:25:62:71:33:55:90:a9:be:8d
+			7e:7b:b4:08:d1:91:ee:ad:7d:fd:75:5d:6f:3b:ca:b0
+			ed:15:f9:1a:eb:39:db:8d:b8:27:ab:c3:af:ab:b8:dd
+			0e:05:02:49:24:7a:c0:1f:f3:0e:d3:49:88:2a:da:59
+			cc:fb:53:73:48:2b:0e:e5:fa:0c:0f:64:c4:53:22:2c
+			a9:2b:2b:11:6f:cd:4a:cb:c2:d9:d3:48:74:be:aa:83
+			0b:22:73:72:00:37:f5:ae:fd:4e:a0:90:25:07:5f:22
+			19:94:ae:96:3a:b5:ab:cd:39:3d:65:a3:6f:3c:08:98
+			89:56:ad:72:06:7a:6a:4d:98:a6:13:78:72:9e:a2:94
+			b5:12:0d:71:88:36:e0:81:27:8d:69:e1:bd:fb:04:a5
+			0b:63:da:47:12:c0:0f:50:26:0d:75:6c:40:97:f4:45
+			f1:9c:3b:9b:be:d2:c9:cc:df:7e:06:e8:3b:7d:99:64
+			8d:ae:d8:2e:89:64:ad:fb:a4:3f:5d:ed:b1:9a:90:1f
+			51:ce:78:84:b4:d7:ac:a9:40:c1:1f:3d:94:9a:4c:1f
+			ef:53:61:29:4d:30:7c:13:f5:5e:7e:65:f3:cd:e4:12
+			8b:72:21:58:17:40:21:5f:bf:63:e8:dd:ab:1c:b2:42
+			d7:a0:57:b3:08:0d:22:6b:7d:22:2c:5b:16:b0:8a:89
+			75:dc:01:86:65:12:66:be:37:db:65:77:05:4c:da:07
+			f2:51:c0:bf:d0:32:da:d7:f7:77:c1:0d:82:42:e1:89
+			91:27:e6:d2:9f:f9:7b:62:00:c3:e9:87:20:02:b2:7e
+			48:fc:c1:e0:8b:c7:38:b2:52:a0:dc:b9:b4:67:a7:a7
+			31:b5:a7:83:11:53:50:ab:1e:30:b3:f0:a9:73:c0:5e
+			1b
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): FALSE
+		Key Usage (critical):
+			Digital signature.
+			Key encipherment.
+		Subject Key Identifier (not critical):
+			b346385aad42a0a514f43f6a7db2acb56dfbda18
+		Authority Key Identifier (not critical):
+			e91ee5b2803078214570bc77b75d365fdd20e3dc
+Other Information:
+	Public Key ID:
+		sha1:b346385aad42a0a514f43f6a7db2acb56dfbda18
+		sha256:5b147b37c1aac2ef1d8440a5551b79d21c2b5c49272fc0f2e428166905fdbf0b
+	Public Key PIN:
+		pin-sha256:WxR7N8Gqwu8dhEClVRt50hwrXEknL8Dy5CgWaQX9vws=
+
+
+
+Signing certificate...
+
+Generate Rhonabwy test certificates
+
+Generating a 3072 bit RSA private key...
+Generating a self signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 71225aed922c112bbda8f3cd9497cc5e61cc0d84
+	Validity:
+		Not Before: Fri Oct 28 13:01:46 UTC 2022
+		Not After: Fri Sep 27 13:01:46 UTC 2024
+	Subject: CN=rhonabwy_www,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:9b:8e:25:97:d0:cc:b3:77:55:23:83:75:47:d3:a8
+			7e:7d:ae:28:c7:af:6d:8c:62:e9:f3:8a:10:5e:e2:91
+			f5:6f:1f:0f:76:d1:f2:c2:11:1e:ee:67:12:f6:de:fd
+			ea:5b:53:6c:04:eb:34:2c:d9:d8:0e:ba:fb:e7:18:5a
+			70:fe:07:41:19:d7:c3:c5:68:db:a7:f8:37:c8:94:42
+			b6:f6:52:3b:bb:e7:cb:8b:ee:c9:52:e2:dd:b1:f6:06
+			84:c4:42:ad:f1:13:ad:50:8a:d9:2f:a7:1f:e3:4c:4f
+			db:48:3e:c4:3f:71:cd:2b:ac:81:c9:51:93:21:04:e9
+			20:81:62:05:ba:e8:5c:bf:b1:5a:92:2d:b4:7d:2e:8a
+			45:42:7c:40:f2:bf:ee:85:07:ae:36:02:93:b9:d9:38
+			2c:df:64:60:aa:3b:76:6d:3e:14:ba:a5:f5:cf:f1:c7
+			48:76:d0:66:f8:bf:e4:f6:72:84:62:fb:32:cb:59:1d
+			5c:d3:13:da:97:f9:f6:04:58:52:a0:a5:78:95:60:60
+			b0:d0:6e:5c:96:f4:c6:18:92:d2:43:47:6e:a6:cd:28
+			e0:dd:25:78:49:53:16:b4:86:b0:b3:ce:85:9f:26:fd
+			37:5b:d7:3d:92:7c:0f:2a:de:94:c3:eb:f7:9a:a2:2d
+			72:2f:28:7f:47:cb:25:1f:4f:b6:0b:20:c7:29:5b:fc
+			2c:a6:6d:f6:b0:5b:34:7b:7c:02:93:39:bc:82:39:f4
+			f9:1a:e3:95:e4:bf:cd:33:3e:9f:7e:ca:06:91:40:1e
+			be:42:bb:5b:33:fb:dc:fb:a1:52:2d:c7:0d:28:e2:e7
+			4b:e7:ae:8c:95:fc:ca:b4:f0:2f:15:b3:79:10:cf:f7
+			fc:a6:37:c9:bb:b5:3d:1e:83:b0:b0:dc:55:75:6f:e2
+			91:d1:33:b7:7e:04:c5:90:3d:92:27:cc:19:5b:77:5f
+			04:58:5c:00:11:de:b4:c6:92:a8:dc:63:33:ef:a7:b0
+			d1
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): FALSE
+		Key Usage (critical):
+			Digital signature.
+			Key encipherment.
+		Subject Key Identifier (not critical):
+			3d100a6e400cde377fea9124dba9afddfdca1659
+Other Information:
+	Public Key ID:
+		sha1:3d100a6e400cde377fea9124dba9afddfdca1659
+		sha256:02a61ccf2f6e15ba8b29027909b4241a301bf79835212e816460eb4eb90111be
+	Public Key PIN:
+		pin-sha256:AqYczy9uFbqLKQJ5CbQkGjAb95g1IS6BZGDrTrkBEb4=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a self signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 4485e63d98a16b64d1d137d50292c81859347e27
+	Validity:
+		Not Before: Fri Oct 28 13:01:47 UTC 2022
+		Not After: Fri Sep 27 13:01:47 UTC 2024
+	Subject: CN=rhonabwy_1,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:b1:f6:fa:80:44:57:80:45:c7:f3:98:c3:1f:d9:cb
+			19:4f:2e:98:94:f3:25:a2:ad:b9:5d:1d:b0:e0:0c:b8
+			46:0a:40:f5:f8:be:dd:7e:40:78:f7:c4:80:78:93:f4
+			3d:55:80:9a:d1:71:28:5b:e5:b5:86:59:b9:12:35:ed
+			a3:82:32:fb:51:6a:09:99:c4:a1:5e:19:45:12:47:57
+			67:fc:fe:ff:92:43:82:98:43:77:57:70:3a:88:b1:b5
+			fb:ce:ba:b8:85:9b:0c:34:6b:b5:19:18:df:10:7e:b4
+			4c:ec:84:f4:ab:91:6a:04:ad:0a:58:de:12:1a:63:9f
+			7f:75:71:8d:01:a1:a8:81:63:0d:ba:5d:f2:41:6d:d1
+			8d:93:9e:a3:83:35:1d:14:29:a6:01:cf:10:dd:13:96
+			e8:dd:c3:6a:2a:d0:54:5e:65:58:9e:c4:a3:3e:68:f4
+			1b:63:4e:63:7b:23:1d:4d:75:e3:5f:29:d3:4a:cd:09
+			bc:8a:e6:12:72:aa:a2:5b:41:a3:24:b5:54:b9:30:7c
+			07:3a:33:25:a9:65:39:53:73:91:32:9c:6d:b3:6e:cf
+			08:76:fd:6f:00:cc:15:96:1d:ca:b8:52:3c:3c:49:28
+			0d:b5:58:04:c8:d7:8f:de:da:cf:b4:1c:78:70:4a:a8
+			1a:fb:e3:d6:74:d9:b8:84:90:bd:b6:11:03:f4:f0:2c
+			c8:b8:ff:a8:ad:43:c0:fa:6e:44:9d:e0:9e:67:73:72
+			38:c4:ad:09:8c:46:45:c5:2f:21:cc:89:2c:89:c9:33
+			05:9f:d0:59:55:9f:c4:f2:60:b8:55:db:fa:f1:47:d9
+			df:ed:9c:20:27:33:06:67:c3:3e:29:d7:2d:39:c6:06
+			1a:e5:9d:80:02:3c:5e:c8:11:b7:a8:7e:83:27:b0:a7
+			18:09:d0:6a:21:0d:76:a4:4f:1a:3f:36:98:51:7a:55
+			1d:85:0f:e9:89:ae:2f:38:1b:75:ae:57:9f:04:f5:88
+			93
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): TRUE
+		Key Usage (critical):
+			Digital signature.
+			Certificate signing.
+		Subject Key Identifier (not critical):
+			675d4fc1b74a40dd34f70613be684d8589b1a72e
+Other Information:
+	Public Key ID:
+		sha1:675d4fc1b74a40dd34f70613be684d8589b1a72e
+		sha256:79d7861693254e2785ed826072f0c0b5ad536228e507bfa75ce22d8990ec8951
+	Public Key PIN:
+		pin-sha256:edeGFpMlTieF7YJgcvDAta1TYijlB7+nXOItiZDsiVE=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 5b5fc023ac933f3ff1d1a7ec96ca0337b75f1ba7
+	Validity:
+		Not Before: Fri Oct 28 13:01:47 UTC 2022
+		Not After: Fri Oct 13 13:01:47 UTC 2023
+	Subject: CN=Dave Lopper,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:c4:97:d1:b8:09:9a:f7:9f:3b:74:df:10:1c:66:c1
+			83:25:5b:da:ef:c9:2f:2b:cf:f5:3d:55:9f:73:5a:68
+			f0:62:76:16:48:12:2e:f5:79:ff:c9:da:61:e0:a5:6e
+			b1:f5:fb:c3:1e:ef:de:21:f4:f9:82:b5:0a:6b:71:80
+			8e:f5:83:93:db:88:ab:65:80:97:da:56:af:99:2b:77
+			ec:d7:6c:f9:e5:01:79:b8:df:5e:3c:27:85:42:b5:8d
+			19:52:fb:e2:c1:d9:77:57:ad:a8:1e:24:96:c6:9a:e7
+			cb:d4:c8:5d:4f:26:fa:2f:35:3e:e5:af:79:66:0f:fc
+			41:4e:a5:38:d5:cf:cb:d6:2d:74:0f:46:90:3c:21:bd
+			78:56:ef:ee:c3:92:29:2a:f2:16:df:2b:69:d1:dc:0f
+			bd:c5:7b:96:95:59:51:16:c8:de:48:fc:41:e1:6f:67
+			3c:46:18:b8:f4:6a:bc:4a:3f:02:ed:72:ef:f1:5f:9f
+			20:80:a8:b1:28:a7:d5:69:b1:1c:a9:95:e5:e1:ac:62
+			b6:74:6d:e3:ec:a3:95:76:f2:08:cb:73:e8:a2:f6:12
+			ff:76:05:98:b7:1c:4e:cc:19:3d:c4:e6:40:b2:29:0c
+			20:5d:fc:42:39:3a:eb:a4:7f:33:57:d3:b7:96:2c:76
+			18:5b:ac:e5:bf:92:63:08:54:bf:1c:57:3d:09:59:66
+			b9:19:55:be:b8:81:6a:40:5f:c3:74:00:8d:08:0c:32
+			35:73:70:26:ef:1c:c7:a9:de:c8:5a:c7:8a:0f:b1:1c
+			3f:5c:82:7f:15:07:4c:78:9e:e9:d8:38:a4:1f:f2:69
+			ec:b7:f3:a0:64:4d:aa:a0:d4:a2:80:99:1f:c1:33:70
+			02:de:d1:5b:50:8c:a4:89:ff:3e:05:09:37:da:fc:a4
+			4b:c5:dc:1f:9a:4a:29:fa:ee:c7:75:a5:90:3d:8a:f3
+			b2:ff:25:86:54:f5:e4:b7:d0:32:1e:64:29:19:89:26
+			81
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): FALSE
+		Key Usage (critical):
+			Digital signature.
+			Key encipherment.
+		Subject Key Identifier (not critical):
+			24c5ed6d5c80a067488d27335f83326a19bb3133
+		Authority Key Identifier (not critical):
+			675d4fc1b74a40dd34f70613be684d8589b1a72e
+Other Information:
+	Public Key ID:
+		sha1:24c5ed6d5c80a067488d27335f83326a19bb3133
+		sha256:23a28a32282d4a4dcb0013e422016714a321d0b098a29ec65ac526a0cbde559d
+	Public Key PIN:
+		pin-sha256:I6KKMigtSk3LABPkIgFnFKMh0LCYop7GWsUmoMveVZ0=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a self signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 407145c8243d87bcc9ab00bd1859aea6207cf12e
+	Validity:
+		Not Before: Fri Oct 28 13:01:47 UTC 2022
+		Not After: Fri Sep 27 13:01:47 UTC 2024
+	Subject: CN=rhonabwy_2,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:c4:56:61:2f:59:e9:23:ea:6a:f0:ca:a1:0b:61:61
+			08:64:7d:8c:61:91:06:70:d9:ac:e0:11:c1:b7:a3:ed
+			e9:8c:b2:fd:be:a1:c1:da:e7:78:84:dd:b9:25:a8:29
+			5c:82:7a:24:9b:6a:86:bd:a8:88:7f:01:13:14:c3:7e
+			b1:5c:fb:16:93:c9:78:d7:9c:f8:db:91:de:43:b1:db
+			cb:a4:e7:80:fd:2a:18:1f:58:cd:d4:10:12:ac:ce:19
+			c7:93:6e:ae:16:6f:5c:06:c5:85:9e:12:f6:11:5c:34
+			f5:00:22:66:d6:43:55:5e:f2:25:4f:71:1b:80:42:b9
+			9c:bc:2f:66:7d:69:e6:ea:d3:42:44:b7:39:11:80:b8
+			e6:0c:91:da:b3:b1:90:15:f6:be:2d:eb:a0:88:a0:5b
+			7d:73:8a:6f:82:27:62:2f:f4:a4:19:d2:c8:16:b3:0d
+			39:a3:04:8e:a9:25:eb:db:cd:db:a4:5a:90:f1:54:ed
+			5b:36:0b:1e:03:32:16:50:4d:40:af:90:84:7f:34:1f
+			85:b4:85:19:90:a3:cb:ac:16:5e:d1:be:7c:02:5f:a2
+			35:42:0a:ec:35:7f:a4:e6:c0:63:e0:56:37:e1:1a:30
+			0c:41:3d:fb:d0:33:c5:6d:df:e1:76:6c:76:84:04:d5
+			76:55:a2:5b:cc:86:99:d2:20:a9:34:81:e8:c3:84:fc
+			bd:f8:4b:64:9d:06:77:e0:a7:18:fc:89:ed:6c:48:ee
+			95:9e:0b:44:91:28:7f:df:58:57:5b:82:2b:d7:c4:88
+			50:8d:a3:d7:e0:61:35:23:ea:3d:e3:8b:ff:c0:1a:84
+			96:1f:45:b1:b7:50:2d:50:19:f3:c4:36:b1:fb:d5:e9
+			21:4b:6a:9d:b0:23:61:07:7c:e4:16:cb:1a:44:8e:27
+			17:a0:84:bf:21:c6:8a:0b:16:ca:a4:7f:ae:9b:44:2b
+			d9:ce:f5:d0:be:4f:22:b0:3c:ec:9c:46:4a:30:e9:1d
+			df
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): TRUE
+		Key Usage (critical):
+			Digital signature.
+			Certificate signing.
+		Subject Key Identifier (not critical):
+			64542593f60ffb89ea43bba6fbf8940935f602e3
+Other Information:
+	Public Key ID:
+		sha1:64542593f60ffb89ea43bba6fbf8940935f602e3
+		sha256:96865b8453d53147ca801076de61c8e8603459ec28573c5b6598c564bffaa7cd
+	Public Key PIN:
+		pin-sha256:loZbhFPVMUfKgBB23mHI6GA0WewoVzxbZZjFZL/6p80=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 68c4749b8d3b6bebc6a4e6ccb0c3f44685d3a833
+	Validity:
+		Not Before: Fri Oct 28 13:01:48 UTC 2022
+		Not After: Fri Oct 13 13:01:48 UTC 2023
+	Subject: CN=Dave Lopper,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:c5:21:1f:bd:00:cd:de:77:ec:82:36:ee:08:4a:72
+			f8:e2:fb:c0:61:69:0c:5f:ae:85:a2:53:ef:84:bd:8b
+			6b:c5:d6:65:ec:92:cd:c7:9d:42:fa:23:51:f8:68:cf
+			30:68:6e:ca:d6:a8:d1:da:b7:1b:a9:eb:31:d1:79:d7
+			db:81:91:04:25:25:42:cb:1a:1d:bd:4c:6a:c2:6b:88
+			97:27:5f:7b:ae:20:d0:1c:e1:fc:6d:85:2b:44:c6:a3
+			f4:8f:cb:59:04:ed:8f:d3:17:91:1f:a6:29:7f:a8:f7
+			9e:42:5c:e6:f5:49:6e:77:3a:df:20:be:4e:e6:20:cd
+			01:c7:bb:dc:03:4d:68:b5:e7:56:52:e2:19:7a:c2:cf
+			2c:65:f3:ee:c4:7a:1b:fe:d1:7e:b6:e4:f8:9a:41:6d
+			09:ae:3d:28:d6:2e:c4:31:14:a7:69:0f:05:2e:4b:a0
+			a1:c7:77:01:c9:2f:07:6d:ac:9c:c0:55:3d:0b:d7:9d
+			10:fa:0c:a5:28:35:b1:80:1b:ad:eb:6a:c2:e6:df:fb
+			3f:a3:3a:1b:b9:0f:72:ce:33:95:dc:60:6b:81:86:3a
+			19:ae:8f:ae:d0:15:a4:49:5c:2c:d5:08:b7:aa:d5:7c
+			9b:0b:c8:8a:87:1e:cf:ca:c5:e5:02:63:a8:fc:18:5a
+			3d:f8:f0:28:e0:1f:87:b0:51:d6:84:8f:0b:34:c9:a8
+			c7:0d:1b:04:e4:cd:be:db:5b:8b:19:d6:5a:16:7f:ce
+			9e:4e:fa:24:70:d1:b7:94:24:96:ef:6c:04:ae:1e:30
+			9a:21:46:b5:9d:1f:c7:dc:e1:7d:20:f0:c5:5a:eb:13
+			eb:56:45:de:82:82:79:e8:b9:50:27:93:8b:a4:2e:fc
+			a6:4f:52:41:c6:f7:49:c4:60:eb:08:f7:c1:97:da:01
+			75:e7:4c:fc:c5:e1:61:48:6a:ae:dd:1d:a0:a7:cd:1b
+			fe:ae:56:09:45:81:9e:f4:a1:ed:4d:c6:07:05:e0:67
+			55
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): FALSE
+		Key Usage (critical):
+			Digital signature.
+			Key encipherment.
+		Subject Key Identifier (not critical):
+			1e91b928208c9dc34425c949b9cac0301f7b5fa4
+		Authority Key Identifier (not critical):
+			64542593f60ffb89ea43bba6fbf8940935f602e3
+Other Information:
+	Public Key ID:
+		sha1:1e91b928208c9dc34425c949b9cac0301f7b5fa4
+		sha256:ebc7f1aa4c9752380244d5ed462533eb0fc49f01c66e50ca057455765af9cfe2
+	Public Key PIN:
+		pin-sha256:68fxqkyXUjgCRNXtRiUz6w/EnwHGblDKBXRVdlr5z+I=
+
+
+
+Signing certificate...
+
+Generate Rhonabwy test certificates
+
+Generating a 3072 bit RSA private key...
+Generating a self signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 5c8e93d6f80c9945e7025f6bd13c18fc660e0179
+	Validity:
+		Not Before: Fri Dec 16 00:09:20 UTC 2022
+		Not After: Fri Nov 15 00:09:20 UTC 2024
+	Subject: CN=rhonabwy_www,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:cc:73:47:12:de:9e:2a:80:d7:ec:5e:52:e2:8b:97
+			00:1b:d6:9c:c1:d5:7b:0d:08:e3:61:b8:34:25:69:01
+			24:24:f8:86:67:8f:9b:7e:73:9b:43:24:82:c9:0c:77
+			6e:b1:0d:1c:63:a5:e1:59:fe:71:eb:57:88:79:18:9b
+			d6:19:cf:3b:09:cf:a9:a6:1f:29:ac:2e:41:35:56:89
+			27:bb:d1:fa:59:78:1e:81:f0:9f:35:73:e8:eb:71:b5
+			25:37:3c:a7:b2:16:5d:14:83:56:22:d8:cb:e7:d8:69
+			40:3a:ba:cc:d5:84:81:8e:d1:75:a3:a8:f8:c3:dc:cc
+			fa:7f:d7:b8:d6:36:f8:80:bc:9e:b1:e9:a7:8f:c2:8e
+			fc:d6:d9:0d:b4:61:48:21:3c:cb:35:eb:8e:22:97:05
+			e2:85:2d:24:15:03:93:08:a7:dc:8f:27:31:2f:0d:2f
+			28:52:cb:49:ab:9c:65:39:22:9c:0e:59:81:1f:ec:01
+			46:f8:07:d5:da:56:60:1f:a6:a6:52:c8:44:92:82:4f
+			34:1b:5b:27:57:f6:a9:79:d0:1f:fd:d7:a0:73:a7:6e
+			b3:d7:49:e2:69:65:52:8d:eb:2b:16:6e:0d:7b:cd:1c
+			29:14:e4:e0:88:29:6e:b2:5f:05:ba:4f:fd:a1:95:17
+			53:d0:14:ae:79:da:a2:74:cf:5f:a2:1e:9a:84:29:99
+			e3:91:b6:0b:77:9b:bf:42:69:80:cc:5f:62:bc:3a:70
+			49:79:dc:7e:ac:d8:e5:92:ed:12:c3:cb:3e:41:fe:b6
+			50:9c:92:e8:13:b6:ce:33:3b:77:79:1b:26:64:84:37
+			a5:33:9b:7f:58:07:25:29:ef:b7:5e:70:9e:65:fe:11
+			0f:1b:b1:d7:e1:6a:90:f6:88:6d:d5:91:e9:48:4c:0c
+			b9:6a:df:20:35:24:5e:8a:1c:c4:30:2c:24:c9:c2:bb
+			f1:3e:c9:7f:06:4c:d3:e4:9e:0c:85:ea:7d:ad:5e:d9
+			3d
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): FALSE
+		Key Usage (critical):
+			Digital signature.
+			Key encipherment.
+		Subject Key Identifier (not critical):
+			61061c4cf872488d94c913efc7350b60a3b2c100
+Other Information:
+	Public Key ID:
+		sha1:61061c4cf872488d94c913efc7350b60a3b2c100
+		sha256:6246f9e6c82e571cbcd24f8230843a22dbf1335e041fc613fc84c0a30eb6ea20
+	Public Key PIN:
+		pin-sha256:Ykb55sguVxy80k+CMIQ6ItvxM14EH8YT/ITAow626iA=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a self signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 594b808f95cece41424d45f8e473d7cd84042f08
+	Validity:
+		Not Before: Fri Dec 16 00:09:20 UTC 2022
+		Not After: Fri Nov 15 00:09:20 UTC 2024
+	Subject: CN=rhonabwy_1,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:96:4d:9c:9d:08:6d:89:6f:66:b7:e0:d4:b2:f1:b8
+			c0:5f:d4:43:a6:c1:38:27:74:b2:12:96:05:c3:4b:7b
+			8f:bf:f1:cc:ca:5a:c4:04:05:73:d0:4a:49:1c:26:a7
+			8b:75:b3:8a:4f:bb:cd:d4:ef:a7:19:bb:b3:9b:23:36
+			51:84:7b:0d:8c:8d:26:76:b1:95:73:fa:87:24:e3:02
+			9f:a8:22:02:f5:bc:81:fa:18:30:ef:c2:7a:79:b0:3a
+			4c:ff:06:ed:b4:16:5f:36:08:d9:2f:42:5a:76:a1:81
+			65:26:5e:fb:9e:20:9e:2e:68:29:e0:48:e4:12:a1:05
+			ec:39:0a:3f:2b:91:6b:59:a8:9b:55:de:25:f5:78:5b
+			5e:5a:d0:c3:13:16:7b:25:3c:0a:7d:65:d5:68:23:f1
+			2b:88:e0:dc:e3:09:c9:0f:5e:49:4b:af:ee:90:2f:24
+			12:81:8b:a1:03:33:f5:7b:ce:4d:3b:01:08:83:8a:a8
+			92:d7:0d:74:1c:34:9d:83:d1:a5:48:fc:62:99:df:18
+			80:7c:3a:5f:7a:d6:01:d0:77:6c:2c:b4:3a:c5:1b:ee
+			2c:d6:77:7e:20:dc:bb:23:24:e5:48:42:75:53:6e:55
+			47:48:6f:80:05:90:22:54:18:bc:53:c0:2d:85:0b:4d
+			73:39:0a:da:6e:61:df:99:3c:29:3f:06:0c:16:43:54
+			98:cb:14:ed:99:53:5c:6d:2f:89:61:fa:da:f7:24:02
+			0d:cd:b6:49:23:b8:7d:bc:ee:19:a4:f7:15:84:de:48
+			f8:bf:8a:cf:55:ed:1c:ce:2b:75:6b:c0:20:de:fd:18
+			81:98:de:03:27:85:2d:87:c1:58:e7:fc:f3:13:4d:67
+			87:6a:b8:c6:05:e0:42:58:7a:39:19:64:51:7d:a4:27
+			a9:46:38:f6:68:49:3a:91:84:e3:d9:ea:be:8d:b6:bd
+			3d:2b:b3:8e:fa:fc:77:7a:50:c2:47:36:f1:8e:99:2c
+			59
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): TRUE
+		Key Usage (critical):
+			Digital signature.
+			Certificate signing.
+		Subject Key Identifier (not critical):
+			e185f607da72fd1ace1ef7016caf9428cd144456
+Other Information:
+	Public Key ID:
+		sha1:e185f607da72fd1ace1ef7016caf9428cd144456
+		sha256:9c6f40ffb8f7eb877fee123d49aff7672f0c7c51fe965e08c173a176cbf6a6ca
+	Public Key PIN:
+		pin-sha256:nG9A/7j364d/7hI9Sa/3Zy8MfFH+ll4IwXOhdsv2pso=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 056bb82f6bb7e4080babc6ef51139354c6b8a87a
+	Validity:
+		Not Before: Fri Dec 16 00:09:21 UTC 2022
+		Not After: Fri Dec 01 00:09:21 UTC 2023
+	Subject: CN=Dave Lopper,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:a1:1d:c0:ed:b9:f0:41:36:42:33:ef:a6:b7:96:f4
+			6e:9c:b3:36:3e:56:af:85:5d:bc:c8:45:49:cf:fb:68
+			23:c5:2a:1b:f4:93:1c:61:8c:68:18:2d:bf:1c:f2:7f
+			4d:7d:04:8a:b9:68:83:24:a7:7c:d6:4f:24:fd:86:fd
+			06:7e:1c:1d:41:df:3a:e6:c8:fa:6c:d3:60:ad:fe:e8
+			c7:02:eb:c6:72:a4:8b:6d:16:76:57:c3:b6:d4:4e:57
+			ef:47:9e:7d:89:aa:c8:2e:a5:48:a9:ab:4c:9a:12:d1
+			1f:21:a3:96:4a:1a:69:9d:7b:bb:a9:1e:01:85:ad:06
+			08:f5:b4:8b:0a:8f:b6:06:e6:76:63:4a:c7:15:78:ab
+			1b:5b:7e:9c:a2:26:31:f7:54:ee:63:cd:ab:37:95:0b
+			8f:85:43:71:70:4a:00:9f:47:af:f7:57:04:a0:f9:64
+			35:6e:4f:99:07:c4:a4:12:b0:13:a8:cf:8a:bd:87:be
+			b3:c0:f5:5a:53:6b:e0:3f:f7:f6:d6:68:79:5a:99:d2
+			05:bf:46:ab:da:a5:17:7c:47:bb:41:f5:0d:9d:86:46
+			5f:4d:82:8c:77:45:18:b4:42:1d:77:c7:3d:a2:36:b4
+			37:83:e6:4d:22:76:6d:9c:a6:9b:23:0f:fa:c9:06:48
+			25:55:84:17:a4:52:25:6e:0c:2c:95:fc:7c:49:61:88
+			d9:9d:46:d4:6b:b3:cc:ff:f8:68:1b:91:ae:f5:25:a9
+			29:6f:8f:a8:46:53:b3:49:4f:26:b3:76:25:8e:a6:e6
+			4a:65:4c:1b:c7:85:2b:12:aa:65:e2:43:10:1d:0f:03
+			fb:37:fa:79:ab:1d:66:03:f2:cc:33:7d:51:cd:41:36
+			f7:59:e7:d0:e6:20:5f:5e:c5:49:29:93:eb:e7:14:12
+			de:0a:fb:37:91:02:2c:d2:a7:ec:07:ea:0f:b2:3f:82
+			9c:81:df:47:9d:0c:ec:8f:1e:89:8f:5b:37:ed:46:a3
+			c7
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): FALSE
+		Key Usage (critical):
+			Digital signature.
+			Key encipherment.
+		Subject Key Identifier (not critical):
+			ad15b661f15a8f975408b924d6a54c9530a01b57
+		Authority Key Identifier (not critical):
+			e185f607da72fd1ace1ef7016caf9428cd144456
+Other Information:
+	Public Key ID:
+		sha1:ad15b661f15a8f975408b924d6a54c9530a01b57
+		sha256:2a3923bc2a67592f1972fb7822cbfa0515c27ef2180366a6d15ef1f7e677c8d7
+	Public Key PIN:
+		pin-sha256:KjkjvCpnWS8Zcvt4Isv6BRXCfvIYA2am0V7x9+Z3yNc=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a self signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 5eee7e34a649e140bec237c84d5d60d4df9de875
+	Validity:
+		Not Before: Fri Dec 16 00:09:21 UTC 2022
+		Not After: Fri Nov 15 00:09:21 UTC 2024
+	Subject: CN=rhonabwy_2,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:c3:86:8d:e4:22:50:b1:f5:f5:c7:13:88:8c:45:b1
+			ad:d6:ff:f7:8a:18:20:ca:63:5e:8c:30:a4:3c:e1:8d
+			50:29:00:ec:ec:8d:3f:51:96:f2:5d:e2:20:9e:0c:69
+			f6:f1:c4:37:e3:23:43:1d:f0:b2:6e:34:b7:51:2a:98
+			83:e3:db:f5:3b:3b:74:0a:ec:5a:c8:9c:7e:d2:e1:40
+			1a:ce:ec:8a:53:99:b8:e7:00:af:3e:66:d8:41:c3:ff
+			ca:e8:53:ea:a8:c5:dc:15:8f:f8:86:af:d0:d0:31:f7
+			b5:14:ba:31:9f:ae:4d:8d:a0:39:3a:69:07:dc:8d:bf
+			c7:94:76:8c:c3:81:c1:f4:9d:2e:28:84:92:f3:a7:7d
+			f3:a1:65:fc:44:4d:c8:f5:33:53:d7:a1:0e:a2:7a:00
+			72:91:2b:ac:87:4a:6c:15:f4:9d:21:26:ac:f5:9a:11
+			0c:62:2f:55:03:9a:52:08:93:0c:e3:d7:4a:6f:33:19
+			15:19:0a:a5:51:93:54:04:cc:1a:b1:80:5e:d0:c3:c2
+			ab:1a:4a:c2:b3:86:4c:e1:ce:58:ee:55:e6:b1:80:15
+			84:88:d7:f9:dd:19:79:78:5c:06:2b:09:78:8b:1a:3b
+			ce:8b:64:28:dd:af:aa:38:af:51:a9:cb:44:3a:0c:fe
+			03:30:85:7a:42:89:c3:4a:54:82:16:4e:52:b0:3e:54
+			81:2c:33:6c:9e:61:cd:5f:24:e1:5a:21:57:f6:dd:2c
+			85:6e:04:f7:eb:67:91:b6:79:3b:8c:fc:5f:76:6a:a2
+			02:6d:f9:1b:34:2d:1d:1c:c9:00:4f:de:89:cd:2a:73
+			7b:03:be:ac:4f:0f:1a:f9:63:d2:a6:38:a7:24:d2:6a
+			5f:c2:2f:eb:a5:e6:35:6a:2c:88:80:9e:8f:2f:cd:97
+			e4:fb:57:f7:3f:87:d2:91:b4:94:b4:26:b5:25:57:55
+			d2:eb:1d:4a:64:10:d7:10:c7:36:07:80:5d:32:b0:43
+			05
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): TRUE
+		Key Usage (critical):
+			Digital signature.
+			Certificate signing.
+		Subject Key Identifier (not critical):
+			30ec327a9785fb55611f544c97506afd29735764
+Other Information:
+	Public Key ID:
+		sha1:30ec327a9785fb55611f544c97506afd29735764
+		sha256:5c1345881a67a5ac1f2feafcb30a45aa841624e7196c548b00b88d9e6c48481d
+	Public Key PIN:
+		pin-sha256:XBNFiBpnpawfL+r8swpFqoQWJOcZbFSLALiNnmxISB0=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 6e02b0975c43edc7130aef4751057ecff654455f
+	Validity:
+		Not Before: Fri Dec 16 00:09:22 UTC 2022
+		Not After: Fri Dec 01 00:09:22 UTC 2023
+	Subject: CN=Dave Lopper,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:ce:c8:75:88:ef:54:95:36:a5:5d:11:5d:e6:55:ec
+			b5:96:43:61:46:e2:89:b6:4e:7c:f0:8f:0f:b0:40:96
+			fa:a3:23:47:ff:69:fe:f0:eb:44:57:fd:5b:a8:b7:cd
+			9f:5c:36:9b:2e:3d:10:21:88:05:76:28:76:b3:76:e3
+			35:86:4d:c5:ff:4b:2e:d0:10:af:87:26:d3:cf:a3:3b
+			30:09:db:00:0b:8d:4d:40:f0:ee:14:b0:3d:38:ce:09
+			b5:c9:d3:9f:86:4b:6d:6d:bb:b3:03:f3:ef:35:3a:ac
+			be:d4:c8:4c:61:39:1a:99:17:c5:2d:98:80:5b:d7:93
+			4b:cb:ca:e1:c8:11:9f:b7:72:a6:bc:52:6c:e2:17:bb
+			bd:e0:83:08:11:49:d1:ea:5a:d7:eb:ab:c9:dd:7e:17
+			09:dc:5d:dc:d0:43:35:29:15:60:b6:ae:91:df:45:e6
+			3a:4b:1f:77:1e:dc:7c:b9:92:c5:bc:a8:b6:47:88:13
+			d6:85:1e:be:f9:7a:89:b7:bb:d5:cd:9a:b2:cd:34:ac
+			68:1a:e9:5a:86:5f:bb:24:be:93:20:94:40:3f:d2:04
+			5e:2e:c8:f3:74:18:6f:6f:a5:39:33:26:57:b3:3e:de
+			f8:c2:33:62:7c:01:9b:01:06:8f:9d:75:82:c2:06:21
+			ca:18:b7:71:64:69:49:75:c9:7b:ef:6b:5d:95:4b:ae
+			39:65:82:39:5b:c1:d0:e5:16:df:f0:80:d7:bc:e5:3c
+			57:c1:97:c5:b1:ff:b0:59:67:d0:1f:65:bb:db:a8:dd
+			53:ce:bd:fc:54:09:69:a7:4b:db:f2:29:fa:55:bd:a4
+			62:a3:b5:42:ac:d5:11:40:36:99:ea:fe:6d:37:29:62
+			8f:79:9c:0b:4a:6c:04:33:c5:61:07:cd:55:ae:ac:70
+			d9:7d:14:8c:d1:fc:d3:8e:9c:06:94:41:1b:81:2b:35
+			d5:b2:fe:ee:88:ab:89:7f:dc:05:79:21:a7:5d:94:6f
+			33
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): FALSE
+		Key Usage (critical):
+			Digital signature.
+			Key encipherment.
+		Subject Key Identifier (not critical):
+			9e5049af760f56dcbf97fd72418b5f088239fa31
+		Authority Key Identifier (not critical):
+			30ec327a9785fb55611f544c97506afd29735764
+Other Information:
+	Public Key ID:
+		sha1:9e5049af760f56dcbf97fd72418b5f088239fa31
+		sha256:f3a6665729f6de05a8e6fc83024e02c60ae7206c46b1cb061b1128e8c8762eb6
+	Public Key PIN:
+		pin-sha256:86ZmVyn23gWo5vyDAk4CxgrnIGxGscsGGxEo6Mh2LrY=
+
+
+
+Signing certificate...
+
+Generate Rhonabwy test certificates
+
+Generating a 3072 bit RSA private key...
+Generating a self signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 519c059e984cc3807c5839159a1e7e2728090dd3
+	Validity:
+		Not Before: Sat Dec 31 22:54:32 UTC 2022
+		Not After: Sat Nov 30 22:54:32 UTC 2024
+	Subject: CN=rhonabwy_www,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:c8:b8:4b:9a:21:b4:90:4f:87:67:78:55:80:55:0c
+			bb:5d:55:48:76:d8:66:89:44:41:8f:f8:fe:14:14:55
+			75:55:c7:9c:75:f8:b8:e0:61:3a:14:0b:41:67:75:37
+			ec:9e:cb:ca:b1:c8:86:47:e8:e5:90:a8:bb:b1:17:42
+			69:a0:9e:94:0e:25:3f:cc:0a:62:23:16:e4:47:b0:82
+			1e:ab:82:8a:bc:9a:64:d0:9a:ea:90:5e:3b:a4:28:74
+			e7:dd:f2:ea:af:d9:6d:fd:30:c6:db:d6:bc:fb:a9:63
+			9d:49:a2:5a:a1:3d:fb:7b:51:79:79:9d:df:f0:bf:96
+			a6:75:a3:14:39:13:35:de:10:60:80:3a:b7:90:40:4d
+			65:b6:60:df:db:f4:45:b1:06:17:bf:3b:1b:5e:6f:01
+			9b:cb:f2:cb:4c:03:0c:61:25:4d:65:6a:33:b0:56:85
+			44:03:7a:f5:b5:75:bb:28:25:2b:cc:da:2e:94:c4:22
+			a5:b5:de:1f:4d:81:08:e4:90:f7:19:ab:05:1b:d5:da
+			f7:85:48:f2:c3:c6:d7:1f:c1:26:c7:05:4a:23:d5:ef
+			d0:c1:da:28:b6:f1:f8:e7:4e:d8:6f:4c:db:bc:4f:50
+			c4:c7:fa:40:1e:ef:e3:cf:76:e6:ce:ea:55:5b:2f:bc
+			5c:70:ef:c2:06:e2:f2:f4:71:13:91:67:61:78:f6:75
+			84:8b:4a:ce:b2:b3:b7:d4:bb:4e:d0:e4:e2:3b:3e:ff
+			e8:ed:f5:4b:f1:27:b8:68:7c:24:ab:c9:01:ab:a0:f4
+			73:b2:6b:de:6d:93:b9:27:57:c6:7e:19:bc:61:47:cd
+			a4:97:3b:7b:b9:76:35:4f:77:27:38:78:2c:ac:ce:37
+			70:7a:ee:9a:e3:55:0e:05:51:36:5b:3d:b4:a1:f5:a5
+			ab:12:b0:a6:f5:a3:19:52:75:d5:34:6b:8c:71:4f:81
+			bb:f1:06:71:7c:70:07:70:4b:dc:d0:a7:c4:3d:63:b5
+			23
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): FALSE
+		Key Usage (critical):
+			Digital signature.
+			Key encipherment.
+		Subject Key Identifier (not critical):
+			ce7cc1d55beeb9d34235d66bc17126c6f14fe3cc
+Other Information:
+	Public Key ID:
+		sha1:ce7cc1d55beeb9d34235d66bc17126c6f14fe3cc
+		sha256:b3bf936a63988021105924798a14eabff6babd170a27e45345369882a6a4f23d
+	Public Key PIN:
+		pin-sha256:s7+TamOYgCEQWSR5ihTqv/a6vRcKJ+RTRTaYgqak8j0=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a self signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 7dbe9931e3f5ac5a0a499777c70a81e020f94eeb
+	Validity:
+		Not Before: Sat Dec 31 22:54:32 UTC 2022
+		Not After: Sat Nov 30 22:54:32 UTC 2024
+	Subject: CN=rhonabwy_1,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:af:52:a4:f4:5f:a2:90:2a:6b:a2:c9:b3:28:ce:77
+			03:8a:63:2a:29:ba:cb:1a:12:f5:88:0a:36:46:a6:54
+			02:d5:02:41:af:16:44:74:d8:be:29:85:33:75:be:e9
+			aa:85:8c:92:4d:97:bc:e6:0d:9c:ab:a4:eb:fc:99:61
+			dd:b0:fc:98:fb:55:04:d2:00:23:27:e3:8d:01:74:11
+			e4:65:07:b8:7e:83:12:4a:e1:95:9f:8d:72:6e:63:cb
+			a8:35:f8:df:92:d4:cb:22:ce:d5:99:2b:7d:2c:89:d3
+			52:e8:02:8a:b4:c2:74:d8:78:e5:18:a0:94:b4:0a:34
+			e7:a1:e2:33:ff:ba:d1:1a:1a:88:5e:2c:66:e5:7c:0c
+			4e:67:a8:8a:88:f7:90:4f:6a:42:00:27:63:33:cb:99
+			17:46:4b:eb:c8:54:44:4e:93:7c:43:4e:58:4b:12:f0
+			4c:6e:0a:52:e4:23:7a:10:93:64:f6:8b:92:e5:1c:d6
+			2f:bd:80:bc:f3:c2:1e:d7:a1:f4:e2:b1:57:72:fe:09
+			aa:ff:0a:6f:d4:76:2f:01:7a:21:79:3e:18:c9:e7:ed
+			67:b0:3c:f7:60:ad:72:46:be:9b:32:59:01:35:6f:6d
+			c0:f6:63:b2:7a:38:71:86:84:be:7f:5e:4d:d0:04:ef
+			c0:35:95:1e:64:03:ad:ea:3b:02:6f:63:9e:29:ce:a2
+			df:5a:83:61:61:a1:39:29:d5:33:3b:62:7a:c8:db:af
+			e5:76:fc:5a:6d:e0:e7:f8:4f:77:12:81:78:d5:1c:e2
+			4c:14:64:25:2f:47:3a:0a:73:15:9e:e0:07:70:6f:89
+			93:cb:1a:6f:3b:88:06:5d:de:9e:87:c9:51:73:fa:1d
+			0d:8b:0c:7f:03:b3:80:7f:99:a4:e3:9e:ac:a1:82:17
+			19:37:03:2a:f2:28:91:c5:19:03:fe:2c:d4:e6:14:9c
+			3d:2b:c2:02:1a:a2:8c:cb:55:0d:53:af:62:b3:a6:36
+			97
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): TRUE
+		Key Usage (critical):
+			Digital signature.
+			Certificate signing.
+		Subject Key Identifier (not critical):
+			3fad88ed23834d660e3738e7477f644194670df2
+Other Information:
+	Public Key ID:
+		sha1:3fad88ed23834d660e3738e7477f644194670df2
+		sha256:ebd157ef8c94c5ffceaf8bb524f87ea82ff4a2cc6757fad409abcad986d2a72b
+	Public Key PIN:
+		pin-sha256:69FX74yUxf/Or4u1JPh+qC/0osxnV/rUCavK2YbSpys=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 1cd838c77cd7b86abed2a18ed475ab140e980212
+	Validity:
+		Not Before: Sat Dec 31 22:54:33 UTC 2022
+		Not After: Sat Dec 16 22:54:33 UTC 2023
+	Subject: CN=Dave Lopper,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:ca:7b:e6:99:65:37:6f:05:32:be:09:27:30:65:3b
+			10:1b:a1:a7:87:e1:ad:ca:a5:36:a4:15:91:5a:1f:a7
+			f4:f4:d7:ab:4e:9d:ca:25:46:0e:91:47:80:44:f2:3c
+			90:86:c7:c6:d0:66:3f:5d:38:80:2e:f2:fd:25:33:7f
+			e0:fe:44:19:ff:a0:d6:8c:1a:ce:47:aa:3f:46:f2:41
+			87:c1:58:63:db:33:48:cb:ec:d0:6c:18:6a:cc:15:f4
+			fa:61:7b:3a:f4:62:e0:9a:8e:d5:f5:a9:21:3a:3a:f2
+			53:7d:af:fb:0d:f2:61:c0:8f:1d:21:77:b1:15:62:dc
+			4e:75:c7:45:79:0b:b5:bc:12:19:40:30:50:fd:5e:d6
+			5a:1e:e1:18:4e:c8:f0:ae:e1:ad:37:8f:47:82:f5:a3
+			59:58:10:e1:a0:c7:5a:ec:fc:33:cd:bf:f6:a7:a5:8c
+			6c:26:59:c3:b6:57:0d:b8:fd:00:f0:c4:c7:71:ce:fc
+			25:4c:5d:15:30:23:ac:29:5f:26:a5:04:48:45:13:94
+			1b:cf:85:0e:3c:2c:69:f9:9e:bc:0b:f9:80:42:eb:73
+			d3:21:fb:2b:e6:60:e7:fa:d2:d9:30:a2:c2:af:e0:76
+			4c:1e:19:08:6f:6e:19:2f:42:6f:21:44:20:0f:a8:59
+			c0:ef:d5:e6:79:4e:bc:22:f8:32:7f:87:a6:99:44:81
+			e8:b1:d1:cf:12:03:0d:e6:f8:e3:32:41:5a:59:d0:f3
+			d6:e5:f7:07:52:d5:f7:aa:64:47:e9:ef:29:be:42:93
+			80:1d:e5:64:ae:61:f0:42:ef:85:d6:bd:7c:a7:44:d3
+			53:12:5b:19:a4:66:19:ba:82:e7:b2:f9:c2:17:c4:cc
+			42:e7:0c:97:b3:f8:d3:30:c6:b1:cf:fa:65:6f:f3:92
+			4d:d5:f9:73:c7:f9:a4:8f:ef:a0:9c:a1:a2:8d:45:b2
+			1d:1e:2e:38:47:27:4d:8e:77:e1:68:16:45:07:e9:e7
+			cb
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): FALSE
+		Key Usage (critical):
+			Digital signature.
+			Key encipherment.
+		Subject Key Identifier (not critical):
+			928267622c850a2bbfd833f744019ab0d261aac0
+		Authority Key Identifier (not critical):
+			3fad88ed23834d660e3738e7477f644194670df2
+Other Information:
+	Public Key ID:
+		sha1:928267622c850a2bbfd833f744019ab0d261aac0
+		sha256:be2fa5498abaf96023abab6c99624ad705a2d64eefe34179ff94603e55e7bb97
+	Public Key PIN:
+		pin-sha256:vi+lSYq6+WAjq6tsmWJK1wWi1k7v40F5/5RgPlXnu5c=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a self signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 7d52aa01f3bffd0de93b3c63cfb4a6f10f5000ae
+	Validity:
+		Not Before: Sat Dec 31 22:54:33 UTC 2022
+		Not After: Sat Nov 30 22:54:33 UTC 2024
+	Subject: CN=rhonabwy_2,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:ba:ba:9e:e5:a5:0d:e1:b7:07:65:66:0f:f7:dc:5f
+			c2:4e:b5:f6:43:d2:7b:b9:3b:50:f0:8f:22:eb:58:eb
+			a3:50:ae:f7:34:0b:4b:a2:ee:6b:e9:03:b3:03:7f:99
+			2d:bb:06:9b:ee:89:f5:67:8a:bf:da:1f:d0:b6:35:08
+			fb:14:ed:62:d5:2d:76:6a:1f:2b:0c:04:f9:94:fe:cc
+			32:c7:40:7b:d5:61:bc:b8:74:49:ca:b4:37:57:c2:c3
+			60:d2:20:2f:b7:16:c0:84:62:aa:27:89:a1:95:5f:41
+			8f:bd:bc:d0:9f:69:fe:41:92:fd:66:b9:db:28:51:48
+			5b:d9:8c:50:bc:40:a1:79:1d:00:a0:61:6f:f4:98:67
+			26:5c:a0:6b:a2:e3:3e:b9:f7:5b:53:c8:6d:41:23:a3
+			e2:ce:51:48:bf:e1:09:3e:f0:f0:b5:04:81:79:b3:04
+			8e:97:f7:7f:7f:65:c5:ac:88:fc:dd:43:cb:72:da:f0
+			ea:30:32:b2:5b:15:e0:e2:7e:59:da:b6:0a:6c:3f:80
+			a5:e7:3f:02:c3:9c:dd:13:0b:a1:78:a7:86:ef:a9:8c
+			75:a9:0c:ef:4f:66:82:75:51:81:da:fc:ce:f5:f6:4f
+			7d:1e:58:4f:5f:46:ae:9a:bb:f3:65:c5:ce:bd:90:b7
+			5b:99:3d:c6:ed:7a:78:6b:1f:6c:1a:f5:a5:a1:f8:e9
+			ce:ac:f9:54:9e:c5:9a:0d:37:f4:fe:49:0a:25:9a:73
+			ec:2e:42:52:dd:6b:23:d5:92:50:58:64:3b:de:41:95
+			69:a9:66:82:cb:b0:57:60:c7:19:00:de:9e:a6:d7:9c
+			a9:75:ac:b6:f3:b8:d7:fe:4e:7b:49:f5:f0:f6:df:9b
+			09:72:92:b6:52:ed:ca:bf:f0:c8:c0:ba:ab:a8:d6:a7
+			cb:98:0f:68:06:b8:a1:92:79:6d:ff:cb:f2:66:a4:bf
+			b3:7d:ea:78:01:b4:22:1c:83:ef:80:8c:8c:b6:5e:85
+			b5
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): TRUE
+		Key Usage (critical):
+			Digital signature.
+			Certificate signing.
+		Subject Key Identifier (not critical):
+			70bd4ec5673c22f4aad7fc7beb1287ae4df55349
+Other Information:
+	Public Key ID:
+		sha1:70bd4ec5673c22f4aad7fc7beb1287ae4df55349
+		sha256:1eb446037730f5d4dada5a7328a486084bca1f4c48929a0caf80f7c55aa16ba9
+	Public Key PIN:
+		pin-sha256:HrRGA3cw9dTa2lpzKKSGCEvKH0xIkpoMr4D3xVqha6k=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 24cfb2c78ceaed34b04f8e4baed1e17c385ac922
+	Validity:
+		Not Before: Sat Dec 31 22:54:34 UTC 2022
+		Not After: Sat Dec 16 22:54:34 UTC 2023
+	Subject: CN=Dave Lopper,O=babelouest
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:f2:c6:db:1f:11:0c:c3:ff:62:97:94:f0:28:ad:bd
+			1c:e7:ff:08:4c:ce:50:6c:ee:67:65:2e:4a:8c:a3:61
+			e6:78:a0:4e:b0:7e:f1:54:a3:eb:53:5f:df:59:e6:07
+			65:e6:af:3d:8b:5c:f8:04:1e:97:a7:8f:3c:ec:81:91
+			5f:e0:28:82:41:88:71:d8:60:9f:72:da:46:c2:eb:07
+			ef:b3:d5:55:bb:ec:54:5b:09:93:42:00:ea:f3:3b:d5
+			70:2b:57:9f:66:f9:fd:c3:d3:4d:c2:ed:94:9b:86:a3
+			74:54:b1:00:aa:0e:50:8f:77:1b:0e:ee:d9:f1:d7:69
+			de:a8:99:9d:2d:ef:5c:40:f4:fa:2b:6d:57:e5:71:0e
+			49:06:2b:88:4c:0c:69:fa:ee:67:31:80:8a:fe:3f:62
+			2f:f0:0e:e3:4f:ad:a6:c6:9b:6d:ef:98:bb:07:8b:9e
+			ef:51:84:6f:b0:b7:0d:27:b6:21:e1:58:c4:28:a7:a2
+			48:a3:b3:22:cd:ce:ba:e7:dd:e4:c3:99:d2:4a:de:2b
+			11:45:f1:c9:78:2b:68:ac:0c:cc:2d:4d:bc:33:d3:ea
+			06:6e:76:84:d2:06:79:2a:19:6a:40:06:fc:71:51:3b
+			90:03:b9:14:74:5c:56:95:19:05:89:6a:5f:eb:fb:ed
+			6e:89:a4:df:31:58:f3:4d:67:e3:e0:b2:52:49:67:1c
+			d2:19:d1:22:fc:cc:77:f2:6c:27:43:c5:97:8f:b5:de
+			c0:8f:9f:91:0c:a6:6a:2a:68:01:d2:d7:ae:22:48:17
+			85:da:32:19:2b:97:fc:af:b2:85:98:eb:e4:f5:e0:a8
+			99:5d:42:69:1c:75:5c:14:c0:72:27:df:71:31:fb:18
+			c1:dc:e6:67:42:44:c2:9c:68:76:4e:c8:75:c4:df:14
+			a7:91:a7:64:53:dc:cd:e3:d6:83:10:5b:27:97:23:0a
+			8a:c7:82:77:55:ad:50:e6:0b:e0:79:4c:ab:ae:d5:32
+			bd
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): FALSE
+		Key Usage (critical):
+			Digital signature.
+			Key encipherment.
+		Subject Key Identifier (not critical):
+			9d88ad180353e06c45099954443de7fcda9f6411
+		Authority Key Identifier (not critical):
+			70bd4ec5673c22f4aad7fc7beb1287ae4df55349
+Other Information:
+	Public Key ID:
+		sha1:9d88ad180353e06c45099954443de7fcda9f6411
+		sha256:3d532140dccd6644f95a37559a647b4cb1ffc22a3e54ea413358a69187ba0b84
+	Public Key PIN:
+		pin-sha256:PVMhQNzNZkT5WjdVmmR7TLH/wio+VOpBM1imkYe6C4Q=
+
+
+
+Signing certificate...
+
+Generate Rhonabwy test certificates
+
+Generating a 3072 bit RSA private key...
+Generating a self signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 1b4c0805c54e1c6b3b18375b720f4cd7c8b65ed1
+	Validity:
+		Not Before: Thu Jan 05 13:48:42 UTC 2023
+		Not After: Thu Dec 05 13:48:42 UTC 2024
+	Subject: O=babelouest,CN=rhonabwy_www
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:c1:3c:aa:2f:4b:b0:76:a3:f7:2b:bf:0c:eb:ee:0f
+			49:3e:88:cb:d5:4d:13:48:7c:62:1d:d8:91:7f:77:9d
+			ce:f6:6c:c5:fb:36:05:4e:6d:46:29:77:39:98:45:e7
+			39:f8:7a:fb:cd:52:f6:bb:b0:99:dc:ae:ad:74:d9:43
+			3b:7c:6d:98:19:96:20:67:c8:30:b1:ae:9f:37:89:d4
+			99:80:aa:7c:fa:98:60:ad:d0:78:24:91:9e:77:a7:1a
+			a8:f3:d1:4a:c4:ca:70:24:a1:ac:8a:46:33:1e:a8:df
+			33:54:af:a0:a2:bf:ae:54:26:fe:89:e6:91:42:81:9a
+			8d:05:31:b7:0f:dd:30:73:d0:57:8f:cd:40:0f:25:60
+			b4:23:e2:61:83:33:f0:14:38:07:0a:b5:72:87:46:d4
+			45:b7:f6:b3:63:0f:c5:29:e1:bc:82:32:f4:21:b8:34
+			f5:37:64:39:6b:d9:aa:a4:db:da:3c:b4:41:7c:90:8c
+			e3:6b:6a:b4:3e:0c:fe:e6:32:ba:6e:01:86:b3:a4:b5
+			10:2b:85:ab:d4:72:a2:25:fa:1f:10:c5:17:7c:81:08
+			20:e1:8b:1a:88:f9:1c:a1:2f:54:1c:97:67:62:d9:56
+			24:ae:fe:18:6d:02:80:8c:0c:e7:07:a3:46:d6:0c:80
+			11:c0:5a:b0:ca:5f:fe:97:f5:4e:f8:35:52:42:17:63
+			77:a2:b0:61:8e:8c:38:35:09:cf:6d:5a:c6:85:19:db
+			2d:26:23:c7:9c:fa:21:7f:1b:a6:72:3a:9d:9b:17:cf
+			67:23:4b:22:fe:10:70:89:6e:b4:1a:4d:37:ef:a7:05
+			de:e6:ac:eb:dc:7d:4a:2e:cb:3c:d3:66:36:bb:16:70
+			3b:40:c8:af:fb:7b:d9:94:ea:96:e8:14:20:d8:12:67
+			92:ac:60:53:79:d5:ff:76:30:e9:62:72:5c:00:50:0e
+			42:60:a4:7d:19:a2:8b:28:c1:d7:dc:4e:84:91:0f:7f
+			f1
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): FALSE
+		Key Usage (critical):
+			Digital signature.
+			Key encipherment.
+		Subject Key Identifier (not critical):
+			4cfd0e6dc9379cbdfaf8d697fce9cfc22c61066c
+Other Information:
+	Public Key ID:
+		sha1:4cfd0e6dc9379cbdfaf8d697fce9cfc22c61066c
+		sha256:ed948a887ba00750f2f1b288d5ce4ef691a863d813c5172c4521d17cdfa189c7
+	Public Key PIN:
+		pin-sha256:7ZSKiHugB1Dy8bKI1c5O9pGoY9gTxRcsRSHRfN+hicc=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a self signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 4cde738539f17dd994616a4ea107cf4d695c03bd
+	Validity:
+		Not Before: Thu Jan 05 13:48:46 UTC 2023
+		Not After: Thu Dec 05 13:48:46 UTC 2024
+	Subject: O=babelouest,CN=rhonabwy_1
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:e3:eb:b8:05:8e:26:e4:9f:7a:2f:1b:6d:79:df:78
+			75:df:fb:80:6a:97:c5:68:a9:b1:7e:ef:36:3e:a0:46
+			4d:b9:28:ad:0d:48:fa:8f:0c:af:5c:5a:88:d0:38:89
+			c0:fb:60:fc:be:db:5d:5f:01:77:5a:e8:69:c4:db:97
+			25:d9:ce:2f:eb:2b:f3:e3:9c:1e:f2:28:51:24:a8:ab
+			58:09:d4:0b:e1:82:16:e3:3c:34:f9:38:e4:47:0e:33
+			c5:93:97:34:75:be:38:70:2a:d0:ee:78:64:e1:95:d8
+			f3:5a:66:06:c7:ba:b8:18:34:e8:4f:0b:cc:1b:cc:fe
+			7a:97:77:02:b3:ad:d7:5c:36:29:f8:fc:8a:d7:57:ff
+			d7:53:8e:ca:b1:20:a4:23:87:19:c3:e1:48:2a:2c:8d
+			92:32:db:22:03:16:51:bd:32:ec:58:65:63:02:f0:fa
+			c1:65:0e:82:a4:54:92:15:ad:5b:f2:66:b0:25:0e:68
+			7e:d6:8e:43:fc:98:5d:66:b2:88:9f:0d:e2:ec:01:dd
+			8f:ce:fc:51:60:d3:6f:e3:23:07:df:6d:e3:18:98:b6
+			d7:07:11:a9:e1:84:4f:40:ec:b0:b9:80:99:92:10:0c
+			da:d2:c0:3d:b8:4d:7d:38:0c:26:78:e8:42:5a:64:06
+			de:87:1c:44:97:eb:7a:9f:31:27:58:78:62:80:2c:b5
+			cc:e4:6b:c6:d4:62:ab:d0:83:8b:a3:7a:d5:58:60:0e
+			ba:ec:04:f4:b8:22:cc:6a:43:83:d3:55:c9:a3:57:da
+			59:5f:28:7b:ef:7a:1b:b3:04:37:85:9b:db:d1:e4:ff
+			e1:d2:4e:49:00:f0:c9:a4:51:98:f1:48:20:b0:da:fe
+			dc:68:1c:c0:fa:5a:b1:cf:d7:85:ba:09:30:6b:24:0f
+			24:75:e6:53:45:da:82:47:d3:33:ca:9b:d3:e9:b9:d3
+			1d:2e:02:6f:2c:5b:0d:df:3e:fc:71:7d:c8:5e:cd:f0
+			b1
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): TRUE
+		Key Usage (critical):
+			Digital signature.
+			Certificate signing.
+		Subject Key Identifier (not critical):
+			f256e5b0e67085a10382d59076c6775b1417d6d5
+Other Information:
+	Public Key ID:
+		sha1:f256e5b0e67085a10382d59076c6775b1417d6d5
+		sha256:b4e19a551b26924e1ba3bf4108cd996b526e0fa2529834b2fc0a463ad3a9c299
+	Public Key PIN:
+		pin-sha256:tOGaVRsmkk4bo79BCM2Za1JuD6JSmDSy/ApGOtOpwpk=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 236ae12738494c14b9261510ff4936dc3e8adb74
+	Validity:
+		Not Before: Thu Jan 05 13:48:47 UTC 2023
+		Not After: Thu Dec 21 13:48:47 UTC 2023
+	Subject: O=babelouest,CN=Dave Lopper
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:c0:1a:20:5b:4b:a5:3a:ad:52:27:bb:5a:69:3c:33
+			24:bc:ce:e3:e8:f1:e4:0d:40:a7:2f:fc:b3:e4:3a:ad
+			71:bc:d6:38:a3:ac:9b:4d:63:40:1f:e1:49:ab:8c:14
+			81:2f:8f:48:c8:11:12:b8:5c:5b:97:cc:a1:97:97:ba
+			07:d2:34:81:c0:84:70:81:5c:3d:05:d1:44:f6:66:a9
+			dd:16:9f:a6:50:3d:77:01:af:75:11:72:a6:a1:a2:25
+			b0:47:4c:0e:e7:26:94:10:20:b4:8d:01:9d:35:fe:5b
+			f7:02:84:50:ec:1c:a4:61:05:02:7c:71:1d:ff:da:da
+			65:bd:66:27:58:e4:8f:66:27:70:e7:eb:97:68:dd:63
+			51:05:22:72:f3:7f:52:78:fa:ee:e4:52:26:49:9f:cc
+			35:18:e4:2b:06:43:55:81:ab:cf:d4:5c:e5:52:4e:35
+			16:73:cb:7e:d8:a7:be:1b:3c:39:92:e9:6c:fc:f3:42
+			da:f5:d2:af:df:0b:45:3f:35:76:25:e8:c6:8e:67:d7
+			e0:60:bd:10:ae:d4:8e:03:cd:d1:80:f1:bf:c1:4c:c4
+			1e:24:0d:08:3a:5e:41:60:96:c4:32:e6:e3:5d:6a:20
+			e5:be:68:a7:f2:6e:1c:9c:2f:45:c4:e8:94:1d:ae:03
+			4b:40:8a:3a:13:bd:d8:ed:90:94:d9:66:a6:63:03:da
+			6f:1f:72:e4:0b:d2:9c:fa:77:9c:1c:e1:df:2c:58:73
+			ab:0e:e7:cd:42:c3:ab:32:ba:2e:b8:e1:fa:5b:48:e3
+			b0:45:44:ed:c9:3e:d8:6b:ef:8c:99:fb:e8:7b:b0:30
+			33:2d:d0:1d:74:66:db:1d:ad:36:2e:b4:73:dd:5d:f8
+			fa:c9:e4:e0:e7:93:b1:b0:64:d5:aa:31:ce:a5:00:24
+			f6:ec:9d:94:50:07:1b:fb:5c:3d:24:dc:fc:2c:d9:cf
+			ad:92:0e:bb:f6:11:82:00:c2:ae:1f:64:ee:d1:fd:6c
+			7b
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): FALSE
+		Key Usage (critical):
+			Digital signature.
+			Key encipherment.
+		Subject Key Identifier (not critical):
+			7a02c7c1bc4d0651d7e91ebfe9bce3fb75778e73
+		Authority Key Identifier (not critical):
+			f256e5b0e67085a10382d59076c6775b1417d6d5
+Other Information:
+	Public Key ID:
+		sha1:7a02c7c1bc4d0651d7e91ebfe9bce3fb75778e73
+		sha256:a8e01102461b2cfda3ede4dcb39c4981673cd8965d3b294cdf9a33d0b3aef494
+	Public Key PIN:
+		pin-sha256:qOARAkYbLP2j7eTcs5xJgWc82JZdOylM35oz0LOu9JQ=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a self signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 6e1423c915b5561a0bc7fccf67814f8c7c1b8d5f
+	Validity:
+		Not Before: Thu Jan 05 13:48:50 UTC 2023
+		Not After: Thu Dec 05 13:48:50 UTC 2024
+	Subject: O=babelouest,CN=rhonabwy_2
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:db:f9:37:1a:66:61:61:ac:fd:6d:9c:1a:09:a4:e1
+			c3:f3:68:08:99:0c:8c:6f:a7:0a:c5:81:7c:07:3c:fb
+			73:87:41:88:15:32:d2:2b:20:84:41:f1:d7:79:0a:06
+			84:a0:74:36:87:f7:8e:85:d0:43:4e:44:5e:8f:e9:c2
+			42:db:42:20:1b:1d:55:c7:75:70:cb:6f:a3:c3:aa:ae
+			bc:f5:e8:eb:75:e2:0d:3d:87:bb:21:9d:71:9e:94:79
+			e3:8b:bf:b7:4a:f5:07:05:b4:3b:d4:68:8d:88:6e:27
+			7f:ce:7b:b9:ee:b7:e6:8c:8c:d8:bf:4e:40:5a:7b:2a
+			32:db:79:f2:8a:3a:e0:3b:39:18:f2:4c:3d:bb:25:d8
+			9c:69:6e:0b:fc:75:ba:77:96:c5:bc:28:53:4b:10:51
+			8b:30:e0:f1:e0:20:65:ab:55:46:1e:b2:38:e7:fb:18
+			f1:05:15:03:99:71:88:c9:a4:fc:5f:3f:8b:6d:62:c3
+			96:c5:96:8c:3b:5a:30:43:e5:cb:69:a5:09:49:4d:67
+			d5:b9:13:ec:da:3f:8d:25:28:f4:82:39:68:f5:c3:5a
+			dd:19:97:a7:2f:a6:09:d5:3f:a6:2f:08:58:5f:43:65
+			77:0d:bd:21:5a:67:c6:43:d7:5d:d2:04:32:b0:c0:e1
+			cb:8f:d7:ea:0f:81:9e:2c:c0:cc:26:68:05:8f:13:fc
+			22:d7:89:87:a5:ec:2d:15:df:18:a8:c3:0c:fd:8b:26
+			f8:24:f7:82:dc:6b:db:be:34:b6:6d:6d:63:51:6c:47
+			07:9f:45:0e:25:76:52:ad:07:f4:c5:01:83:a4:04:5d
+			99:56:46:29:40:01:68:2a:f7:da:cf:04:f9:d1:82:38
+			c3:1f:d8:16:ce:ae:d3:f1:16:1c:6b:bb:5a:b9:e2:57
+			50:f6:1f:59:d1:6b:f5:09:a0:fb:60:46:b1:21:d3:b0
+			15:7a:82:59:7d:8b:24:40:72:c1:72:e1:5f:2b:b8:13
+			9f
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): TRUE
+		Key Usage (critical):
+			Digital signature.
+			Certificate signing.
+		Subject Key Identifier (not critical):
+			7e4665610741d6a91a99d9e3b5f13c46b639a4fc
+Other Information:
+	Public Key ID:
+		sha1:7e4665610741d6a91a99d9e3b5f13c46b639a4fc
+		sha256:7efe43f38e457bb5d622ddfd59da4ff4dd8f747b49b50743ca6695e70ad76707
+	Public Key PIN:
+		pin-sha256:fv5D845Fe7XWIt39WdpP9N2PdHtJtQdDymaV5wrXZwc=
+
+
+
+Signing certificate...
+Generating a 3072 bit RSA private key...
+Generating a signed certificate...
+X.509 Certificate Information:
+	Version: 3
+	Serial Number (hex): 371ab6ac3071592c8fff6e02156bfed50b405b16
+	Validity:
+		Not Before: Thu Jan 05 13:48:54 UTC 2023
+		Not After: Thu Dec 21 13:48:54 UTC 2023
+	Subject: O=babelouest,CN=Dave Lopper
+	Subject Public Key Algorithm: RSA
+	Algorithm Security Level: High (3072 bits)
+		Modulus (bits 3072):
+			00:aa:91:ff:a8:1b:d0:ee:f7:65:8c:7f:c3:80:82:d7
+			75:06:03:a6:41:0c:82:84:34:38:45:96:14:b5:f8:d7
+			91:a5:bb:39:ad:82:20:37:73:8a:07:d5:2d:17:6f:33
+			39:af:66:f4:27:15:cd:d7:2d:f0:aa:79:6e:cc:86:ae
+			0f:aa:62:eb:71:85:a5:e5:f7:51:6d:1c:4e:26:05:02
+			fb:e4:a6:22:c4:81:d6:d0:af:fe:80:cd:95:09:51:af
+			50:3f:01:5f:4a:ce:5d:8c:0f:fd:e3:33:f1:ba:5d:35
+			22:2b:5c:fc:59:e4:bc:e6:9b:db:02:e5:97:c7:fe:a7
+			ab:d3:e2:e1:f4:b8:fc:e1:01:3d:6a:a6:fe:de:e9:64
+			e6:70:81:04:9b:59:5e:b2:50:7d:39:df:2d:24:d6:15
+			35:52:f3:a1:97:f2:84:c6:ea:a3:0f:ec:d7:ff:cc:af
+			38:e3:82:35:5f:4b:c1:c7:b6:07:34:2e:0f:63:32:31
+			6a:c2:2a:fc:16:e0:97:5f:52:1d:97:e8:d5:9a:67:76
+			6c:a7:43:9e:39:bb:a3:50:bd:d8:69:8f:40:41:c5:a9
+			fe:5c:85:91:d1:b3:a0:89:27:b8:28:10:97:07:90:7a
+			6f:1e:fa:a0:a4:aa:73:2c:d8:cb:bb:61:42:d5:7a:2f
+			bc:f9:e0:ed:a8:47:aa:54:34:6a:30:36:5d:f9:7f:56
+			96:d8:af:81:39:e1:b1:5a:ee:9a:fd:77:42:45:ad:59
+			ee:81:dc:60:bd:cf:b4:f8:ac:f6:4c:9b:79:1e:f6:55
+			2e:c3:bc:b1:b0:74:c1:42:72:39:f1:02:6b:6b:98:fb
+			96:b9:d2:13:6c:84:8e:d6:a9:61:71:d9:75:24:6f:cf
+			a0:3c:32:57:56:d2:93:76:91:60:48:7e:38:94:9d:2e
+			0d:dd:1b:e5:8c:01:90:90:e6:da:34:14:df:78:d4:65
+			d4:1c:81:b4:fa:ec:bf:3e:6d:8d:41:d5:aa:8f:3f:13
+			87
+		Exponent (bits 24):
+			01:00:01
+	Extensions:
+		Basic Constraints (critical):
+			Certificate Authority (CA): FALSE
+		Key Usage (critical):
+			Digital signature.
+			Key encipherment.
+		Subject Key Identifier (not critical):
+			db80d70d26e49d24d69c76be6c2c04fb34863c14
+		Authority Key Identifier (not critical):
+			7e4665610741d6a91a99d9e3b5f13c46b639a4fc
+Other Information:
+	Public Key ID:
+		sha1:db80d70d26e49d24d69c76be6c2c04fb34863c14
+		sha256:eec0593dc5ea3808f1f0d716c81f0cf3fdc961b12d7abe6fb4148df28464777f
+	Public Key PIN:
+		pin-sha256:7sBZPcXqOAjx8NcWyB8M8/3JYbEter5vtBSN8oRkd38=
+
+
+
+Signing certificate...

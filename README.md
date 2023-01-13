@@ -197,11 +197,12 @@ You only need to install `liborcania-dev_*`, `libyder-dev_*` for `librhonabwy-de
 
 [CMake](https://cmake.org/download/) minimum 3.5 is required.
 
+Last Rhonabwy release: [https://github.com/babelouest/rhonabwy/releases/latest/](https://github.com/babelouest/rhonabwy/releases/latest/)
+
 Run the CMake script in a sub-directory, example:
 
 ```shell
-$ git clone https://github.com/babelouest/rhonabwy.git
-$ cd rhonabwy/
+$ cd <rhonabwy_source>
 $ mkdir build
 $ cd build
 $ cmake ..
@@ -222,8 +223,9 @@ The available options for CMake are:
 
 Download Rhonabwy from GitHub repository, compile and install.
 
+Last Rhonabwy release: [https://github.com/babelouest/rhonabwy/releases/latest/](https://github.com/babelouest/rhonabwy/releases/latest/)
+
 ```shell
-$ git clone https://github.com/babelouest/rhonabwy.git
 $ cd rhonabwy/src
 $ make
 $ sudo make install

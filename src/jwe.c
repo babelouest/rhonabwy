@@ -896,6 +896,24 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
   return ret;
 }
 
+static int gnutls_is_block_cipher(gnutls_cipher_algorithm_t alg)
+{
+  switch (alg) {
+    case GNUTLS_CIPHER_3DES_CBC:
+    case GNUTLS_CIPHER_AES_128_CBC:
+    case GNUTLS_CIPHER_AES_256_CBC:
+    case GNUTLS_CIPHER_CAMELLIA_128_CBC:
+    case GNUTLS_CIPHER_CAMELLIA_256_CBC:
+    case GNUTLS_CIPHER_AES_192_CBC:
+    case GNUTLS_CIPHER_CAMELLIA_192_CBC :
+    case GNUTLS_CIPHER_RC2_40_CBC :
+    case GNUTLS_CIPHER_DES_CBC:
+      return 1;
+    default:
+      return 0;
+  }
+}
+
 int r_jwe_decrypt_payload(jwe_t * jwe) {
   int ret = RHN_OK, res;
   gnutls_cipher_hd_t handle;
@@ -905,15 +923,30 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
   z_stream infstream;
   unsigned char inf_out[256] = {0}, tag[128], * tag_b64url = NULL;
   size_t tag_len = 0, tag_b64url_len = 0;
-  
-  if (jwe != NULL && jwe->enc != R_JWA_ENC_UNKNOWN && o_strlen((const char *)jwe->ciphertext_b64url) && o_strlen((const char *)jwe->iv_b64url) && jwe->key != NULL && jwe->key_len) {
+  size_t ciphertext_b64_len;
+
+  if (jwe != NULL && jwe->enc != R_JWA_ENC_UNKNOWN && (ciphertext_b64_len = o_strlen((const char *)jwe->ciphertext_b64url)) != 0 && o_strlen((const char *)jwe->iv_b64url) && jwe->key != NULL && jwe->key_len) {
+    /* ensure payload_enc_buflen is a multiple of cipher_block_size
+     * if the cipher is a block-mode cipher
+     */
+    if (gnutls_is_block_cipher(get_alg_from_enc(jwe->enc))) {
+      size_t ciphertext_decoded_len = (ciphertext_b64_len * 3) / 4;
+      unsigned cipher_block_size = (unsigned)gnutls_cipher_get_block_size(get_alg_from_enc(jwe->enc));
+      if (ciphertext_decoded_len % cipher_block_size) {
+        /* The ciphertext length is not a multiple of block size.
+        * It can't possibly be valid */
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Invalid ciphertext length");
+        ret = RHN_ERROR_INVALID;
+        return ret;
+      }
+    }
     // Decode iv and payload_b64
     o_free(jwe->iv);
     if ((jwe->iv = o_malloc(o_strlen((const char *)jwe->iv_b64url))) != NULL) {
       if (o_base64url_decode(jwe->iv_b64url, o_strlen((const char *)jwe->iv_b64url), jwe->iv, &jwe->iv_len)) {
         jwe->iv = o_realloc(jwe->iv, jwe->iv_len);
-        if ((payload_enc = o_malloc(o_strlen((const char *)jwe->ciphertext_b64url))) != NULL) {
-          if (!o_base64url_decode(jwe->ciphertext_b64url, o_strlen((const char *)jwe->ciphertext_b64url), payload_enc, &payload_enc_len)) {
+        if ((payload_enc = o_malloc(ciphertext_b64_len)) != NULL) {
+          if (!o_base64url_decode(jwe->ciphertext_b64url, ciphertext_b64_len, payload_enc, &payload_enc_len)) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_base64url_decode payload_enc");
             ret = RHN_ERROR;
           }

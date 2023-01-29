@@ -16,6 +16,8 @@
 #define ES256_TOKEN_INVALID_PAYLOAD_B64 "eyJhbGciOiJFUzI1NiIsImtpZCI6IjEifQ.;error;.8SGjljD8Zrj9nZRXFbWny8KYLokjvnuFersudKTYCU7LyiOHed81goqaW3J1gDY-8zIjGnT_EV2YZsT7GVyBjQ"
 #define ES256_TOKEN_INVALID_SIGNATURE "eyJhbGciOiJFUzI1NiIsImtpZCI6IjEifQ.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.8S6jljD8Zrj9nZRXFbWny8KYLokjvnuFersudKTYCU7LyiOHed81goqaW3J1gDY-8zIjGnT_EV2YZsT7GVyBjQ"
 #define ES256_TOKEN_INVALID_DOTS "eyJhbGciOiJFUzI1NiIsImtpZCI6IjEifQVGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.8SGjljD8Zrj9nZRXFbWny8KYLokjvnuFersudKTYCU7LyiOHed81goqaW3J1gDY-8zIjGnT_EV2YZsT7GVyBjQ"
+#define ES256_TOKEN_EMPTY_SIGNATURE "eyJhbGciOiJFUzI1NiIsImtpZCI6IjEifQ.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u."
+#define E25519_TOKEN_EMPTY_SIGNATURE "eyJhbGciOiJFZERTQSJ9.RXhhbXBsZSBvZiBFZDI1NTE5IHNpZ25pbmc."
 
 const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                     "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\",\"alg\":\"ES256\"}";
@@ -197,6 +199,24 @@ START_TEST(test_rhonabwy_verify_token_invalid)
   ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
   ck_assert_int_eq(r_jws_parse(jws, ES256_TOKEN, 0), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_pubkey_ecdsa_str_2), RHN_OK);
+  ck_assert_int_eq(r_jws_verify_signature(jws, jwk_pubkey, 0), RHN_ERROR_INVALID);
+  r_jws_free(jws);
+  r_jwk_free(jwk_pubkey);
+  
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jws_parse(jws, ES256_TOKEN_EMPTY_SIGNATURE, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(R_JWA_ALG_ES256, r_jws_get_alg(jws));
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_pubkey_ecdsa_no_alg_str), RHN_OK);
+  ck_assert_int_eq(r_jws_verify_signature(jws, jwk_pubkey, 0), RHN_ERROR_INVALID);
+  r_jws_free(jws);
+  r_jwk_free(jwk_pubkey);
+  
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jws_parse(jws, E25519_TOKEN_EMPTY_SIGNATURE, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(R_JWA_ALG_EDDSA, r_jws_get_alg(jws));
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_pubkey_eddsa_str), RHN_OK);
   ck_assert_int_eq(r_jws_verify_signature(jws, jwk_pubkey, 0), RHN_ERROR_INVALID);
   r_jws_free(jws);
   r_jwk_free(jwk_pubkey);

@@ -15,6 +15,7 @@
 #define HS256_TOKEN_INVALID_PAYLOAD_B64 "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.;error;.GKxWqRBFr-6X4HfflzGeGvKVsJ8v1-J39Ho2RslC-5o"
 #define HS256_TOKEN_INVALID_SIGNATURE "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.GKxWqRBFr-5X4HfflzGeGvKVsJ8v1-J39Ho2RslC-5o"
 #define HS256_TOKEN_INVALID_DOTS "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQVGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.GKxWqRBFr-6X4HfflzGeGvKVsJ8v1-J39Ho2RslC-5o"
+#define HS256_TOKEN_EMPTY_SIGNATURE "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u."
 
 const char jwk_key_symmetric_str[] = "{\"kty\":\"oct\",\"alg\":\"HS256\",\"k\":\"c2VjcmV0\",\"kid\":\"1\"}";
 const char jwk_key_symmetric_str_2[] = "{\"kty\":\"oct\",\"alg\":\"HS256\",\"k\":\"dGVyY2Vz\",\"kid\":\"2\"}";
@@ -168,6 +169,14 @@ START_TEST(test_rhonabwy_verify_token_invalid)
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
   ck_assert_int_eq(r_jwk_init(&jwk_key_symmetric), RHN_OK);
   ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN_INVALID_SIGNATURE, 0), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_key_symmetric, jwk_key_symmetric_str), RHN_OK);
+  ck_assert_int_eq(r_jws_verify_signature(jws, jwk_key_symmetric, 0), RHN_ERROR_INVALID);
+  r_jws_free(jws);
+  r_jwk_free(jwk_key_symmetric);
+  
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_key_symmetric), RHN_OK);
+  ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN_EMPTY_SIGNATURE, 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_key_symmetric, jwk_key_symmetric_str), RHN_OK);
   ck_assert_int_eq(r_jws_verify_signature(jws, jwk_key_symmetric, 0), RHN_ERROR_INVALID);
   r_jws_free(jws);

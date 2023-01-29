@@ -1,5 +1,14 @@
 # Rhonabwy Changelog
 
+## 1.1.5
+
+- Improve jws and jwe parsing
+
+## 1.1.4
+
+- Bugfixes
+- Add `-S --self-signed` option to rnbyc to verify signatures when the public key is in included the header
+
 ## 1.1.3
 
 - Bugfixes

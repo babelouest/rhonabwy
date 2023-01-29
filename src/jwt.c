@@ -1342,7 +1342,7 @@ jwt_t * r_jwt_quick_parse(const char * token, uint32_t parse_flags, int x5u_flag
 jwt_t * r_jwt_quick_parsen(const char * token, size_t token_len, uint32_t parse_flags, int x5u_flags) {
   jwt_t * jwt = NULL;
   int ret;
-  
+
   if (r_jwt_init(&jwt) == RHN_OK) {
     ret = r_jwt_advanced_parsen(jwt, token, token_len, parse_flags, x5u_flags);
     if (ret != RHN_OK) {
@@ -2027,7 +2027,7 @@ int r_jwt_set_full_header_json_t(jwt_t * jwt, json_t * j_header) {
   int ret = RHN_OK;
   jwa_alg sign_alg, enc_alg;
   jwa_enc enc;
-  
+
   if (jwt != NULL && json_is_object(j_header)) {
     if (json_object_get(j_header, "alg") != NULL) {
       if ((sign_alg = r_str_to_jwa_alg(json_string_value(json_object_get(j_header, "alg")))) != R_JWA_ALG_UNKNOWN) {
@@ -2055,8 +2055,7 @@ int r_jwt_set_full_header_json_t(jwt_t * jwt, json_t * j_header) {
     }
     if (ret == RHN_OK) {
       json_decref(jwt->j_header);
-      if ((jwt->j_header = json_deep_copy(j_header)) != NULL) {
-      } else {
+      if ((jwt->j_header = json_deep_copy(j_header)) == NULL) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_set_full_header_json_t - Error setting header");
         ret = RHN_ERROR_MEMORY;
       }
@@ -2071,10 +2070,10 @@ int r_jwt_set_full_header_json_t(jwt_t * jwt, json_t * j_header) {
 int r_jwt_set_full_header_json_str(jwt_t * jwt, const char * str_header) {
   int ret;
   json_t * j_header = json_loads(str_header, JSON_DECODE_ANY, NULL);
-  
+
   ret = r_jwt_set_full_header_json_t(jwt, j_header);
   json_decref(j_header);
-  
+
   return ret;
 }
 

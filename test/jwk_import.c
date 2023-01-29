@@ -635,6 +635,21 @@ static char * get_file_content(const char * file_path) {
   return buffer;
 }
 
+int callback_x5u_rsa_priv (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  ulfius_set_string_body_response(response, 200, (const char *)rsa_2048_priv);
+  return U_CALLBACK_CONTINUE;
+}
+
+int callback_x5u_rsa_pubkey (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  ulfius_set_string_body_response(response, 200, (const char *)rsa_2048_pub);
+  return U_CALLBACK_CONTINUE;
+}
+
+int callback_x5u_error (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  ulfius_set_string_body_response(response, 200, "ZXJyb3I=");
+  return U_CALLBACK_CONTINUE;
+}
+
 int callback_x5u_rsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
   ulfius_set_string_body_response(response, 200, (const char *)rsa_crt);
   return U_CALLBACK_CONTINUE;
@@ -1446,6 +1461,45 @@ START_TEST(test_rhonabwy_import_from_x5u)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_import_from_x5u_x5c_invalid)
+{
+#ifdef R_WITH_CURL
+  jwk_t * jwk;
+#endif
+  struct _u_instance instance;
+  char * http_key, * http_cert;
+  
+  ck_assert_ptr_ne(NULL, http_key = get_file_content(HTTPS_CERT_KEY));
+  ck_assert_ptr_ne(NULL, http_cert = get_file_content(HTTPS_CERT_PEM));
+  
+  ck_assert_int_eq(ulfius_init_instance(&instance, 7463, NULL, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_priv", NULL, 0, &callback_x5u_rsa_priv, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_pubkey", NULL, 0, &callback_x5u_rsa_pubkey, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/error", NULL, 0, &callback_x5u_error, NULL), U_OK);
+  
+  ck_assert_int_eq(ulfius_start_secure_framework(&instance, http_key, http_cert), U_OK);
+  
+#ifdef R_WITH_CURL
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7463/x5u_rsa_priv"), RHN_ERROR);
+  ck_assert_int_eq(r_jwk_import_from_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7463/x5u_rsa_pubkey"), RHN_ERROR);
+  ck_assert_int_eq(r_jwk_import_from_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE, "https://localhost:7463/error"), RHN_ERROR);
+  r_jwk_free(jwk);
+#endif
+  
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_x5c(jwk, (const char *)rsa_2048_priv_der), RHN_ERROR);
+  ck_assert_int_eq(r_jwk_import_from_x5c(jwk, (const char *)rsa_2048_pub_der), RHN_ERROR);
+  ck_assert_int_eq(r_jwk_import_from_x5c(jwk, "ZXJyb3I="), RHN_ERROR);
+  r_jwk_free(jwk);
+  
+  o_free(http_key);
+  o_free(http_cert);
+  ulfius_stop_framework(&instance);
+  ulfius_clean_instance(&instance);
+}
+END_TEST
+
 START_TEST(test_rhonabwy_key_type)
 {
   jwk_t * jwk;
@@ -2016,6 +2070,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_import_from_der);
   tcase_add_test(tc_core, test_rhonabwy_import_from_gnutls);
   tcase_add_test(tc_core, test_rhonabwy_import_from_x5u);
+  tcase_add_test(tc_core, test_rhonabwy_import_from_x5u_x5c_invalid);
   tcase_add_test(tc_core, test_rhonabwy_key_type);
   tcase_add_test(tc_core, test_rhonabwy_extract_pubkey);
   tcase_add_test(tc_core, test_rhonabwy_append_x5c);

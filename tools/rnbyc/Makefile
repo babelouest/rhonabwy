@@ -3,7 +3,7 @@
 #
 # Makefile used to build the software
 #
-# Copyright 2020 Nicolas Mora <mail@babelouest.org>
+# Copyright 2020-2022 Nicolas Mora <mail@babelouest.org>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU GENERAL PUBLIC LICENSE
@@ -29,6 +29,7 @@ RHONABWY_LIBRARY=../../src/librhonabwy.so
 VALGRIND_COMMAND=valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes
 CLAIMS='{"plop":"grut"}'
 PASSWORD='RainbowDash'
+DPOP="eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6IkVDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCRnMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JEQSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIjoiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwiaWF0IjoxNTYyMjYyNjE2fQ.2-GxA6T8lP4vfrg8v-FdWP0A0zdrj8igiMLvqRMUvwnQg4PtFLbdLXiOSsX0x7NVY-FNyJK70nfbV37xRZT3Lg"
 
 all: rnbyc
 
@@ -99,7 +100,7 @@ test-serialize: debug
 
 test-parse: debug
 	# Parse JWT
-	$(VALGRIND_COMMAND) ./rnbyc -t "error" 2>valgrind-40.txt
+	$(VALGRIND_COMMAND) ./rnbyc -t "error" 2>valgrind-40.txt || true
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token0.jwt) 2>valgrind-41.txt
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token1.jwt) 2>valgrind-42.txt
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token1.jwt) -P pub.jwks 2>valgrind-43.txt
@@ -131,3 +132,4 @@ test-parse: debug
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token1.jwt) -P pub.jwks -H false -C false 2>valgrind-69.txt
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token8.jwt) -W $(PASSWORD) 2>valgrind-70.txt
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token8.jwt) -W error 2>valgrind-71.txt || true
+	$(VALGRIND_COMMAND) ./rnbyc -t $DPOP -S 2>valgrind-72.txt || true

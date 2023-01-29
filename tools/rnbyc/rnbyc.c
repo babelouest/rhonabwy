@@ -48,7 +48,7 @@
 #include <yder.h>
 #include <rhonabwy.h>
 
-#define _RNBYC_VERSION_ "1.0"
+#define _RNBYC_VERSION_ "1.1.5"
 
 #define R_RSA_DEFAULT_SIZE 4096
 #define R_OCT_DEFAULT_SIZE 128
@@ -63,7 +63,7 @@
 #define RNBYC_FORMAT_DER 2
 
 static void print_help(FILE * output) {
-  fprintf(output, "\nrnbyc - Rhonabwy JWK and JWT parser and generator\n");
+  fprintf(output, "\nrnbyc - JWK/JWKS parser and generator, JWT parser and serializer, supports signed, encrypted and nested JWTs\n");
   fprintf(output, "\n");
   fprintf(output, "Version %s\n", _RNBYC_VERSION_);
   fprintf(output, "\n");
@@ -123,6 +123,9 @@ static void print_help(FILE * output) {
   fprintf(output, "-K --private-key\n");
   fprintf(output, "\tSpecifies the private key for key management decryption or signature generation\n");
   fprintf(output, "\tPublic key must be in JWKS format and can be either a JWKS string or a path to a JWKS file\n");
+  fprintf(output, "-S --self-signed\n");
+  fprintf(output, "\tVerifies the JWT signature if the signed JWT has its public key included in its header\n");
+  fprintf(output, "\tas 'jwk', 'x5c' or 'x5u' parameter\n");
   fprintf(output, "-W --password\n");
   fprintf(output, "\tSpecifies the password for key management encryption/decryption using PBES2 alg or signature generation/verification using HS alg\n");
   fprintf(output, "-u --x5u-flags\n");
@@ -576,7 +579,7 @@ static void get_jwks_out(json_t * j_arguments, int split_keys, int x5u_flags, in
   r_jwks_free(jwks_pubkey);
 }
 
-static int parse_token(const char * token, int indent, int x5u_flags, const char * str_jwks_pubkey, const char * str_jwks_privkey, const char * password, int show_header, int show_claims) {
+static int parse_token(const char * token, int indent, int x5u_flags, const char * str_jwks_pubkey, const char * str_jwks_privkey, const char * password, int show_header, int show_claims, int self_signed) {
   int ret = 0, type, res;
   char * content, * str_value;
   jwt_t * jwt = NULL;
@@ -585,7 +588,12 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
   json_t * j_value;
 
   if (r_jwt_init(&jwt) == RHN_OK) {
-    if ((res = r_jwt_parse(jwt, token, x5u_flags)) == RHN_OK) {
+    if (self_signed) {
+      res = r_jwt_advanced_parse(jwt, token, R_PARSE_HEADER_ALL, x5u_flags);
+    } else {
+      res = r_jwt_advanced_parse(jwt, token, R_PARSE_NONE, x5u_flags);
+    }
+    if (res == RHN_OK) {
       type = r_jwt_get_type(jwt);
       if (type == R_JWT_TYPE_SIGN || type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT) {
         if (r_jwks_init(&jwks_pubkey) == RHN_OK) {
@@ -664,7 +672,7 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
           }
         }
       }
-      if (r_jwks_size(jwks_pubkey) && (type == R_JWT_TYPE_SIGN || type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT)) {
+      if ((self_signed || r_jwks_size(jwks_pubkey)) && (type == R_JWT_TYPE_SIGN || type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT)) {
         if (r_jwt_verify_signature(jwt, NULL, x5u_flags) == RHN_OK) {
           fprintf(stdout, "Token signature verified\n");
         } else {
@@ -691,8 +699,10 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
       }
     } else if (res == RHN_ERROR_PARAM) {
       fprintf(stderr, "Invalid token\n");
+      ret = EINVAL;
     } else {
       fprintf(stderr, "Error parsing token\n");
+      ret = EINVAL;
     }
   }
   r_jwt_free(jwt);
@@ -832,10 +842,11 @@ int main (int argc, char ** argv) {
       split_keys = 0,
       show_header = 0,
       show_claims = 1,
+      self_signed = 0,
       x5u_flags = 0,
       debug_mode = 0,
       format = RNBYC_FORMAT_JWK;
-  const char * short_options = "j::g:i::f:k:a:e:l:o:p:n:F:x::t:s:H::C:K:P:W:u:v::h::d::";
+  const char * short_options = "j::g:i::f:k:a:e:l:o:p:n:F:x::t:s:H::C:K:P:S::W:u:v::h::d::";
   char * out_file = NULL,
        * out_file_public = NULL,
        * parsed_token = NULL,
@@ -865,6 +876,7 @@ int main (int argc, char ** argv) {
     {"header", no_argument, NULL, 'H'},
     {"claims", required_argument, NULL, 'C'},
     {"public-key", required_argument, NULL, 'P'},
+    {"self-signed", required_argument, NULL, 'S'},
     {"private-key", required_argument, NULL, 'K'},
     {"password", required_argument, NULL, 'W'},
     {"x5u-flags", required_argument, NULL, 'u'},
@@ -1017,6 +1029,9 @@ int main (int argc, char ** argv) {
       case 'P':
         str_token_public_key = o_strdup(optarg);
         break;
+      case 'S':
+        self_signed = 1;
+        break;
       case 'W':
         password = o_strdup(optarg);
         break;
@@ -1055,7 +1070,7 @@ int main (int argc, char ** argv) {
     if (action == R_ACTION_JWKS_OUT) {
       get_jwks_out(j_arguments, split_keys, x5u_flags, indent, format, out_file, out_file_public);
     } else if (action == R_ACTION_PARSE_TOKEN) {
-      ret = parse_token(parsed_token, indent, x5u_flags, str_token_public_key, str_token_private_key, password, show_header, show_claims);
+      ret = parse_token(parsed_token, indent, x5u_flags, str_token_public_key, str_token_private_key, password, show_header, show_claims, self_signed);
     } else if (action == R_ACTION_SERIALIZE_TOKEN) {
       ret = serialize_token(claims, x5u_flags, str_token_public_key, str_token_private_key, password, alg, enc, enc_alg);
     } else {

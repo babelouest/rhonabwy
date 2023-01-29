@@ -1,6 +1,6 @@
 # rnbyc: Rhonabwy command-line tool
 
-Copyright 2020-2021 Nicolas Mora <mail@babelouest.org>
+Copyright 2020-2022 Nicolas Mora <mail@babelouest.org>
 
 This program is free software; you can redistribute it and/or modify it under the terms of the GPL3 License.
 
@@ -169,6 +169,12 @@ $ rnbyc -t eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjJZcXVEeXlNamJvWU4xSkU2T
 
 ```shell
 $ rnbyc -t eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjJZcXVEeXlNamJvWU4xSkU2TWVQQWVORk5lTzJUN0thTDcydTRQcUYySTgifQ.eyJhdWQiOiJ4eXoxMjMiLCJub25jZSI6Im5vbmNlMTIzNCJ9.ARpZkLEDAMLDfbcdowyHeb7fg00U06NHRnXCn2SiDMy1wE9SGJT3br-til-BXHJ0HoiSZ4HGhgTEaRf317bhy8jhHHVSJngWSncBxXzNe8cJ3A-bXZJBeTo5wKmxcwqgen744rAG5cmszC0KYR0rAXoqFDgPxxmw-EiFvgOfwn-COUS_ofdruc3BPyK-wuMNFMjqaQMi5RnTPuQZkSmmJkHGoRkAl0oafkKVvOL9VvO29It_b5Sk6uAHViczSY7A2v9oCQvGXML6aN8fqqQivM3ArCxWaDRXrWzO22SL3Qy11blrrCh-JJmKTcrHUjx2Ozacy1ecVXwc__h9Kn_AtA -P pub.jwks
+```
+
+### Parses a signed JWT with the public key included in the header and verifies the signature
+
+```shell
+$ rnbyc -t eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6IkVDIiwieCI6Imw4dEZyaHgtMzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCRnMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFqSG10NnY5VERWclUwQ2R2R1JEQSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRtIjoiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwiaWF0IjoxNTYyMjYyNjE2fQ.2-GxA6T8lP4vfrg8v-FdWP0A0zdrj8igiMLvqRMUvwnQg4PtFLbdLXiOSsX0x7NVY-FNyJK70nfbV37xRZT3Lg -S
 ```
 
 ### Parses an encrypted JWT to decrypt its content and display claims

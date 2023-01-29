@@ -273,6 +273,10 @@ const char advanced_jku_4[] = "{\"keys\":[{\"kty\":\"EC\",\"x\":\"rXNalVG5Ylar4c
 #define TOKEN_INVALID_CIPHER_B64 "eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.S7OUaa-1ekDy8cPPo1Rzq81vwaEfk3yBL5Xw9FnfRtGikBSwH0OC6Q.29q9_PdnK2jXwG4gJvgDoQ.;error;czZ_XqNm8JwoW_B8rczVdVYO4o7pflVAcT0ojJg_m8Eo79F2W7FgLUEKVxrOoOz6-tuQjCzWfZkrE3g.p28K0cxZ3gDEpAMD_79pOw"
 #define TOKEN_INVALID_TAG_B64 "eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.S7OUaa-1ekDy8cPPo1Rzq81vwaEfk3yBL5Xw9FnfRtGikBSwH0OC6Q.29q9_PdnK2jXwG4gJvgDoQ.BuhbHPZczZ_XqNm8JwoW_B8rczVdVYO4o7pflVAcT0ojJg_m8Eo79F2W7FgLUEKVxrOoOz6-tuQjCzWfZkrE3g.;error;Z3gDEpAMD_79pOw"
 #define TOKEN_INVALID_DOTS "eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0S7OUaa-1ekDy8cPPo1Rzq81vwaEfk3yBL5Xw9FnfRtGikBSwH0OC6Q.29q9_PdnK2jXwG4gJvgDoQ.BuhbHPZczZ_XqNm8JwoW_B8rczVdVYO4o7pflVAcT0ojJg_m8Eo79F2W7FgLUEKVxrOoOz6-tuQjCzWfZkrE3g.p28K0cxZ3gDEpAMD_79pOw"
+#define TOKEN_EMPTY_HEADER ".S7OUaa-1ekDy8cPPo1Rzq81vwaEfk3yBL5Xw9FnfRtGikBSwH0OC6Q.29q9_PdnK2jXwG4gJvgDoQ.BuhbHPZczZ_XqNm8JwoW_B8rczVdVYO4o7pflVAcT0ojJg_m8Eo79F2W7FgLUEKVxrOoOz6-tuQjCzWfZkrE3g.p28K0cxZ3gDEpAMD_79pOw"
+#define TOKEN_EMPTY_IV "eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.S7OUaa-1ekDy8cPPo1Rzq81vwaEfk3yBL5Xw9FnfRtGikBSwH0OC6Q..BuhbHPZczZ_XqNm8JwoW_B8rczVdVYO4o7pflVAcT0ojJg_m8Eo79F2W7FgLUEKVxrOoOz6-tuQjCzWfZkrE3g.p28K0cxZ3gDEpAMD_79pOw"
+#define TOKEN_EMPTY_CIPHERTEXT "eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.S7OUaa-1ekDy8cPPo1Rzq81vwaEfk3yBL5Xw9FnfRtGikBSwH0OC6Q.29q9_PdnK2jXwG4gJvgDoQ..p28K0cxZ3gDEpAMD_79pOw"
+#define TOKEN_EMPTY_TAG "eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.S7OUaa-1ekDy8cPPo1Rzq81vwaEfk3yBL5Xw9FnfRtGikBSwH0OC6Q.29q9_PdnK2jXwG4gJvgDoQ.BuhbHPZczZ_XqNm8JwoW_B8rczVdVYO4o7pflVAcT0ojJg_m8Eo79F2W7FgLUEKVxrOoOz6-tuQjCzWfZkrE3g."
 
 START_TEST(test_rhonabwy_init)
 {
@@ -1091,6 +1095,35 @@ START_TEST(test_rhonabwy_decrypt_key_invalid_encrypted_key)
   r_jwk_free(jwk_privkey_rsa);
 }
 END_TEST
+
+START_TEST(test_rhonabwy_jwk_in_header_invalid)
+{
+  jwe_t * jwe, * jwe_parsed;
+  jwk_t * jwk_pubkey_rsa;
+  json_t * j_jwk;
+  char * str_jwe;
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey_rsa), RHN_OK);
+  ck_assert_int_eq(r_jwe_init(&jwe_parsed), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey_rsa, jwk_pubkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_RSA1_5), RHN_OK);
+  ck_assert_ptr_ne(NULL, j_jwk = json_loads(jwk_privkey_rsa_str, JSON_DECODE_ANY, 0));
+  ck_assert_int_eq(r_jwe_set_header_json_t_value(jwe, "jwk", j_jwk), RHN_OK);
+  ck_assert_ptr_ne(NULL, str_jwe = r_jwe_serialize(jwe, jwk_pubkey_rsa, 0));
+  
+  ck_assert_int_eq(r_jwe_parse(jwe_parsed, str_jwe, 0), RHN_ERROR_PARAM);
+  
+  r_jwe_free(jwe);
+  r_jwe_free(jwe_parsed);
+  r_jwk_free(jwk_pubkey_rsa);
+  json_decref(j_jwk);
+  o_free(str_jwe);
+}
+END_TEST
+
 #endif
 
 START_TEST(test_rhonabwy_decrypt_key_valid)
@@ -1354,6 +1387,10 @@ START_TEST(test_rhonabwy_quick_parse)
   ck_assert_ptr_eq(NULL, jwe = r_jwe_quick_parse(TOKEN_INVALID_CIPHER_B64, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
   ck_assert_ptr_eq(NULL, jwe = r_jwe_quick_parse(TOKEN_INVALID_TAG_B64, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
   ck_assert_ptr_eq(NULL, jwe = r_jwe_quick_parse(TOKEN_INVALID_DOTS, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  ck_assert_ptr_eq(NULL, jwe = r_jwe_quick_parse(TOKEN_EMPTY_HEADER, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  ck_assert_ptr_eq(NULL, jwe = r_jwe_quick_parse(TOKEN_EMPTY_IV, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  ck_assert_ptr_eq(NULL, jwe = r_jwe_quick_parse(TOKEN_EMPTY_CIPHERTEXT, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  ck_assert_ptr_eq(NULL, jwe = r_jwe_quick_parse(TOKEN_EMPTY_TAG, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
 
   ck_assert_ptr_ne(NULL, jwe = r_jwe_quick_parse(ADVANCED_TOKEN, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
   ck_assert_int_eq(r_jwks_size(jwe->jwks_pubkey), 0);
@@ -1411,6 +1448,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_encrypt_key_valid);
 #if GNUTLS_VERSION_NUMBER >= 0x030600
   tcase_add_test(tc_core, test_rhonabwy_decrypt_key_invalid_encrypted_key);
+  tcase_add_test(tc_core, test_rhonabwy_jwk_in_header_invalid);
 #endif
   tcase_add_test(tc_core, test_rhonabwy_decrypt_key_valid);
   tcase_add_test(tc_core, test_rhonabwy_decrypt_updated_header_cbc);

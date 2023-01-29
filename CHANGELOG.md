@@ -1,9 +1,63 @@
 # Rhonabwy Changelog
 
+## 1.1.3
+
+- Bugfixes
+- Add `r_jwt_token_type` and `r_jwt_token_typen`
+- Replace `uint` with `unsigned int`
+
+## 1.1.2
+
+- Upgrade rnbyc version to 1.0
+- Fix bug in `r_jwk_import_from_gnutls_privkey` for ECDSA keys
+
+## 1.1.1
+
+- Add `r_jwk_match_json_t` and `r_jwk_match_json_str`
+- Add `r_jwks_search_json_t` and `r_jwks_search_json_str`
+- Add option `R_X509_TYPE_UNSPECIFIED` for `r_jwk_import_from_pem_der` parameter `type`
+- Add options `RHN_OPT_HEADER_RHN_INT_VALUE` and `RHN_OPT_CLAIM_INT_VALUE` to set `rhn_int_t values in `r_jwx_set_properties`
+
+## 1.1.0
+
+- Add advanced parsing functions
+- Add quick_parse functions
+- Add `r_jwk_quick_import` and `r_jwks_quick_import`
+- rnbyc: update `-H` option, no value is necessary
+
+## 1.0.0
+
+- Use type `rhn_int_t` for integer property values instead of `int`
+- Rename `r_jwks_import_from_str` to `r_jwks_import_from_json_str`
+- Fix `kty` bugs with JWKs
+- Fix bug with `r_jwe_compute_hmac_tag` to work with AES-CBC keys larger than 32 bytes (Thanks wbanga!)
+- Force using `*_unsecure` functions to manage unsecured JWS or JWT with no signature
+- Use Nettle's `ecc_point_mul` instead of GnuTLS' ECDH implementation
+- Add macro `RHONABWY_CHECK_VERSION`
+- Rename `R_KEY_TYPE_ECDSA` to `R_KEY_TYPE_EC`
+
 ## 0.9.9999
 
-- Improve jwks import
-- Improve `r_jwk_extract_pubkey` by adding properties `x5c`, `x5u`, `x5t` and `x5t#S256`
+- Support JSON format for JWE and JWS
+- Improve JWKS import
+- Improve `r_jwk_extract_pubkey` by copying properties `x5c`, `x5u`, `x5t` and `x5t#S256` to the public keys
+- Fix `AES-GCM` encryption by removing padding
+- Add `r_jws_set_properties`, `r_jwe_set_properties`, `r_jwt_set_properties`
+- Add `r_jws_set_full_header_json_t`, `r_jws_set_full_header_json_str`
+- Add `r_jwe_set_full_header_json_t`, `r_jwe_set_full_header_json_str`
+- Add `r_jwt_set_full_header_json_t`, `r_jwt_set_full_header_json_str`
+- Add `r_jwt_set_enc_cypher_key`, `r_jwt_get_enc_cypher_key`, `r_jwt_generate_enc_cypher_key`
+- Add `r_jwt_set_enc_iv`, `r_jwt_get_enc_iv`
+- Add `r_jwt_set_claims`
+- Add `r_jwe_serialize_json_str`, `r_jwe_serialize_json_t`, `r_jwe_parse_json_str`, `r_jwe_parse_json_t`
+- Add `r_jwe_compact_parsen`, `r_jwe_compact_parse` to parse JWE in compact mode
+- Add `r_jwe_parse_json_str`, `r_jwe_parsen_json_str`, `r_jwe_parse_json_t` to parse JWE in JSON mode
+- Improve `r_jwe_decrypt` and `r_jwe_decrypt_key` to support JWE serialized in General JSON format with multiple recipients
+- Add `r_jws_serialize_json_str`, `r_jws_serialize_json_t`, `r_jws_parse_json_str`, `r_jws_parse_json_t`
+- Add `r_jws_compact_parsen`, `r_jws_compact_parse` to parse JWS in compact mode
+- Add `r_jws_parse_json_str`, `r_jws_parsen_json_str`, `r_jws_parse_json_t` to parse JWS in JSON mode
+- Improve `r_jws_verify_signature` to support JWS serialized in General JSON format with multiple signatures
+- Allow deflate payload in JWS with header property `{zip:"DEF"}`
 
 ## 0.9.999
 

@@ -272,6 +272,7 @@ START_TEST(test_rhonabwy_rfc_example)
   ck_assert_int_eq(r_jwe_set_header_str_value(jwe, "cty", "jwk+json"), RHN_OK);
   ck_assert_int_eq(r_jwe_set_cypher_key(jwe, cek, sizeof(cek)), RHN_OK);
   ck_assert_int_eq(r_jwe_set_iv(jwe, iv, sizeof(iv)), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_full_header_json_str(jwe, "{\"alg\":\"PBES2-HS256+A128KW\",\"p2s\":\"2WCTcJZ1Rvd_CJuJripQ1w\",\"p2c\":4096,\"enc\":\"A128CBC-HS256\",\"cty\":\"jwk+json\"}"), RHN_OK);
   ck_assert_ptr_ne((token = r_jwe_serialize(jwe, jwk, 0)), NULL);
   ck_assert_str_eq(jwe_a_c, token);
   r_jwe_free(jwe);

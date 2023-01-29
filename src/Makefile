@@ -3,7 +3,7 @@
 #
 # Makefile used to build the software
 #
-# Copyright 2020-2021 Nicolas Mora <mail@babelouest.org>
+# Copyright 2020-2022 Nicolas Mora <mail@babelouest.org>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -31,25 +31,19 @@ CONFIG_FILE=$(RHONABWY_INCLUDE)/rhonabwy-cfg.h
 CONFIG_TEMPLATE=$(RHONABWY_INCLUDE)/rhonabwy-cfg.h.in
 CC=gcc
 CFLAGS+=-c -pedantic -std=gnu99 -fPIC -Wall -Werror -Wextra -D_REENTRANT -I$(RHONABWY_INCLUDE) $(ADDITIONALFLAGS) $(CPPFLAGS)
-LIBS=-L$(DESTDIR)/lib -lc -lorcania -lyder $(LULFIUS) -ljansson -lgnutls -lz $(LDFLAGS)
+LIBS=-L$(DESTDIR)/lib -lc $(shell pkg-config --libs liborcania) $(shell pkg-config --libs libyder) $(LCURL) $(shell pkg-config --libs jansson) $(shell pkg-config --libs gnutls) $(shell pkg-config --libs zlib) $(LDFLAGS)
 SONAME=-soname
 OBJECTS=jwk.o jwks.o jws.o jwe.o jwt.o misc.o
 OUTPUT=librhonabwy.so
-VERSION_MAJOR=0
-VERSION_MINOR=9
-VERSION_PATCH=9999
+VERSION_MAJOR=1
+VERSION_MINOR=1
+VERSION_PATCH=3
 
-ifdef ECDHFLAG
-ENABLE_ECDH=1
+ifdef DISABLE_CURL
+R_WITH_CURL=0
 else
-ENABLE_ECDH=0
-endif
-
-ifdef DISABLE_ULFIUS
-R_WITH_ULFIUS=0
-else
-R_WITH_ULFIUS=1
-LULFIUS=-lulfius
+R_WITH_CURL=1
+LCURL=-lcurl
 endif
 
 .PHONY: all clean
@@ -64,19 +58,12 @@ $(CONFIG_FILE):
 	@sed -i -e 's/$${PROJECT_VERSION_MINOR}/$(VERSION_MINOR)/g' $(CONFIG_FILE)        
 	@sed -i -e 's/$${PROJECT_VERSION_PATCH}/$(VERSION_PATCH)/g' $(CONFIG_FILE)        
 	@sed -i -e 's/$${PROJECT_VERSION_NUMBER}/$(shell printf '%02d' $(VERSION_MAJOR))$(shell printf '%02d' $(VERSION_MINOR))$(shell printf '%02d' $(VERSION_PATCH))/g' $(CONFIG_FILE)        
-	@if [ "$(ENABLE_ECDH)" = "1" ]; then \
-		sed -i -e 's/\#cmakedefine R_ECDH_ENABLED/\#define R_ECDH_ENABLED/g' $(CONFIG_FILE); \
-		echo "ECDH SUPPORT    ENABLED"; \
+	@if [ "$(R_WITH_CURL)" = "1" ]; then \
+		sed -i -e 's/\#cmakedefine R_WITH_CURL/\#define R_WITH_CURL/g' $(CONFIG_FILE); \
+		echo "USE CURL      ENABLED"; \
 	else \
-		sed -i -e 's/\#cmakedefine R_ECDH_ENABLED/\/* #undef R_ECDH_ENABLED *\//g' $(CONFIG_FILE); \
-		echo "ECDH SUPPORT    DISABLED"; \
-	fi
-	@if [ "$(R_WITH_ULFIUS)" = "1" ]; then \
-		sed -i -e 's/\#cmakedefine R_WITH_ULFIUS/\#define R_WITH_ULFIUS/g' $(CONFIG_FILE); \
-		echo "USE ULFIUS      ENABLED"; \
-	else \
-		sed -i -e 's/\#cmakedefine R_WITH_ULFIUS/\/* #undef R_WITH_ULFIUS *\//g' $(CONFIG_FILE); \
-		echo "USE ULFIUS      DISABLED"; \
+		sed -i -e 's/\#cmakedefine R_WITH_CURL/\/* #undef R_WITH_CURL *\//g' $(CONFIG_FILE); \
+		echo "USE CURL      DISABLED"; \
 	fi
 
 $(PKGCONFIG_FILE):

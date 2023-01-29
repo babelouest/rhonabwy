@@ -4,7 +4,7 @@
 # CMake file used to build all programs
 #
 # Copyright 2018 Silvio Clecio <silvioprog@gmail.com>
-# Copyright 2021 Nicolas Mora <mail@babelouest.org>
+# Copyright 2021-2022 Nicolas Mora <mail@babelouest.org>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the MIT License
@@ -28,12 +28,12 @@ endif()
 set(PROJECT_DESCRIPTION "JWK, JWKS, JWS, JWE and JWT library")
 set(PROJECT_HOMEPAGE_URL "https://github.com/babelouest/rhonabwy/")
 set(PROJECT_BUGREPORT_PATH "https://github.com/babelouest/rhonabwy/issues")
-set(LIBRARY_VERSION_MAJOR "0")
-set(LIBRARY_VERSION_MINOR "9")
-set(LIBRARY_VERSION_PATCH "9999")
+set(LIBRARY_VERSION_MAJOR "1")
+set(LIBRARY_VERSION_MINOR "1")
+set(LIBRARY_VERSION_PATCH "3")
 set(ORCANIA_VERSION_REQUIRED "2.2.1")
 set(YDER_VERSION_REQUIRED "1.4.14")
-set(ULFIUS_VERSION_REQUIRED "2.7.3")
+set(ULFIUS_VERSION_REQUIRED "2.7.7")
 
 set(PROJECT_VERSION "${LIBRARY_VERSION_MAJOR}.${LIBRARY_VERSION_MINOR}.${LIBRARY_VERSION_PATCH}")
 set(PROJECT_VERSION_MAJOR ${LIBRARY_VERSION_MAJOR})
@@ -90,6 +90,13 @@ if (JANSSON_FOUND)
   include_directories(${JANSSON_INCLUDE_DIRS})
 endif ()
 
+include(FindNettle)
+find_package(Nettle REQUIRED)
+if (NETTLE_FOUND)
+  set(LIBS ${LIBS} ${NETTLE_LIBRARIES})
+  include_directories(${NETTLE_INCLUDE_DIRS})
+endif ()
+
 include(FindGnuTLS)
 find_package(GnuTLS REQUIRED)
 if (GNUTLS_FOUND)
@@ -104,22 +111,24 @@ if (ZLIB_FOUND)
   include_directories(${ZLIB_INCLUDE_DIRS})
 endif ()
 
-include(FindMHD)
-find_package(MHD REQUIRED)
+option(WITH_ULFIUS "Use Ulfius library to get HTTP remote content - deprecated, use WITH_CURL instead" ON)
+option(WITH_CURL "Use curl library to get HTTP remote content" ON)
 
-option(WITH_ECDH "ECDH-ES key management support" OFF)
-option(WITH_ULFIUS "Use Ulfius library to get HTTP remote content" ON)
-
-if (WITH_ECDH)
-    set(R_ECDH_ENABLED ON)
-else ()
-    set(R_ECDH_ENABLED OFF)
+if (NOT WITH_ULFIUS)
+  message(WARNING "Option WITH_ULFIUS is deprecated, use WITH_CURL instead")
+  set(WITH_CURL OFF)
 endif ()
 
-if (WITH_ULFIUS)
-    set(R_WITH_ULFIUS ON)
+if (WITH_CURL)
+    include(FindCURL)
+    find_package(CURL REQUIRED)
+    if (CURL_FOUND)
+        set(LIBS ${LIBS} ${CURL_LIBRARIES})
+        include_directories(${CURL_INCLUDE_DIRS})
+    endif ()
+    set(R_WITH_CURL ON)
 else ()
-    set(R_WITH_ULFIUS OFF)
+    set(R_WITH_CURL OFF)
 endif ()
 
 # directories and source
@@ -174,7 +183,9 @@ if (SEARCH_ORCANIA_R)
     set(Orcania_FIND_QUIETLY ON) # force to find Orcania quietly
     include(FindOrcania)
     find_package(Orcania ${ORCANIA_VERSION_REQUIRED} QUIET) # try to find orcania
-    if (NOT ORCANIA_FOUND)
+    if (ORCANIA_FOUND)
+        include_directories(${ORCANIA_INCLUDE_DIRS})
+    else ()
       if (DOWNLOAD_DEPENDENCIES)
           include(DownloadProject)
           message(STATUS "Download Orcania ${ORCANIA_VERSION_REQUIRED}")
@@ -201,7 +212,9 @@ if (SEARCH_YDER_R)
     set(Yder_FIND_QUIETLY ON) # force to find Yder quietly
     include(FindYder)
     find_package(Yder ${YDER_VERSION_REQUIRED} QUIET) # try to find Yder
-    if (NOT YDER_FOUND)
+    if (YDER_FOUND)
+        include_directories(${YDER_INCLUDE_DIRS})
+    else ()
       if (DOWNLOAD_DEPENDENCIES)
           include(DownloadProject)
           message(STATUS "Download Yder ${YDER_VERSION_REQUIRED}")
@@ -225,39 +238,6 @@ else ()
     set(LIBS ${LIBS} yder)
 endif ()
 
-if (WITH_ULFIUS)
-  option(SEARCH_ULFIUS_R "Search for ULFIUS library" ON)
-  if (SEARCH_ULFIUS_R)
-      set(Ulfius_FIND_QUIETLY ON)
-      include(FindUlfius)
-      find_package(Ulfius ${ULFIUS_VERSION_REQUIRED} QUIET)
-      if (NOT ULFIUS_FOUND)
-        if (DOWNLOAD_DEPENDENCIES)
-            include(DownloadProject)
-            option(CHECK_ORCANIA "specific param" off)
-            option(CHECK_YDER "specific param" off)
-            message(STATUS "Download Ulfius ${ULFIUS_VERSION_REQUIRED}")
-            download_project(PROJ ulfius
-                URL "https://github.com/babelouest/ulfius/archive/v${ULFIUS_VERSION_REQUIRED}.tar.gz"
-                QUIET)
-            add_subdirectory(${ulfius_SOURCE_DIR} ${ulfius_BINARY_DIR})
-            include_directories(${yder_SOURCE_DIR}/include)
-            include_directories(${orcania_SOURCE_DIR}/include)
-            include_directories(${ulfius_SOURCE_DIR}/include)
-            add_dependencies(rhonabwy ulfius)
-            set(ULFIUS_LIBRARIES ulfius)
-            include_directories(${ulfius_BINARY_DIR})
-          else ()
-              message( FATAL_ERROR "Ulfius not found")
-          endif ()
-      endif ()
-      target_link_libraries(rhonabwy ${ULFIUS_LIBRARIES})
-      set(LIBS ${LIBS} ${ULFIUS_LIBRARIES})
-  else ()
-      set(LIBS ${LIBS} ulfius)
-  endif ()
-endif ()
-
 # build rnbyc
 
 option(BUILD_RNBYC "Build rnbyc application." ON)
@@ -268,7 +248,7 @@ if (BUILD_RNBYC)
     add_dependencies(rnbyc rhonabwy)
     target_link_libraries(rnbyc rhonabwy ${LIBS})
     install(TARGETS rnbyc RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-    INSTALL(FILES ${RNBYC_DIR}/rnbyc.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1 COMPONENT runtime)
+    install(FILES ${RNBYC_DIR}/rnbyc.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1 COMPONENT runtime)
 endif ()
 
 # documentation
@@ -303,6 +283,28 @@ include_directories(${PROJECT_BINARY_DIR})
 option(BUILD_RHONABWY_TESTING "Build the testing tree." OFF) # because we do not use include(CTest)
 
 if (BUILD_RHONABWY_TESTING)
+
+    set(Ulfius_FIND_QUIETLY ON)
+    include(FindUlfius)
+    find_package(Ulfius ${ULFIUS_VERSION_REQUIRED} QUIET)
+    if (NOT ULFIUS_FOUND)
+        include(DownloadProject)
+        option(CHECK_ORCANIA "specific param" off)
+        option(CHECK_YDER "specific param" off)
+        message(STATUS "Download Ulfius ${ULFIUS_VERSION_REQUIRED}")
+        download_project(PROJ ulfius
+                URL "https://github.com/babelouest/ulfius/archive/v${ULFIUS_VERSION_REQUIRED}.tar.gz"
+                QUIET)
+        add_subdirectory(${ulfius_SOURCE_DIR} ${ulfius_BINARY_DIR})
+        include_directories(${yder_SOURCE_DIR}/include)
+        include_directories(${orcania_SOURCE_DIR}/include)
+        include_directories(${ulfius_SOURCE_DIR}/include)
+        add_dependencies(rhonabwy ulfius)
+        set(ULFIUS_LIBRARIES ulfius)
+        include_directories(${ulfius_BINARY_DIR})
+    endif ()
+    target_link_libraries(rhonabwy ${ULFIUS_LIBRARIES})
+
     include(FindCheck)
     find_package(Check REQUIRED)
     if (CHECK_FOUND)
@@ -329,6 +331,7 @@ if (BUILD_RHONABWY_TESTING)
           jws_ecdsa
           jws_rsa
           jws_rsapss
+          jws_json
           jwe_core
           jwe_rsa
           jwe_aesgcm
@@ -337,6 +340,7 @@ if (BUILD_RHONABWY_TESTING)
           jwe_rsa_oaep
           jwe_ecdh
           jwe_pbes2
+          jwe_json
           jwt_core
           jwt_encrypt
           jwt_sign
@@ -428,9 +432,6 @@ set(CPACK_DEBIAN_PACKAGE_MAINTAINER "mail@babelouest.org")
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION ${PROJECT_DESCRIPTION})
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/babelouest/rhonabwy")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.4), liborcania|liborcania-dev (>= ${ORCANIA_VERSION_REQUIRED}), libyder|libyder-dev (>= ${YDER_VERSION_REQUIRED})")
-if (WITH_ULFIUS)
-  set(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}, libulfius|libulfius-dev (>= ${ULFIUS_VERSION_REQUIRED})")
-endif ()
 set(CPACK_PACKAGE_FILE_NAME ${PACKAGE_FILE_NAME})
 set(CPACK_PACKAGE_FILE_NAME ${PACKAGE_FILE_NAME})
 
@@ -446,5 +447,4 @@ message(STATUS "Build CLI rnbyc:                ${BUILD_RNBYC}")
 message(STATUS "Build Static library:           ${BUILD_STATIC}")
 message(STATUS "Build RPM package:              ${BUILD_RPM}")
 message(STATUS "Build documentation:            ${BUILD_RHONABWY_DOCUMENTATION}")
-message(STATUS "ECDH-ES key management support: ${WITH_ECDH}")
-message(STATUS "Use Ulfius for remote content:  ${WITH_ULFIUS}")
+message(STATUS "Use libcurl for remote content: ${WITH_CURL}")

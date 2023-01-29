@@ -3,7 +3,7 @@
 #
 # Makefile used to build all programs
 #
-# Copyright 2020 Nicolas Mora <mail@babelouest.org>
+# Copyright 2020-2022 Nicolas Mora <mail@babelouest.org>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -35,6 +35,7 @@ clean:
 	cd $(LIBIDDAWC_LOCATION) && $(MAKE) clean
 	cd $(TESTS_LOCATION) && $(MAKE) clean
 	cd $(RNBYC_LOCATION) && $(MAKE) clean
+	rm -rf doc/html $(TESTS_LOCATION)/cert/*.crt $(TESTS_LOCATION)/cert/*.key $(TESTS_LOCATION)/cert/*.log
 
 install:
 	cd $(LIBIDDAWC_LOCATION) && $(MAKE) install

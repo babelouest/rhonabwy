@@ -12,7 +12,7 @@ Rhonabwy is based on the following libraries and actively uses them:
 - GnuTLS for the cryptographic functions
 - Jansson for the JSON manipulation
 - Yder for the logs
-- Ulfius when it requires to retrieve keys from an URL
+- Libcurl when it requires to retrieve keys from an URL
 
 When relevant, a function can accept or return GnuTLS or Jansson data. But if you're not using those in your application and prefer raw data, you can use the more agnostic functions.
 
@@ -36,9 +36,9 @@ If a function is successful, it will return `RHN_OK` (0), otherwise an error cod
 It's **recommended** to use `r_global_init` and `r_global_close` at the beginning and at the end of your program to initialize and cleanup internal values and settings. This will make outgoing requests faster, especially if you use lots of them, and dispatch your memory allocation functions in curl and Jansson if you changed them. These functions are **NOT** thread-safe, so you must use them in a single thread context.
 
 ```C
-int r_global_init();
+int r_global_init(void);
 
-void r_global_close();
+void r_global_close(void);
 ```
 
 ## Log messages
@@ -47,7 +47,7 @@ Usually, a log message is displayed to explain more specifically what happened o
 
 ```C
 
-int main() {
+int main(void) {
   y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy client program");
   
   // Do your code here
@@ -92,11 +92,11 @@ void r_jwt_free(jwt_t * jwt);
 
 In addition, when a function return a `char *` value, this value must be freed using the function `r_free(void *)`.
 
-And finally, all `json_t *` returned values must be de allocated using `json_decref(json_t *)`, see [Jansson Documentation](https://jansson.readthedocs.io/) for more details.
-
 ```C
 void r_free(void * data);
 ```
+
+And finally, all `json_t *` returned values must be de allocated using `json_decref(json_t *)`, see [Jansson Documentation](https://jansson.readthedocs.io/) for more details.
 
 ## Library information
 
@@ -106,7 +106,7 @@ Example output:
 
 ```JSON
 {
-  "version": "0.9.99",
+  "version": "0.9.9999",
   "jws": {
     "alg": [
       "none",
@@ -120,7 +120,6 @@ Example output:
       "ES384",
       "ES512",
       "EdDSA",
-      "ES256K",
       "PS256",
       "PS384",
       "PS512"
@@ -136,11 +135,11 @@ Example output:
       "A256KW",
       "dir",
       "A128GCMKW",
+      "A192GCMKW",
       "A256GCMKW",
       "PBES2-HS256+A128KW",
       "PBES2-HS384+A192KW",
       "PBES2-HS512+A256KW",
-      "A192GCMKW",
       "ECDH-ES",
       "ECDH-ES+A128KW",
       "ECDH-ES+A192KW",
@@ -156,6 +155,19 @@ Example output:
     ]
   }
 }
+```
+
+## Header or Claim integer value
+
+When using `r_jws_set_header_int_value`, `r_jwe_set_header_int_value`, `r_jwt_set_header_int_value` or `r_jwt_set_claim_int_value`, the int value must be of type `rhn_int_t`, which inner format depend on the architecture. It's recommended not to use an `int` instead, or undefined behaviour may happen.
+
+Likewise, the functions `r_jws_get_header_int_value`, `r_jwe_get_header_int_value`, `r_jwt_get_header_int_value` or `r_jwt_get_claim_int_value`, these functions will return a `rhn_int_t`.
+
+To use a `rhn_int_t` in a printf-like function, you can use the macro `RHONABWY_INTEGER_FORMAT`:
+
+```C
+rhn_int_t val = 42;
+printf("value: %"RHONABWY_INTEGER_FORMAT"\n", val);
 ```
 
 ## JWK
@@ -191,6 +203,33 @@ If the imported JWK contains a `x5u` property, the key or certificate will be do
 - `R_FLAG_FOLLOW_REDIRECT`: follow redirection if necessary
 - `R_FLAG_IGNORE_REMOTE`: do not download remote key, but the function may return an error
 
+```C
+int r_jwk_import_from_json_str(jwk_t * jwk, const char * input);
+
+int r_jwk_import_from_json_t(jwk_t * jwk, json_t * j_input);
+
+int r_jwk_import_from_pem_der(jwk_t * jwk, int type, int format, const unsigned char * input, size_t input_len);
+
+int r_jwk_import_from_gnutls_privkey(jwk_t * jwk, gnutls_privkey_t key);
+
+int r_jwk_import_from_gnutls_pubkey(jwk_t * jwk, gnutls_pubkey_t pub);
+
+int r_jwk_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt);
+
+int r_jwk_import_from_x5u(jwk_t * jwk, int x5u_flags, const char * x5u);
+
+int r_jwk_import_from_x5c(jwk_t * jwk, const char * x5c);
+
+int r_jwk_import_from_symmetric_key(jwk_t * jwk, const unsigned char * key, size_t key_len);
+
+int r_jwk_import_from_password(jwk_t * jwk, const char * password);
+
+int r_jwk_extract_pubkey(jwk_t * jwk_privkey, jwk_t * jwk_pubkey, int x5u_flags);
+
+jwk_t * r_jwk_quick_import(rhn_import type, ...);
+```
+
+
 The values `R_FLAG_IGNORE_SERVER_CERTIFICATE` and `R_FLAG_FOLLOW_REDIRECT` can be merged: `R_FLAG_IGNORE_SERVER_CERTIFICATE|R_FLAG_FOLLOW_REDIRECT`
 
 ### Manipulate JWK properties
@@ -219,9 +258,9 @@ The function `r_jwk_is_valid` will check the validity of a JWK, i.e. check if al
 
 ### Generate a random key pair
 
-You can use Rhonabwy to generate a random key pair for RSA or ECC algorithms. The `jwk_t *` parameters must be initialized first.
+You can use Rhonabwy to generate a random key pair for RSA, ECC or OKP algorithms. The `jwk_t *` parameters must be initialized first.
 
-The `type` parameter can have one of the following values: `R_KEY_TYPE_RSA` or `R_KEY_TYPE_ECDSA`. The `bits` parameter specifies the length of the key. A RSA key must be at least 2048 bits, and the bits value allowed for an ECC key are 256, 384 or 512.
+The `type` parameter can have one of the following values: `R_KEY_TYPE_RSA` `R_KEY_TYPE_EC`, `R_KEY_TYPE_EDDSA` or `R_KEY_TYPE_ECDH`. The `bits` parameter specifies the length of the key. A RSA key must be at least 2048 bits, and the bits value allowed for an ECC key are 256, 384 or 512.
 
 If the parameter `kid` is used, the generated key kid property will have the kid specified, otherwise a `kid` will be generated to identify the key pair.
 
@@ -269,18 +308,20 @@ jwk_t * r_jwks_get_by_kid(jwks_t * jwks, const char * kid);
 You can also import a JWKS using a JSON object or an URL.
 
 ```C
-int r_jwks_import_from_str(jwks_t * jwks, const char * input);
+int r_jwks_import_from_json_str(jwks_t * jwks, const char * input);
 
 int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input);
 
 int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int flags);
+
+jwks_t * r_jwks_quick_import(rhn_import, ...);
 ```
 
 ## JWS
 
-A JWS (JSON Web Signature) is a content digitally signed and serialized in a compact format that can be easily transferred in HTTP requests.
+A JWS (JSON Web Signature) is a content digitally signed and serialized in a compact or JSON format that can be easily transferred in HTTP requests.
 
-A JWS has 3 elements serialized in base64url format and separated by a dot (.). The 3 elements are:
+A compact JWS has 3 elements serialized in base64url format and separated by a dot (.). The 3 elements are:
 
 - A header in JSON format
 - A Payload
@@ -301,9 +342,63 @@ The algorithms supported by Rhonabwy are:
 - Digital Signature with RSASSA-PKCS1-v1_5: `RS256`, `RS384`, `RS512`
 - Digital Signature with ECDSA: `ES256`, `ES384`, `ES512`, `ES256K`
 - Digital Signature with RSASSA-PSS: `PS256`, `PS384`, `PS512`
-- Digital Signature with Ed25519 Elliptic Curve: `EDdSA`
-- Digital Signature with secp256k1 Elliptic Curve: `ES256K`
+- Digital Signature with Ed25519 or Ed448 Elliptic Curve: `EDdSA`
 - Unsecured: `none`
+
+### Set values
+
+To set the values of the JWS (header, keys, payload, etc.), you can use the dedicated functions (see the documentation), or use the function `r_jws_set_properties` to set multiple properties at once. The option list MUST end with the option `RHN_OPT_NONE`.
+
+```C
+/**
+ * Add multiple properties to the jws_t *
+ * @param jws: the jws_t to set values
+ * @param ...: set of values using a rhn_opt and following values
+ */
+int r_jws_set_properties(jws_t * jws, ...);
+```
+
+The available `rhn_opt` and their following values for a `jws_t` are:
+
+```C
+RHN_OPT_HEADER_INT_VALUE, const char *, int
+RHN_OPT_HEADER_RHN_INT_VALUE, const char *, rhn_int_t
+RHN_OPT_HEADER_STR_VALUE, const char * const char *
+RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
+RHN_OPT_HEADER_FULL_JSON_T, json_t *
+RHN_OPT_HEADER_FULL_JSON_STR, const char *
+RHN_OPT_PAYLOAD, const unsigned char *, size_t
+RHN_OPT_SIG_ALG, jwa_alg
+RHN_OPT_SIGN_KEY_JWK, jwk_t *
+RHN_OPT_SIGN_KEY_JWKS, jwks_t *
+RHN_OPT_SIGN_KEY_GNUTLS, gnutls_privkey_t
+RHN_OPT_SIGN_KEY_JSON_T, json_t *
+RHN_OPT_SIGN_KEY_JSON_STR, const char *
+RHN_OPT_SIGN_KEY_PEM_DER, uint, const unsigned char *, size_t
+RHN_OPT_VERIFY_KEY_JWK, jwk_t *
+RHN_OPT_VERIFY_KEY_JWKS, jwks_t *
+RHN_OPT_VERIFY_KEY_GNUTLS, gnutls_pubkey_t
+RHN_OPT_VERIFY_KEY_JSON_T, json_t *
+RHN_OPT_VERIFY_KEY_JSON_STR, const char *
+RHN_OPT_VERIFY_KEY_PEM_DER, uint, const unsigned char *, size_t
+```
+
+Example of usage for `r_jws_set_properties`:
+
+```C
+jws_t * jws;
+const unsigned char payload[] = {4, 8, 15, 16, 23, 42};
+jwk_t * jwk; // Set a private RSA key in this value
+r_jws_set_properties(jws, RHN_OPT_HEADER_INT_VALUE, "int", 42,
+                          RHN_OPT_HEADER_STR_VALUE, "str", "a value",
+                          RHN_OPT_HEADER_JSON_T_VALUE, "json", json_true(),
+                          RHN_OPT_PAYLOAD, payload, sizeof(payload),
+                          RHN_OPT_SIG_ALG, R_JWA_ALG_RS256,
+                          RHN_OPT_SIGN_KEY_JWK, jwk,
+                          RHN_OPT_NONE); // Test if return value is RHN_OK
+char * token = r_jws_serialize(jws, NULL, 0);
+}
+```
 
 ### JWS example
 
@@ -336,7 +431,7 @@ Finally, the complete representation of the JWS is the following:
 eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.GKxWqRBFr-6X4HfflzGeGvKVsJ8v1-J39Ho2RslC-5o
 ```
 
-### Serialize a JWS using Rhonabwy
+### Serialize a JWS using Rhonabwy in compact mode
 
 The JWS above can be created with the following sample code:
 
@@ -391,6 +486,199 @@ r_jws_free(jws);
 r_jwk_free(jwk_key_symmetric);
 ```
 
+The functions `r_jws_parse`, `r_jws_parsen`, `r_jws_compact_parse` and `r_jws_compact_parsen` will parse a serialized JWS. If public keys are present in the header, they will be added to the public keys list and can be used to verify the token signature.
+
+```C
+/**
+ * Parses the serialized JWS in all modes (compact, flattened or general)
+ * @param jws: the jws_t to update
+ * @param jws_str: the serialized JWS to parse, must end with a NULL string terminator
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_parse(jws_t * jws, const char * jws_str, int x5u_flags);
+
+/**
+ * Parses the serialized JWS in all modes (compact, flattened or general)
+ * @param jws: the jws_t to update
+ * @param jws_str: the serialized JWS to parse
+ * @param jws_str_len: the length of jws_str to parse
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_flags);
+```
+
+#### Compressed payload
+
+The header value `"zip":"DEF"` is used to specify if the JWS payload is compressed using [ZIP/Deflate](https://tools.ietf.org/html/rfc7516#section-4.1.3) algorithm. Rhonabwy will automatically compress or decompress the decrypted payload during serialization or parse process.
+
+### Unsecured JWS
+
+It's possible to use Rhonabwy for unsecured JWS, with the header `alg:"none"` and an empty signature, using a dedicated set of functions: `r_jws_parse_unsecure`, `r_jws_parsen_unsecure`, `r_jws_compact_parsen_unsecure`, `r_jws_compact_parse_unsecure` and `r_jws_serialize_unsecure`, or using `r_jws_advanced_parse` with the `parse_flags` value `R_PARSE_UNSIGNED` set.
+
+#### Parse a unsecured JWS
+
+By default, the functions `r_jws_parse`, `r_jws_parsen`, `r_jws_compact_parse` and `r_jws_compact_parsen` will return `RHN_ERROR_INVALID` if the parsed JWS is unsigned.
+To parse any JWS, signed or unsigned, you must use the functions `r_jws_parse_unsecure`, `r_jws_parsen_unsecure`, `r_jws_compact_parsen_unsecure` and `r_jws_compact_parse_unsecure`, or using `r_jws_advanced_parse` with the `parse_flags` value `R_PARSE_UNSIGNED` set.
+
+#### Serialize an unsecured JWS
+
+Use the function `r_jws_serialize_unsecure` to serialize an unsecured JWS.
+By design, the functions `r_jws_serialize_json_t` and `r_jws_serialize_json_str` will return NULL with mode `R_JSON_MODE_FLATTENED` on unsecured JWS.
+
+### Advanced parsing
+
+JWS standard allows to add in the JWS header a public key in several forms:
+- `jwk`: a public key in JWK format
+- `jku`: an url to a JWK Set
+- `x5c`: an array of X509 certificates
+- `x5u`: an url to a X509 certificate
+
+When using the functions `r_jws_parse`, `r_jws_parsen`, `r_jws_compact_parse`, `r_jws_compact_parsen`, `r_jws_parse_unsecure`, `r_jws_parsen_unsecure`, `r_jws_compact_parsen_unsecure` and `r_jws_compact_parse_unsecure`, by default, if a public key is mentionned in the header, it will be added to the `jws->jwks_pubkey`, so the signature verification will not need to specify a key. This can be dangerous if the token comes from a untrustworthy source and if the token isn't checked properly.
+
+To simplify secure token parsing, you should use the functions `r_jws_advanced_parse[n]`:
+
+```C
+/**
+ * Parses the serialized JWS in all modes (compact, flattened or general)
+ * @param jws: the jws_t to update
+ * @param jws_str: the serialized JWS to parse, must end with a NULL string terminator
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_advanced_parse(jws_t * jws, const char * jws_str, uint32_t parse_flags, int x5u_flags);
+
+/**
+ * Parses the serialized JWS in all modes (compact, flattened or general)
+ * @param jws: the jws_t to update
+ * @param jws_str: the serialized JWS to parse
+ * @param jws_str_len: the length of jws_str to parse
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_advanced_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, uint32_t parse_flags, int x5u_flags);
+```
+
+### Quick parsing
+
+The quick parsing functions can be used to parse a JWS in one line:
+
+```C
+/**
+ * Parses the serialized JWS in all modes (compact, flattened or general)
+ * @param jws_json: the serialized JWS to parse in json_t * format
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return a new jwt_t * on success, NULL on error
+ */
+jws_t * r_jws_quick_parse(const char * jws_str, uint32_t parse_flags, int x5u_flags);
+
+/**
+ * Parses the serialized JWS in all modes (compact, flattened or general)
+ * @param jws_json: the serialized JWS to parse in json_t * format
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return a new jwt_t * on success, NULL on error
+ */
+jws_t * r_jws_quick_parsen(const char * jws_str, size_t jws_str_len, uint32_t parse_flags, int x5u_flags);
+```
+
+#### Signature verification
+
+Signature verification is provided by the function `r_jws_verify_signature` which has the following definition:
+
+```C
+/**
+ * Verifies the signature of the JWS
+ * The JWS must contain a signature
+ * or the JWS must have alg: none
+ * If the jws has multiple signatures, it will return RHN_OK if one signature matches
+ * the public key
+ * @param jws: the jws_t to update
+ * @param jwk_pubkey: the public key to check the signature,
+ * can be NULL if jws already contains a public key
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags);
+```
+
+The function `r_jws_verify_signature` will return `RHN_ERROR_INVALID` if the JWS is unsecured.
+
 ## JWE
 
 A JWE (JSON Web Encryption) is an encrypted content serialized in a compact format that can be easily transferred in HTTP requests.
@@ -410,6 +698,66 @@ In Rhonabwy library, the supported algorithms are:
 - Supported Cryptographic Algorithms for Key Management: `RSA1_5` (RSAES-PKCS1-v1_5), `RSA-OAEP`, `RSA-OAEP-256`, `A128KW`, `A192KW`, `A256KW`, `dir` (Direct use of a shared symmetric key), `A128GCMKW`, `A192GCMKW`, `A256GCMKW`, `ECDH-ES`, `ECDH-ES+A128KW`, `ECDH-ES+A192KW`, `ECDH-ES+A256KW`, `PBES2-HS384+A192KW` and `PBES2-HS512+A256KW`, `PBES2-HS256+A128KW`
 
 If you don't specify a Content Encryption Key or an Initialization Vector before the serialization, Rhonabwy will automatically generate one or the other or both depending on the algorithm specified.
+
+### Set values
+
+To set the values of the JWE (header, keys, payload, etc.), you can use the dedicated functions (see the documentation), or use the function `r_jwe_set_properties` to set multiple properties at once. The option list MUST end with the option `RHN_OPT_NONE`.
+
+```C
+/**
+ * Add multiple properties to the jwe_t *
+ * @param jwe: the jwe_t to set values
+ * @param ...: set of values using a rhn_opt and following values
+ */
+int r_jwe_set_properties(jwe_t * jwe, ...);
+```
+
+The available `rhn_opt` and their following values for a `jwe_t` are:
+
+```C
+RHN_OPT_HEADER_INT_VALUE, const char *, int
+RHN_OPT_HEADER_RHN_INT_VALUE, const char *, rhn_int_t
+RHN_OPT_HEADER_STR_VALUE, const char * const char *
+RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
+RHN_OPT_HEADER_FULL_JSON_T, json_t *
+RHN_OPT_HEADER_FULL_JSON_STR, const char *
+RHN_OPT_PAYLOAD, const unsigned char *, size_t
+RHN_OPT_ENC_ALG, jwa_alg
+RHN_OPT_ENC, jwa_enc
+RHN_OPT_CIPHER_KEY, const unsigned char *, size_t
+RHN_OPT_IV, const unsigned char *, size_t
+RHN_OPT_AAD, const unsigned char *, size_t
+RHN_OPT_ENCRYPT_KEY_JWK, jwk_t *
+RHN_OPT_ENCRYPT_KEY_JWKS, jwks_t *
+RHN_OPT_ENCRYPT_KEY_GNUTLS, gnutls_pubkey_t
+RHN_OPT_ENCRYPT_KEY_JSON_T, json_t *
+RHN_OPT_ENCRYPT_KEY_JSON_STR, const char *
+RHN_OPT_ENCRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+RHN_OPT_DECRYPT_KEY_JWK, jwk_t *
+RHN_OPT_DECRYPT_KEY_JWKS, jwks_t *
+RHN_OPT_DECRYPT_KEY_GNUTLS, gnutls_privkey_t
+RHN_OPT_DECRYPT_KEY_JSON_T, json_t *
+RHN_OPT_DECRYPT_KEY_JSON_STR, const char *
+RHN_OPT_DECRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+```
+
+Example of usage for `r_jwe_set_properties`:
+
+```C
+jwe_t * jwe;
+const unsigned char payload[] = {4, 8, 15, 16, 23, 42};
+jwk_t * jwk; // Set a public RSA key in this value
+r_jwe_set_properties(jwe, RHN_OPT_HEADER_INT_VALUE, "int", 42,
+                          RHN_OPT_HEADER_STR_VALUE, "str", "a value",
+                          RHN_OPT_HEADER_JSON_T_VALUE, "json", json_true(),
+                          RHN_OPT_PAYLOAD, payload, sizeof(payload),
+                          RHN_OPT_ENC_ALG, R_JWA_ALG_RSA_OAEP_256,
+                          RHN_OPT_ENC, R_JWA_ENC_A128GCM,
+                          RHN_OPT_ENCRYPT_KEY_JWK, jwk,
+                          RHN_OPT_NONE); // Test if return value is RHN_OK
+char * token = r_jwe_serialize(jwe, NULL, 0);
+}
+```
 
 ### JWE example
 
@@ -519,40 +867,114 @@ r_jwk_free(jwk_key_rsa);
 
 ### ECDH-ES implementation
 
-The ECDH-ES algorithm requires an ECDSA or ECDH public key for the encryption. The RFC specifies `"A new ephemeral public key value MUST be generated for each key agreement operation.", so an ephemeral key is genererated on each encryption.
+The ECDH-ES algorithm requires an ECC or ECDH public key for the encryption. The RFC specifies `"A new ephemeral public key value MUST be generated for each key agreement operation.", so an ephemeral key is genererated on each encryption.
 
 You can specify the ephemeral key to use though, by setting an encryption key to the JWE before generating the token. The responsibilty not to reuse the same ephemeral key is yours then.
 
 Example with a specified ephemeral key:
 
 ```C
-#define PAYLOAD "The true sign of intelligence is not knowledge but imagination..."
-
-const char eph[] = " {\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"gI0GAILBdu7T53akrFmMyGcsF3n5dO7MmwNBHKW5SV0\",\"y\":\"SLW_xSffzlPWrHEVI30DHM_4egVwt3NQqeUD7nMFpps\",\"d\":\"0_NxaRPUMQoAJt50Gz8YiTr8gRTwyEaCumd-MToTmIo\"}", // This is the ephemeral key
-bob[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"weNJy2HscCSM6AEDTDg04biOvhFhyyWvOHQfeF_PxMQ\",\"y\":\"e8lnCO-AlStT-NJVX-crhB7QRYhiix03illJOVAOyck\"}"; // This is the public key
-jwk_t * jwk_eph, * jwk_bob;
-jwe_t * jwe;
+const unsigned char payload[] = "The true sign of intelligence is not knowledge but imagination...";
+// This is the ephemeral key
+const char eph[] = " {\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"gI0GAILBdu7T53akrFmMyGcsF3n5dO7MmwNBHKW5SV0\","
+"\"y\":\"SLW_xSffzlPWrHEVI30DHM_4egVwt3NQqeUD7nMFpps\",\"d\":\"0_NxaRPUMQoAJt50Gz8YiTr8gRTwyEaCumd-MToTmIo\"}",
+bob[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"weNJy2HscCSM6AEDTDg04biOvhFhyyWvOHQfeF_PxMQ\","
+"\"y\":\"e8lnCO-AlStT-NJVX-crhB7QRYhiix03illJOVAOyck\"}"; // This is the public key
+jwk_t * jwk_eph = NULL, * jwk_bob = NULL;
+jwe_t * jwe = NULL;
 char * token;
 
-r_jwk_init(&jwk_eph);
-r_jwk_init(&jwk_bob);
+jwk_eph = r_jwk_quick_import(R_IMPORT_JSON_STR, eph);
+jwk_bob = r_jwk_quick_import(R_IMPORT_JSON_STR, bob);
+
 r_jwe_init(&jwe);
-r_jwk_import_from_json_str(jwk_eph, eph);
-r_jwk_import_from_json_str(jwk_bob, bob);
-r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD));
+r_jwe_set_payload(jwe, payload, sizeof(payload));
 
 r_jwe_add_keys(jwe, jwk_eph, jwk_bob); // Add both public and ephemeral keys here
 
-r_jwe_set_alg(jwe, R_JWA_ALG_ECDH_ES);
+r_jwe_set_alg(jwe, R_JWA_ALG_ECDH_ES_A128KW);
 r_jwe_set_enc(jwe, R_JWA_ENC_A128GCM);
 r_jwe_set_header_str_value(jwe, "apu", "QWxpY2U");
 r_jwe_set_header_str_value(jwe, "apv", "Qm9i");
 
-token = r_jwe_serialize(jwe, NULL, 0);
+token = r_jwe_serialize(jwe, NULL, 0); // token will contain the compact representation of the serialized token, e.g. eyJhcHUiOiJRV3hwWTJVIiwiYXB2IjoiUW0[...]
 
+r_free(token);
 r_jwk_free(jwk_eph);
 r_jwk_free(jwk_bob);
 r_jwe_free(jwe);
+```
+
+## Tokens in JSON format
+
+Rhonabwy supports serializing and parsing tokens in JSON format, see [JWE JSON Serialization](https://datatracker.ietf.org/doc/html/rfc7516#section-7.2) and [JWS JSON Serialization](https://datatracker.ietf.org/doc/html/rfc7515#section-7.2).
+
+### JWS JSON serialization and parsing
+
+To serialize a JWS in JSON format, you must use the functions `r_jws_serialize_json_t` or `r_jws_serialize_json_str`, the parameter `mode` must have the value `R_JSON_MODE_GENERAL` to serialize in general format (allows multiple signatures), or `R_JSON_MODE_FLATTENED` to serialize in flattened format.
+
+To parse a JWS in JSON format, you can either use `r_jws_parse_json_str`, `r_jws_parsen_json_str` or `r_jws_parse_json_t` when you know the token is in JSON format, or you can use `r_jws_parse` or `r_jws_parsen`.
+
+If the token is in general JSON format and has multiple signatures, the function `r_jws_verify_signature` will return `RHN_OK` if one of the signatures is verified by the public key specified or one of the public keys added to its public JWKS.
+
+### JWE JSON serialization and parsing
+
+To serialize a JWE in JSON format, you must use the functions `r_jwe_serialize_json_t` or `r_jwe_serialize_json_str`, the parameter `mode` must have the value `R_JSON_MODE_GENERAL` to serialize in general format (allows multiple key encryption), or `R_JSON_MODE_FLATTENED` to serialize in flattened format.
+
+To parse a JWE in JSON format, you can either use `r_jwe_parse_json_str`, `r_jwe_parsen_json_str` or `r_jwe_parse_json_t` when you know the token is in JSON format, or you can use `r_jwe_parse` or `r_jwe_parsen`.
+
+If the token is in general JSON format and has multiple key encryption, the function `r_jwe_decrypt` will decrypt the payload and return `RHN_OK` if one of the recipients content is correctly decrypted using a specified private key or one of the private key added to its private JWKS.
+
+### Quick parsing
+
+The quick parsing functions can be used to parse a JWE in one line:
+
+```C
+/**
+ * Parses the serialized JWE in all modes (compact, flattened or general)
+ * @param jwe_json: the serialized JWE to parse in json_t * format
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return a new jwt_t * on success, NULL on error
+ */
+jwe_t * r_jwe_quick_parse(const char * jwe_str, uint32_t parse_flags, int x5u_flags);
+
+/**
+ * Parses the serialized JWE in all modes (compact, flattened or general)
+ * @param jwe_json: the serialized JWE to parse in json_t * format
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return a new jwt_t * on success, NULL on error
+ */
+jwe_t * r_jwe_quick_parsen(const char * jwe_str, size_t jwe_str_len, uint32_t parse_flags, int x5u_flags);
 ```
 
 ## JWT
@@ -560,6 +982,82 @@ r_jwe_free(jwe);
 Finally, a JWT (JSON Web Token) is a JSON content signed and/or encrypted and serialized in a compact format that can be easily transferred in HTTP requests. Technically, a JWT is a JWS or a JWE which payload is a stringified JSON and has the property `"type":"JWT"` in the header.
 
 A JWT can be nested, which means signed and encrypted, in which case the payload is signed as a JWS first, then the serialized signed token is used as the payload in a JWE, or the opposite.
+
+### Set values
+
+To set the values of the JWT (header, keys, payload, etc.), you can use the dedicated functions (see the documentation), or use the function `r_jwt_set_properties` to set multiple properties at once. The option list MUST end with the option `RHN_OPT_NONE`.
+
+```C
+/**
+ * Add multiple properties to the jwt_t *
+ * @param jwt: the jwt_t to set values
+ * @param ...: set of values using a rhn_opt and following values
+ */
+int r_jwt_set_properties(jwt_t * jwt, ...);
+```
+
+The available `rhn_opt` and their following values for a `jwt_t` are:
+
+```C
+RHN_OPT_HEADER_INT_VALUE, const char *, int
+RHN_OPT_HEADER_RHN_INT_VALUE, const char *, rhn_int_t
+RHN_OPT_HEADER_STR_VALUE, const char * const char *
+RHN_OPT_HEADER_JSON_T_VALUE, const char *, json_t *
+RHN_OPT_HEADER_FULL_JSON_T, json_t *
+RHN_OPT_HEADER_FULL_JSON_STR, const char *
+RHN_OPT_CLAIM_INT_VALUE, const char *, int
+RHN_OPT_CLAIM_RHN_INT_VALUE, const char *, rhn_int_t
+RHN_OPT_CLAIM_STR_VALUE, const char * const char *
+RHN_OPT_CLAIM_JSON_T_VALUE, const char *, json_t *
+RHN_OPT_CLAIM_FULL_JSON_T, json_t *
+RHN_OPT_CLAIM_FULL_JSON_STR, const char *
+RHN_OPT_SIG_ALG, jwa_alg
+RHN_OPT_ENC_ALG, jwa_alg
+RHN_OPT_ENC, jwa_enc
+RHN_OPT_CIPHER_KEY, const unsigned char *, size_t
+RHN_OPT_IV, const unsigned char *, size_t
+RHN_OPT_SIGN_KEY_JWK, jwk_t *
+RHN_OPT_SIGN_KEY_JWKS, jwks_t *
+RHN_OPT_SIGN_KEY_GNUTLS, gnutls_privkey_t
+RHN_OPT_SIGN_KEY_JSON_T, json_t *
+RHN_OPT_SIGN_KEY_JSON_STR, const char *
+RHN_OPT_SIGN_KEY_PEM_DER, uint, const unsigned char *, size_t
+RHN_OPT_VERIFY_KEY_JWK, jwk_t *
+RHN_OPT_VERIFY_KEY_JWKS, jwks_t *
+RHN_OPT_VERIFY_KEY_GNUTLS, gnutls_pubkey_t
+RHN_OPT_VERIFY_KEY_JSON_T, json_t *
+RHN_OPT_VERIFY_KEY_JSON_STR, const char *
+RHN_OPT_VERIFY_KEY_PEM_DER, uint, const unsigned char *, size_t
+RHN_OPT_ENCRYPT_KEY_JWK, jwk_t *
+RHN_OPT_ENCRYPT_KEY_JWKS, jwks_t *
+RHN_OPT_ENCRYPT_KEY_GNUTLS, gnutls_pubkey_t
+RHN_OPT_ENCRYPT_KEY_JSON_T, json_t *
+RHN_OPT_ENCRYPT_KEY_JSON_STR, const char *
+RHN_OPT_ENCRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+RHN_OPT_DECRYPT_KEY_JWK, jwk_t *
+RHN_OPT_DECRYPT_KEY_JWKS, jwks_t *
+RHN_OPT_DECRYPT_KEY_GNUTLS, gnutls_privkey_t
+RHN_OPT_DECRYPT_KEY_JSON_T, json_t *
+RHN_OPT_DECRYPT_KEY_JSON_STR, const char *
+RHN_OPT_DECRYPT_KEY_PEM_DER, uint, const unsigned char *, size_t
+```
+
+Example of usage for `r_jwt_set_properties`:
+
+```C
+jwt_t * jwt;
+const unsigned char payload[] = {4, 8, 15, 16, 23, 42};
+jwk_t * jwk; // Set a private RSA key in this value
+r_jwt_set_properties(jwt, RHN_OPT_HEADER_INT_VALUE, "int", 42,
+                          RHN_OPT_HEADER_STR_VALUE, "str", "a value",
+                          RHN_OPT_HEADER_JSON_T_VALUE, "json", json_true(),
+                          RHN_OPT_CLAIM_FULL_JSON_STR, "{\"str\":\"grut\",\"int\":42,\"obj\":true}",
+                          RHN_OPT_SIG_ALG, R_JWA_ALG_RS256,
+                          RHN_OPT_SIGN_KEY_JWK, jwk,
+                          RHN_OPT_NONE); // Test if return value is RHN_OK
+char * token = r_jwt_serialize_signed(jwt, NULL, 0);
+}
+```
 
 ### Verify a list of claims in the JWT
 
@@ -718,3 +1216,187 @@ r_free(token);
 r_jwt_free(jwt);
 r_jwk_free(jwk_key);
 ```
+
+### Parse a JWT
+
+The functions `r_jwt_parse` and `r_jwt_parsen` will parse a serialized JWT. If public keys are present in the header, they will be added to the public keys list and can be used to verify the token signature.
+
+```C
+/**
+ * Parses the serialized JWT in all modes (compact, flattened or general)
+ * @param jwt: the jwt_t to update
+ * @param jwt_str: the serialized JWT to parse, must end with a NULL string terminator
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_parse(jwt_t * jwt, const char * jwt_str, int x5u_flags);
+
+/**
+ * Parses the serialized JWT in all modes (compact, flattened or general)
+ * @param jwt: the jwt_t to update
+ * @param jwt_str: the serialized JWT to parse
+ * @param jwt_str_len: the length of jwt_str to parse
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_parsen(jwt_t * jwt, const char * jwt_str, size_t jwt_str_len, int x5u_flags);
+```
+
+### Advanced parsing
+
+JWT standard allows to add in the JWT header a public key in several forms:
+- `jwk`: a public key in JWK format
+- `jku`: an url to a JWK Set
+- `x5c`: an array of X509 certificates
+- `x5u`: an url to a X509 certificate
+
+When using the functions `r_jwt_parse`, `r_jwt_parsen`, `r_jwt_compact_parse`, `r_jwt_compact_parsen`, `r_jwt_parse_unsecure`, `r_jwt_parsen_unsecure`, `r_jwt_compact_parsen_unsecure` and `r_jwt_compact_parse_unsecure`, by default, if a public key is mentionned in the header, it will be added to the `jwt->jwks_pubkey`, so the signature verification will not need to specify a key. This can be dangerous if the token comes from a untrustworthy source and if the token isn't checked properly.
+
+To simplify secure token parsing, you should use the functions `r_jwt_advanced_parse[n]`:
+
+```C
+/**
+ * Parses a serialized JWT
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
+ * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
+ * @param jwt: the jwt that will contain the parsed token
+ * @param token: the token to parse into a JWT, must end with a NULL string terminator
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_advanced_parse(jwt_t * jwt, const char * token, uint32_t parse_flags, int x5u_flags);
+
+/**
+ * Parses a serialized JWT
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
+ * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
+ * @param jwt: the jwt that will contain the parsed token
+ * @param token: the token to parse into a JWT
+ * @param token_len: token length
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwt_advanced_parsen(jwt_t * jwt, const char * token, size_t token_len, uint32_t parse_flags, int x5u_flags);
+```
+
+### Quick parsing
+
+The quick parsing functions can be used to parse a JWT in one line:
+
+```C
+/**
+ * Parses a serialized JWT
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
+ * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
+ * @param token: the token to parse into a JWT, must end with a NULL string terminator
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return a new jwt_t * on success, NULL on error
+ */
+jwt_t * r_jwt_quick_parse(const char * token, uint32_t parse_flags, int x5u_flags);
+
+/**
+ * Parses a serialized JWT
+ * If the JWT is signed only, the claims will be available
+ * If the JWT is encrypted, the claims will not be accessible until
+ * r_jwt_decrypt or r_jwt_decrypt_verify_signature_nested is succesfull
+ * @param token: the token to parse into a JWT, must end with a NULL string terminator
+ * @param token_len: token length
+ * @param parse_flags: Flags to set or unset options
+ * Flags available are
+ * - R_PARSE_NONE
+ * - R_PARSE_HEADER_JWK
+ * - R_PARSE_HEADER_JKU
+ * - R_PARSE_HEADER_X5C
+ * - R_PARSE_HEADER_X5U
+ * - R_PARSE_HEADER_ALL
+ * - R_PARSE_UNSIGNED
+ * - R_PARSE_ALL
+ * @param x5u_flags: Flags to retrieve x5u certificates
+ * pointed by x5u if necessary, could be 0 if not needed
+ * Flags available are 
+ * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
+ * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
+ * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * @return a new jwt_t * on success, NULL on error
+ */
+jwt_t * r_jwt_quick_parsen(const char * token, size_t token_len, uint32_t parse_flags, int x5u_flags);
+```
+
+### Unsecured JWT
+
+It's possible to use Rhonabwy for unsecured JWT, with the header `alg:"none"` and an empty signature, using a dedicated set of functions: `r_jwt_parse_unsecure`, `r_jwt_parsen_unsecure` and `r_jwt_serialize_signed_unsecure`, or using `r_jwt_advanced_parse` with the `parse_flags` value `R_PARSE_UNSIGNED` set.
+
+#### Parse a unsecured JWT
+
+By default, the functions `r_jwt_parse` and `r_jwt_parsen` will return `RHN_ERROR_INVALID` if the parsed JWT is unsigned.
+To parse any JWT, signed or unsigned, you must use the functions `r_jwt_parse_unsecure` and `r_jwt_parsen_unsecure`, or using `r_jwt_advanced_parse` with the `parse_flags` value `R_PARSE_UNSIGNED` set.
+
+#### Serialize an unsecured JWT
+
+Use the function `r_jwt_serialize_signed_unsecure` to serialize an unsecured JWT.
+
+#### Signature verification
+
+The function `r_jwt_verify_signature` will return `RHN_ERROR_INVALID` if the JWT is unsecured.
+
+#### Nested JWT with an unsecured signature
+
+It's not possible to serialize or parse a nested JWT with an unsecured signature.

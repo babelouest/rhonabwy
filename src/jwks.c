@@ -4,7 +4,7 @@
  *
  * jwks.c: functions definitions
  *
- * Copyright 2020-2021 Nicolas Mora <mail@babelouest.org>
+ * Copyright 2020-2022 Nicolas Mora <mail@babelouest.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -84,7 +84,7 @@ jwk_t * r_jwks_get_at(jwks_t * jwks, size_t index) {
 jwk_t * r_jwks_get_by_kid(jwks_t * jwks, const char * kid) {
   json_t * jwk = NULL;
   size_t index = 0;
-  if (jwks != NULL && o_strlen(kid)) {
+  if (jwks != NULL && !o_strnullempty(kid)) {
     json_array_foreach(json_object_get(jwks, "keys"), index, jwk) {
       if (0 == o_strcmp(kid, r_jwk_get_property_str(jwk, "kid"))) {
         return json_deep_copy(jwk);
@@ -245,7 +245,7 @@ int r_jwks_export_to_pem_der(jwks_t * jwks, int format, unsigned char * output, 
   return ret;
 }
 
-int r_jwks_import_from_str(jwks_t * jwks, const char * input) {
+int r_jwks_import_from_json_str(jwks_t * jwks, const char * input) {
   json_t * j_input;
   int ret;
   if (jwks != NULL && input != NULL) {
@@ -318,7 +318,7 @@ int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int x5u_flags) {
       if (j_result != NULL) {
         ret = r_jwks_import_from_json_t(jwks, j_result);
       } else {
-        y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwks_import_from_uri - Error ulfius_get_json_body_response");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwks_import_from_uri - Error _r_get_http_content");
         ret = RHN_ERROR;
       }
       json_decref(j_result);
@@ -331,4 +331,169 @@ int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int x5u_flags) {
     ret = RHN_ERROR_PARAM;
   }
   return ret;
+}
+
+jwks_t * r_jwks_quick_import(rhn_import type, ...) {
+  va_list vl;
+  rhn_import opt;
+  jwk_t * jwk;
+  jwks_t * jwks;
+  int i_val;
+  const char * str;
+  json_t * j_jwk;
+  const unsigned char * data;
+  size_t data_len;
+  gnutls_privkey_t privkey;
+  gnutls_pubkey_t pubkey;
+  gnutls_x509_crt_t crt;
+
+  if (r_jwks_init(&jwks) != RHN_OK) {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwks_quick_import - Error r_jwks_init");
+    return NULL;
+  } else {
+    va_start(vl, type);
+    opt = type;
+    while (opt != R_IMPORT_NONE) {
+      switch (opt) {
+        case R_IMPORT_JSON_STR:
+          str = va_arg(vl, const char *);
+          j_jwk = json_loads(str, JSON_DECODE_ANY, NULL);
+          if (json_is_array(json_object_get(j_jwk, "keys"))) {
+            r_jwks_import_from_json_t(jwks, j_jwk);
+          } else {
+            if ((jwk = r_jwk_quick_import(R_IMPORT_JSON_T, j_jwk)) != NULL) {
+              r_jwks_append_jwk(jwks, jwk);
+              r_jwk_free(jwk);
+            }
+          }
+          json_decref(j_jwk);
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_JSON_T:
+          j_jwk = va_arg(vl, json_t *);
+          if (json_is_array(json_object_get(j_jwk, "keys"))) {
+            r_jwks_import_from_json_t(jwks, j_jwk);
+          } else {
+            if ((jwk = r_jwk_quick_import(R_IMPORT_JSON_T, j_jwk)) != NULL) {
+              r_jwks_append_jwk(jwks, jwk);
+              r_jwk_free(jwk);
+            }
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_PEM:
+          i_val = va_arg(vl, int);
+          data = va_arg(vl, const unsigned char *);
+          data_len = va_arg(vl, size_t);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_PEM, i_val, data, data_len)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_DER:
+          i_val = va_arg(vl, int);
+          data = va_arg(vl, const unsigned char *);
+          data_len = va_arg(vl, size_t);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_DER, i_val, data, data_len)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_G_PRIVKEY:
+          privkey = va_arg(vl, gnutls_privkey_t);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_G_PRIVKEY, privkey)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_G_PUBKEY:
+          pubkey = va_arg(vl, gnutls_pubkey_t);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_G_PUBKEY, pubkey)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_G_CERT:
+          crt = va_arg(vl, gnutls_x509_crt_t);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_G_CERT, crt)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_X5U:
+          i_val = va_arg(vl, int);
+          str = va_arg(vl, const char *);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_X5U, i_val, str)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_SYMKEY:
+          data = va_arg(vl, const unsigned char *);
+          data_len = va_arg(vl, size_t);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_SYMKEY, data, data_len)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_PASSWORD:
+          str = va_arg(vl, const char *);
+          if ((jwk = r_jwk_quick_import(R_IMPORT_PASSWORD, str)) != NULL) {
+            r_jwks_append_jwk(jwks, jwk);
+            r_jwk_free(jwk);
+          }
+          opt = va_arg(vl, rhn_import);
+          break;
+        case R_IMPORT_JKU:
+          i_val = va_arg(vl, int);
+          str = va_arg(vl, const char *);
+          r_jwks_import_from_uri(jwks, str, i_val);
+          opt = va_arg(vl, rhn_import);
+          break;
+        default:
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwks_quick_import - Invalid type");
+          opt = R_IMPORT_NONE;
+          break;
+      }
+    }
+    va_end(vl);
+    return jwks;
+  }
+}
+
+jwks_t * r_jwks_search_json_t(jwks_t * jwks, json_t * j_match) {
+  jwks_t * jwks_ret = NULL;
+  jwk_t * jwk;
+  size_t i;
+  
+  if (r_jwks_init(&jwks_ret) == RHN_OK) {
+    if (r_jwks_size(jwks) && json_object_size(j_match)) {
+      for (i=0; i<r_jwks_size(jwks); i++) {
+        jwk = r_jwks_get_at(jwks, i);
+        if (r_jwk_match_json_t(jwk, j_match) == RHN_OK) {
+          r_jwks_append_jwk(jwks_ret, jwk);
+        }
+        r_jwk_free(jwk);
+      }
+    } else {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwks_search_json_t - Error invalid input parameters");
+    }
+  } else {
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwks_search_json_t - Error r_jwks_init");
+  }
+  return jwks_ret;
+}
+
+jwks_t * r_jwks_search_json_str(jwks_t * jwks, const char * str_match) {
+  json_t * j_match = json_loads(str_match, JSON_DECODE_ANY, NULL);
+  jwks_t * jwks_ret = r_jwks_search_json_t(jwks, j_match);
+  json_decref(j_match);
+  return jwks_ret;
 }

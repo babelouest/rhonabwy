@@ -33,9 +33,9 @@ const char jwk_pubkey_ecdsa_str_2[] = "{\"kty\":\"EC\",\"x\":\"RKL0w34ppc4wuBuzo
 const char jwk_privkey_ecdsa_str_2[] = "{\"kty\":\"EC\",\"x\":\"RKL0w34ppc4wuBuzotuWo9d6hGv59uWjgc5oimWQtYU\",\"y\":\"S8EabLKBmyT2v_vPSrpfWnYw6edRm9I60UQlbvSS1eU\","\
                                        "\"crv\":\"P-256\",\"kid\":\"2\",\"alg\":\"ES256\"}";
 const char jwk_key_symmetric_str[] = "{\"kty\":\"oct\",\"alg\":\"HS256\",\"k\":\"c2VjcmV0Cg\",\"kid\":\"1\"}";
-const char jwk_pubkey_eddsa_str[] = "{\"kty\":\"EC\",\"x\":\"vG-37qz4ywqzukNS-jMAfXSSA7V28y0vv9RxlibxgPw\","\
+const char jwk_pubkey_eddsa_str[] = "{\"kty\":\"OKP\",\"x\":\"vG-37qz4ywqzukNS-jMAfXSSA7V28y0vv9RxlibxgPw\","\
                                     "\"crv\":\"Ed25519\",\"kid\":\"3\"}";
-const char jwk_privkey_eddsa_str[] = "{\"kty\":\"EC\",\"x\":\"vG-37qz4ywqzukNS-jMAfXSSA7V28y0vv9RxlibxgPw\","\
+const char jwk_privkey_eddsa_str[] = "{\"kty\":\"OKP\",\"x\":\"vG-37qz4ywqzukNS-jMAfXSSA7V28y0vv9RxlibxgPw\","\
                                      "\"d\":\"DGw7wgt65TPJAxEjuUmCjTjmafg4mKUPj3S3iAVoTYQ\",\"crv\":\"Ed25519\",\"kid\":\"3\"}";
 
 #if GNUTLS_VERSION_NUMBER >= 0x030600
@@ -337,7 +337,6 @@ START_TEST(test_rhonabwy_eddsa_serialize_verify_ok)
   
   ck_assert_int_eq(r_jws_set_alg(jws_sign, R_JWA_ALG_EDDSA), RHN_OK);
   ck_assert_ptr_ne((token = r_jws_serialize(jws_sign, NULL, 0)), NULL);
-  y_log_message(Y_LOG_LEVEL_DEBUG, "token %s", token);
   
   ck_assert_int_eq(r_jws_parse(jws_verify, token, 0), RHN_OK);
   ck_assert_int_eq(r_jws_verify_signature(jws_verify, jwk_pubkey, 0), RHN_OK);
@@ -349,6 +348,36 @@ START_TEST(test_rhonabwy_eddsa_serialize_verify_ok)
   r_jwk_free(jwk_pubkey);
 }
 END_TEST
+
+#if 0
+START_TEST(test_rhonabwy_es256k_serialize_verify_ok)
+{
+  jws_t * jws_sign, * jws_verify;
+  jwk_t * jwk_privkey, * jwk_pubkey;
+  char * token = NULL;
+  
+  ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
+  ck_assert_int_eq(r_jwk_init(&jwk_pubkey), RHN_OK);
+  ck_assert_int_eq(r_jws_init(&jws_sign), RHN_OK);
+  ck_assert_int_eq(r_jws_init(&jws_verify), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_privkey, jwk_privkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pubkey, jwk_pubkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jws_set_payload(jws_sign, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_int_eq(r_jws_add_keys(jws_sign, jwk_privkey, NULL), RHN_OK);
+  
+  ck_assert_int_eq(r_jws_set_alg(jws_sign, R_JWA_ALG_ES256K), RHN_OK);
+  ck_assert_ptr_ne((token = r_jws_serialize(jws_sign, NULL, 0)), NULL);
+  ck_assert_int_eq(r_jws_parse(jws_verify, token, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_verify_signature(jws_verify, jwk_pubkey, 0), RHN_OK);
+  o_free(token);
+  
+  r_jws_free(jws_sign);
+  r_jws_free(jws_verify);
+  r_jwk_free(jwk_privkey);
+  r_jwk_free(jwk_pubkey);
+}
+END_TEST
+#endif
 
 #endif
 
@@ -374,6 +403,9 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_verify_token_multiple_keys_valid);
   tcase_add_test(tc_core, test_rhonabwy_set_alg_serialize_verify_ok);
   tcase_add_test(tc_core, test_rhonabwy_eddsa_serialize_verify_ok);
+#if 0
+  tcase_add_test(tc_core, test_rhonabwy_es256k_serialize_verify_ok);
+#endif
 #endif
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
@@ -387,6 +419,7 @@ int main(int argc, char *argv[])
   Suite *s;
   SRunner *sr;
   //y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWS ECDSA tests");
+  r_global_init();
   s = rhonabwy_suite();
   sr = srunner_create(s);
 
@@ -394,6 +427,7 @@ int main(int argc, char *argv[])
   number_failed = srunner_ntests_failed(sr);
   srunner_free(sr);
   
+  r_global_close();
   //y_close_logs();
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

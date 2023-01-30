@@ -3,7 +3,7 @@
 #
 # Makefile used to build the software
 #
-# Copyright 2020 Nicolas Mora <mail@babelouest.org>
+# Copyright 2020-2021 Nicolas Mora <mail@babelouest.org>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public License
@@ -19,7 +19,7 @@
 # License along with this library.	If not, see <http://www.gnu.org/licenses/>.
 #
 PROJECT_NAME=rhonabwy
-PROJECT_DESCRIPTION=OAuth2 client library
+PROJECT_DESCRIPTION=JWK, JWKS, JWS, JWE and JWT library
 PROJECT_BUGREPORT_PATH=https://github.com/babelouest/rhonabwy/issues
 PKGCONF_REQ=
 PKGCONF_REQ_PRIVATE=
@@ -31,13 +31,26 @@ CONFIG_FILE=$(RHONABWY_INCLUDE)/rhonabwy-cfg.h
 CONFIG_TEMPLATE=$(RHONABWY_INCLUDE)/rhonabwy-cfg.h.in
 CC=gcc
 CFLAGS+=-c -pedantic -std=gnu99 -fPIC -Wall -Werror -Wextra -D_REENTRANT -I$(RHONABWY_INCLUDE) $(ADDITIONALFLAGS) $(CPPFLAGS)
-LIBS=-L$(DESTDIR)/lib -lc -lorcania -lyder -lulfius -ljansson -lgnutls $(LDFLAGS)
+LIBS=-L$(DESTDIR)/lib -lc -lorcania -lyder $(LULFIUS) -ljansson -lgnutls -lz $(LDFLAGS)
 SONAME=-soname
-OBJECTS=jwk.o jwks.o jws.o jwe.o misc.o
+OBJECTS=jwk.o jwks.o jws.o jwe.o jwt.o misc.o
 OUTPUT=librhonabwy.so
 VERSION_MAJOR=0
 VERSION_MINOR=9
-VERSION_PATCH=7
+VERSION_PATCH=9999
+
+ifdef ECDHFLAG
+ENABLE_ECDH=1
+else
+ENABLE_ECDH=0
+endif
+
+ifdef DISABLE_ULFIUS
+R_WITH_ULFIUS=0
+else
+R_WITH_ULFIUS=1
+LULFIUS=-lulfius
+endif
 
 .PHONY: all clean
 
@@ -51,6 +64,20 @@ $(CONFIG_FILE):
 	@sed -i -e 's/$${PROJECT_VERSION_MINOR}/$(VERSION_MINOR)/g' $(CONFIG_FILE)        
 	@sed -i -e 's/$${PROJECT_VERSION_PATCH}/$(VERSION_PATCH)/g' $(CONFIG_FILE)        
 	@sed -i -e 's/$${PROJECT_VERSION_NUMBER}/$(shell printf '%02d' $(VERSION_MAJOR))$(shell printf '%02d' $(VERSION_MINOR))$(shell printf '%02d' $(VERSION_PATCH))/g' $(CONFIG_FILE)        
+	@if [ "$(ENABLE_ECDH)" = "1" ]; then \
+		sed -i -e 's/\#cmakedefine R_ECDH_ENABLED/\#define R_ECDH_ENABLED/g' $(CONFIG_FILE); \
+		echo "ECDH SUPPORT    ENABLED"; \
+	else \
+		sed -i -e 's/\#cmakedefine R_ECDH_ENABLED/\/* #undef R_ECDH_ENABLED *\//g' $(CONFIG_FILE); \
+		echo "ECDH SUPPORT    DISABLED"; \
+	fi
+	@if [ "$(R_WITH_ULFIUS)" = "1" ]; then \
+		sed -i -e 's/\#cmakedefine R_WITH_ULFIUS/\#define R_WITH_ULFIUS/g' $(CONFIG_FILE); \
+		echo "USE ULFIUS      ENABLED"; \
+	else \
+		sed -i -e 's/\#cmakedefine R_WITH_ULFIUS/\/* #undef R_WITH_ULFIUS *\//g' $(CONFIG_FILE); \
+		echo "USE ULFIUS      DISABLED"; \
+	fi
 
 $(PKGCONFIG_FILE):
 	@cp $(PKGCONFIG_TEMPLATE) $(PKGCONFIG_FILE)
@@ -71,7 +98,7 @@ target: $(OBJECTS)
 	$(CC) $(CFLAGS) $<
 
 librhonabwy.so: $(CONFIG_FILE) $(OBJECTS)
-	$(CC) -shared -fPIC -Wl,$(SONAME),$(OUTPUT) -o $(OUTPUT).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH) $(OBJECTS) $(LIBS) $(LYDER) $(LJANSSON) $(LGNUTLS)
+	$(CC) -shared -fPIC -Wl,$(SONAME),$(OUTPUT) -o $(OUTPUT).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH) $(OBJECTS) $(LIBS)
 	ln -sf $(OUTPUT).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH) $(OUTPUT)
 
 clean:
@@ -79,7 +106,8 @@ clean:
 
 install: all $(PKGCONFIG_FILE)
 	install $(OUTPUT).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH) $(DESTDIR)/lib
-	install -m644 $(PKGCONFIG_FILE) $(DESTDIR)/lib/pkgconfig
+	mkdir -p $(DESTDIR)/lib/pkgconfig/ $(DESTDIR)/include
+	install -m644 $(PKGCONFIG_FILE) $(DESTDIR)/lib/pkgconfig/
 	install -m644 $(RHONABWY_INCLUDE)/rhonabwy.h $(DESTDIR)/include
 	install -m644 $(CONFIG_FILE) $(DESTDIR)/include
 	-ldconfig $(DESTDIR)/lib

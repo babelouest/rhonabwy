@@ -1,0 +1,40 @@
+{
+  "title": "Ed25519 signing",
+  "reproducible": true,
+  "input": {
+    "payload": "Example of Ed25519 signing",
+    "key": {
+      "kty": "OKP",
+      "use": "sig",
+      "crv": "Ed25519",
+      "x": "11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo",
+      "d": "nWGxne_9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A"
+    },
+    "alg": "EdDSA"
+  },
+  "signing": {
+    "protected": {
+      "alg": "EdDSA"
+    },
+    "protected_b64u": "eyJhbGciOiJFZERTQSJ9",
+    "sig-input": "eyJhbGciOiJFZERTQSJ9.RXhhbXBsZSBvZiBFZDI1NTE5IHNpZ25pbmc",
+    "sig": "hgyY0il_MGCjP0JzlnLWG1PPOt7-09PGcvMg3AIbQR6dWbhijcNR4ki4iylGjg5BhVsPt9g7sVvpAr_MuM0KAg"
+  },
+  "output": {
+    "compact": "eyJhbGciOiJFZERTQSJ9.RXhhbXBsZSBvZiBFZDI1NTE5IHNpZ25pbmc.hgyY0il_MGCjP0JzlnLWG1PPOt7-09PGcvMg3AIbQR6dWbhijcNR4ki4iylGjg5BhVsPt9g7sVvpAr_MuM0KAg",
+    "json": {
+      "payload": "RXhhbXBsZSBvZiBFZDI1NTE5IHNpZ25pbmc",
+      "signatures": [
+        {
+          "protected": "eyJhbGciOiJFZERTQSJ9",
+          "signature": "hgyY0il_MGCjP0JzlnLWG1PPOt7-09PGcvMg3AIbQR6dWbhijcNR4ki4iylGjg5BhVsPt9g7sVvpAr_MuM0KAg"
+        }
+      ]
+    },
+    "json_flat": {
+      "payload": "RXhhbXBsZSBvZiBFZDI1NTE5IHNpZ25pbmc",
+      "protected": "eyJhbGciOiJFZERTQSJ9",
+      "signature": "hgyY0il_MGCjP0JzlnLWG1PPOt7-09PGcvMg3AIbQR6dWbhijcNR4ki4iylGjg5BhVsPt9g7sVvpAr_MuM0KAg"
+    }
+  }
+}

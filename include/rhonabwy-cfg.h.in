@@ -4,7 +4,7 @@
  * 
  * rhonabwy-cfg.h: configuration file
  * 
- * Copyright 2020 Nicolas Mora <mail@babelouest.org>
+ * Copyright 2020-2021 Nicolas Mora <mail@babelouest.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -32,5 +32,10 @@
 #define RHONABWY_VERSION_PATCH ${PROJECT_VERSION_PATCH}
 
 #define RHONABWY_VERSION_NUMBER ((RHONABWY_VERSION_MAJOR << 16) | (RHONABWY_VERSION_MINOR << 8) | (RHONABWY_VERSION_PATCH << 0))
+
+#define NETTLE_VERSION_NUMBER ((NETTLE_VERSION_MAJOR << 16) | (NETTLE_VERSION_MINOR << 8))
+
+#cmakedefine R_ECDH_ENABLED
+#cmakedefine R_WITH_ULFIUS
 
 #endif /* _RHONABWY_CFG_H_ */

@@ -1,10 +1,10 @@
 /**
- * 
+ *
  * Rhonabwy JSON Web Key Set (JWKS) library
- * 
+ *
  * jwks.c: functions definitions
- * 
- * Copyright 2020 Nicolas Mora <mail@babelouest.org>
+ *
+ * Copyright 2020-2021 Nicolas Mora <mail@babelouest.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -18,13 +18,14 @@
  *
  * You should have received a copy of the GNU General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <orcania.h>
 #include <yder.h>
-#include <ulfius.h>
 #include <rhonabwy.h>
+
+char * _r_get_http_content(const char * url, int x5u_flags, const char * expected_content_type);
 
 int r_jwks_init(jwks_t ** jwks) {
   int ret;
@@ -47,7 +48,7 @@ int r_jwks_is_valid(jwks_t * jwks) {
   int ret;
   json_t * jwk = NULL;
   size_t index = 0;
-  
+
   if (jwks != NULL) {
     if (json_array_size(json_object_get(jwks, "keys"))) {
       json_array_foreach(json_object_get(jwks, "keys"), index, jwk) {
@@ -173,17 +174,17 @@ json_t * r_jwks_export_to_json_t(jwks_t * jwks) {
   }
 }
 
-gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len, int x5u_flags) {
+gnutls_privkey_t * r_jwks_export_to_gnutls_privkey(jwks_t * jwks, size_t * len) {
   gnutls_privkey_t * ret = NULL;
   size_t i;
   jwk_t * jwk;
-  
+
   if (jwks != NULL && len != NULL && r_jwks_size(jwks)) {
     if ((ret = o_malloc(r_jwks_size(jwks)*sizeof(gnutls_privkey_t))) != NULL) {
       *len = r_jwks_size(jwks);
       for (i=0; i<(*len); i++) {
         jwk = r_jwks_get_at(jwks, i);
-        if ((ret[i] = r_jwk_export_to_gnutls_privkey(jwk, x5u_flags)) == NULL) {
+        if ((ret[i] = r_jwk_export_to_gnutls_privkey(jwk)) == NULL) {
           y_log_message(Y_LOG_LEVEL_ERROR, "jwks export privkey - Error exporting privkey at index %zu", i);
         }
         r_jwk_free(jwk);
@@ -199,7 +200,7 @@ gnutls_pubkey_t * r_jwks_export_to_gnutls_pubkey(jwks_t * jwks, size_t * len, in
   gnutls_pubkey_t * ret = NULL;
   size_t i;
   jwk_t * jwk;
-  
+
   if (jwks != NULL && len != NULL && r_jwks_size(jwks)) {
     if ((ret = o_malloc(r_jwks_size(jwks)*sizeof(gnutls_pubkey_t))) != NULL) {
       *len = r_jwks_size(jwks);
@@ -272,13 +273,18 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input) {
   size_t index = 0;
   json_t * j_jwk = NULL;
   jwk_t * jwk = NULL;
-  
+  char * tmp;
+
   if (jwks != NULL && j_input != NULL && json_is_array(json_object_get(j_input, "keys"))) {
     json_array_foreach(json_object_get(j_input, "keys"), index, j_jwk) {
       if (r_jwk_init(&jwk) == RHN_OK) {
         if ((res = r_jwk_import_from_json_t(jwk, j_jwk)) == RHN_OK) {
           r_jwks_append_jwk(jwks, jwk);
         } else if (res == RHN_ERROR_PARAM) {
+          y_log_message(Y_LOG_LEVEL_DEBUG, "jwks import json_t - Invalid jwk format");
+          tmp = json_dumps(j_jwk, JSON_INDENT(2));
+          y_log_message(Y_LOG_LEVEL_DEBUG, "%s", tmp);
+          o_free(tmp);
           ret = RHN_ERROR_PARAM;
         } else {
           y_log_message(Y_LOG_LEVEL_ERROR, "jwks import json_t - Error r_jwk_import_from_json_t");
@@ -286,52 +292,39 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input) {
         }
         r_jwk_free(jwk);
       } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "jwks import json_t - Error memory");
         ret = RHN_ERROR_MEMORY;
         break;
       }
     }
   } else {
+    y_log_message(Y_LOG_LEVEL_DEBUG, "jwks import json_t - Invalid jwks format");
+    tmp = json_dumps(j_input, JSON_INDENT(2));
+    y_log_message(Y_LOG_LEVEL_DEBUG, "%s", tmp);
+    o_free(tmp);
     ret = RHN_ERROR_PARAM;
   }
   return ret;
 }
 
-int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int flags) {
-  struct _u_request req;
-  struct _u_response resp;
+int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int x5u_flags) {
   int ret;
-  json_t * j_result;
-  
+  json_t * j_result = NULL;
+  char * x5u_content = NULL;
+
   if (jwks != NULL && uri != NULL) {
-    if (ulfius_init_request(&req) == U_OK && ulfius_init_response(&resp) == U_OK) {
-      req.http_url = o_strdup(uri);
-      req.check_server_certificate = !(flags & R_FLAG_IGNORE_SERVER_CERTIFICATE);
-      req.follow_redirect = flags & R_FLAG_FOLLOW_REDIRECT;
-      if (ulfius_send_http_request(&req, &resp) == U_OK) {
-        if (resp.status >= 200 && resp.status < 300) {
-          j_result = ulfius_get_json_body_response(&resp, NULL);
-          if (j_result != NULL) {
-            if (r_jwks_import_from_json_t(jwks, j_result) == RHN_OK) {
-              ret = RHN_OK;
-            } else {
-              ret = RHN_ERROR;
-            }
-          } else {
-            y_log_message(Y_LOG_LEVEL_DEBUG, "jwks import uri - Error ulfius_get_json_body_response");
-            ret = RHN_ERROR;
-          }
-          json_decref(j_result);
-        } else {
-          ret = RHN_ERROR;
-        }
+    if ((x5u_content = _r_get_http_content(uri, x5u_flags, "application/json")) != NULL) {
+      j_result = json_loads(x5u_content, JSON_DECODE_ANY, NULL);
+      if (j_result != NULL) {
+        ret = r_jwks_import_from_json_t(jwks, j_result);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "jwks import uri - Error ulfius_send_http_request");
+        y_log_message(Y_LOG_LEVEL_DEBUG, "r_jwks_import_from_uri - Error ulfius_get_json_body_response");
         ret = RHN_ERROR;
       }
-      ulfius_clean_request(&req);
-      ulfius_clean_response(&resp);
+      json_decref(j_result);
+      o_free(x5u_content);
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "jwks import uri - Error ulfius_init_request or ulfius_init_response");
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwks_import_from_uri x5u - Error getting x5u content");
       ret = RHN_ERROR;
     }
   } else {

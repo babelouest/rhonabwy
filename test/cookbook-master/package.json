@@ -1,0 +1,26 @@
+{
+  "name": "jose-cookbook",
+  "version": "1.0.0",
+  "description": "Examples from \"Examples of Protecting Content using JavaScript Object Signing and Encryption (JOSE)\" in a machine-readable format",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linuxwolf/cookbook.git"
+  },
+  "keywords": [
+    "jose",
+    "jose-cookbook",
+    "jwe",
+    "jws",
+    "jwe",
+    "jwa"
+  ],
+  "author": "Matthew A Miller <linuxwolf@outer-planes.net>",
+  "license": "public domain",
+  "bugs": {
+    "url": "https://github.com/linuxwolf/cookbook/issues"
+  },
+  "homepage": "https://github.com/linuxwolf/cookbook"
+}

@@ -1,0 +1,59 @@
+{
+  "title": "Curve25519 ECDH",
+  "reproducible": false,
+  "input": {
+    "plaintext": "You can trust us to stick with you through thick and thin–to the bitter end. And you can trust us to keep any secret of yours–closer than you keep it yourself. But you cannot trust us to let you face trouble alone, and go off without a word. We are your friends, Frodo.",
+    "key": {
+      "kty": "OKP",
+      "kid": "Bob",
+      "use": "enc",
+      "crv": "X25519",
+      "x": "3p7bfXt9wbTTW2HC7OQ1Nz-DQ8hbeGdNrfx-FG-IK08",
+      "d": "XasIfmJKikt54X-Lg4AO5m87sSkmGLb9HC-LJ_-I4Os"
+    },
+    "alg": "ECDH-ES",
+    "enc": "A128GCM"
+  },
+  "generated": {
+    "iv": "0tCoBvRfolezYjpJ"
+  },
+  "encrypting_key": {
+    "epk": {
+      "kty": "OKP",
+      "crv": "X25519",
+      "x": "hSDwCYkwp1R0i33ctD73Wg2_Og0mOBr066SpjqqbTmo",
+      "d": "RVqkt2ZmEiUY-OGyag9rXe7vsDm2BQ_XykdxhLv9pd4"
+    },
+    "cek": "hzHdlfQIAEehb8Hrd_mFRhKsKLEzPfshfXs9l6areCc"
+  },
+  "encrypting_content": {
+    "protected": {
+      "alg": "ECDH-ES",
+      "kid": "Bob",
+      "epk": {
+        "kty": "OKP",
+        "crv": "X25519",
+        "x": "xvXHh3Q2S4VotXgBddGWD_KhnzYZ_euB2eaekLvvADU"
+      },
+      "enc": "A128GCM"
+    },
+    "protected_b64u": "eyJhbGciOiJFQ0RILUVTIiwia2lkIjoiQm9iIiwiZXBrIjp7Imt0eSI6Ik9LUCIsImNydiI6IlgyNTUxOSIsIngiOiJ4dlhIaDNRMlM0Vm90WGdCZGRHV0RfS2huellaX2V1QjJlYWVrTHZ2QURVIn0sImVuYyI6IkExMjhHQ00ifQ",
+    "ciphertext": "cX3qZ4cfxiyr_Leem1b69MeLo-BHsMJy6RetGse91pgXjR7X87k1e7dJliYfzgseMV9dcVo3i1cAPeU2jkDCxrjxIBW0iUlF3JfkVH7DU3B8GxzkblOJKwJE58Sd0rJEN9rSwfLf66sbTiY_vGYf7cZhbWhj6wwBnICFfaRh_2NubCdma7zX_vsdaGJXHn-6-jjR9UaQUbJD-tPn5UAW8Sa9lPAcncYZywscUM-FET3tePOH2h_xv_LFGuN2KYJ3BED_Eyo--oSX17DD7ksSt0wfzy_TWczaG1E_TWn4nvP6T6d5nMp9OdfLWQNopQHoQGWlPbaRLHCk2mNl1K5GsJ6Q4tjSdFWpqRDpQUz2eYAk",
+    "tag": "Yd4jUyp_PC5cACOwaAGwUQ"
+  },
+  "output": {
+    "compact": "eyJhbGciOiJFQ0RILUVTIiwia2lkIjoiQm9iIiwiZXBrIjp7Imt0eSI6Ik9LUCIsImNydiI6IlgyNTUxOSIsIngiOiJ4dlhIaDNRMlM0Vm90WGdCZGRHV0RfS2huellaX2V1QjJlYWVrTHZ2QURVIn0sImVuYyI6IkExMjhHQ00ifQ..0tCoBvRfolezYjpJ.cX3qZ4cfxiyr_Leem1b69MeLo-BHsMJy6RetGse91pgXjR7X87k1e7dJliYfzgseMV9dcVo3i1cAPeU2jkDCxrjxIBW0iUlF3JfkVH7DU3B8GxzkblOJKwJE58Sd0rJEN9rSwfLf66sbTiY_vGYf7cZhbWhj6wwBnICFfaRh_2NubCdma7zX_vsdaGJXHn-6-jjR9UaQUbJD-tPn5UAW8Sa9lPAcncYZywscUM-FET3tePOH2h_xv_LFGuN2KYJ3BED_Eyo--oSX17DD7ksSt0wfzy_TWczaG1E_TWn4nvP6T6d5nMp9OdfLWQNopQHoQGWlPbaRLHCk2mNl1K5GsJ6Q4tjSdFWpqRDpQUz2eYAk.Yd4jUyp_PC5cACOwaAGwUQ",
+    "json": {
+      "protected": "eyJhbGciOiJFQ0RILUVTIiwia2lkIjoiQm9iIiwiZXBrIjp7Imt0eSI6Ik9LUCIsImNydiI6IlgyNTUxOSIsIngiOiJ4dlhIaDNRMlM0Vm90WGdCZGRHV0RfS2huellaX2V1QjJlYWVrTHZ2QURVIn0sImVuYyI6IkExMjhHQ00ifQ",
+      "iv": "0tCoBvRfolezYjpJ",
+      "ciphertext": "cX3qZ4cfxiyr_Leem1b69MeLo-BHsMJy6RetGse91pgXjR7X87k1e7dJliYfzgseMV9dcVo3i1cAPeU2jkDCxrjxIBW0iUlF3JfkVH7DU3B8GxzkblOJKwJE58Sd0rJEN9rSwfLf66sbTiY_vGYf7cZhbWhj6wwBnICFfaRh_2NubCdma7zX_vsdaGJXHn-6-jjR9UaQUbJD-tPn5UAW8Sa9lPAcncYZywscUM-FET3tePOH2h_xv_LFGuN2KYJ3BED_Eyo--oSX17DD7ksSt0wfzy_TWczaG1E_TWn4nvP6T6d5nMp9OdfLWQNopQHoQGWlPbaRLHCk2mNl1K5GsJ6Q4tjSdFWpqRDpQUz2eYAk",
+      "tag": "Yd4jUyp_PC5cACOwaAGwUQ"
+    },
+    "json_flat": {
+      "protected": "eyJhbGciOiJFQ0RILUVTIiwia2lkIjoiQm9iIiwiZXBrIjp7Imt0eSI6Ik9LUCIsImNydiI6IlgyNTUxOSIsIngiOiJ4dlhIaDNRMlM0Vm90WGdCZGRHV0RfS2huellaX2V1QjJlYWVrTHZ2QURVIn0sImVuYyI6IkExMjhHQ00ifQ",
+      "iv": "0tCoBvRfolezYjpJ",
+      "ciphertext": "cX3qZ4cfxiyr_Leem1b69MeLo-BHsMJy6RetGse91pgXjR7X87k1e7dJliYfzgseMV9dcVo3i1cAPeU2jkDCxrjxIBW0iUlF3JfkVH7DU3B8GxzkblOJKwJE58Sd0rJEN9rSwfLf66sbTiY_vGYf7cZhbWhj6wwBnICFfaRh_2NubCdma7zX_vsdaGJXHn-6-jjR9UaQUbJD-tPn5UAW8Sa9lPAcncYZywscUM-FET3tePOH2h_xv_LFGuN2KYJ3BED_Eyo--oSX17DD7ksSt0wfzy_TWczaG1E_TWn4nvP6T6d5nMp9OdfLWQNopQHoQGWlPbaRLHCk2mNl1K5GsJ6Q4tjSdFWpqRDpQUz2eYAk",
+      "tag": "Yd4jUyp_PC5cACOwaAGwUQ"
+    }
+  }
+}

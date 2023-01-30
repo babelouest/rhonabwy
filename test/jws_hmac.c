@@ -228,7 +228,6 @@ START_TEST(test_rhonabwy_verify_token_valid)
   ck_assert_int_eq(r_jws_parse(jws, HS256_TOKEN, 0), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk_key_symmetric, jwk_key_symmetric_str), RHN_OK);
   ck_assert_int_eq(r_jws_verify_signature(jws, jwk_key_symmetric, 0), RHN_OK);
-  ck_assert_int_eq(r_jws_verify_signature(jws, jwk_key_symmetric, 0), RHN_OK);
   r_jws_free(jws);
   r_jwk_free(jwk_key_symmetric);
   
@@ -329,6 +328,7 @@ int main(int argc, char *argv[])
   Suite *s;
   SRunner *sr;
   //y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWS HMAC tests");
+  r_global_init();
   s = rhonabwy_suite();
   sr = srunner_create(s);
 
@@ -336,6 +336,7 @@ int main(int argc, char *argv[])
   number_failed = srunner_ntests_failed(sr);
   srunner_free(sr);
   
+  r_global_close();
   //y_close_logs();
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

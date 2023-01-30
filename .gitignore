@@ -5,3 +5,6 @@
 valgrind*.txt
 *.log
 rhonabwy-cfg.h
+tools/rnbyc/rnbyc
+*.jwks
+*.jwt

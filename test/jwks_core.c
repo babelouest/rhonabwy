@@ -14,7 +14,7 @@ const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"M
                                     "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\"}";
 const char jwk_privkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                       "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"d\":\"870MB6gfuTJ4HtUnUvYMyJpr5eUZNP4Bk43bVdj3eAE\","\
-                                      "\"use\":\"enc\",\"kid\":\"plop\"}";
+                                      "\"use\":\"enc\",\"kid\":\"grut\"}";
 const char jwk_pubkey_rsa_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
                                    "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
                                    "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\""\
@@ -37,11 +37,11 @@ const char jwk_privkey_rsa_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJ
 const char jwk_pubkey_rsa_x5u_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
                                       "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
                                       "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\""\
-                                      ",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2012-04-29\",\"x5u\":[\"https://www.example.com/x509\"]}";
-const char jwk_pubkey_rsa_x5c_str[] = "{\"kty\":\"RSA\",\"use\":\"sig\",\"kid\":\"1b94c\",\"n\":\"vrjOfz9Ccdgx5nQudyhdoR17V-IubWMeOZCwX_jj0hgAsz2J_pqYW08PLb"\
-                                       "K_PdiVGKPrqzmDIsLI7sA25VEnHU1uCLNwBuUiCO11_-7dYbsr4iJmG0Qu2j8DsVyT1azpJC_NG84Ty5KKthuCaPod7iI7w0LK9orSMhBEwwZDCxTWq4a"\
-                                       "YWAchc8t-emd9qOvWtVMDC2BXksRngh6X5bUYLy6AyHKvj-nUy1wgzjYQDwHMTplCoLtU-o-8SNnZ1tmRoGE9uJkBLdh5gFENabWnU5m1ZqZPdwS-qo-m"\
-                                       "eMvVfJb6jJVWRpl2SUtCnYG2C32qvbWbjZ_jBPD5eunqsIo1vQ\",\"e\":\"AQAB\",\"x5c\":[\"MIIDQjCCAiqgAwIBAgIGATz/FuLiMA0GCSqGSI"\
+                                      ",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2012-04-29\",\"x5u\":\"https://www.example.com/x509\"}";
+const char jwk_pubkey_rsa_x5c_str[] = "{\"kty\":\"RSA\",\"use\":\"sig\",\"kid\":\"1b94c\",\"n\":\"AL64zn8_QnHYMeZ0LncoXaEde1fiLm1jHjmQsF_449IYALM9if6amFtPDy2"\
+                                       "yvz3YlRij66s5gyLCyO7ANuVRJx1NbgizcAblIgjtdf_u3WG7K-IiZhtELto_A7Fck9Ws6SQvzRvOE8uSirYbgmj6He4iO8NCyvaK0jIQRMMGQwsU1quG"\
+                                       "mFgHIXPLfnpnfajr1rVTAwtgV5LEZ4Iel-W1GC8ugMhyr4_p1MtcIM42EA8BzE6ZQqC7VPqPvEjZ2dbZkaBhPbiZAS3YeYBRDWm1p1OZtWamT3cEvqqPp"\
+                                       "njL1XyW-oyVVkaZdklLQp2Btgt9qr21m42f4wTw-Xrp6rCKNb0\",\"e\":\"AQAB\",\"x5c\":[\"MIIDQjCCAiqgAwIBAgIGATz/FuLiMA0GCSqGSI"\
                                        "b3DQEBBQUAMGIxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDTzEPMA0GA1UEBxMGRGVudmVyMRwwGgYDVQQKExNQaW5nIElkZW50aXR5IENvcnAuMRcwFQY"\
                                        "DVQQDEw5CcmlhbiBDYW1wYmVsbDAeFw0xMzAyMjEyMzI5MTVaFw0xODA4MTQyMjI5MTVaMGIxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDTzEPMA0GA1UE"\
                                        "BxMGRGVudmVyMRwwGgYDVQQKExNQaW5nIElkZW50aXR5IENvcnAuMRcwFQYDVQQDEw5CcmlhbiBDYW1wYmVsbDCCASIwDQYJKoZIhvcNAQEBBQADggEPA"\
@@ -218,7 +218,7 @@ START_TEST(test_rhonabwy_jwks_export_privkey)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
   r_jwk_free(jwk);
-  ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_privkey(jwks, &len, 0)), NULL);
+  ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_privkey(jwks, &len)), NULL);
   ck_assert_int_eq(len, 1);
   ck_assert_ptr_ne(out[0], NULL);
   gnutls_privkey_deinit(out[0]);
@@ -228,7 +228,7 @@ START_TEST(test_rhonabwy_jwks_export_privkey)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
   r_jwk_free(jwk);
-  ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_privkey(jwks, &len, 0)), NULL);
+  ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_privkey(jwks, &len)), NULL);
   ck_assert_int_eq(len, 2);
   ck_assert_ptr_ne(out[0], NULL);
   ck_assert_ptr_eq(out[1], NULL);
@@ -239,7 +239,7 @@ START_TEST(test_rhonabwy_jwks_export_privkey)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
   r_jwk_free(jwk);
-  ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_privkey(jwks, &len, 0)), NULL);
+  ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_privkey(jwks, &len)), NULL);
   ck_assert_int_eq(len, 3);
   ck_assert_ptr_ne(out[0], NULL);
   ck_assert_ptr_eq(out[1], NULL);
@@ -261,6 +261,7 @@ START_TEST(test_rhonabwy_jwks_export_pubkey)
   
   ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
@@ -282,6 +283,29 @@ START_TEST(test_rhonabwy_jwks_export_pubkey)
   gnutls_pubkey_deinit(out[0]);
   gnutls_pubkey_deinit(out[1]);
   o_free(out);
+#else
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
+  r_jwk_free(jwk);
+  ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_pubkey(jwks, &len, 0)), NULL);
+  ck_assert_int_eq(len, 1);
+  ck_assert_ptr_ne(out[0], NULL);
+  gnutls_pubkey_deinit(out[0]);
+  o_free(out);
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5c_str), RHN_OK);
+  ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
+  r_jwk_free(jwk);
+  ck_assert_ptr_ne((out = r_jwks_export_to_gnutls_pubkey(jwks, &len, 0)), NULL);
+  ck_assert_int_eq(len, 2);
+  ck_assert_ptr_ne(out[0], NULL);
+  ck_assert_ptr_ne(out[1], NULL);
+  gnutls_pubkey_deinit(out[0]);
+  gnutls_pubkey_deinit(out[1]);
+  o_free(out);
+#endif
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
@@ -310,6 +334,7 @@ START_TEST(test_rhonabwy_jwks_export_pem)
   
   ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   
+#if GNUTLS_VERSION_NUMBER >= 0x030600
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
@@ -319,6 +344,7 @@ START_TEST(test_rhonabwy_jwks_export_pem)
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_ecdsa_str), RHN_OK);
   ck_assert_int_eq(r_jwks_append_jwk(jwks, jwk), RHN_OK);
   r_jwk_free(jwk);
+#endif
   
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_privkey_rsa_str), RHN_OK);
@@ -371,7 +397,9 @@ END_TEST
 START_TEST(test_rhonabwy_jwks_import_uri)
 {
   struct _u_instance instance;
+#ifdef R_WITH_ULFIUS
   jwks_t * jwks = NULL;
+#endif
   
   ck_assert_int_eq(ulfius_init_instance(&instance, 7462, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_ok", NULL, 0, &callback_jwks_ok, NULL), U_OK);
@@ -380,6 +408,7 @@ START_TEST(test_rhonabwy_jwks_import_uri)
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_error_status", NULL, 0, &callback_jwks_error_status, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_redirect", NULL, 0, &callback_jwks_redirect, NULL), U_OK);
   
+#ifdef R_WITH_ULFIUS
   ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   ck_assert_int_eq(r_jwks_import_from_uri(NULL, "http://localhost:7462/jwks_ok", 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwks_import_from_uri(jwks, NULL, 0), RHN_ERROR_PARAM);
@@ -393,7 +422,7 @@ START_TEST(test_rhonabwy_jwks_import_uri)
   ck_assert_int_eq(ulfius_start_framework(&instance), U_OK);
   
   ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
-  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_error_content_no_jwks", 0), RHN_ERROR);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_error_content_no_jwks", 0), RHN_ERROR_PARAM);
   r_jwk_free(jwks);
 
   ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
@@ -414,6 +443,7 @@ START_TEST(test_rhonabwy_jwks_import_uri)
   r_jwk_free(jwks);
 
   ulfius_stop_framework(&instance);
+#endif
   ulfius_clean_instance(&instance);
 }
 END_TEST
@@ -558,6 +588,7 @@ int main(int argc, char *argv[])
   Suite *s;
   SRunner *sr;
   //y_init_logs("Rhonabwy", Y_LOG_MODE_CONSOLE, Y_LOG_LEVEL_DEBUG, NULL, "Starting Rhonabwy JWKS jwks tests");
+  r_global_init();
   s = rhonabwy_suite();
   sr = srunner_create(s);
 
@@ -565,6 +596,7 @@ int main(int argc, char *argv[])
   number_failed = srunner_ntests_failed(sr);
   srunner_free(sr);
   
+  r_global_close();
   //y_close_logs();
   return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

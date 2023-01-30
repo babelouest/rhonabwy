@@ -3638,6 +3638,8 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
               ret = RHN_ERROR;
             }
           }
+        } else if (res == GNUTLS_E_INVALID_REQUEST) {
+          ret = RHN_ERROR_INVALID;
         } else if (res == GNUTLS_E_DECRYPTION_FAILED) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - decryption failed: '%s'", gnutls_strerror(res));
           ret = RHN_ERROR_INVALID;

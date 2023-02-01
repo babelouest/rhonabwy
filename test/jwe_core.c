@@ -1401,6 +1401,7 @@ START_TEST(test_rhonabwy_quick_parse)
   ck_assert_ptr_ne(NULL, jwe = r_jwe_quick_parse(TOKEN_OVERSIZE_IV, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
   ck_assert_int_eq(r_jwe_decrypt(jwe, jwk, 0), RHN_ERROR_INVALID);
   r_jwe_free(jwe);
+  r_jwk_free(jwk);
 
   ck_assert_ptr_ne(NULL, jwk = r_jwk_quick_import(R_IMPORT_JSON_STR, jwk_key_128_1));
   ck_assert_ptr_ne(NULL, jwe = r_jwe_quick_parse(TOKEN_INVALID_CIPHER_LEN, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));

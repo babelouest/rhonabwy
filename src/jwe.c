@@ -3584,7 +3584,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
   unsigned char tag[128];
   size_t tag_len = 0;
   size_t ciphertext_b64_len;
-  size_t ciphertext_decoded_len;
+  size_t ciphertext_decoded_len = 0;
   unsigned cipher_block_size;
   int cipher_cbc;
   struct _o_datum dat = {0, NULL}, dat_ciph = {0, NULL}, dat_tag = {0, NULL};
@@ -3596,7 +3596,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
     if (_r_gnutls_is_block_cipher(_r_get_alg_from_enc(jwe->enc))) {
       if (o_base64url_decode(jwe->ciphertext_b64url, ciphertext_b64_len, NULL, &ciphertext_decoded_len)) {
         cipher_block_size = (unsigned)gnutls_cipher_get_block_size(_r_get_alg_from_enc(jwe->enc));
-        if (ciphertext_decoded_len % cipher_block_size) {
+        if (!ciphertext_decoded_len || ciphertext_decoded_len % cipher_block_size) {
           /* The ciphertext length is not a multiple of block size.
           * It can't possibly be valid */
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Invalid ciphertext length");

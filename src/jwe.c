@@ -3557,6 +3557,24 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
   return ret;
 }
 
+static int _r_gnutls_is_block_cipher(gnutls_cipher_algorithm_t alg)
+{
+  switch (alg) {
+    case GNUTLS_CIPHER_3DES_CBC:
+    case GNUTLS_CIPHER_AES_128_CBC:
+    case GNUTLS_CIPHER_AES_256_CBC:
+    case GNUTLS_CIPHER_CAMELLIA_128_CBC:
+    case GNUTLS_CIPHER_CAMELLIA_256_CBC:
+    case GNUTLS_CIPHER_AES_192_CBC:
+    case GNUTLS_CIPHER_CAMELLIA_192_CBC :
+    case GNUTLS_CIPHER_RC2_40_CBC :
+    case GNUTLS_CIPHER_DES_CBC:
+      return 1;
+    default:
+      return 0;
+  }
+}
+
 int r_jwe_decrypt_payload(jwe_t * jwe) {
   int ret = RHN_OK, res;
   gnutls_cipher_hd_t handle;
@@ -3565,33 +3583,56 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
   size_t payload_enc_len = 0, unzip_len = 0;
   unsigned char tag[128];
   size_t tag_len = 0;
+  size_t ciphertext_b64_len;
+  size_t ciphertext_decoded_len;
+  unsigned cipher_block_size;
   int cipher_cbc;
   struct _o_datum dat = {0, NULL}, dat_ciph = {0, NULL}, dat_tag = {0, NULL};
 
-  if (jwe != NULL && jwe->enc != R_JWA_ENC_UNKNOWN && !o_strnullempty((const char *)jwe->ciphertext_b64url) && !o_strnullempty((const char *)jwe->iv_b64url) && jwe->key != NULL && jwe->key_len && jwe->key_len == _r_get_key_size(jwe->enc)) {
-    // Decode iv and payload_b64
-    o_free(jwe->iv);
-    if (o_base64url_decode_alloc(jwe->iv_b64url, o_strlen((const char *)jwe->iv_b64url), &dat)) {
-      if ((jwe->iv = o_malloc(dat.size)) != NULL) {
-        jwe->iv_len = dat.size;
-        memcpy(jwe->iv, dat.data, dat.size);
-        if (o_base64url_decode_alloc(jwe->ciphertext_b64url, o_strlen((const char *)jwe->ciphertext_b64url), &dat_ciph)) {
-          if ((payload_enc = o_malloc(dat_ciph.size)) == NULL) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error allocating resources for payload_enc");
-            ret = RHN_ERROR_MEMORY;
-          }
-        } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_base64url_decode_alloc ciphertext_b64url");
-          ret = RHN_ERROR;
+  if (jwe != NULL && jwe->enc != R_JWA_ENC_UNKNOWN && (ciphertext_b64_len = o_strlen((const char *)jwe->ciphertext_b64url)) != 0 && !o_strnullempty((const char *)jwe->iv_b64url) && jwe->key != NULL && jwe->key_len && jwe->key_len == _r_get_key_size(jwe->enc)) {
+    /* ensure payload_enc_buflen is a multiple of cipher_block_size
+     * if the cipher is a block-mode cipher
+     */
+    if (_r_gnutls_is_block_cipher(_r_get_alg_from_enc(jwe->enc))) {
+      if (o_base64url_decode(jwe->ciphertext_b64url, ciphertext_b64_len, NULL, &ciphertext_decoded_len)) {
+        cipher_block_size = (unsigned)gnutls_cipher_get_block_size(_r_get_alg_from_enc(jwe->enc));
+        if (ciphertext_decoded_len % cipher_block_size) {
+          /* The ciphertext length is not a multiple of block size.
+          * It can't possibly be valid */
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Invalid ciphertext length");
+          ret = RHN_ERROR_INVALID;
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error reallocating resources for iv");
-        ret = RHN_ERROR_MEMORY;
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_base64url_decode ciphertext_b64url");
+        ret = RHN_ERROR;
       }
-      o_free(dat.data);
-    } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_base64url_decode_alloc iv");
-      ret = RHN_ERROR;
+    }
+
+    if (ret == RHN_OK) {
+      // Decode iv and payload_b64
+      o_free(jwe->iv);
+      if (o_base64url_decode_alloc(jwe->iv_b64url, o_strlen((const char *)jwe->iv_b64url), &dat)) {
+        if ((jwe->iv = o_malloc(dat.size)) != NULL) {
+          jwe->iv_len = dat.size;
+          memcpy(jwe->iv, dat.data, dat.size);
+          if (o_base64url_decode_alloc(jwe->ciphertext_b64url, ciphertext_b64_len, &dat_ciph)) {
+            if ((payload_enc = o_malloc(dat_ciph.size)) == NULL) {
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error allocating resources for payload_enc");
+              ret = RHN_ERROR_MEMORY;
+            }
+          } else {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_base64url_decode_alloc ciphertext_b64url");
+            ret = RHN_ERROR;
+          }
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error reallocating resources for iv");
+          ret = RHN_ERROR_MEMORY;
+        }
+        o_free(dat.data);
+      } else {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_base64url_decode_alloc iv");
+        ret = RHN_ERROR;
+      }
     }
 
     if (ret == RHN_OK) {

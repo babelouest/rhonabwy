@@ -3722,7 +3722,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
         ret = RHN_ERROR;
       }
     }
-  } else if (jwe->key_len != _r_get_key_size(jwe->enc)) {
+  } else if (jwe != NULL && jwe->key_len != _r_get_key_size(jwe->enc)) {
     ret = RHN_ERROR_INVALID;
   } else {
     y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error input parameters");

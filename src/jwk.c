@@ -717,7 +717,7 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
                   }
 #endif
                 } else {
-                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Error unsupported algorithm %s", gnutls_pk_algorithm_get_name(pk_alg));
+                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5c - Error unsupported algorithm %s", gnutls_pk_algorithm_get_name((gnutls_pk_algorithm_t)pk_alg));
                   ret = R_KEY_TYPE_NONE;
                 }
                 ret |= R_KEY_TYPE_PUBLIC;
@@ -770,7 +770,7 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
 #endif
                 } else {
                   ret = R_KEY_TYPE_NONE;
-                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Error unsupported algorithm %s", gnutls_pk_algorithm_get_name(pk_alg));
+                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type x5u - Error unsupported algorithm %s", gnutls_pk_algorithm_get_name((gnutls_pk_algorithm_t)pk_alg));
                 }
                 ret |= R_KEY_TYPE_PUBLIC;
               } else {

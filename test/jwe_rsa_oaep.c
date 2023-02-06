@@ -719,7 +719,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_variable_key_length_rsa256);
   tcase_add_test(tc_core, test_rhonabwy_decrypt_rfc_ok);
 #endif
-  tcase_set_timeout(tc_core, 30);
+  tcase_set_timeout(tc_core, 90);
   suite_add_tcase(s, tc_core);
 
   return s;

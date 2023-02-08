@@ -1,5 +1,9 @@
 # Rhonabwy Changelog
 
+## 1.1.11
+
+- Check payload length is a multiple of block size before decrypting a jwe to avoid issues with old GnuTLS version, thanks @drok!
+
 ## 1.1.10
 
 - Build with flag `-Wconversion`

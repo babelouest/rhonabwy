@@ -674,17 +674,19 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
       }
       if (r_jwks_size(jwks_privkey)) {
         if (type == R_JWT_TYPE_ENCRYPT) {
-          if (r_jwt_decrypt(jwt, NULL, x5u_flags) == RHN_OK) {
+          int rc = r_jwt_decrypt(jwt, NULL, x5u_flags);
+          if (rc == RHN_OK) {
             fprintf(stdout, "Token payload decrypted\n");
           } else {
-            fprintf(stderr, "Unable to decrypt payload %d\n", r_jwt_decrypt(jwt, NULL, x5u_flags));
+            fprintf(stderr, "Unable to decrypt payload %d\n", rc);
             ret = EINVAL;
           }
         } else if (type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT) {
-          if (r_jwt_decrypt_nested(jwt, NULL, x5u_flags) == RHN_OK) {
+          int rc = r_jwt_decrypt_nested(jwt, NULL, x5u_flags);
+          if (rc == RHN_OK) {
             fprintf(stdout, "Token payload decrypted\n");
           } else {
-            fprintf(stderr, "Unable to decrypt payload %d\n", r_jwt_decrypt(jwt, NULL, x5u_flags));
+            fprintf(stderr, "Unable to decrypt nested payload %d\n", rc);
             ret = EINVAL;
           }
         }
@@ -703,6 +705,18 @@ static int parse_token(const char * token, int indent, int x5u_flags, const char
         printf("%s\n", str_value);
         o_free(str_value);
         json_decref(j_value);
+        // also print jwt header
+        if ((type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN ||
+             type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT ||
+             type == R_JWT_TYPE_ENCRYPT) &&
+            jwt->jws)
+        {
+          j_value = r_jws_get_full_header_json_t(jwt->jws);
+          str_value = json_dumps(j_value, (size_t)(JSON_INDENT(indent)|JSON_SORT_KEYS));
+          printf("%s\n", str_value);
+          o_free(str_value);
+          json_decref(j_value);
+        }
       }
       if (show_claims) {
         str_value = NULL;

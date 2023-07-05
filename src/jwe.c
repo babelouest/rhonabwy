@@ -695,6 +695,8 @@ static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnu
              * apu = r_jwe_get_header_str_value(jwe, "apu"),
              * apv = r_jwe_get_header_str_value(jwe, "apv");
   size_t alg_id_len = o_strlen(alg_id), key_data_len = 0;
+  size_t derived_key_len = _r_get_key_size(jwe->enc);
+  size_t current_key_len = 0;
 
   kdf->data = NULL;
   kdf->size = 0;
@@ -794,9 +796,6 @@ static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnu
     kdf->data[kdf->size+2] = (unsigned char)(key_data_len>>8) & 0xFF;
     kdf->data[kdf->size+3] = (unsigned char)(key_data_len) & 0xFF;
     kdf->size += 4;
-
-    size_t derived_key_len = _r_get_key_size(jwe->enc);
-    size_t current_key_len = 0;
 
     for (uint8_t i = 1; ; i++) {
       memset(kdf->data+3, i, 1);

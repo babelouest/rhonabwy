@@ -809,6 +809,9 @@ static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnu
         break;
       }
     }
+    if (ret != RHN_OK) {
+      break;
+    }
 
   } while (0);
 

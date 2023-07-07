@@ -962,10 +962,10 @@ START_TEST(test_rhonabwy_check_apu)
   char * token = NULL;
   struct _o_datum apv = {0, NULL}, apu = {0, NULL};
   
-  ck_assert_int_eq(o_base64_encode_alloc((const unsigned char *)HUGE_DATA, o_strlen(HUGE_DATA)-20, &apu), 1);
+  ck_assert_int_eq(o_base64url_encode_alloc((const unsigned char *)HUGE_DATA, o_strlen(HUGE_DATA)-20, &apu), 1);
   apu.data[apu.size] = '\0';
   
-  ck_assert_int_eq(o_base64_encode_alloc((const unsigned char *)HUGE_DATA, o_strlen(HUGE_DATA), &apv), 1);
+  ck_assert_int_eq(o_base64url_encode_alloc((const unsigned char *)HUGE_DATA, o_strlen(HUGE_DATA), &apv), 1);
   apv.data[apv.size] = '\0';
   
   ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);
@@ -1028,10 +1028,10 @@ START_TEST(test_rhonabwy_check_apv)
   char * token = NULL;
   struct _o_datum apv = {0, NULL}, apu = {0, NULL};
   
-  ck_assert_int_eq(o_base64_encode_alloc((const unsigned char *)HUGE_DATA, o_strlen(HUGE_DATA)-20, &apu), 1);
+  ck_assert_int_eq(o_base64url_encode_alloc((const unsigned char *)HUGE_DATA, o_strlen(HUGE_DATA)-20, &apu), 1);
   apu.data[apu.size] = '\0';
   
-  ck_assert_int_eq(o_base64_encode_alloc((const unsigned char *)HUGE_DATA, o_strlen(HUGE_DATA), &apv), 1);
+  ck_assert_int_eq(o_base64url_encode_alloc((const unsigned char *)HUGE_DATA, o_strlen(HUGE_DATA), &apv), 1);
   apv.data[apv.size] = '\0';
   
   ck_assert_int_eq(r_jwk_init(&jwk_privkey), RHN_OK);

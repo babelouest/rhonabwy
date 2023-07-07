@@ -687,8 +687,7 @@ static int r_jwe_aes_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u_f
 
 // ECDH key management
 #if NETTLE_VERSION_NUMBER >= 0x030600
-static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnutls_datum_t * kdf,
-  uint8_t * derived_key) {
+static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnutls_datum_t * kdf, uint8_t * derived_key) {
   int ret = RHN_OK;
   struct _o_datum dat_apu = {0, NULL}, dat_apv = {0, NULL};
   const char * alg_id = alg==R_JWA_ALG_ECDH_ES?r_jwa_enc_to_str(jwe->enc):r_jwa_alg_to_str(alg),
@@ -697,6 +696,7 @@ static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnu
   size_t alg_id_len = o_strlen(alg_id), key_data_len = 0;
   size_t derived_key_len = _r_get_key_size(jwe->enc);
   size_t current_key_len = 0;
+  uint8_t i;
 
   kdf->data = NULL;
   kdf->size = 0;
@@ -797,18 +797,20 @@ static int _r_concat_kdf(jwe_t * jwe, jwa_alg alg, const gnutls_datum_t * Z, gnu
     kdf->data[kdf->size+3] = (unsigned char)(key_data_len) & 0xFF;
     kdf->size += 4;
 
-    for (uint8_t i = 1; ; i++) {
+    for (i = 1; ; i++) {
       memset(kdf->data+3, i, 1);
       if (gnutls_hash_fast(GNUTLS_DIG_SHA256, kdf->data, kdf->size, derived_key+current_key_len) != GNUTLS_E_SUCCESS) {
         y_log_message(Y_LOG_LEVEL_ERROR, "_r_concat_kdf - Error gnutls_hash_fast");
         ret = RHN_ERROR;
         break;
       }
-      current_key_len += gnutls_hash_get_len(GNUTLS_DIG_SHA256);      // GNUTLS_DIG_SHA256 hash size
+      current_key_len += gnutls_hash_get_len(GNUTLS_DIG_SHA256); // GNUTLS_DIG_SHA256 hash size
       if (alg != R_JWA_ALG_ECDH_ES || current_key_len >= derived_key_len) {
         break;
       }
     }
+    // This is set to make sure that the 'do while(0)' is interrupted if the gnutls_hash_fast below fails
+    // Even if soe code is added after this point in a hypothetic future
     if (ret != RHN_OK) {
       break;
     }
@@ -917,7 +919,7 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
   jwk_t * jwk_ephemeral = NULL, * jwk_ephemeral_pub = NULL;
   gnutls_datum_t Z = {NULL, 0}, kdf = {NULL, 0};
   unsigned char cipherkey_b64url[256] = {0};
-  uint8_t derived_key[64] = {0}, wrapped_key[72] = {0}, priv_k[_R_CURVE_MAX_SIZE] = {0}, pub_x[_R_CURVE_MAX_SIZE] = {0}, pub_y[_R_CURVE_MAX_SIZE] = {0};
+  uint8_t derived_key[128] = {0}, wrapped_key[136] = {0}, priv_k[_R_CURVE_MAX_SIZE] = {0}, pub_x[_R_CURVE_MAX_SIZE] = {0}, pub_y[_R_CURVE_MAX_SIZE] = {0};
   size_t derived_key_len = 0, cipherkey_b64url_len = 0, priv_k_size = 0, pub_x_size = 0, pub_y_size = 0, crv_size = 0;
   const char * key = NULL;
   json_t * j_return = NULL;
@@ -1168,7 +1170,7 @@ static int _r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, 
   json_t * j_epk = NULL;
   unsigned int epk_bits = 0;
   gnutls_datum_t Z = {NULL, 0}, kdf = {NULL, 0};
-  uint8_t derived_key[64] = {0}, key_data[72] = {0}, cipherkey[128] = {0}, priv_k[_R_CURVE_MAX_SIZE] = {0}, pub_x[_R_CURVE_MAX_SIZE] = {0}, pub_y[_R_CURVE_MAX_SIZE] = {0};
+  uint8_t derived_key[128] = {0}, key_data[72] = {0}, cipherkey[256] = {0}, priv_k[_R_CURVE_MAX_SIZE] = {0}, pub_x[_R_CURVE_MAX_SIZE] = {0}, pub_y[_R_CURVE_MAX_SIZE] = {0};
   size_t derived_key_len = 0, cipherkey_len = 0, priv_k_size = 0, pub_x_size = 0, pub_y_size = 0, crv_size = 0;
   const char * key = NULL;
   const struct ecc_curve * nettle_curve;

@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 1.1.12
+
+- Fix the K for enc=AxxxCBC with alg=ECDH-ES for jwe (#28)
+- cmake: remove `DownloadProject` feature, now dependencies must be previously installed
+
 ## 1.1.11
 
 - Check payload length is a multiple of block size before decrypting a jwe to avoid issues with old GnuTLS version (#24)

@@ -4,6 +4,7 @@
 
 - Fix the K for enc=AxxxCBC with alg=ECDH-ES for jwe (#28)
 - cmake: remove `DownloadProject` feature, now dependencies must be previously installed
+- Improve cmake script
 
 ## 1.1.11
 

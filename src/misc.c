@@ -134,6 +134,21 @@ char * _r_get_http_content(const char * url, int x5u_flags, const char * expecte
       if (curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L) != CURLE_OK) {
         break;
       }
+#if CURL_AT_LEAST_VERSION(7,85,0)
+      if (curl_easy_setopt(curl, CURLOPT_PROTOCOLS_STR, "http,https") != CURLE_OK) {
+        break;
+      }
+      if (curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS_STR, "http,https") != CURLE_OK) {
+        break;
+      }
+#else
+      if (curl_easy_setopt(curl, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS) != CURLE_OK) {
+        break;
+      }
+      if (curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS) != CURLE_OK) {
+        break;
+      }
+#endif
       if (x5u_flags & R_FLAG_FOLLOW_REDIRECT) {
         if (curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1) != CURLE_OK) {
           break;

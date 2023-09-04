@@ -1,0 +1,34 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/RhonabwyTargets.cmake")
+
+set(WITH_CURL @WITH_CURL@)
+
+set(CMAKE_CURRENT_LIST_DIR ${_original_cmake_module_path})
+
+include(CMakeFindDependencyMacro)
+
+set(_original_cmake_module_path ${CMAKE_MODULE_PATH})
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
+
+find_dependency(Orcania)
+find_dependency(Yder)
+find_dependency(Jansson)
+find_dependency(Nettle)
+find_dependency(GnuTLS)
+find_dependency(ZLIB)
+
+if(WITH_CURL)
+    find_dependency(CURL)
+    if(CURL_FOUND AND NOT TARGET CURL::libcurl)
+        add_library(CURL::libcurl UNKNOWN IMPORTED)
+        set_target_properties(CURL::libcurl PROPERTIES
+            INTERFACE_LINK_LIBRARIES "${CURL_LIBRARIES}"
+            INTERFACE_INCLUDE_DIRECTORIES "${CURL_INCLUDE_DIRS}")
+    endif()
+endif()
+
+set(CMAKE_MODULE_PATH ${_original_cmake_module_path})
+
+set(RHONABWY_VERSION_STRING "@PROJECT_VERSION@")
+set(Rhonabwy_FOUND TRUE)

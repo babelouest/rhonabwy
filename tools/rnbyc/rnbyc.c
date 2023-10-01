@@ -48,7 +48,7 @@
 #include <yder.h>
 #include <rhonabwy.h>
 
-#define _RNBYC_VERSION_ "1.1.7"
+#define _RNBYC_VERSION_ "1.1.8"
 
 #define R_RSA_DEFAULT_SIZE 4096
 #define R_OCT_DEFAULT_SIZE 128
@@ -932,6 +932,7 @@ int main (int argc, char ** argv) {
   json_t * j_arguments = json_array();
   unsigned long bits = 0;
   int indent = 2;
+  jwa_alg j_alg = R_JWA_ALG_NONE;
 
   do {
     next_option = getopt_long(argc, argv, short_options, long_options, NULL);
@@ -1031,20 +1032,35 @@ int main (int argc, char ** argv) {
         split_keys = 1;
         break;
       case 'a':
-        if (action == R_ACTION_JWKS_OUT) {
-          json_object_set_new(json_array_get(j_arguments, json_array_size(j_arguments)-1), "alg", json_string(optarg));
+        if ((j_alg = r_str_to_jwa_alg(optarg)) != R_JWA_ALG_NONE && j_alg != R_JWA_ALG_UNKNOWN) {
+          if (action == R_ACTION_JWKS_OUT) {
+            json_object_set_new(json_array_get(j_arguments, json_array_size(j_arguments)-1), "alg", json_string(optarg));
+          } else {
+            o_free(alg);
+            alg = o_strdup(optarg);
+          }
         } else {
-          o_free(alg);
-          alg = o_strdup(optarg);
+          fprintf(stderr, "--alg: argument invalid: %s\n", optarg);
+          ret = EINVAL;
         }
         break;
       case 'e':
-        o_free(enc);
-        enc = o_strdup(optarg);
+        if (r_str_to_jwa_enc(optarg) != R_JWA_ENC_UNKNOWN) {
+          o_free(enc);
+          enc = o_strdup(optarg);
+        } else {
+          fprintf(stderr, "--enc: argument invalid: %s\n", optarg);
+          ret = EINVAL;
+        }
         break;
       case 'l':
-        o_free(enc_alg);
-        enc_alg = o_strdup(optarg);
+        if ((j_alg = r_str_to_jwa_alg(optarg)) != R_JWA_ALG_NONE && j_alg != R_JWA_ALG_UNKNOWN) {
+          o_free(enc_alg);
+          enc_alg = o_strdup(optarg);
+        } else {
+          fprintf(stderr, "--enc-alg: argument invalid: %s\n", optarg);
+          ret = EINVAL;
+        }
         break;
       case 'n':
         indent = (int)strtol(optarg, NULL, 10);

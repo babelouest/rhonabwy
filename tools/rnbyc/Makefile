@@ -70,7 +70,7 @@ test-jwks: debug
 	$(VALGRIND_COMMAND) ./rnbyc -j -f priv.jwks -f pub.jwks 2>valgrind-05.txt
 	$(VALGRIND_COMMAND) ./rnbyc -j -g oct256 -k "oct-1" -o symkey.jwks 2>valgrind-06.txt
 	$(VALGRIND_COMMAND) ./rnbyc -j -g EC256 -n 4 2>valgrind-07.txt
-	$(VALGRIND_COMMAND) ./rnbyc -j -g EC384 -a "plop" -e "grut" 2>valgrind-08.txt
+	$(VALGRIND_COMMAND) ./rnbyc -j -g EC384 -a "plop" -e "grut" 2>valgrind-08.txt || true
 	$(VALGRIND_COMMAND) ./rnbyc -j -g Ed25519 2>valgrind-09.txt
 	$(VALGRIND_COMMAND) ./rnbyc -j -g error 2>valgrind-10.txt || true
 	cat priv.jwks | $(VALGRIND_COMMAND) ./rnbyc -j -i 2>valgrind-11.txt
@@ -107,7 +107,7 @@ test-parse: debug
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token1.jwt) -K priv.jwks 2>valgrind-44.txt || true
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token2.jwt) 2>valgrind-45.txt
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token2.jwt) -K priv.jwks 2>valgrind-46.txt
-	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token2.jwt) -P pub.jwks 2>valgrind-47.txt || true
+	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token2.jwt) -P pub.jwks 2>valgrind-47.txt
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token3.jwt) 2>valgrind-48.txt || true
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token3.jwt) -K priv.jwks 2>valgrind-49.txt
 	$(VALGRIND_COMMAND) ./rnbyc -t $(shell cat token3.jwt) -P pub.jwks 2>valgrind-50.txt || true

@@ -354,6 +354,12 @@ const char jwk_pubkey_rsa_x5u_str[] = "{\"kty\":\"RSA\",\"n\":\"sUWjL3wK1B_dQbXb
                                        "jbjXz_E0GOISiXt4L-06U7rLoGHFri5oVI6KUkLAOwwwTri-ikeQFx68IKvhytBiX1O-XHh51JZyyC-fcKKN-_ATgGKIiR63M5UWYxO2JkVkPvpzORKJUi"\
                                        "vePFQbkEcxYZb9VqoVZ04sfpfGb3h2douzBrKbkDP_Jf-O0JPKDTltrUJOpZbYhV\",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2011-04-"\
                                        "29\",\"x5u\":\"https://localhost:7464/x5u_rsa_crt\"}";
+const char jwk_pubkey_rsa_x5u_large[] = "{\"kty\":\"RSA\",\"n\":\"sUWjL3wK1B_dQbXbhSXaodF0gXMNlZg3ZecjZIJOKgXGDVOnV0ly4evW8xkn8F2gC3TYJXik7efdhGdiaYul9kyzpPBr53"\
+                                       "ELHMmAeI_I1rnF4pgIwfN1vBsaDwJw9w0R6FQ9fxDUIte47WdElEHhtST9V874mMehsSUG4xM2qiBvvbWwX0KCyKk6BY_CdyljUjAPUShcVysKUTyfefew"\
+                                       "38KUVTVpk2vWLlN-a41iC_gxGvLtH142LDiDx_s-Kh37f4paD2zsEw5McF81eiKTAfrraIC1Gj2BxyEj6n2EjqyI-NFRsSUmqfPoFgiMzlEWj4P8AwvfE9"\
+                                       "jbjXz_E0GOISiXt4L-06U7rLoGHFri5oVI6KUkLAOwwwTri-ikeQFx68IKvhytBiX1O-XHh51JZyyC-fcKKN-_ATgGKIiR63M5UWYxO2JkVkPvpzORKJUi"\
+                                       "vePFQbkEcxYZb9VqoVZ04sfpfGb3h2douzBrKbkDP_Jf-O0JPKDTltrUJOpZbYhV\",\"e\":\"AQAB\",\"alg\":\"RS256\",\"kid\":\"2011-04-"\
+                                       "29\",\"x5u\":\"https://localhost:7464/x5u_large\"}";
 
 const char jwk_pubkey_rsa_x5u_only_rsa_pub[] = "{\"kty\":\"RSA\",\"alg\":\"RS256\",\"x5u\":\"https://localhost:7464/x5u_rsa_crt\"}";
 const char jwk_pubkey_rsa_x5u_only_ecdsa_pub[] = "{\"kty\":\"EC\",\"alg\":\"ES256\",\"x5u\":\"https://localhost:7464/x5u_ecdsa_crt\"}";
@@ -672,6 +678,15 @@ int callback_x5u_ecdsa_crt (const struct _u_request * request, struct _u_respons
   return U_CALLBACK_CONTINUE;
 }
 
+int callback_x5u_large (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  char * large_body = o_malloc((6*1024*1024));
+  memset(large_body, ' ', (6*1024*1024));
+  o_strcpy(large_body, (const char *)ecdsa_crt);
+  ulfius_set_binary_body_response(response, 200, (const char *)large_body, (6*1024*1024));
+  o_free(large_body);
+  return U_CALLBACK_CONTINUE;
+}
+
 int callback_x5u_eddsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
   ulfius_set_string_body_response(response, 200, (const char *)eddsa_crt);
   return U_CALLBACK_CONTINUE;
@@ -718,6 +733,7 @@ START_TEST(test_rhonabwy_import_from_json_str)
   ck_assert_int_eq(ulfius_init_instance(&instance, 7464, NULL, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_rsa_crt", NULL, 0, &callback_x5u_rsa_crt, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_ecdsa_crt", NULL, 0, &callback_x5u_ecdsa_crt, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/x5u_large", NULL, 0, &callback_x5u_large, NULL), U_OK);
   
   ck_assert_int_eq(ulfius_start_secure_framework(&instance, http_key, http_cert), U_OK);
   
@@ -1751,6 +1767,11 @@ START_TEST(test_rhonabwy_key_type)
   ck_assert_int_eq(type & R_KEY_TYPE_HMAC, 0);
   r_jwk_free(jwk);
   
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_pubkey_rsa_x5u_large), RHN_OK);
+  ck_assert_int_eq(r_jwk_is_valid_x5u(jwk, R_FLAG_IGNORE_SERVER_CERTIFICATE), RHN_ERROR_PARAM);
+  r_jwk_free(jwk);
+
 #if GNUTLS_VERSION_NUMBER >= 0x030600
   bits = 0;
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);

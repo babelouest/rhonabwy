@@ -231,6 +231,24 @@ int callback_jwks_redirect (const struct _u_request * request, struct _u_respons
   return U_CALLBACK_CONTINUE;
 }
 
+int callback_jwks_too_large (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  json_t * j_jwks = json_pack("{s[]}", "keys");
+  int i;
+
+  for (i=0; i<1024; i++) {
+    json_array_append_new(json_object_get(j_jwks, "keys"), json_loads(jwk_pubkey_ecdsa_str, JSON_DECODE_ANY, NULL));
+    json_array_append_new(json_object_get(j_jwks, "keys"), json_loads(jwk_privkey_ecdsa_str, JSON_DECODE_ANY, NULL));
+    json_array_append_new(json_object_get(j_jwks, "keys"), json_loads(jwk_pubkey_rsa_str, JSON_DECODE_ANY, NULL));
+    json_array_append_new(json_object_get(j_jwks, "keys"), json_loads(jwk_privkey_rsa_str, JSON_DECODE_ANY, NULL));
+    json_array_append_new(json_object_get(j_jwks, "keys"), json_loads(jwk_pubkey_rsa_x5u_str, JSON_DECODE_ANY, NULL));
+    json_array_append_new(json_object_get(j_jwks, "keys"), json_loads(jwk_pubkey_rsa_x5c_str, JSON_DECODE_ANY, NULL));
+  }
+  ulfius_set_json_body_response(response, 200, j_jwks);
+  ck_assert_int_gt(response->binary_body_length, R_MAX_BODY_SIZE);
+  json_decref(j_jwks);
+  return U_CALLBACK_CONTINUE;
+}
+
 int callback_x5u_rsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
   ulfius_set_string_body_response(response, 200, (const char *)rsa_crt);
   return U_CALLBACK_CONTINUE;
@@ -556,6 +574,7 @@ START_TEST(test_rhonabwy_jwks_import_uri)
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_error_content_no_json", NULL, 0, &callback_jwks_error_content_no_json, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_error_status", NULL, 0, &callback_jwks_error_status, NULL), U_OK);
   ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_redirect", NULL, 0, &callback_jwks_redirect, NULL), U_OK);
+  ck_assert_int_eq(ulfius_add_endpoint_by_val(&instance, "GET", "/jwks_too_large", NULL, 0, &callback_jwks_too_large, NULL), U_OK);
   
 #ifdef R_WITH_CURL
   ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
@@ -580,6 +599,11 @@ START_TEST(test_rhonabwy_jwks_import_uri)
 
   ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
   ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_error_status", 0), RHN_ERROR);
+  r_jwk_free(jwks);
+
+  // This test works if R_MAX_BODY_SIZE has the default value of 4MB
+  ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);
+  ck_assert_int_eq(r_jwks_import_from_uri(jwks, "http://localhost:7462/jwks_too_large", 0), RHN_ERROR);
   r_jwk_free(jwks);
 
   ck_assert_int_eq(r_jwks_init(&jwks), RHN_OK);

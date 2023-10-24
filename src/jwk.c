@@ -36,7 +36,7 @@
 #define RHN_PEM_HEADER_RSA_PRIVKEY     "-----BEGIN RSA PRIVATE KEY-----"
 #define RHN_PEM_HEADER_UNKNOWN_PRIVKEY "-----BEGIN UNKNOWN-----"
 
-char * _r_get_http_content(const char * url, int x5u_flags, const char * expected_content_type);
+int _r_get_http_content(const char * url, int x5u_flags, const char * expected_content_type, struct _o_datum * datum);
 
 #if NETTLE_VERSION_NUMBER >= 0x030600
 #include <nettle/curve25519.h>
@@ -643,8 +643,7 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
   int ret = R_KEY_TYPE_NONE, pk_alg;
   size_t k_len = 0;
   int bits_set = 0, has_values = 0;
-  char * x5u_content = NULL;
-  struct _o_datum dat = {0, NULL};
+  struct _o_datum dat = {0, NULL}, x5u_datum = {0, NULL};
 
   if (r_jwk_is_valid(jwk) == RHN_OK) {
     if (0 == o_strcmp(json_string_value(json_object_get(jwk, "kty")), "RSA")) {
@@ -739,9 +738,9 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
       if (json_object_get(jwk, "x5u") != NULL) {
         if (!(x5u_flags & R_FLAG_IGNORE_REMOTE)) {
           // Get first x5u
-          if ((x5u_content = _r_get_http_content(json_string_value(json_object_get(jwk, "x5u")), x5u_flags, NULL)) != NULL) {
-            data.data = (unsigned char *)x5u_content;
-            data.size = (unsigned int)o_strlen(x5u_content);
+          if (_r_get_http_content(json_string_value(json_object_get(jwk, "x5u")), x5u_flags, NULL, &x5u_datum) == RHN_OK) {
+            data.data = (unsigned char *)x5u_datum.data;
+            data.size = (unsigned int)x5u_datum.size;
             if (!gnutls_x509_crt_init(&crt)) {
               if (!gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_PEM)) {
                 pk_alg = gnutls_x509_crt_get_pk_algorithm(crt, bits);
@@ -781,7 +780,7 @@ int r_jwk_key_type(jwk_t * jwk, unsigned int * bits, int x5u_flags) {
             } else {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type - Error gnutls_x509_crt_init");
             }
-            o_free(x5u_content);
+            o_free(x5u_datum.data);
           } else {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_key_type - Error getting x5u content");
           }
@@ -1608,16 +1607,16 @@ int r_jwk_import_from_gnutls_x509_crt(jwk_t * jwk, gnutls_x509_crt_t crt) {
 
 int r_jwk_import_from_x5u(jwk_t * jwk, int x5u_flags, const char * x5u) {
   int ret;
-  char * x5u_content = NULL;
+  struct _o_datum x5u_datum = {0, NULL};
 
   if (jwk != NULL && x5u != NULL) {
-    if ((x5u_content = _r_get_http_content(x5u, x5u_flags, NULL)) != NULL) {
-      if (r_jwk_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_PEM, (unsigned const char *)x5u_content, o_strlen(x5u_content)) == RHN_OK) {
+    if (_r_get_http_content(x5u, x5u_flags, NULL, &x5u_datum) == RHN_OK) {
+      if (r_jwk_import_from_pem_der(jwk, R_X509_TYPE_CERTIFICATE, R_FORMAT_PEM, (unsigned const char *)x5u_datum.data, x5u_datum.size) == RHN_OK) {
         ret = RHN_OK;
       } else {
         ret = RHN_ERROR;
       }
-      o_free(x5u_content);
+      o_free(x5u_datum.data);
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_import_from_x5u - Error getting x5u content");
       ret = RHN_ERROR;
@@ -2088,8 +2087,7 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
   gnutls_x509_crt_t crt;
   gnutls_datum_t m = {NULL, 0}, e = {NULL, 0}, data = {NULL, 0};
   int res, type = r_jwk_key_type(jwk, NULL, x5u_flags);
-  char * x5u_content = NULL;
-  struct _o_datum dat = {0, NULL};
+  struct _o_datum dat = {0, NULL}, x5u_datum = {0, NULL};
 #if GNUTLS_VERSION_NUMBER >= 0x030600
   gnutls_ecc_curve_t curve;
   gnutls_datum_t x = {NULL, 0}, y = {NULL, 0};
@@ -2139,11 +2137,11 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
       } else {
         if (!(x5u_flags & R_FLAG_IGNORE_REMOTE)) {
           // Get x5u
-          if ((x5u_content = _r_get_http_content(json_string_value(json_object_get(jwk, "x5u")), x5u_flags, NULL)) != NULL) {
+          if (_r_get_http_content(json_string_value(json_object_get(jwk, "x5u")), x5u_flags, NULL, &x5u_datum) == RHN_OK) {
             if (!gnutls_pubkey_init(&pubkey)) {
               if (!gnutls_x509_crt_init(&crt)) {
-                data.data = (unsigned char *)x5u_content;
-                data.size = (unsigned int)o_strlen(x5u_content);
+                data.data = (unsigned char *)x5u_datum.data;
+                data.size = (unsigned int)x5u_datum.size;
                 if (!gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_PEM)) {
                   if (!gnutls_pubkey_import_x509(pubkey, crt, 0)) {
                     res = RHN_OK;
@@ -2166,7 +2164,7 @@ gnutls_pubkey_t r_jwk_export_to_gnutls_pubkey(jwk_t * jwk, int x5u_flags) {
             } else {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey x5u - Error gnutls_pubkey_init");
             }
-            o_free(x5u_content);
+            o_free(x5u_datum.data);
           } else {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_pubkey x5u - Error getting x5u content");
           }
@@ -2357,8 +2355,7 @@ gnutls_x509_crt_t r_jwk_export_to_gnutls_crt(jwk_t * jwk, int x5u_flags) {
   gnutls_x509_crt_t crt = NULL;
   gnutls_datum_t data = {NULL, 0};
   int type = r_jwk_key_type(jwk, NULL, x5u_flags);
-  char * x5u_content = NULL;
-  struct _o_datum dat = {0, NULL};
+  struct _o_datum dat = {0, NULL}, x5u_datum = {0, NULL};
 
   if (type & (R_KEY_TYPE_PUBLIC)) {
     if (json_array_get(json_object_get(jwk, "x5c"), 0) != NULL || json_object_get(jwk, "x5u") != NULL) {
@@ -2381,10 +2378,10 @@ gnutls_x509_crt_t r_jwk_export_to_gnutls_crt(jwk_t * jwk, int x5u_flags) {
       } else {
         if (!(x5u_flags & R_FLAG_IGNORE_REMOTE)) {
           // Get x5u
-          if ((x5u_content = _r_get_http_content(json_string_value(json_object_get(jwk, "x5u")), x5u_flags, NULL)) != NULL) {
+          if (_r_get_http_content(json_string_value(json_object_get(jwk, "x5u")), x5u_flags, NULL, &x5u_datum) == RHN_OK) {
             if (!gnutls_x509_crt_init(&crt)) {
-              data.data = (unsigned char *)x5u_content;
-              data.size = (unsigned int)o_strlen(x5u_content);
+              data.data = (unsigned char *)x5u_datum.data;
+              data.size = (unsigned int)x5u_datum.size;
               if (gnutls_x509_crt_import(crt, &data, GNUTLS_X509_FMT_PEM)) {
                 y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5u - Error gnutls_pubkey_import");
                 gnutls_x509_crt_deinit(crt);
@@ -2393,7 +2390,7 @@ gnutls_x509_crt_t r_jwk_export_to_gnutls_crt(jwk_t * jwk, int x5u_flags) {
             } else {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5u - Error gnutls_x509_crt_init");
             }
-            o_free(x5u_content);
+            o_free(x5u_datum.data);
           } else {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_export_to_gnutls_crt x5u - Error getting x5u content");
           }

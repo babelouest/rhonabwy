@@ -25,7 +25,7 @@
 #include <yder.h>
 #include <rhonabwy.h>
 
-char * _r_get_http_content(const char * url, int x5u_flags, const char * expected_content_type);
+int _r_get_http_content(const char * url, int x5u_flags, const char * expected_content_type, struct _o_datum * datum);
 
 int r_jwks_init(jwks_t ** jwks) {
   int ret;
@@ -310,11 +310,11 @@ int r_jwks_import_from_json_t(jwks_t * jwks, json_t * j_input) {
 int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int x5u_flags) {
   int ret;
   json_t * j_result = NULL;
-  char * x5u_content = NULL;
+  struct _o_datum datum = {0, NULL};
 
   if (jwks != NULL && uri != NULL) {
-    if ((x5u_content = _r_get_http_content(uri, x5u_flags, "application/json")) != NULL) {
-      j_result = json_loads(x5u_content, JSON_DECODE_ANY, NULL);
+    if (_r_get_http_content(uri, x5u_flags, "application/json", &datum) == RHN_OK) {
+      j_result = json_loadb((const char *)datum.data, datum.size, JSON_DECODE_ANY, NULL);
       if (j_result != NULL) {
         ret = r_jwks_import_from_json_t(jwks, j_result);
       } else {
@@ -322,7 +322,7 @@ int r_jwks_import_from_uri(jwks_t * jwks, const char * uri, int x5u_flags) {
         ret = RHN_ERROR;
       }
       json_decref(j_result);
-      o_free(x5u_content);
+      o_free(datum.data);
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "r_jwks_import_from_uri x5u - Error getting x5u content");
       ret = RHN_ERROR;

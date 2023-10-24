@@ -65,8 +65,8 @@ void r_global_close(void) {
 #ifdef R_WITH_CURL
 
 struct _r_response_str {
-  char * ptr;
-  size_t len;
+  struct _o_datum * datum;
+  size_t size_limit;
 };
 
 struct _r_expected_content_type {
@@ -77,12 +77,21 @@ struct _r_expected_content_type {
 static size_t write_response(char *ptr, size_t size, size_t nmemb, void * userdata) {
   struct _r_response_str * resp = (struct _r_response_str *)userdata;
   size_t len = (size*nmemb);
-  if ((resp->ptr = o_realloc(resp->ptr, (resp->len + len + 1))) != NULL) {
-    memcpy(resp->ptr+resp->len, ptr, len);
-    resp->len += len;
-    resp->ptr[resp->len] = '\0';
-    return len;
+
+  if (resp->datum->size + len <= resp->size_limit) {
+    if ((resp->datum->data = o_realloc(resp->datum->data, (resp->datum->size + len + 1))) != NULL) {
+      memcpy(resp->datum->data+resp->datum->size, ptr, len);
+      resp->datum->size += len;
+      resp->datum->data[resp->datum->size] = '\0';
+      return len;
+    } else {
+      resp->datum->size = 0;
+      return 0;
+    }
   } else {
+    o_free(resp->datum->data);
+    resp->datum->data = NULL;
+    resp->datum->size = resp->size_limit+1;
     return 0;
   }
 }
@@ -99,82 +108,105 @@ static size_t write_header(void * buffer, size_t size, size_t nitems, void * use
 }
 #endif
 
-char * _r_get_http_content(const char * url, int x5u_flags, const char * expected_content_type) {
-  char * to_return = NULL;
+int _r_get_http_content(const char * url, int x5u_flags, const char * expected_content_type, struct _o_datum * datum) {
+  int ret = RHN_OK;
 #ifdef R_WITH_CURL
   CURL *curl;
   struct curl_slist *list = NULL;
   struct _r_response_str resp;
   struct _r_expected_content_type ct;
   long status = 0;
+  int res;
 
   curl = curl_easy_init();
   if(curl != NULL) {
-    resp.ptr = NULL;
-    resp.len = 0;
+    resp.datum = datum;
+    resp.size_limit = R_MAX_BODY_SIZE; // Arbitrary limit response body to 4MB
     ct.expected = expected_content_type;
     ct.found = 0;
 
     do {
       if (curl_easy_setopt(curl, CURLOPT_URL, url) != CURLE_OK) {
+        ret = RHN_ERROR;
         break;
       }
       if (curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_response) != CURLE_OK) {
+        ret = RHN_ERROR;
         break;
       }
       if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, &resp) != CURLE_OK) {
+        ret = RHN_ERROR;
         break;
       }
       if ((list = curl_slist_append(list, "User-Agent: Rhonabwy/" RHONABWY_VERSION_STR)) == NULL) {
+        ret = RHN_ERROR;
         break;
       }
       if (curl_easy_setopt(curl, CURLOPT_HTTPHEADER, list) != CURLE_OK) {
+        ret = RHN_ERROR;
         break;
       }
       if (curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L) != CURLE_OK) {
+        ret = RHN_ERROR;
         break;
       }
 #if CURL_AT_LEAST_VERSION(7,85,0)
       if (curl_easy_setopt(curl, CURLOPT_PROTOCOLS_STR, "http,https") != CURLE_OK) {
+        ret = RHN_ERROR;
         break;
       }
       if (curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS_STR, "http,https") != CURLE_OK) {
+        ret = RHN_ERROR;
         break;
       }
 #else
       if (curl_easy_setopt(curl, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS) != CURLE_OK) {
+        ret = RHN_ERROR;
         break;
       }
       if (curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS) != CURLE_OK) {
+        ret = RHN_ERROR;
         break;
       }
 #endif
       if (x5u_flags & R_FLAG_FOLLOW_REDIRECT) {
         if (curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1) != CURLE_OK) {
+          ret = RHN_ERROR;
           break;
         }
       }
       if (x5u_flags & R_FLAG_IGNORE_SERVER_CERTIFICATE) {
         if (curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0) != CURLE_OK) {
+          ret = RHN_ERROR;
           break;
         }
         if (curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0) != CURLE_OK) {
+          ret = RHN_ERROR;
           break;
         }
       }
       if (!o_strnullempty(expected_content_type)) {
         if (curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, write_header) != CURLE_OK) {
+          ret = RHN_ERROR;
           break;
         }
         if (curl_easy_setopt(curl, CURLOPT_WRITEHEADER, &ct) != CURLE_OK) {
+          ret = RHN_ERROR;
           break;
         }
       }
-      if (curl_easy_perform(curl) != CURLE_OK) {
+      if ((res = curl_easy_perform(curl)) != CURLE_OK) {
+        if (res == CURLE_WRITE_ERROR && datum->size > R_MAX_BODY_SIZE) {
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_get_http_content - Error remote content exceeded size limit of %zu bytes", R_MAX_BODY_SIZE);
+          ret = RHN_ERROR_PARAM;
+        } else {
+          ret = RHN_ERROR;
+        }
         break;
       }
 
       if (curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &status) != CURLE_OK) {
+        ret = RHN_ERROR;
         break;
       }
     } while (0);
@@ -183,25 +215,24 @@ char * _r_get_http_content(const char * url, int x5u_flags, const char * expecte
     curl_slist_free_all(list);
 
     if (status >= 200 && status < 300) {
-      if (o_strnullempty(expected_content_type)) {
-        to_return = resp.ptr;
-      } else {
-        if (ct.found) {
-          to_return = resp.ptr;
-        } else {
-          o_free(resp.ptr);
+      if (!o_strnullempty(expected_content_type)) {
+        if (!ct.found) {
+          o_free(resp.datum->data);
+          ret = RHN_ERROR;
         }
       }
     } else {
-      o_free(resp.ptr);
+      o_free(resp.datum->data);
+      ret = RHN_ERROR;
     }
   }
 #else
   (void)url;
   (void)x5u_flags;
   (void)expected_content_type;
+  ret = RHN_ERROR_UNSUPPORTED;
 #endif
-  return to_return;
+  return ret;
 }
 
 int _r_json_set_str_value(json_t * j_json, const char * key, const char * str_value) {

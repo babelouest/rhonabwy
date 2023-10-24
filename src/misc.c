@@ -230,6 +230,7 @@ int _r_get_http_content(const char * url, int x5u_flags, const char * expected_c
   (void)url;
   (void)x5u_flags;
   (void)expected_content_type;
+  (void)datum;
   ret = RHN_ERROR_UNSUPPORTED;
 #endif
   return ret;

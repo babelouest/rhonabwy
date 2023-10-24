@@ -98,6 +98,8 @@ extern "C"
 #define R_PARSE_UNSIGNED       16
 #define R_PARSE_ALL           (R_PARSE_HEADER_ALL|R_PARSE_UNSIGNED)
 
+#define R_MAX_BODY_SIZE 4194304
+
 /**
  * @}
  */

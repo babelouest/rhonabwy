@@ -1480,7 +1480,7 @@ int r_jws_advanced_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_
 
           if (!(parse_flags&R_PARSE_UNSIGNED)) {
             if (r_jws_get_alg(jws) == R_JWA_ALG_NONE) {
-              y_log_message(Y_LOG_LEVEL_DEBUG, "r_jws_advanced_compact_parsen - error unsigned jws");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error unsigned jws");
               ret = RHN_ERROR_INVALID;
               break;
             }

@@ -1,5 +1,9 @@
 # Rhonabwy Changelog
 
+## 1.1.13
+
+- Set arbitrary download limit to 4MB
+
 ## 1.1.12
 
 - Fix the K for enc=AxxxCBC with alg=ECDH-ES for jwe (#28)

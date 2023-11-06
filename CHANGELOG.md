@@ -2,7 +2,7 @@
 
 ## 1.1.13
 
-- Serialize alg in JWK mode when using existing keys (Thanks @sjoerdsimons)
+- rnbyc: Serialize alg in JWK mode when using existing keys (Thanks @sjoerdsimons)
 - rnbyc: check the validity of `enc` and `alg` parameters
 - Set arbitrary download limit to 4MB
 

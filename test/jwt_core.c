@@ -1083,6 +1083,42 @@ START_TEST(test_rhonabwy_set_claims)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_invalid_claims)
+{
+  jwt_t * jwt;
+  json_t * j_claims;
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "iss", 42), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "sub", 42), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "aud", 42), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "exp", "42"), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "nbf", "42"), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "iat", "42"), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "jti", 42), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "amr", "42"), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "typ", 42), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "cty", 42), RHN_OK);
+
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_ISS, NULL, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_SUB, NULL, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_AUD, NULL, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_EXP, NULL, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_NBF, NULL, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_IAT, NULL, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_JTI, NULL, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_AMR, NULL, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_TYP, NULL, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_CTY, NULL, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+
+  j_claims = json_pack("[si]", "42", 42);
+  ck_assert_int_eq(r_jwt_set_claim_json_t_value(jwt, "amr", j_claims), RHN_OK);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_AMR, NULL, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+
+  json_decref(j_claims);
+  r_jwt_free(jwt);
+}
+END_TEST
+
 START_TEST(test_rhonabwy_validate_claims)
 {
   jwt_t * jwt;
@@ -1875,6 +1911,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_set_enc_jwks);
   tcase_add_test(tc_core, test_rhonabwy_add_enc_keys_by_content);
   tcase_add_test(tc_core, test_rhonabwy_set_claims);
+  tcase_add_test(tc_core, test_rhonabwy_invalid_claims);
   tcase_add_test(tc_core, test_rhonabwy_validate_claims);
   tcase_add_test(tc_core, test_rhonabwy_validate_claims_aud_array);
   tcase_add_test(tc_core, test_rhonabwy_set_properties_error);

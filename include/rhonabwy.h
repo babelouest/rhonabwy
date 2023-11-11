@@ -3474,7 +3474,7 @@ int r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_ke
  * Claim types available
  * - R_JWT_CLAIM_ISS: claim "iss", values expected a string or NULL to validate the presence of the claim
  * - R_JWT_CLAIM_SUB: claim "sub", values expected a string or NULL to validate the presence of the claim
- * - R_JWT_CLAIM_AUD: claim "aud", values expected a string or NULL to validate the presence of the claim
+ * - R_JWT_CLAIM_AUD: claim "aud", values expected a string or an array of strings, or NULL to validate the presence of the claim
  * - R_JWT_CLAIM_EXP: claim "exp", value expected R_JWT_CLAIM_NOW or an positive integer value or R_JWT_CLAIM_PRESENT to validate the presence of the claim
  * - R_JWT_CLAIM_NBF: claim "nbf", value expected R_JWT_CLAIM_NOW or an positive integer value or R_JWT_CLAIM_PRESENT to validate the presence of the claim
  * - R_JWT_CLAIM_IAT: claim "iat", value expected R_JWT_CLAIM_NOW or an positive integer value or R_JWT_CLAIM_PRESENT to validate the presence of the claim
@@ -3482,6 +3482,9 @@ int r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_ke
  * - R_JWT_CLAIM_STR: the claim name specified must have the string value expected or NULL to validate the presence of the claim
  * - R_JWT_CLAIM_INT: the claim name specified must have the integer value expected
  * - R_JWT_CLAIM_JSN: the claim name specified must have the json_t * value expected or NULL to validate the presence of the claim
+ * - R_JWT_CLAIM_TYP: header claim "typ", values expected a string or NULL to validate the presence of the claim
+ * - R_JWT_CLAIM_CTY: header claim "cty", values expected a string or NULL to validate the presence of the claim
+ * - R_JWT_CLAIM_AMR: claim "amr", values expected an array of strings, or NULL to validate the presence of the claim
  * Example
  * The following code will check the jwt agains the iss value "https://example.com", the sub value "client_1", the presence of the claim aud and that the claim exp is after now and the claim `nbf` is before now:
  * if (r_jwt_validate_claims(jwt, R_JWT_CLAIM_ISS, "https://example.com", 
@@ -3500,16 +3503,19 @@ int r_jwt_validate_claims(jwt_t * jwt, ...);
  * Set the jwt claims with the list of claims given in parameters
  * The list must end with the claim type R_JWT_CLAIM_NOP
  * Claim types available
- * - R_JWT_CLAIM_ISS: claim "iss", values expected a string or NULL
- * - R_JWT_CLAIM_SUB: claim "sub", values expected a string or NULL
- * - R_JWT_CLAIM_AUD: claim "aud", values expected a string or NULL
+ * - R_JWT_CLAIM_ISS: claim "iss", values expected a string
+ * - R_JWT_CLAIM_SUB: claim "sub", values expected a string
+ * - R_JWT_CLAIM_AUD: claim "aud", values expected a string
  * - R_JWT_CLAIM_EXP: claim "exp", value expected R_JWT_CLAIM_NOW or an positive integer value
  * - R_JWT_CLAIM_NBF: claim "nbf", value expected R_JWT_CLAIM_NOW or an positive integer value
  * - R_JWT_CLAIM_IAT: claim "iat", value expected R_JWT_CLAIM_NOW or an positive integer value
- * - R_JWT_CLAIM_JTI: claim "jti", values expected a string or NULL
- * - R_JWT_CLAIM_STR: claim name specified, then string value or NULL
+ * - R_JWT_CLAIM_JTI: claim "jti", values expected a string
+ * - R_JWT_CLAIM_STR: claim name specified, then string value
  * - R_JWT_CLAIM_INT: claim name specified, then int value
- * - R_JWT_CLAIM_JSN: claim name specified, then json_t * value or NULL
+ * - R_JWT_CLAIM_JSN: claim name specified, then json_t * value
+ * - R_JWT_CLAIM_TYP: header claim "typ", values expected a string
+ * - R_JWT_CLAIM_CTY: header claim "cty", values expected a string
+ * - R_JWT_CLAIM_AMR: claim "amr", an array of strings, values expected a string
  */
 int r_jwt_set_claims(jwt_t * jwt, ...);
 

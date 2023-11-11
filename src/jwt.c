@@ -1937,7 +1937,7 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
                 if (has_invalid_value) {
                   ret = RHN_ERROR_PARAM;
                 }
-              } else if (!json_is_string(j_value) || !json_string_length(j_value)) {
+              } else {
                 ret = RHN_ERROR_PARAM;
               }
               json_decref(j_value);

@@ -5,6 +5,8 @@
 - rnbyc: Serialize alg in JWK mode when using existing keys (Thanks @sjoerdsimons)
 - rnbyc: check the validity of `enc` and `alg` parameters
 - Set arbitrary download limit to 4MB
+- Fix `r_jwt_validate_claims` when claim `aud` is an array of strings (Thanks @spaceone)
+- Add claim `R_JWT_CLAIM_AMR`
 
 ## 1.1.12
 

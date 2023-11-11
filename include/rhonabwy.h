@@ -166,6 +166,7 @@ typedef enum {
   R_JWT_CLAIM_JSN = 10,
   R_JWT_CLAIM_TYP = 11,
   R_JWT_CLAIM_CTY = 12,
+  R_JWT_CLAIM_AMR = 13,
 } rhn_claim_opt;
 
 typedef enum {

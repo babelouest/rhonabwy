@@ -7,6 +7,7 @@
 - Set arbitrary download limit to 4MB
 - Fix `r_jwt_validate_claims` when claim `aud` is an array of strings (Thanks @spaceone)
 - Add claim `R_JWT_CLAIM_AMR`
+- cmake: split package build options in 3 (tar.gz, deb and rpm), and set all packages build to off by default
 
 ## 1.1.12
 

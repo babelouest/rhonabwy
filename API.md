@@ -1083,7 +1083,6 @@ Signature verification is provided by the function `r_jws_verify_signature` whic
 /**
  * Verifies the signature of the JWS
  * The JWS must contain a signature
- * or the JWS must have alg: none
  * If the jws has multiple signatures, it will return RHN_OK if one signature matches
  * the public key
  * @param jws: the jws_t to update

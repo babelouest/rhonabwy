@@ -1748,7 +1748,6 @@ jws_t * r_jws_quick_parsen(const char * jws_str, size_t jws_str_len, uint32_t pa
 /**
  * Verifies the signature of the JWS
  * The JWS must contain a signature
- * or the JWS must have alg: none
  * If the jws has multiple signatures, it will return RHN_OK if one signature matches
  * the public key
  * @param jws: the jws_t to update
@@ -3384,7 +3383,6 @@ int r_jwt_token_typen(const char * token, size_t token_len);
 /**
  * Verifies the signature of the JWT
  * The JWT must contain a signature
- * or the JWT must have alg: none
  * @param jwt: the jwt_t to update
  * @param pubkey: the public key to check the signature,
  * can be NULL if jws already contains a public key

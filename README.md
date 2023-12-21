@@ -177,20 +177,6 @@ You need [Orcania](https://github.com/babelouest/orcania) and [Yder](https://git
 
 Those libraries are included in the package `rhonabwy-dev-full_{x.x.x}_{OS}_{ARCH}.tar.gz` in the [Latest release](https://github.com/babelouest/rhonabwy/releases/latest) page. If you're building with CMake, they will be automatically downloaded and installed if missing.
 
-## Pre-compiled packages
-
-You can install Rhonabwy with a pre-compiled package available in the [release pages](https://github.com/babelouest/rhonabwy/releases/latest/).
-
-### rhonabwy-dev-full packages
-
-The `rhonabwy-dev-full` contain 4 different packages:
-- liborcania-dev_x.x.x_<arch>.ext
-- libyder-dev_y.y.y_<arch>.ext
-- libulfius-dev_z.z.z_<arch>.ext
-- librhonabwy-dev_a.a.a_<arch>.ext
-
-You only need to install `liborcania-dev_*`, `libyder-dev_*` for `librhonabwy-dev_*` to work. `libulfius-dev_*` isn't required unless you want to run the test suite.
-
 ## Manual install
 
 ### CMake - Multi architecture

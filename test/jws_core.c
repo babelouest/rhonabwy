@@ -30,6 +30,7 @@ Aenean vitae tortor quam. Praesent pulvinar nulla a nisi egestas, laoreet tempus
 #define HS256_TOKEN_EMPTY_SIGNATURE "eyJhbGciOiJIUzI1NiIsImtpZCI6IjEifQ.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u."
 
 #define UNSECURE_TOKEN "eyJhbGciOiJub25lIn0.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u."
+#define ALG_NONE_TOKEN_WITH_SIGNATURE "eyJhbGciOiJub25lIn0.VGhlIHRydWUgc2lnbiBvZiBpbnRlbGxpZ2VuY2UgaXMgbm90IGtub3dsZWRnZSBidXQgaW1hZ2luYXRpb24u.PdtqfpescIy_55JZ4PbRKp_nTbbVJik1Bs7S3nr99vQ"
 
 const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                     "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\"}";
@@ -782,7 +783,9 @@ START_TEST(test_rhonabwy_token_parse_unsecure)
   
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
   ck_assert_int_eq(r_jws_parse(jws, UNSECURE_TOKEN, 0), RHN_ERROR_INVALID);
+  ck_assert_int_eq(r_jws_parse(jws, ALG_NONE_TOKEN_WITH_SIGNATURE, 0), RHN_ERROR_INVALID);
   ck_assert_int_eq(r_jws_parse_unsecure(jws, UNSECURE_TOKEN, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_parse_unsecure(jws, ALG_NONE_TOKEN_WITH_SIGNATURE, 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jws_get_alg(jws), R_JWA_ALG_NONE);
   r_jws_free(jws);
   
@@ -1323,8 +1326,10 @@ START_TEST(test_rhonabwy_quick_parse)
   ck_assert_ptr_eq(NULL, jws = r_jws_quick_parse(HS256_TOKEN_INVALID_HEADER_B64, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
   ck_assert_ptr_eq(NULL, jws = r_jws_quick_parse(HS256_TOKEN_INVALID_PAYLOAD_B64, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
   ck_assert_ptr_eq(NULL, jws = r_jws_quick_parse(UNSECURE_TOKEN, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  ck_assert_ptr_eq(NULL, jws = r_jws_quick_parse(ALG_NONE_TOKEN_WITH_SIGNATURE, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
   
   ck_assert_ptr_ne(NULL, jws = r_jws_quick_parse(UNSECURE_TOKEN, R_PARSE_UNSIGNED, R_FLAG_IGNORE_SERVER_CERTIFICATE));
+  ck_assert_ptr_eq(NULL, jws = r_jws_quick_parse(ALG_NONE_TOKEN_WITH_SIGNATURE, R_PARSE_UNSIGNED, R_FLAG_IGNORE_SERVER_CERTIFICATE));
   r_jws_free(jws);
 
   ck_assert_ptr_ne(NULL, jws = r_jws_quick_parse(ADVANCED_TOKEN_SIGNED_WITH_ROOT_KEY, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));

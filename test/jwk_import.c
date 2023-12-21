@@ -682,7 +682,7 @@ int callback_x5u_large (const struct _u_request * request, struct _u_response * 
   char * large_body = o_malloc((6*1024*1024));
   memset(large_body, ' ', (6*1024*1024));
   o_strcpy(large_body, (const char *)ecdsa_crt);
-  ulfius_set_binary_body_response(response, 200, (const char *)large_body, (6*1024*1024));
+  ulfius_set_binary_body_response(response, 200, (const unsigned char *)large_body, (6*1024*1024));
   o_free(large_body);
   return U_CALLBACK_CONTINUE;
 }

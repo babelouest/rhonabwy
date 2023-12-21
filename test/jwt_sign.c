@@ -17,6 +17,7 @@
 #define TOKEN_WITH_WHITESPACES "           \v\n\teyJ0eXAiOiJKV1QiLCJhbGciOi\n\n\n   \tJSUzI1NiIsImtpZCI6IjMifQ.eyJz\t\t \v\rdHIiOiJncnV0IiwiaW50I\n\t\vjo0Miwib2JqIjp0cnVlfQ.SgopnfP3vEE7HbuvfyYqZQZZsbu49GBR5w2YCesW7J0i_s5pVYPMIjl6xU4vOs-nV1lEwn7Z_OaQiyEhVftlOUkM5n7w57YViBZkus5C64S6LuQli150oXWNnis4La6qpg_12EocKffvmG940gL2dWg3dnQYenC-fgtX-CNcaIDZUL-NKq3iaQrwvdbuzNADlSBQUfHh80b7uyKgqcT4tboRyAnJXhcjZ-0NWxCIEusnbskmQEqdxEiq28xL8b_F2hDYe5ZuuHw8tmXcXNHUplswEefTCm0phbvi5D490nVBav6ri6zLTkC9\t\n   \vIEOR0hA-1f5AYmvsE5NUepLfpjqCsg     \t\n"
 
 #define TOKEN_UNSECURE "eyJhbGciOiJub25lIn0.eyJzdHIiOiJncnV0IiwiaW50Ijo0Miwib2JqIjp0cnVlfQ."
+#define TOKEN_ALG_NONE_WITH_SIGNATURE "eyJhbGciOiJub25lIn0.eyJzdHIiOiJncnV0IiwiaW50Ijo0Miwib2JqIjp0cnVlfQ.SgopnfP3vEE7HbuvfyYqZQZZsbu49GBR5w2YCesW7J0i_s5pVYPMIjl6xU4vOs-nV1lEwn7Z_OaQiyEhVftlOUkM5n7w57YViBZkus5C64S6LuQli150oXWNnis4La6qpg_12EocKffvmG940gL2dWg3dnQYenC-fgtX-CNcaIDZUL-NKq3iaQrwvdbuzNADlSBQUfHh80b7uyKgqcT4tboRyAnJXhcjZ-0NWxCIEusnbskmQEqdxEiq28xL8b_F2hDYe5ZuuHw8tmXcXNHUplswEefTCm0phbvi5D490nVBav6ri6zLTkC9IEOR0hA-1f5AYmvsE5NUepLfpjqCsg"
 
 const char jwk_pubkey_rsa_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
                                    "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
@@ -364,6 +365,8 @@ START_TEST(test_rhonabwy_jwt_unsecure)
   
   ck_assert_int_eq(r_jwt_parse(jwt, TOKEN_UNSECURE, 0), RHN_ERROR_INVALID);
   ck_assert_int_eq(r_jwt_parse_unsecure(jwt, TOKEN_UNSECURE, 0), RHN_OK);
+  ck_assert_int_eq(r_jwt_parse(jwt, TOKEN_ALG_NONE_WITH_SIGNATURE, 0), RHN_ERROR_INVALID);
+  ck_assert_int_eq(r_jwt_parse_unsecure(jwt, TOKEN_ALG_NONE_WITH_SIGNATURE, 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwt_get_sign_alg(jwt), R_JWA_ALG_NONE);
   ck_assert_int_eq(r_jwt_verify_signature(jwt, NULL, 0), RHN_ERROR_INVALID);
   ck_assert_int_eq(r_jwt_verify_signature(jwt, jwk_pubkey_ecdsa, 0), RHN_ERROR_INVALID);

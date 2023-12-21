@@ -116,7 +116,7 @@ int _r_get_http_content(const char * url, int x5u_flags, const char * expected_c
   struct _r_response_str resp;
   struct _r_expected_content_type ct;
   long status = 0;
-  int res;
+  CURLcode res;
 
   curl = curl_easy_init();
   if(curl != NULL) {

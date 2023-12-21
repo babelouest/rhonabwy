@@ -188,7 +188,7 @@ static char * get_file_content(const char * file_path) {
   return buffer;
 }
 
-static char * get_stdin_content() {
+static char * get_stdin_content(void) {
   int size = 100;
   char * out = NULL, buffer[size];
   ssize_t length = 0, read_length;

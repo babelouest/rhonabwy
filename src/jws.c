@@ -1518,6 +1518,10 @@ int r_jws_advanced_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error invalid signature length");
             ret = RHN_ERROR_PARAM;
             break;
+          } else if (r_jws_get_alg(jws) == R_JWA_ALG_NONE && !o_strnullempty(str_array[2])) {
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error signature must be empty");
+            ret = RHN_ERROR_PARAM;
+            break;
           }
         } while (0);
         json_decref(j_header);

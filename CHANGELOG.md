@@ -1,5 +1,10 @@
 # Rhonabwy Changelog
 
+## 1.1.14
+
+- Minor bugfixes
+- Build with flag `-Wpedantic`
+
 ## 1.1.13
 
 - rnbyc: Serialize alg in JWK mode when using existing keys (Thanks @sjoerdsimons)

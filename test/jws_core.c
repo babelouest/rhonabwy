@@ -1329,8 +1329,8 @@ START_TEST(test_rhonabwy_quick_parse)
   ck_assert_ptr_eq(NULL, jws = r_jws_quick_parse(ALG_NONE_TOKEN_WITH_SIGNATURE, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
   
   ck_assert_ptr_ne(NULL, jws = r_jws_quick_parse(UNSECURE_TOKEN, R_PARSE_UNSIGNED, R_FLAG_IGNORE_SERVER_CERTIFICATE));
-  ck_assert_ptr_eq(NULL, jws = r_jws_quick_parse(ALG_NONE_TOKEN_WITH_SIGNATURE, R_PARSE_UNSIGNED, R_FLAG_IGNORE_SERVER_CERTIFICATE));
   r_jws_free(jws);
+  ck_assert_ptr_eq(NULL, jws = r_jws_quick_parse(ALG_NONE_TOKEN_WITH_SIGNATURE, R_PARSE_UNSIGNED, R_FLAG_IGNORE_SERVER_CERTIFICATE));
 
   ck_assert_ptr_ne(NULL, jws = r_jws_quick_parse(ADVANCED_TOKEN_SIGNED_WITH_ROOT_KEY, R_PARSE_NONE, R_FLAG_IGNORE_SERVER_CERTIFICATE));
   ck_assert_int_eq(r_jwks_size(jws->jwks_pubkey), 0);

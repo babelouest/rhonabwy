@@ -4,6 +4,7 @@
 
 - Minor bugfixes
 - Build with flag `-Wpedantic`
+- Security: Mitigate HMAC signature side-channel attack (Thanks to Erwan Legrand)
 
 ## 1.1.13
 

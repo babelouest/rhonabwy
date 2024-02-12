@@ -4,7 +4,7 @@
 
 - Minor bugfixes
 - Build with flag `-Wpedantic`
-- Security: Mitigate HMAC signature side-channel attack (Thanks to Erwan Legrand)
+- Security: Mitigate HMAC signature side-channel attack (Thanks to Erwan Legrand) ([CVE-2024-25714](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-25714))
 
 ## 1.1.13
 

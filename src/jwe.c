@@ -972,13 +972,10 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
     if (type & R_KEY_TYPE_EC) {
       if (bits == 256) {
         nettle_curve = nettle_get_secp_256r1();
-        crv_size = 32;
       } else if (bits == 384) {
         nettle_curve = nettle_get_secp_384r1();
-        crv_size = 48;
       } else {
         nettle_curve = nettle_get_secp_521r1();
-        crv_size = 64;
       }
 
       if (jwk_priv != NULL) {
@@ -1204,13 +1201,10 @@ static int _r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, 
 
       if (bits == 256) {
         nettle_curve = nettle_get_secp_256r1();
-        crv_size = 32;
       } else if (bits == 384) {
         nettle_curve = nettle_get_secp_384r1();
-        crv_size = 48;
       } else {
         nettle_curve = nettle_get_secp_521r1();
-        crv_size = 64;
       }
 
       key = r_jwk_get_property_str(jwk, "d");

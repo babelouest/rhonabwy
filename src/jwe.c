@@ -1727,7 +1727,6 @@ static json_t * r_jwe_aesgcm_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int
       iv_g.size = (unsigned int)iv_size;
       if ((res = gnutls_cipher_init(&handle, r_jwe_get_alg_from_alg(alg), &key_g, &iv_g))) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_wrap - Error gnutls_cipher_init: '%s'", gnutls_strerror(res));
-        y_log_message(Y_LOG_LEVEL_DEBUG, "%zu - %zu", key_g.size, iv_g.size);
         *ret = RHN_ERROR_PARAM;
         break;
       }
@@ -4082,7 +4081,7 @@ int r_jwe_advanced_parse_json_t(jwe_t * jwe, json_t * jwe_json, uint32_t parse_f
               break;
             } else {
               if (!o_base64url_decode((const unsigned char*)json_string_value(json_object_get(j_recipient, "encrypted_key")), json_string_length(json_object_get(j_recipient, "encrypted_key")), NULL, &cypher_key_len)) {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse_json_t - Error at index %zu, invalid encrypted_key base64 %s", index);
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_parse_json_t - Error at index %zu, invalid encrypted_key base64", index);
                 ret = RHN_ERROR_PARAM;
                 break;
               }

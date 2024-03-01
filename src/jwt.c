@@ -1796,7 +1796,7 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
           i_value = va_arg(vl, int);
           if (i_value == R_JWT_CLAIM_PRESENT && !json_is_integer(json_object_get(jwt->j_claims, "exp"))) {
             ret = RHN_ERROR_PARAM;
-          } else if (json_is_integer(json_object_get(jwt->j_claims, "exp")) && json_integer_value(json_object_get(jwt->j_claims, "exp")) > 0) {
+          } else if (json_is_integer(json_object_get(jwt->j_claims, "exp")) && (time_t)json_integer_value(json_object_get(jwt->j_claims, "exp")) > 0) {
             t_value = (time_t)r_jwt_get_claim_int_value(jwt, "exp");
             if (i_value == R_JWT_CLAIM_NOW) {
               if (t_value < now) {
@@ -1815,7 +1815,7 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
           i_value = va_arg(vl, int);
           if (i_value == R_JWT_CLAIM_PRESENT && !json_is_integer(json_object_get(jwt->j_claims, "nbf"))) {
             ret = RHN_ERROR_PARAM;
-          } else if (json_is_integer(json_object_get(jwt->j_claims, "nbf")) && json_integer_value(json_object_get(jwt->j_claims, "nbf")) > 0) {
+          } else if (json_is_integer(json_object_get(jwt->j_claims, "nbf")) && (time_t)json_integer_value(json_object_get(jwt->j_claims, "nbf")) > 0) {
             t_value = (time_t)r_jwt_get_claim_int_value(jwt, "nbf");
             if (i_value == R_JWT_CLAIM_NOW) {
               if (t_value > now) {
@@ -1834,7 +1834,7 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
           i_value = va_arg(vl, int);
           if (i_value == R_JWT_CLAIM_PRESENT && !json_is_integer(json_object_get(jwt->j_claims, "iat"))) {
             ret = RHN_ERROR_PARAM;
-          } else if (json_is_integer(json_object_get(jwt->j_claims, "iat")) && json_integer_value(json_object_get(jwt->j_claims, "iat")) > 0) {
+          } else if (json_is_integer(json_object_get(jwt->j_claims, "iat")) && (time_t)json_integer_value(json_object_get(jwt->j_claims, "iat")) > 0) {
             t_value = (time_t)r_jwt_get_claim_int_value(jwt, "iat");
             if (i_value == R_JWT_CLAIM_NOW) {
               if (t_value > now) {

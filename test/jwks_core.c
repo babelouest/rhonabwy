@@ -11,6 +11,8 @@
 #include <gnutls/crypto.h>
 #include <ulfius.h>
 
+#define UNUSED(x) (void)(x)
+
 const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                     "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\"}";
 const char jwk_privkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
@@ -196,6 +198,8 @@ static char * get_file_content(const char * file_path) {
 int callback_jwks_ok (const struct _u_request * request, struct _u_response * response, void * user_data) {
   char * jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_x5c_str);
   json_t * j_jwks = json_loads(jwks_str, JSON_DECODE_ANY, NULL);
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_json_body_response(response, 200, j_jwks);
   json_decref(j_jwks);
   o_free(jwks_str);
@@ -204,6 +208,8 @@ int callback_jwks_ok (const struct _u_request * request, struct _u_response * re
 
 int callback_jwks_error_content_no_jwks (const struct _u_request * request, struct _u_response * response, void * user_data) {
   json_t * j_jwks = json_loads(jwk_pubkey_ecdsa_str, JSON_DECODE_ANY, NULL);
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_json_body_response(response, 200, j_jwks);
   json_decref(j_jwks);
   return U_CALLBACK_CONTINUE;
@@ -212,6 +218,8 @@ int callback_jwks_error_content_no_jwks (const struct _u_request * request, stru
 int callback_jwks_error_content_no_json (const struct _u_request * request, struct _u_response * response, void * user_data) {
   char * jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_x5c_str);
   ulfius_set_string_body_response(response, 200, jwks_str);
+  UNUSED(request);
+  UNUSED(user_data);
   o_free(jwks_str);
   return U_CALLBACK_CONTINUE;
 }
@@ -219,6 +227,8 @@ int callback_jwks_error_content_no_json (const struct _u_request * request, stru
 int callback_jwks_error_status (const struct _u_request * request, struct _u_response * response, void * user_data) {
   char * jwks_str = msprintf("{\"keys\":[%s,%s,%s,%s]}", jwk_pubkey_ecdsa_str, jwk_pubkey_rsa_str, jwk_pubkey_rsa_x5u_str, jwk_pubkey_rsa_x5c_str);
   json_t * j_jwks = json_loads(jwks_str, JSON_DECODE_ANY, NULL);
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_json_body_response(response, 400, j_jwks);
   json_decref(j_jwks);
   o_free(jwks_str);
@@ -226,6 +236,8 @@ int callback_jwks_error_status (const struct _u_request * request, struct _u_res
 }
 
 int callback_jwks_redirect (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  UNUSED(request);
+  UNUSED(user_data);
   u_map_put(response->map_header, "Location", "jwks_ok");
   response->status = 302;
   return U_CALLBACK_CONTINUE;
@@ -234,6 +246,8 @@ int callback_jwks_redirect (const struct _u_request * request, struct _u_respons
 int callback_jwks_too_large (const struct _u_request * request, struct _u_response * response, void * user_data) {
   json_t * j_jwks = json_pack("{s[]}", "keys");
   int i;
+  UNUSED(request);
+  UNUSED(user_data);
 
   for (i=0; i<1024; i++) {
     json_array_append_new(json_object_get(j_jwks, "keys"), json_loads(jwk_pubkey_ecdsa_str, JSON_DECODE_ANY, NULL));
@@ -250,11 +264,15 @@ int callback_jwks_too_large (const struct _u_request * request, struct _u_respon
 }
 
 int callback_x5u_rsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_string_body_response(response, 200, (const char *)rsa_crt);
   return U_CALLBACK_CONTINUE;
 }
 
 int callback_x5u_ecdsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_string_body_response(response, 200, (const char *)ecdsa_crt);
   return U_CALLBACK_CONTINUE;
 }
@@ -989,7 +1007,7 @@ static Suite *rhonabwy_suite(void)
   return s;
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
   int number_failed;
   Suite *s;

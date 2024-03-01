@@ -10,6 +10,8 @@
 #include <ulfius.h>
 #include <rhonabwy.h>
 
+#define UNUSED(x) (void)(x)
+
 #define PAYLOAD "The true sign of intelligence is not knowledge but imagination."
 
 #define HUGE_PAYLOAD "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis efficitur lectus sit amet libero gravida eleifend. Nulla aliquam accumsan erat, quis tincidunt purus ultricies eu. Aenean eu dui ac diam placerat mollis. Duis eget tempor ipsum, vel ullamcorper purus. Ut eget quam vehicula, congue urna vel, dictum risus. Duis tristique est sed diam lobortis commodo. Proin et urna in odio malesuada sagittis. Donec lectus ligula, porttitor sed lorem ut, malesuada posuere neque. Nullam et nisl a felis congue mattis id non lectus.\
@@ -1300,11 +1302,15 @@ static char * get_file_content(const char * file_path) {
 }
 
 int callback_x5u_ecdsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_string_body_response(response, 200, (const char *)advanced_cert_pem_3);
   return U_CALLBACK_CONTINUE;
 }
 
 int callback_jku_ecdsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_response_properties(response, U_OPT_STATUS, 200,
                                            U_OPT_HEADER_PARAMETER, "Content-Type", "application/json",
                                            U_OPT_STRING_BODY, advanced_jku_4,
@@ -1578,7 +1584,7 @@ static Suite *rhonabwy_suite(void)
   return s;
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
   int number_failed;
   Suite *s;

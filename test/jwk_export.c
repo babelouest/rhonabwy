@@ -10,6 +10,8 @@
 #include <yder.h>
 #include <ulfius.h>
 
+#define UNUSED(x) (void)(x)
+
 const char jwk_pubkey_ecdsa_str[] = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4\","\
                                      "\"y\":\"4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM\",\"use\":\"enc\",\"kid\":\"1\"}";
 const char jwk_pubkey_ecdsa_pem[] = "-----BEGIN PUBLIC KEY-----\n"\
@@ -226,17 +228,23 @@ static char * get_file_content(const char * file_path) {
 }
 
 int callback_x5u_rsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_string_body_response(response, 200, (const char *)rsa_crt);
   return U_CALLBACK_CONTINUE;
 }
 
 int callback_x5u_ecdsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_string_body_response(response, 200, (const char *)ecdsa_crt);
   return U_CALLBACK_CONTINUE;
 }
 
 int callback_x5u_large (const struct _u_request * request, struct _u_response * response, void * user_data) {
   char * large_body = o_malloc((6*1024*1024));
+  UNUSED(request);
+  UNUSED(user_data);
   memset(large_body, ' ', (6*1024*1024));
   o_strcpy(large_body, (const char *)ecdsa_crt);
   ulfius_set_binary_body_response(response, 200, large_body, (6*1024*1024));
@@ -773,7 +781,7 @@ static Suite *rhonabwy_suite(void)
   return s;
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
   int number_failed;
   Suite *s;

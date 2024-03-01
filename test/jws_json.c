@@ -761,7 +761,7 @@ static Suite *rhonabwy_suite(void)
   return s;
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
   int number_failed;
   Suite *s;

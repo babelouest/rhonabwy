@@ -18,6 +18,8 @@
 #define HTTPS_CERT_KEY "cert/server.key"
 #define HTTPS_CERT_PEM "cert/server.crt"
 
+#define UNUSED(x) (void)(x)
+
 const unsigned char symmetric_key[] = "secret";
 const unsigned char symmetric_key_b64url[] = "c2VjcmV0";
 
@@ -654,32 +656,44 @@ static char * get_file_content(const char * file_path) {
 }
 
 int callback_x5u_rsa_priv (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_string_body_response(response, 200, (const char *)rsa_2048_priv);
   return U_CALLBACK_CONTINUE;
 }
 
 int callback_x5u_rsa_pubkey (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_string_body_response(response, 200, (const char *)rsa_2048_pub);
   return U_CALLBACK_CONTINUE;
 }
 
 int callback_x5u_error (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_string_body_response(response, 200, "ZXJyb3I=");
   return U_CALLBACK_CONTINUE;
 }
 
 int callback_x5u_rsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_string_body_response(response, 200, (const char *)rsa_crt);
   return U_CALLBACK_CONTINUE;
 }
 
 int callback_x5u_ecdsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_string_body_response(response, 200, (const char *)ecdsa_crt);
   return U_CALLBACK_CONTINUE;
 }
 
 int callback_x5u_large (const struct _u_request * request, struct _u_response * response, void * user_data) {
   char * large_body = o_malloc((6*1024*1024));
+  UNUSED(request);
+  UNUSED(user_data);
   memset(large_body, ' ', (6*1024*1024));
   o_strcpy(large_body, (const char *)ecdsa_crt);
   ulfius_set_binary_body_response(response, 200, large_body, (6*1024*1024));
@@ -688,12 +702,16 @@ int callback_x5u_large (const struct _u_request * request, struct _u_response * 
 }
 
 int callback_x5u_eddsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_string_body_response(response, 200, (const char *)eddsa_crt);
   return U_CALLBACK_CONTINUE;
 }
 
 int callback_x5u_fullchain1 (const struct _u_request * request, struct _u_response * response, void * user_data) {
   char * cert_file = get_file_content(FULLCHAIN1_FILE);
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_string_body_response(response, 200, cert_file);
   o_free(cert_file);
   return U_CALLBACK_CONTINUE;
@@ -701,6 +719,8 @@ int callback_x5u_fullchain1 (const struct _u_request * request, struct _u_respon
 
 int callback_x5u_fullchain2 (const struct _u_request * request, struct _u_response * response, void * user_data) {
   char * cert_file = get_file_content(FULLCHAIN2_FILE);
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_string_body_response(response, 200, cert_file);
   o_free(cert_file);
   return U_CALLBACK_CONTINUE;
@@ -708,6 +728,8 @@ int callback_x5u_fullchain2 (const struct _u_request * request, struct _u_respon
 
 int callback_x5u_fullchain_error (const struct _u_request * request, struct _u_response * response, void * user_data) {
   char * cert_file = get_file_content(FULLCHAIN_ERROR_FILE);
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_string_body_response(response, 200, cert_file);
   o_free(cert_file);
   return U_CALLBACK_CONTINUE;
@@ -715,6 +737,8 @@ int callback_x5u_fullchain_error (const struct _u_request * request, struct _u_r
 
 int callback_x5u_fullchain1_trucated (const struct _u_request * request, struct _u_response * response, void * user_data) {
   char * cert_file = get_file_content(FULLCHAIN1_FILE);
+  UNUSED(request);
+  UNUSED(user_data);
   cert_file[o_strlen(cert_file)-30] = '\0';
   ulfius_set_string_body_response(response, 200, cert_file);
   o_free(cert_file);
@@ -2189,7 +2213,7 @@ static Suite *rhonabwy_suite(void)
   return s;
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
   int number_failed;
   Suite *s;

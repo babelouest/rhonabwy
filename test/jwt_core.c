@@ -10,6 +10,8 @@
 #include <ulfius.h>
 #include <rhonabwy.h>
 
+#define UNUSED(x) (void)(x)
+
 const char jwk_pubkey_rsa_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRX"\
                                    "jBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6"\
                                    "qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw\""\
@@ -1177,15 +1179,15 @@ START_TEST(test_rhonabwy_validate_claims)
   ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "jti", JWT_CLAIM_JTI), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_JTI, JWT_CLAIM_JTI, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_JTI, "error", R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
-  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "exp", (now+JWT_CLAIM_EXP)), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "exp", (rhn_int_t)(now+JWT_CLAIM_EXP)), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_EXP, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_EXP, now+1, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_EXP, (now+JWT_CLAIM_EXP+JWT_CLAIM_EXP), R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
-  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "nbf", (now-JWT_CLAIM_EXP)), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "nbf", (rhn_int_t)(now-JWT_CLAIM_EXP)), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_NBF, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_NBF, now-1, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_NBF, (now-JWT_CLAIM_NBF-JWT_CLAIM_NBF), R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
-  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "iat", (now-JWT_CLAIM_EXP)), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "iat", (rhn_int_t)(now-JWT_CLAIM_EXP)), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_IAT, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_IAT, now-1, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_IAT, (now-JWT_CLAIM_IAT-JWT_CLAIM_IAT), R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
@@ -1415,9 +1417,9 @@ START_TEST(test_rhonabwy_copy)
   ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "sub", JWT_CLAIM_SUB), RHN_OK);
   ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "aud", JWT_CLAIM_AUD1), RHN_OK);
   ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "jti", JWT_CLAIM_JTI), RHN_OK);
-  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "exp", (now+JWT_CLAIM_EXP)), RHN_OK);
-  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "nbf", (now-JWT_CLAIM_EXP)), RHN_OK);
-  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "iat", (now-JWT_CLAIM_EXP)), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "exp", (rhn_int_t)(now+JWT_CLAIM_EXP)), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "nbf", (rhn_int_t)(now-JWT_CLAIM_EXP)), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "iat", (rhn_int_t)(now-JWT_CLAIM_EXP)), RHN_OK);
   ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "scope", JWT_CLAIM_SCOPE), RHN_OK);
   ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "age", JWT_CLAIM_AGE), RHN_OK);
   ck_assert_int_eq(r_jwt_set_claim_json_t_value(jwt, "verified", JWT_CLAIM_VERIFIED), RHN_OK);
@@ -1494,11 +1496,15 @@ static char * get_file_content(const char * file_path) {
 }
 
 int callback_x5u_ecdsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_string_body_response(response, 200, (const char *)advanced_cert_pem_3);
   return U_CALLBACK_CONTINUE;
 }
 
 int callback_jku_ecdsa_crt (const struct _u_request * request, struct _u_response * response, void * user_data) {
+  UNUSED(request);
+  UNUSED(user_data);
   ulfius_set_response_properties(response, U_OPT_STATUS, 200,
                                            U_OPT_HEADER_PARAMETER, "Content-Type", "application/json",
                                            U_OPT_STRING_BODY, advanced_jku_4,
@@ -1930,7 +1936,7 @@ static Suite *rhonabwy_suite(void)
   return s;
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
   int number_failed;
   Suite *s;

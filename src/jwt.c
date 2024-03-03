@@ -2013,7 +2013,7 @@ int r_jwt_set_claims(jwt_t * jwt, ...) {
         case R_JWT_CLAIM_NBF:
           r_i_value = va_arg(vl, rhn_int_t);
           if (r_i_value == R_JWT_CLAIM_NOW) {
-            ret = r_jwt_set_claim_int_value(jwt, "nbf", (rhn_int_t)time(NULL));
+            ret = r_jwt_set_claim_int_value(jwt, "nbf", (rhn_int_t)now);
           } else if (r_i_value >= 0) {
             ret = r_jwt_set_claim_int_value(jwt, "nbf", r_i_value);
           } else {
@@ -2023,7 +2023,7 @@ int r_jwt_set_claims(jwt_t * jwt, ...) {
         case R_JWT_CLAIM_IAT:
           r_i_value = va_arg(vl, rhn_int_t);
           if (r_i_value == R_JWT_CLAIM_NOW) {
-            ret = r_jwt_set_claim_int_value(jwt, "iat", (rhn_int_t)time(NULL));
+            ret = r_jwt_set_claim_int_value(jwt, "iat", (rhn_int_t)now);
           } else if (r_i_value >= 0) {
             ret = r_jwt_set_claim_int_value(jwt, "iat", r_i_value);
           } else {

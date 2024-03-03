@@ -1693,7 +1693,8 @@ int r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_ke
 int r_jwt_validate_claims(jwt_t * jwt, ...) {
   rhn_claim_opt option;
   int ret = RHN_OK;
-  int i_value, has_invalid_value, has_claim;
+  int has_invalid_value, has_claim;
+  rhn_int_t r_i_value;
   const char * str_key, * str_value;
   json_t * j_value, * j_expected_value, * j_element = NULL;
   va_list vl;
@@ -1793,17 +1794,17 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
           }
           break;
         case R_JWT_CLAIM_EXP:
-          i_value = va_arg(vl, int);
-          if (i_value == R_JWT_CLAIM_PRESENT && !json_is_integer(json_object_get(jwt->j_claims, "exp"))) {
+          r_i_value = va_arg(vl, rhn_int_t);
+          if (r_i_value == R_JWT_CLAIM_PRESENT && !json_is_integer(json_object_get(jwt->j_claims, "exp"))) {
             ret = RHN_ERROR_PARAM;
           } else if (json_is_integer(json_object_get(jwt->j_claims, "exp")) && (time_t)json_integer_value(json_object_get(jwt->j_claims, "exp")) > 0) {
             t_value = (time_t)r_jwt_get_claim_int_value(jwt, "exp");
-            if (i_value == R_JWT_CLAIM_NOW) {
+            if (r_i_value == R_JWT_CLAIM_NOW) {
               if (t_value < now) {
                 ret = RHN_ERROR_PARAM;
               }
-            } else if (i_value > 0) {
-              if (t_value < (time_t)i_value) {
+            } else if (r_i_value > 0) {
+              if (t_value < (time_t)r_i_value) {
                 ret = RHN_ERROR_PARAM;
               }
             }
@@ -1812,17 +1813,17 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
           }
           break;
         case R_JWT_CLAIM_NBF:
-          i_value = va_arg(vl, int);
-          if (i_value == R_JWT_CLAIM_PRESENT && !json_is_integer(json_object_get(jwt->j_claims, "nbf"))) {
+          r_i_value = va_arg(vl, rhn_int_t);
+          if (r_i_value == R_JWT_CLAIM_PRESENT && !json_is_integer(json_object_get(jwt->j_claims, "nbf"))) {
             ret = RHN_ERROR_PARAM;
           } else if (json_is_integer(json_object_get(jwt->j_claims, "nbf")) && (time_t)json_integer_value(json_object_get(jwt->j_claims, "nbf")) > 0) {
             t_value = (time_t)r_jwt_get_claim_int_value(jwt, "nbf");
-            if (i_value == R_JWT_CLAIM_NOW) {
+            if (r_i_value == R_JWT_CLAIM_NOW) {
               if (t_value > now) {
                 ret = RHN_ERROR_PARAM;
               }
-            } else if (i_value > 0) {
-              if (t_value > (time_t)i_value) {
+            } else if (r_i_value > 0) {
+              if (t_value > (time_t)r_i_value) {
                 ret = RHN_ERROR_PARAM;
               }
             }
@@ -1831,17 +1832,17 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
           }
           break;
         case R_JWT_CLAIM_IAT:
-          i_value = va_arg(vl, int);
-          if (i_value == R_JWT_CLAIM_PRESENT && !json_is_integer(json_object_get(jwt->j_claims, "iat"))) {
+          r_i_value = va_arg(vl, rhn_int_t);
+          if (r_i_value == R_JWT_CLAIM_PRESENT && !json_is_integer(json_object_get(jwt->j_claims, "iat"))) {
             ret = RHN_ERROR_PARAM;
           } else if (json_is_integer(json_object_get(jwt->j_claims, "iat")) && (time_t)json_integer_value(json_object_get(jwt->j_claims, "iat")) > 0) {
             t_value = (time_t)r_jwt_get_claim_int_value(jwt, "iat");
-            if (i_value == R_JWT_CLAIM_NOW) {
+            if (r_i_value == R_JWT_CLAIM_NOW) {
               if (t_value > now) {
                 ret = RHN_ERROR_PARAM;
               }
-            } else if (i_value > 0) {
-              if (t_value > (time_t)i_value) {
+            } else if (r_i_value > 0) {
+              if (t_value > (time_t)r_i_value) {
                 ret = RHN_ERROR_PARAM;
               }
             }
@@ -1860,8 +1861,8 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
           break;
         case R_JWT_CLAIM_INT:
           str_key = va_arg(vl, const char *);
-          i_value = va_arg(vl, int);
-          if (r_jwt_get_claim_int_value(jwt, str_key) != i_value) {
+          r_i_value = va_arg(vl, rhn_int_t);
+          if (r_jwt_get_claim_int_value(jwt, str_key) != r_i_value) {
             ret = RHN_ERROR_PARAM;
           }
           break;
@@ -1962,11 +1963,11 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
 int r_jwt_set_claims(jwt_t * jwt, ...) {
   rhn_claim_opt option;
   int ret = RHN_OK;
-  int i_value;
+  rhn_int_t r_i_value;
   const char * str_key, * str_value;
   json_t * j_value;
   va_list vl;
-  time_t now, t_value;
+  time_t now;
 
   if (jwt != NULL) {
     time(&now);
@@ -2006,25 +2007,25 @@ int r_jwt_set_claims(jwt_t * jwt, ...) {
           }
           break;
         case R_JWT_CLAIM_EXP:
-          t_value = va_arg(vl, time_t);
-          ret = r_jwt_set_claim_int_value(jwt, "exp", t_value);
+          r_i_value = va_arg(vl, rhn_int_t);
+          ret = r_jwt_set_claim_int_value(jwt, "exp", r_i_value);
           break;
         case R_JWT_CLAIM_NBF:
-          i_value = va_arg(vl, int);
-          if (i_value == R_JWT_CLAIM_NOW) {
-            ret = r_jwt_set_claim_int_value(jwt, "nbf", time(NULL));
-          } else if (i_value >= 0) {
-            ret = r_jwt_set_claim_int_value(jwt, "nbf", i_value);
+          r_i_value = va_arg(vl, rhn_int_t);
+          if (r_i_value == R_JWT_CLAIM_NOW) {
+            ret = r_jwt_set_claim_int_value(jwt, "nbf", (rhn_int_t)time(NULL));
+          } else if (r_i_value >= 0) {
+            ret = r_jwt_set_claim_int_value(jwt, "nbf", r_i_value);
           } else {
             ret = RHN_ERROR_PARAM;
           }
           break;
         case R_JWT_CLAIM_IAT:
-          i_value = va_arg(vl, int);
-          if (i_value == R_JWT_CLAIM_NOW) {
-            ret = r_jwt_set_claim_int_value(jwt, "iat", time(NULL));
-          } else if (i_value >= 0) {
-            ret = r_jwt_set_claim_int_value(jwt, "iat", i_value);
+          r_i_value = va_arg(vl, rhn_int_t);
+          if (r_i_value == R_JWT_CLAIM_NOW) {
+            ret = r_jwt_set_claim_int_value(jwt, "iat", (rhn_int_t)time(NULL));
+          } else if (r_i_value >= 0) {
+            ret = r_jwt_set_claim_int_value(jwt, "iat", r_i_value);
           } else {
             ret = RHN_ERROR_PARAM;
           }
@@ -2040,9 +2041,9 @@ int r_jwt_set_claims(jwt_t * jwt, ...) {
           break;
         case R_JWT_CLAIM_INT:
           str_key = va_arg(vl, const char *);
-          i_value = va_arg(vl, int);
+          r_i_value = va_arg(vl, rhn_int_t);
           if (!o_strnullempty(str_key)) {
-            ret = r_jwt_set_claim_int_value(jwt, str_key, i_value);
+            ret = r_jwt_set_claim_int_value(jwt, str_key, r_i_value);
           } else {
             ret = RHN_ERROR_PARAM;
           }

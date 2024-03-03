@@ -78,8 +78,8 @@ extern "C"
 #define R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT 3
 #define R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN 4
 
-#define R_JWT_CLAIM_NOW     -1
-#define R_JWT_CLAIM_PRESENT -2
+#define R_JWT_CLAIM_NOW     ((rhn_int_t)-1)
+#define R_JWT_CLAIM_PRESENT ((rhn_int_t)-2)
 
 #define R_JWK_THUMB_SHA256 0
 #define R_JWK_THUMB_SHA384 1
@@ -3473,12 +3473,12 @@ int r_jwt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_ke
  * - R_JWT_CLAIM_ISS: claim "iss", values expected a string or NULL to validate the presence of the claim
  * - R_JWT_CLAIM_SUB: claim "sub", values expected a string or NULL to validate the presence of the claim
  * - R_JWT_CLAIM_AUD: claim "aud", values expected a string or an array of strings, or NULL to validate the presence of the claim
- * - R_JWT_CLAIM_EXP: claim "exp", value expected R_JWT_CLAIM_NOW or an positive integer value or R_JWT_CLAIM_PRESENT to validate the presence of the claim
- * - R_JWT_CLAIM_NBF: claim "nbf", value expected R_JWT_CLAIM_NOW or an positive integer value or R_JWT_CLAIM_PRESENT to validate the presence of the claim
- * - R_JWT_CLAIM_IAT: claim "iat", value expected R_JWT_CLAIM_NOW or an positive integer value or R_JWT_CLAIM_PRESENT to validate the presence of the claim
+ * - R_JWT_CLAIM_EXP: claim "exp", value expected R_JWT_CLAIM_NOW or a positive rhn_int_t value or R_JWT_CLAIM_PRESENT to validate the presence of the claim
+ * - R_JWT_CLAIM_NBF: claim "nbf", value expected R_JWT_CLAIM_NOW or a positive rhn_int_t value or R_JWT_CLAIM_PRESENT to validate the presence of the claim
+ * - R_JWT_CLAIM_IAT: claim "iat", value expected R_JWT_CLAIM_NOW or a positive rhn_int_t value or R_JWT_CLAIM_PRESENT to validate the presence of the claim
  * - R_JWT_CLAIM_JTI: claim "jti", values expected a string or NULL to validate the presence of the claim
  * - R_JWT_CLAIM_STR: the claim name specified must have the string value expected or NULL to validate the presence of the claim
- * - R_JWT_CLAIM_INT: the claim name specified must have the integer value expected
+ * - R_JWT_CLAIM_INT: the claim name specified must have the rhn_int_t value expected
  * - R_JWT_CLAIM_JSN: the claim name specified must have the json_t * value expected or NULL to validate the presence of the claim
  * - R_JWT_CLAIM_TYP: header claim "typ", values expected a string or NULL to validate the presence of the claim
  * - R_JWT_CLAIM_CTY: header claim "cty", values expected a string or NULL to validate the presence of the claim
@@ -3504,12 +3504,12 @@ int r_jwt_validate_claims(jwt_t * jwt, ...);
  * - R_JWT_CLAIM_ISS: claim "iss", values expected a string
  * - R_JWT_CLAIM_SUB: claim "sub", values expected a string
  * - R_JWT_CLAIM_AUD: claim "aud", values expected a string
- * - R_JWT_CLAIM_EXP: claim "exp", value expected R_JWT_CLAIM_NOW or an positive integer value
- * - R_JWT_CLAIM_NBF: claim "nbf", value expected R_JWT_CLAIM_NOW or an positive integer value
- * - R_JWT_CLAIM_IAT: claim "iat", value expected R_JWT_CLAIM_NOW or an positive integer value
+ * - R_JWT_CLAIM_EXP: claim "exp", value expected R_JWT_CLAIM_NOW or a positive rhn_int_t value
+ * - R_JWT_CLAIM_NBF: claim "nbf", value expected R_JWT_CLAIM_NOW or a positive rhn_int_t value
+ * - R_JWT_CLAIM_IAT: claim "iat", value expected R_JWT_CLAIM_NOW or a positive rhn_int_t value
  * - R_JWT_CLAIM_JTI: claim "jti", values expected a string
  * - R_JWT_CLAIM_STR: claim name specified, then string value
- * - R_JWT_CLAIM_INT: claim name specified, then int value
+ * - R_JWT_CLAIM_INT: claim name specified, then rhn_int_t value
  * - R_JWT_CLAIM_JSN: claim name specified, then json_t * value
  * - R_JWT_CLAIM_TYP: header claim "typ", values expected a string
  * - R_JWT_CLAIM_CTY: header claim "cty", values expected a string

@@ -1187,7 +1187,7 @@ START_TEST(test_rhonabwy_rfc_ok)
   ck_assert_int_eq(r_jwt_add_sign_keys(jwt, NULL, jwk_signkey), RHN_OK);
   ck_assert_int_eq(r_jwt_parse(jwt, token, 0), RHN_OK);
   ck_assert_int_eq(r_jwt_decrypt_verify_signature_nested(jwt, NULL, 0, NULL, 0), RHN_OK);
-  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_ISS, "joe", R_JWT_CLAIM_EXP, 1300819370, R_JWT_CLAIM_NOP), RHN_OK);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_ISS, "joe", R_JWT_CLAIM_EXP, ((rhn_int_t)1300819370), R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_ptr_eq(r_jwt_get_claim_json_t_value(jwt, "http://example.com/is_root"), json_true());
   r_jwk_free(jwk_privkey);
   r_jwk_free(jwk_signkey);

@@ -31,6 +31,10 @@
 #include <yder.h>
 #include <rhonabwy.h>
 
+static int _r_is_valid_time(rhn_int_t i_value) {
+  return ((rhn_int_t)((time_t)i_value)) == i_value;
+}
+
 int r_jwt_init(jwt_t ** jwt) {
   int ret;
 
@@ -1797,7 +1801,9 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
           r_i_value = va_arg(vl, rhn_int_t);
           if (r_i_value == R_JWT_CLAIM_PRESENT && !json_is_integer(json_object_get(jwt->j_claims, "exp"))) {
             ret = RHN_ERROR_PARAM;
-          } else if (json_is_integer(json_object_get(jwt->j_claims, "exp")) && (time_t)json_integer_value(json_object_get(jwt->j_claims, "exp")) > 0) {
+          } else if (!json_is_integer(json_object_get(jwt->j_claims, "exp")) || !_r_is_valid_time(r_i_value) || !_r_is_valid_time(r_jwt_get_claim_int_value(jwt, "exp"))) {
+            ret = RHN_ERROR_PARAM;
+          } else if ((time_t)json_integer_value(json_object_get(jwt->j_claims, "exp")) > 0 && _r_is_valid_time(json_integer_value(json_object_get(jwt->j_claims, "exp")))) {
             t_value = (time_t)r_jwt_get_claim_int_value(jwt, "exp");
             if (r_i_value == R_JWT_CLAIM_NOW) {
               if (t_value < now) {
@@ -1816,7 +1822,9 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
           r_i_value = va_arg(vl, rhn_int_t);
           if (r_i_value == R_JWT_CLAIM_PRESENT && !json_is_integer(json_object_get(jwt->j_claims, "nbf"))) {
             ret = RHN_ERROR_PARAM;
-          } else if (json_is_integer(json_object_get(jwt->j_claims, "nbf")) && (time_t)json_integer_value(json_object_get(jwt->j_claims, "nbf")) > 0) {
+          } else if (!json_is_integer(json_object_get(jwt->j_claims, "nbf")) || !_r_is_valid_time(r_i_value) || !_r_is_valid_time(r_jwt_get_claim_int_value(jwt, "nbf"))) {
+            ret = RHN_ERROR_PARAM;
+          } else if ((time_t)json_integer_value(json_object_get(jwt->j_claims, "nbf")) > 0) {
             t_value = (time_t)r_jwt_get_claim_int_value(jwt, "nbf");
             if (r_i_value == R_JWT_CLAIM_NOW) {
               if (t_value > now) {
@@ -1835,7 +1843,9 @@ int r_jwt_validate_claims(jwt_t * jwt, ...) {
           r_i_value = va_arg(vl, rhn_int_t);
           if (r_i_value == R_JWT_CLAIM_PRESENT && !json_is_integer(json_object_get(jwt->j_claims, "iat"))) {
             ret = RHN_ERROR_PARAM;
-          } else if (json_is_integer(json_object_get(jwt->j_claims, "iat")) && (time_t)json_integer_value(json_object_get(jwt->j_claims, "iat")) > 0) {
+          } else if (!json_is_integer(json_object_get(jwt->j_claims, "iat")) || !_r_is_valid_time(r_i_value) || !_r_is_valid_time(r_jwt_get_claim_int_value(jwt, "iat"))) {
+            ret = RHN_ERROR_PARAM;
+          } else if ((time_t)json_integer_value(json_object_get(jwt->j_claims, "iat")) > 0) {
             t_value = (time_t)r_jwt_get_claim_int_value(jwt, "iat");
             if (r_i_value == R_JWT_CLAIM_NOW) {
               if (t_value > now) {

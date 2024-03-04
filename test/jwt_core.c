@@ -83,6 +83,7 @@ const unsigned char rsa_2048_priv[] = "-----BEGIN PRIVATE KEY-----\n"
 #define JWT_CLAIM_EXP 30
 #define JWT_CLAIM_NBF 30
 #define JWT_CLAIM_IAT 30
+#define JWT_CLAIM_TIME_INVALID ((rhn_int_t)4294967297)
 #define JWT_CLAIM_JTI "jit1234Xyz"
 #define JWT_CLAIM_SCOPE "scope1"
 #define JWT_CLAIM_AGE ((rhn_int_t)42)
@@ -1237,18 +1238,57 @@ START_TEST(test_rhonabwy_validate_claims)
   ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "jti", JWT_CLAIM_JTI), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_JTI, JWT_CLAIM_JTI, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_JTI, "error", R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "exp", "error"), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "nbf", "error"), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "iat", "error"), RHN_OK);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_EXP, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_NBF, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_IAT, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "exp", JWT_CLAIM_TIME_INVALID), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "nbf", JWT_CLAIM_TIME_INVALID), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "iat", JWT_CLAIM_TIME_INVALID), RHN_OK);
+  if (sizeof(time_t) <= 4) {
+    ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_EXP, R_JWT_CLAIM_PRESENT, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+    ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_NBF, R_JWT_CLAIM_PRESENT, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+    ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_IAT, R_JWT_CLAIM_PRESENT, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+    ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "exp", (rhn_int_t)(now+JWT_CLAIM_EXP)), RHN_OK);
+    ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "nbf", (rhn_int_t)(now-JWT_CLAIM_EXP)), RHN_OK);
+    ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "iat", (rhn_int_t)(now-JWT_CLAIM_EXP)), RHN_OK);
+    ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_EXP, JWT_CLAIM_TIME_INVALID+JWT_CLAIM_EXP, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+    ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_NBF, JWT_CLAIM_TIME_INVALID+JWT_CLAIM_EXP, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+    ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_IAT, JWT_CLAIM_TIME_INVALID+JWT_CLAIM_EXP, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+    ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "exp", JWT_CLAIM_TIME_INVALID), RHN_OK);
+    ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "nbf", JWT_CLAIM_TIME_INVALID), RHN_OK);
+    ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "iat", JWT_CLAIM_TIME_INVALID), RHN_OK);
+    ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_EXP, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+    ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_NBF, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+    ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_IAT, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  } else {
+    ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_EXP, R_JWT_CLAIM_PRESENT, R_JWT_CLAIM_NOP), RHN_OK);
+    ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_NBF, R_JWT_CLAIM_PRESENT, R_JWT_CLAIM_NOP), RHN_OK);
+    ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_IAT, R_JWT_CLAIM_PRESENT, R_JWT_CLAIM_NOP), RHN_OK);
+    ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "exp", JWT_CLAIM_TIME_INVALID), RHN_OK);
+    ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "nbf", JWT_CLAIM_TIME_INVALID), RHN_OK);
+    ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "iat", JWT_CLAIM_TIME_INVALID), RHN_OK);
+    ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_EXP, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NOP), RHN_OK);
+    ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_NBF, JWT_CLAIM_TIME_INVALID+JWT_CLAIM_EXP, R_JWT_CLAIM_NOP), RHN_OK);
+    ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_IAT, JWT_CLAIM_TIME_INVALID+JWT_CLAIM_EXP, R_JWT_CLAIM_NOP), RHN_OK);
+  }
   ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "exp", (rhn_int_t)(now+JWT_CLAIM_EXP)), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_EXP, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_EXP, now+1, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_EXP, (now+JWT_CLAIM_EXP+JWT_CLAIM_EXP), R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_EXP, R_JWT_CLAIM_PRESENT, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "nbf", (rhn_int_t)(now-JWT_CLAIM_EXP)), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_NBF, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_NBF, now-1, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_NBF, (now-JWT_CLAIM_NBF-JWT_CLAIM_NBF), R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_NBF, R_JWT_CLAIM_PRESENT, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_set_claim_int_value(jwt, "iat", (rhn_int_t)(now-JWT_CLAIM_EXP)), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_IAT, R_JWT_CLAIM_NOW, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_IAT, now-1, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_IAT, (now-JWT_CLAIM_IAT-JWT_CLAIM_IAT), R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_IAT, R_JWT_CLAIM_PRESENT, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "scope", JWT_CLAIM_SCOPE), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_STR, "scope", JWT_CLAIM_SCOPE, R_JWT_CLAIM_NOP), RHN_OK);
   ck_assert_int_eq(r_jwt_validate_claims(jwt, R_JWT_CLAIM_STR, "scope", "error", R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
@@ -1332,7 +1372,7 @@ START_TEST(test_rhonabwy_validate_claims)
                                               R_JWT_CLAIM_STR, "error", JWT_CLAIM_SCOPE,
                                               R_JWT_CLAIM_AMR, JWT_CLAIM_AMR_1,
                                               R_JWT_CLAIM_NOP), RHN_ERROR_PARAM);
-  
+
   r_jwt_free(jwt);
 }
 END_TEST

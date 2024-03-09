@@ -1035,7 +1035,7 @@ char * r_jwt_serialize_signed_unsecure(jwt_t * jwt, jwk_t * privkey, int x5u_fla
       if (r_jws_add_jwks(jws, jwt->jwks_privkey_sign, jwt->jwks_pubkey_sign) == RHN_OK) {
         if ((payload = json_dumps(jwt->j_claims, JSON_COMPACT)) != NULL) {
           if (r_jws_set_alg(jws, alg) == RHN_OK && r_jws_set_payload(jws, (const unsigned char *)payload, o_strlen(payload)) == RHN_OK) {
-            token = r_jws_serialize_unsecure(jws, privkey, x5u_flags);
+            token = r_jws_serialize_unsecure(jws, privkey, x5u_flags&(~R_FLAG_ALLOW_INFLATE));
           } else {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_serialize_signed - Error setting jws");
           }
@@ -1165,7 +1165,7 @@ char * r_jwt_serialize_nested(jwt_t * jwt, unsigned int type, jwk_t * sign_key, 
           r_jwt_set_header_str_value(jwt, "cty", "JWT");
           if (r_jws_add_jwks(jws, jwt->jwks_privkey_sign, jwt->jwks_pubkey_sign) == RHN_OK) {
             if (r_jws_set_alg(jws, sign_alg) == RHN_OK && r_jws_set_payload(jws, (const unsigned char *)token_intermediate, o_strlen(token_intermediate)) == RHN_OK) {
-              token = r_jws_serialize(jws, sign_key, sign_key_x5u_flags);
+              token = r_jws_serialize_unsecure(jws, sign_key, sign_key_x5u_flags&(~R_FLAG_ALLOW_INFLATE));
             } else {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_serialize_nested - Error setting jws");
             }
@@ -1211,7 +1211,6 @@ int r_jwt_advanced_parsen(jwt_t * jwt, const char * token, size_t token_len, uin
   size_t payload_len = 0;
   int ret, res, token_type = R_JWT_TYPE_NONE;
   const unsigned char * payload = NULL;
-  char * payload_str = NULL;
 
   if (jwt != NULL && token != NULL && token_len) {
     jwt->parse_flags = parse_flags;
@@ -1219,7 +1218,7 @@ int r_jwt_advanced_parsen(jwt_t * jwt, const char * token, size_t token_len, uin
     if (R_JWT_TYPE_SIGN == token_type) { // JWS
       r_jws_free(jwt->jws);
       if ((r_jws_init(&jwt->jws)) == RHN_OK) {
-        if ((res = r_jws_advanced_compact_parsen(jwt->jws, token, token_len, parse_flags, x5u_flags)) == RHN_OK) {
+        if ((res = r_jws_advanced_compact_parsen(jwt->jws, token, token_len, parse_flags, x5u_flags&(~R_FLAG_ALLOW_INFLATE))) == RHN_OK) {
           json_decref(jwt->j_header);
           jwt->j_header = json_deep_copy(jwt->jws->j_header);
           json_decref(jwt->j_claims);
@@ -1229,14 +1228,12 @@ int r_jwt_advanced_parsen(jwt_t * jwt, const char * token, size_t token_len, uin
           if (0 != o_strcmp("JWT", r_jwt_get_header_str_value(jwt, "cty"))) {
             jwt->type = R_JWT_TYPE_SIGN;
             if ((payload = r_jws_get_payload(jwt->jws, &payload_len)) != NULL && payload_len > 0) {
-              payload_str = o_strndup((const char *)payload, payload_len);
-              if ((jwt->j_claims = json_loads(payload_str, JSON_DECODE_ANY, NULL)) != NULL) {
+              if ((jwt->j_claims = json_loadb((const char *)payload, payload_len, JSON_DECODE_ANY, NULL)) != NULL) {
                 ret = RHN_OK;
               } else {
                 y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_parsen - Error parsing payload as JSON");
                 ret = RHN_ERROR;
               }
-              o_free(payload_str);
             } else {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_parsen - Error getting payload");
               ret = RHN_ERROR;
@@ -1373,7 +1370,6 @@ int r_jwt_decrypt(jwt_t * jwt, jwk_t * privkey, int x5u_flags) {
   json_t * j_payload = NULL;
   int res, ret;
   jwk_t * jwk;
-  char * str_payload;
 
   if (jwt != NULL && jwt->jwe != NULL) {
     r_jwks_empty(jwt->jwe->jwks_privkey);
@@ -1392,8 +1388,7 @@ int r_jwt_decrypt(jwt_t * jwt, jwk_t * privkey, int x5u_flags) {
     }
     if ((res = r_jwe_decrypt(jwt->jwe, privkey, x5u_flags)) == RHN_OK) {
       if ((payload = r_jwe_get_payload(jwt->jwe, &payload_len)) != NULL && payload_len > 0) {
-        str_payload = o_strndup((const char *)payload, payload_len);
-        if ((j_payload = json_loads(str_payload, JSON_DECODE_ANY, NULL)) != NULL) {
+        if ((j_payload = json_loadb((const char *)payload, payload_len, JSON_DECODE_ANY, NULL)) != NULL) {
           if (r_jwt_set_full_claims_json_t(jwt, j_payload) == RHN_OK) {
             ret = RHN_OK;
           } else {
@@ -1404,7 +1399,6 @@ int r_jwt_decrypt(jwt_t * jwt, jwk_t * privkey, int x5u_flags) {
           ret = RHN_ERROR_PARAM;
         }
         json_decref(j_payload);
-        o_free(str_payload);
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_decrypt - Error getting jwe payload");
         ret = RHN_ERROR;
@@ -1423,7 +1417,6 @@ int r_jwt_decrypt(jwt_t * jwt, jwk_t * privkey, int x5u_flags) {
 
 int r_jwt_decrypt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int verify_key_x5u_flags, jwk_t * decrypt_key, int decrypt_key_x5u_flags) {
   const unsigned char * payload = NULL;
-  char * str_payload;
   size_t payload_len = 0, jwks_size, i;
   json_t * j_payload = NULL;
   int res, ret;
@@ -1458,15 +1451,13 @@ int r_jwt_decrypt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int v
         }
         if ((res = r_jwe_decrypt(jwt->jwe, decrypt_key, decrypt_key_x5u_flags)) == RHN_OK) {
           if ((payload = r_jwe_get_payload(jwt->jwe, &payload_len)) != NULL && payload_len > 0) {
-            str_payload = o_strndup((const char *)payload, payload_len);
-            if ((j_payload = json_loads(str_payload, JSON_DECODE_ANY, NULL)) != NULL) {
+            if ((j_payload = json_loadb((const char *)payload, payload_len, JSON_DECODE_ANY, NULL)) != NULL) {
               ret = r_jwt_set_full_claims_json_t(jwt, j_payload);
             } else {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_decrypt_verify_signature_nested - Error JWE payload format");
               ret = RHN_ERROR;
             }
             json_decref(j_payload);
-            o_free(str_payload);
           } else {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_decrypt_verify_signature_nested - Error getting JWE payload");
             ret = RHN_ERROR;
@@ -1500,7 +1491,7 @@ int r_jwt_decrypt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int v
         if ((payload = r_jwe_get_payload(jwt->jwe, &payload_len)) != NULL && payload_len > 0) {
           r_jws_free(jwt->jws);
           if ((r_jws_init(&jwt->jws)) == RHN_OK) {
-            if (r_jws_advanced_compact_parsen(jwt->jws, (const char *)payload, payload_len, jwt->parse_flags, verify_key_x5u_flags) == RHN_OK) {
+            if (r_jws_advanced_compact_parsen(jwt->jws, (const char *)payload, payload_len, jwt->parse_flags, verify_key_x5u_flags&(~R_FLAG_ALLOW_INFLATE)) == RHN_OK) {
               jwks_size = r_jwks_size(jwt->jwks_privkey_sign);
               for (i=0; i<jwks_size; i++) {
                 jwk = r_jwks_get_at(jwt->jwks_privkey_sign, i);
@@ -1518,14 +1509,12 @@ int r_jwt_decrypt_verify_signature_nested(jwt_t * jwt, jwk_t * verify_key, int v
               jwt->sign_alg = jwt->jws->alg;
               if ((res = r_jws_verify_signature(jwt->jws, verify_key, verify_key_x5u_flags)) == RHN_OK) {
                 if ((payload = r_jws_get_payload(jwt->jws, &payload_len)) != NULL && payload_len > 0) {
-                  str_payload = o_strndup((const char *)payload, payload_len);
-                  if ((jwt->j_claims = json_loads(str_payload, JSON_DECODE_ANY, NULL)) != NULL) {
+                  if ((jwt->j_claims = json_loadb((const char *)payload, payload_len, JSON_DECODE_ANY, NULL)) != NULL) {
                     ret = RHN_OK;
                   } else {
                     y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_decrypt_verify_signature_nested - Error parsing payload as JSON");
                     ret = RHN_ERROR;
                   }
-                  o_free(str_payload);
                 } else {
                   y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_decrypt_verify_signature_nested - Error getting payload");
                   ret = RHN_ERROR;
@@ -1571,7 +1560,6 @@ int r_jwt_decrypt_nested(jwt_t * jwt, jwk_t * decrypt_key, int decrypt_key_x5u_f
   jwk_t * jwk;
   size_t jwks_size, payload_len = 0, i;
   const unsigned char * payload = NULL;
-  char * str_payload;
 
   if (jwt != NULL && jwt->jwe != NULL && (jwt->type == R_JWT_TYPE_NESTED_ENCRYPT_THEN_SIGN || jwt->type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT)) {
     jwks_size = r_jwks_size(jwt->jwks_privkey_enc);
@@ -1591,12 +1579,11 @@ int r_jwt_decrypt_nested(jwt_t * jwt, jwk_t * decrypt_key, int decrypt_key_x5u_f
         if (jwt->type == R_JWT_TYPE_NESTED_SIGN_THEN_ENCRYPT) {
           r_jws_free(jwt->jws);
           if ((r_jws_init(&jwt->jws)) == RHN_OK) {
-            if ((res = r_jws_advanced_compact_parsen(jwt->jws, (const char *)payload, payload_len, jwt->parse_flags, decrypt_key_x5u_flags)) == RHN_OK) {
+            if ((res = r_jws_advanced_compact_parsen(jwt->jws, (const char *)payload, payload_len, jwt->parse_flags, decrypt_key_x5u_flags&(~R_FLAG_ALLOW_INFLATE))) == RHN_OK) {
               if (r_jwt_add_sign_jwks(jwt, jwt->jws->jwks_privkey, jwt->jws->jwks_pubkey) == RHN_OK) {
                 if (r_jwt_set_sign_alg(jwt, r_jws_get_alg(jwt->jws)) == RHN_OK) {
                   if ((payload = r_jws_get_payload(jwt->jws, &payload_len)) != NULL && payload_len > 0) {
-                    str_payload = o_strndup((const char *)payload, payload_len);
-                    if ((j_payload = json_loads(str_payload, JSON_DECODE_ANY, NULL)) != NULL) {
+                    if ((j_payload = json_loadb((const char *)payload, payload_len, JSON_DECODE_ANY, NULL)) != NULL) {
                       if (r_jwt_set_full_claims_json_t(jwt, j_payload) == RHN_OK) {
                         ret = RHN_OK;
                       } else {
@@ -1608,7 +1595,6 @@ int r_jwt_decrypt_nested(jwt_t * jwt, jwk_t * decrypt_key, int decrypt_key_x5u_f
                       ret = RHN_ERROR_PARAM;
                     }
                     json_decref(j_payload);
-                    o_free(str_payload);
                   } else {
                     y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_decrypt_nested - Error getting jws payload");
                     ret = RHN_ERROR;
@@ -1630,8 +1616,7 @@ int r_jwt_decrypt_nested(jwt_t * jwt, jwk_t * decrypt_key, int decrypt_key_x5u_f
             ret = RHN_ERROR;
           }
         } else {
-          str_payload = o_strndup((const char *)payload, payload_len);
-          if ((j_payload = json_loads((const char *)str_payload, JSON_DECODE_ANY, NULL)) != NULL) {
+          if ((j_payload = json_loadb((const char *)payload,  payload_len, JSON_DECODE_ANY, NULL)) != NULL) {
             if (r_jwt_set_full_claims_json_t(jwt, j_payload) == RHN_OK) {
               ret = RHN_OK;
             } else {
@@ -1643,7 +1628,6 @@ int r_jwt_decrypt_nested(jwt_t * jwt, jwk_t * decrypt_key, int decrypt_key_x5u_f
             ret = RHN_ERROR_PARAM;
           }
           json_decref(j_payload);
-          o_free(str_payload);
         }
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwt_decrypt_nested - Error getting jwe payload");

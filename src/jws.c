@@ -145,7 +145,7 @@ static int r_jws_set_header_value(jws_t * jws, int force) {
   return ret;
 }
 
-static int r_jws_set_payload_value(jws_t * jws, int force) {
+static int r_jws_set_payload_value(jws_t * jws, int force, int flags) {
   int ret = RHN_OK, zip = 0;
   unsigned char * payload_to_set = NULL;
   size_t payload_to_set_len = 0;
@@ -154,7 +154,7 @@ static int r_jws_set_payload_value(jws_t * jws, int force) {
   if (jws != NULL) {
     if (jws->payload_b64url == NULL || force) {
       if (jws->payload_len) {
-        if (0 == o_strcmp("DEF", r_jws_get_header_str_value(jws, "zip"))) {
+        if (0 == o_strcmp("DEF", r_jws_get_header_str_value(jws, "zip")) && (flags&R_FLAG_ALLOW_INFLATE)) {
           zip = 1;
           if ((ret = _r_deflate_payload(jws->payload, jws->payload_len, &payload_to_set, &payload_to_set_len)) != RHN_OK) {
             y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_set_payload_value - Error _r_deflate_payload");
@@ -187,31 +187,31 @@ static int r_jws_set_payload_value(jws_t * jws, int force) {
   return ret;
 }
 
-static int r_jws_set_token_values(jws_t * jws, int force) {
+static int r_jws_set_token_values(jws_t * jws, int force, int flags) {
   int ret;
 
   if ((ret = r_jws_set_header_value(jws, force)) == RHN_OK) {
-    ret = r_jws_set_payload_value(jws, force);
+    ret = r_jws_set_payload_value(jws, force, flags);
   }
   return ret;
 }
 
 static unsigned char * r_jws_sign_hmac(jws_t * jws, jwk_t * jwk) {
-  int alg = GNUTLS_DIG_NULL;
+  gnutls_mac_algorithm_t alg = GNUTLS_MAC_UNKNOWN;
   unsigned char * data = NULL, * key = NULL, * sig = NULL, * to_return = NULL;
   size_t key_len = 0, sig_len = 0;
   struct _o_datum dat_sig = {0, NULL};
 
   if (jws->alg == R_JWA_ALG_HS256) {
-    alg = GNUTLS_DIG_SHA256;
+    alg = GNUTLS_MAC_SHA256;
   } else if (jws->alg == R_JWA_ALG_HS384) {
-    alg = GNUTLS_DIG_SHA384;
+    alg = GNUTLS_MAC_SHA384;
   } else if (jws->alg == R_JWA_ALG_HS512) {
-    alg = GNUTLS_DIG_SHA512;
+    alg = GNUTLS_MAC_SHA512;
   }
 
-  if (alg != GNUTLS_DIG_NULL) {
-    sig_len = (unsigned)gnutls_hmac_get_len((gnutls_mac_algorithm_t)alg);
+  if (alg != GNUTLS_MAC_UNKNOWN) {
+    sig_len = (unsigned)gnutls_hmac_get_len(alg);
     sig = o_malloc(sig_len);
 
     key_len = o_strlen(r_jwk_get_property_str(jwk, "k"));
@@ -235,16 +235,19 @@ static unsigned char * r_jws_sign_hmac(jws_t * jws, jwk_t * jwk) {
   }
 
   if (key != NULL && sig != NULL) {
-    data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
-    if (!gnutls_hmac_fast((gnutls_mac_algorithm_t)alg, key, key_len, data, o_strlen((const char *)data), sig)) {
-      if (o_base64url_encode_alloc(sig, sig_len, &dat_sig)) {
-        to_return = (unsigned char*)o_strndup((const char *)dat_sig.data, dat_sig.size);
-        o_free(dat_sig.data);
+    if ((data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url)) != NULL) {
+      if (!gnutls_hmac_fast(alg, key, key_len, data, o_strlen((const char *)data), sig)) {
+        if (o_base64url_encode_alloc(sig, sig_len, &dat_sig)) {
+          to_return = (unsigned char*)o_strndup((const char *)dat_sig.data, dat_sig.size);
+          o_free(dat_sig.data);
+        } else {
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_hmac - Error o_base64url_encode sig_b64");
+        }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_hmac - Error o_base64url_encode sig_b64");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_hmac - Error gnutls_hmac_fast");
       }
     } else {
-      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_hmac - Error gnutls_hmac_fast");
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_sign_hmac - Error preparing signature");
     }
   }
 
@@ -259,19 +262,20 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk) {
   gnutls_privkey_t privkey = r_jwk_export_to_gnutls_privkey(jwk);
   gnutls_datum_t body_dat, sig_dat;
   unsigned char * to_return = NULL;
-  int alg = GNUTLS_DIG_NULL, res;
+  gnutls_sign_algorithm_t alg = GNUTLS_SIGN_UNKNOWN;
   unsigned int flag = 0;
+  int res;
   struct _o_datum dat_sig = {0, NULL};
 
   switch (jws->alg) {
     case R_JWA_ALG_RS256:
-      alg = GNUTLS_DIG_SHA256;
+      alg = GNUTLS_SIGN_RSA_SHA256;
       break;
     case R_JWA_ALG_RS384:
-      alg = GNUTLS_DIG_SHA384;
+      alg = GNUTLS_SIGN_RSA_SHA384;
       break;
     case R_JWA_ALG_RS512:
-      alg = GNUTLS_DIG_SHA512;
+      alg = GNUTLS_SIGN_RSA_SHA512;
       break;
 /* RSA-PSS signature is available with GnuTLS >= 3.6 */
 #if GNUTLS_VERSION_NUMBER >= 0x030600
@@ -302,7 +306,7 @@ static unsigned char * r_jws_sign_rsa(jws_t * jws, jwk_t * jwk) {
 #else
                  gnutls_privkey_sign_data
 #endif
-                                           (privkey, (gnutls_sign_algorithm_t)alg, flag, &body_dat, &sig_dat))) {
+                                           (privkey, alg, flag, &body_dat, &sig_dat))) {
       if (o_base64url_encode_alloc(sig_dat.data, sig_dat.size, &dat_sig)) {
         to_return = (unsigned char*)o_strndup((const char *)dat_sig.data, dat_sig.size);
         o_free(dat_sig.data);
@@ -328,7 +332,8 @@ static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk) {
   gnutls_privkey_t privkey = r_jwk_export_to_gnutls_privkey(jwk);
   gnutls_datum_t body_dat, sig_dat, r, s;
   unsigned char * binary_sig = NULL, * to_return = NULL;
-  int alg = GNUTLS_DIG_NULL, res;
+  gnutls_digest_algorithm_t alg = GNUTLS_DIG_NULL;
+  int res;
   unsigned int adj = 0;
   unsigned int r_padding = 0, s_padding = 0, r_out_padding = 0, s_out_padding = 0;
   size_t sig_size;
@@ -349,7 +354,7 @@ static unsigned char * r_jws_sign_ecdsa(jws_t * jws, jwk_t * jwk) {
     body_dat.data = (unsigned char *)msprintf("%s.%s", jws->header_b64url, jws->payload_b64url);
     body_dat.size = (unsigned int)o_strlen((const char *)body_dat.data);
 
-    if (!(res = gnutls_privkey_sign_data(privkey, (gnutls_digest_algorithm_t)alg, 0, &body_dat, &sig_dat))) {
+    if (!(res = gnutls_privkey_sign_data(privkey, alg, 0, &body_dat, &sig_dat))) {
       if (!gnutls_decode_rs_value(&sig_dat, &r, &s)) {
         if (r.size > adj) {
           r_padding = r.size - adj;
@@ -492,7 +497,8 @@ static int r_jws_verify_sig_hmac(jws_t * jws, jwk_t * jwk) {
 }
 
 static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
-  int alg = GNUTLS_DIG_NULL, ret = RHN_OK;
+  gnutls_sign_algorithm_t alg = GNUTLS_SIGN_UNKNOWN;
+  int ret = RHN_OK;
   unsigned int flag = 0;
   gnutls_datum_t sig_dat = {NULL, 0}, data;
   gnutls_pubkey_t pubkey = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags);
@@ -503,13 +509,13 @@ static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 
   switch (jws->alg) {
     case R_JWA_ALG_RS256:
-      alg = GNUTLS_DIG_SHA256;
+      alg = GNUTLS_SIGN_RSA_SHA256;
       break;
     case R_JWA_ALG_RS384:
-      alg = GNUTLS_DIG_SHA384;
+      alg = GNUTLS_SIGN_RSA_SHA384;
       break;
     case R_JWA_ALG_RS512:
-      alg = GNUTLS_DIG_SHA512;
+      alg = GNUTLS_SIGN_RSA_SHA512;
       break;
 #if GNUTLS_VERSION_NUMBER >= 0x030600
     case R_JWA_ALG_PS256:
@@ -534,7 +540,7 @@ static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
       if (o_base64url_decode_alloc(jws->signature_b64url, o_strlen((const char *)jws->signature_b64url), &dat_sig)) {
         sig_dat.data = dat_sig.data;
         sig_dat.size = (unsigned int)dat_sig.size;
-        if (gnutls_pubkey_verify_data2(pubkey, (gnutls_sign_algorithm_t)alg, flag, &data, &sig_dat)) {
+        if (gnutls_pubkey_verify_data2(pubkey, alg, flag, &data, &sig_dat)) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_rsa - Error invalid signature");
           ret = RHN_ERROR_INVALID;
         }
@@ -558,7 +564,8 @@ static int r_jws_verify_sig_rsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 
 static int r_jws_verify_sig_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 #if GNUTLS_VERSION_NUMBER >= 0x030600
-  int alg = 0, ret = RHN_OK;
+  gnutls_sign_algorithm_t alg = GNUTLS_SIGN_UNKNOWN;
+  int ret = RHN_OK;
   gnutls_datum_t sig_dat = {NULL, 0}, r, s, data;
   gnutls_pubkey_t pubkey = r_jwk_export_to_gnutls_pubkey(jwk, x5u_flags);
   struct _o_datum dat_sig = {0, NULL};
@@ -605,7 +612,7 @@ static int r_jws_verify_sig_ecdsa(jws_t * jws, jwk_t * jwk, int x5u_flags) {
 
         if (ret == RHN_OK) {
           if (!gnutls_encode_rs_value(&sig_dat, &r, &s)) {
-            if (gnutls_pubkey_verify_data2(pubkey, (gnutls_sign_algorithm_t)alg, 0, &data, &sig_dat)) {
+            if (gnutls_pubkey_verify_data2(pubkey, alg, 0, &data, &sig_dat)) {
               y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_verify_sig_ecdsa - Error invalid signature");
               ret = RHN_ERROR_INVALID;
             }
@@ -963,6 +970,20 @@ const unsigned char * r_jws_get_payload(jws_t * jws, size_t * payload_len) {
     return jws->payload;
   }
   return NULL;
+}
+
+unsigned char * r_jws_get_inflate_payload(jws_t * jws, size_t * payload_inflate_len) {
+  unsigned char * payload_inflate = NULL;
+  if (jws != NULL && 0 == o_strcmp("DEF", r_jws_get_header_str_value(jws, "zip")) && jws->payload != NULL && jws->payload_len > 0 && payload_inflate_len != NULL) {
+    *payload_inflate_len = 0;
+    if (_r_inflate_payload(jws->payload, jws->payload_len, &payload_inflate, payload_inflate_len) != RHN_OK) {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_get_inflate_payload - error _r_inflate_payload");
+      o_free(payload_inflate);
+      payload_inflate = NULL;
+      *payload_inflate_len = 0;
+    }
+  }
+  return payload_inflate;
 }
 
 int r_jws_set_alg(jws_t * jws, jwa_alg alg) {
@@ -1491,19 +1512,27 @@ int r_jws_advanced_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_
 
           // Decode payload
           if (0 == o_strcmp("DEF", r_jws_get_header_str_value(jws, "zip"))) {
-            if (_r_inflate_payload(dat_payload.data, dat_payload.size, &unzip, &unzip_len) != RHN_OK) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error _r_inflate_payload");
-              ret = RHN_ERROR_PARAM;
-              break;
-            }
-            if (r_jws_set_payload(jws, unzip, unzip_len) != RHN_OK) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error r_jws_set_payload");
-              ret = RHN_ERROR_PARAM;
-              break;
+            if ((x5u_flags & R_FLAG_ALLOW_INFLATE)) {
+              if (_r_inflate_payload(dat_payload.data, dat_payload.size, &unzip, &unzip_len) != RHN_OK) {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error _r_inflate_payload");
+                ret = RHN_ERROR_PARAM;
+                break;
+              }
+              if (r_jws_set_payload(jws, unzip, unzip_len) != RHN_OK) {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - error r_jws_set_payload");
+                ret = RHN_ERROR;
+                break;
+              }
+            } else {
+              if (r_jws_set_payload(jws, dat_payload.data, dat_payload.size) != RHN_OK) {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - Error r_jws_set_payload (2)");
+                ret = RHN_ERROR;
+                break;
+              }
             }
           } else {
             if (r_jws_set_payload(jws, dat_payload.data, dat_payload.size) != RHN_OK) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - Error r_jws_set_payload");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_advanced_compact_parsen - Error r_jws_set_payload (3)");
               ret = RHN_ERROR;
               break;
             }
@@ -1511,6 +1540,9 @@ int r_jws_advanced_compact_parsen(jws_t * jws, const char * jws_str, size_t jws_
 
           o_free(jws->header_b64url);
           jws->header_b64url = (unsigned char *)o_strdup(str_array[0]);
+
+          o_free(jws->payload_b64url);
+          jws->payload_b64url = (unsigned char *)o_strdup(str_array[1]);
 
           o_free(jws->signature_b64url);
           jws->signature_b64url = NULL;
@@ -1857,7 +1889,7 @@ int r_jws_verify_signature(jws_t * jws, jwk_t * jwk_pubkey, int x5u_flags) {
       jws->header_b64url = NULL;
       jws->signature_b64url = NULL;
     } else {
-      if (r_jws_set_token_values(jws, 0) == RHN_OK && jws->signature_b64url != NULL) {
+      if (r_jws_set_token_values(jws, 0, x5u_flags) == RHN_OK && jws->signature_b64url != NULL) {
         if (jwk != NULL) {
           ret = _r_verify_signature(jws, jwk, jws->alg, x5u_flags);
         } else {
@@ -1909,7 +1941,7 @@ char * r_jws_serialize_unsecure(jws_t * jws, jwk_t * jwk_privkey, int x5u_flags)
     }
 
     o_free(jws->signature_b64url);
-    if (r_jws_set_token_values(jws, 1) == RHN_OK) {
+    if (r_jws_set_token_values(jws, 1, x5u_flags) == RHN_OK) {
       jws->signature_b64url = _r_generate_signature(jws, jwk, jws->alg, x5u_flags);
       if (jws->signature_b64url != NULL) {
         jws_str = msprintf("%s.%s.%s", jws->header_b64url, jws->payload_b64url, jws->signature_b64url);
@@ -1957,7 +1989,7 @@ json_t * r_jws_serialize_json_t(jws_t * jws, jwks_t * jwks_privkey, int x5u_flag
       if ((alg = jws->alg) == R_JWA_ALG_UNKNOWN && (alg = r_str_to_jwa_alg(r_jwk_get_property_str(jwk, "alg"))) != R_JWA_ALG_NONE && alg != R_JWA_ALG_UNKNOWN) {
         r_jws_set_alg(jws, alg);
       }
-      if (r_jws_set_token_values(jws, 1) == RHN_OK) {
+      if (r_jws_set_token_values(jws, 1, x5u_flags) == RHN_OK) {
         if ((signature = _r_generate_signature(jws, jwk, alg, x5u_flags)) != NULL) {
           j_return = json_pack("{ssssss}", "payload", jws->payload_b64url, "protected", jws->header_b64url, "signature", signature);
           if (kid != NULL) {
@@ -1968,11 +2000,11 @@ json_t * r_jws_serialize_json_t(jws_t * jws, jwks_t * jwks_privkey, int x5u_flag
         }
         o_free(signature);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_serialize_json_t - Error r_jws_set_header_value");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jws_serialize_json_t - Error r_jws_set_token_values");
       }
       r_jwk_free(jwk);
     } else {
-      if (r_jws_set_payload_value(jws, 1) == RHN_OK) {
+      if (r_jws_set_payload_value(jws, 1, x5u_flags) == RHN_OK) {
         j_return = json_pack("{sss[]}", "payload", jws->payload_b64url, "signatures");
         for (i=0; i<r_jwks_size(jwks_privkey); i++) {
           jwk = r_jwks_get_at(jwks_privkey, i);

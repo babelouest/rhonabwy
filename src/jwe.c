@@ -2681,6 +2681,23 @@ static int _r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int 
   return ret;
 }
 
+static int _r_gnutls_is_block_cipher(gnutls_cipher_algorithm_t alg) {
+  switch (alg) {
+    case GNUTLS_CIPHER_3DES_CBC:
+    case GNUTLS_CIPHER_AES_128_CBC:
+    case GNUTLS_CIPHER_AES_256_CBC:
+    case GNUTLS_CIPHER_CAMELLIA_128_CBC:
+    case GNUTLS_CIPHER_CAMELLIA_256_CBC:
+    case GNUTLS_CIPHER_AES_192_CBC:
+    case GNUTLS_CIPHER_CAMELLIA_192_CBC :
+    case GNUTLS_CIPHER_RC2_40_CBC :
+    case GNUTLS_CIPHER_DES_CBC:
+      return 1;
+    default:
+      return 0;
+  }
+}
+
 int r_jwe_init(jwe_t ** jwe) {
   int ret;
 
@@ -2824,6 +2841,20 @@ const unsigned char * r_jwe_get_payload(jwe_t * jwe, size_t * payload_len) {
     return jwe->payload;
   }
   return NULL;
+}
+
+unsigned char * r_jwe_get_inflate_payload(jwe_t * jwe, size_t * payload_inflate_len) {
+  unsigned char * payload_inflate = NULL;
+  if (jwe != NULL && 0 == o_strcmp("DEF", r_jwe_get_header_str_value(jwe, "zip")) && jwe->payload != NULL && jwe->payload_len > 0 && payload_inflate_len != NULL) {
+    *payload_inflate_len = 0;
+    if (_r_inflate_payload(jwe->payload, jwe->payload_len, &payload_inflate, payload_inflate_len) != RHN_OK) {
+      y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_get_inflate_payload - error _r_inflate_payload");
+      o_free(payload_inflate);
+      payload_inflate = NULL;
+      *payload_inflate_len = 0;
+    }
+  }
+  return payload_inflate;
 }
 
 int r_jwe_set_cypher_key(jwe_t * jwe, const unsigned char * key, size_t key_len) {
@@ -3558,25 +3589,11 @@ int r_jwe_encrypt_payload(jwe_t * jwe) {
   return ret;
 }
 
-static int _r_gnutls_is_block_cipher(gnutls_cipher_algorithm_t alg)
-{
-  switch (alg) {
-    case GNUTLS_CIPHER_3DES_CBC:
-    case GNUTLS_CIPHER_AES_128_CBC:
-    case GNUTLS_CIPHER_AES_256_CBC:
-    case GNUTLS_CIPHER_CAMELLIA_128_CBC:
-    case GNUTLS_CIPHER_CAMELLIA_256_CBC:
-    case GNUTLS_CIPHER_AES_192_CBC:
-    case GNUTLS_CIPHER_CAMELLIA_192_CBC :
-    case GNUTLS_CIPHER_RC2_40_CBC :
-    case GNUTLS_CIPHER_DES_CBC:
-      return 1;
-    default:
-      return 0;
-  }
+int r_jwe_decrypt_payload(jwe_t * jwe) {
+  return r_jwe_advanced_decrypt_payload(jwe, 0);
 }
 
-int r_jwe_decrypt_payload(jwe_t * jwe) {
+int r_jwe_advanced_decrypt_payload(jwe_t * jwe, int flags) {
   int ret = RHN_OK, res;
   gnutls_cipher_hd_t handle;
   gnutls_datum_t key, iv;
@@ -3600,11 +3617,11 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
         if (!ciphertext_decoded_len || ciphertext_decoded_len % cipher_block_size) {
           /* The ciphertext length is not a multiple of block size.
           * It can't possibly be valid */
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Invalid ciphertext length");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Invalid ciphertext length");
           ret = RHN_ERROR_INVALID;
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_base64url_decode ciphertext_b64url");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error o_base64url_decode ciphertext_b64url");
         ret = RHN_ERROR;
       }
     }
@@ -3618,20 +3635,20 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
           memcpy(jwe->iv, dat.data, dat.size);
           if (o_base64url_decode_alloc(jwe->ciphertext_b64url, ciphertext_b64_len, &dat_ciph)) {
             if ((payload_enc = o_malloc(dat_ciph.size)) == NULL) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error allocating resources for payload_enc");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error allocating resources for payload_enc");
               ret = RHN_ERROR_MEMORY;
             }
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_base64url_decode_alloc ciphertext_b64url");
+            y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error o_base64url_decode_alloc ciphertext_b64url");
             ret = RHN_ERROR;
           }
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error reallocating resources for iv");
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error reallocating resources for iv");
           ret = RHN_ERROR_MEMORY;
         }
         o_free(dat.data);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_base64url_decode_alloc iv");
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error o_base64url_decode_alloc iv");
         ret = RHN_ERROR;
       }
     }
@@ -3656,7 +3673,7 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
           aad = (unsigned char *)msprintf("%s.%s", jwe->header_b64url, jwe->aad_b64url);
         }
         if (!cipher_cbc && (res = gnutls_cipher_add_auth(handle, aad, o_strlen((const char *)aad)))) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_add_auth: '%s'", gnutls_strerror(res));
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error gnutls_cipher_add_auth: '%s'", gnutls_strerror(res));
           ret = RHN_ERROR;
         }
         if (!(res = gnutls_cipher_decrypt2(handle, dat_ciph.data, dat_ciph.size, payload_enc, payload_enc_len))) {
@@ -3664,54 +3681,61 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
             r_jwe_remove_padding(payload_enc, &payload_enc_len, (unsigned)gnutls_cipher_get_block_size(_r_get_alg_from_enc(jwe->enc)));
           }
           if (0 == o_strcmp("DEF", r_jwe_get_header_str_value(jwe, "zip"))) {
-            if (_r_inflate_payload(payload_enc, payload_enc_len, &unzip, &unzip_len) == RHN_OK) {
-              if (r_jwe_set_payload(jwe, unzip, unzip_len) != RHN_OK) {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_jwe_set_payload");
+            if (!(flags & R_FLAG_IGNORE_INFLATE)) {
+              if (_r_inflate_payload(payload_enc, payload_enc_len, &unzip, &unzip_len) == RHN_OK) {
+                if (r_jwe_set_payload(jwe, unzip, unzip_len) != RHN_OK) {
+                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error r_jwe_set_payload (1)");
+                  ret = RHN_ERROR;
+                }
+              } else {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error _r_inflate_payload");
                 ret = RHN_ERROR;
               }
+              o_free(unzip);
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error _r_inflate_payload");
-              ret = RHN_ERROR;
+              if (r_jwe_set_payload(jwe, payload_enc, payload_enc_len) != RHN_OK) {
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error r_jwe_set_payload (2)");
+                ret = RHN_ERROR;
+              }
             }
-            o_free(unzip);
           } else {
             if (r_jwe_set_payload(jwe, payload_enc, payload_enc_len) != RHN_OK) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_jwe_set_payload");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error r_jwe_set_payload (3)");
               ret = RHN_ERROR;
             }
           }
         } else if (res == GNUTLS_E_INVALID_REQUEST) {
           ret = RHN_ERROR_INVALID;
         } else if (res == GNUTLS_E_DECRYPTION_FAILED) {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - decryption failed: '%s'", gnutls_strerror(res));
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - decryption failed: '%s'", gnutls_strerror(res));
           ret = RHN_ERROR_INVALID;
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_decrypt: '%s'", gnutls_strerror(res));
+          y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error gnutls_cipher_decrypt: '%s'", gnutls_strerror(res));
           ret = RHN_ERROR;
         }
         if (ret == RHN_OK) {
           if (cipher_cbc) {
             if (r_jwe_compute_hmac_tag(jwe, dat_ciph.data, dat_ciph.size, aad, tag, &tag_len) != RHN_OK) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error r_jwe_compute_hmac_tag");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error r_jwe_compute_hmac_tag");
               ret = RHN_ERROR;
             }
           } else {
             tag_len = (unsigned)gnutls_cipher_get_tag_size(_r_get_alg_from_enc(jwe->enc));
             memset(tag, 0, tag_len);
             if ((res = gnutls_cipher_tag(handle, tag, tag_len))) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_tag: '%s'", gnutls_strerror(res));
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error gnutls_cipher_tag: '%s'", gnutls_strerror(res));
               ret = RHN_ERROR;
             }
           }
           if (ret == RHN_OK && tag_len) {
             if (o_base64url_encode_alloc(tag, tag_len, &dat_tag)) {
               if (dat_tag.size != o_strlen((const char *)jwe->auth_tag_b64url) || 0 != memcmp(dat_tag.data, jwe->auth_tag_b64url, dat_tag.size)) {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Invalid tag");
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Invalid tag");
                 ret = RHN_ERROR_INVALID;
               }
               o_free(dat_tag.data);
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error o_base64url_encode_alloc tag");
+              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error o_base64url_encode_alloc tag");
               ret = RHN_ERROR;
             }
           }
@@ -3719,14 +3743,14 @@ int r_jwe_decrypt_payload(jwe_t * jwe) {
         o_free(aad);
         gnutls_cipher_deinit(handle);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error gnutls_cipher_init: '%s'", gnutls_strerror(res));
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error gnutls_cipher_init: '%s'", gnutls_strerror(res));
         ret = RHN_ERROR;
       }
     }
   } else if (jwe != NULL && jwe->key_len != _r_get_key_size(jwe->enc)) {
     ret = RHN_ERROR_INVALID;
   } else {
-    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_decrypt_payload - Error input parameters");
+    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error input parameters");
     ret = RHN_ERROR_PARAM;
   }
   o_free(payload_enc);
@@ -4216,7 +4240,7 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
       json_decref(j_header);
       jwe->encrypted_key_b64url = NULL;
       if (ret == RHN_OK) {
-        ret = r_jwe_decrypt_payload(jwe);
+        ret = r_jwe_advanced_decrypt_payload(jwe, x5u_flags);
       }
     } else {
       j_header = r_jwe_get_full_header_json_t(jwe);
@@ -4227,7 +4251,7 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
       }
       r_jwe_set_full_header_json_t(jwe, j_cur_header);
       json_decref(j_cur_header);
-      if ((res = r_jwe_decrypt_key(jwe, jwk, x5u_flags)) == RHN_OK && (res = r_jwe_decrypt_payload(jwe)) == RHN_OK) {
+      if ((res = r_jwe_decrypt_key(jwe, jwk, x5u_flags)) == RHN_OK && (res = r_jwe_advanced_decrypt_payload(jwe, x5u_flags)) == RHN_OK) {
         ret = RHN_OK;
       } else {
         if (res != RHN_ERROR_INVALID) {

@@ -305,6 +305,8 @@ const char advanced_jku_4[] = "{\"keys\":[{\"kty\":\"EC\",\"x\":\"rXNalVG5Ylar4c
 #define TOKEN_ENC_INVALID_HEADER_B64 ";error;.TGaK3fCgsGxLNuGbWR2j4Fi_hetyBLSRyadtdG0MAsXTnXlXsFb_wwFahZQASsLxwEEekZQ5EEkJb9gwu3uWaf3Oq58lOETa4Fb_Z1-WN1jvzF4DBEQLVl0azU62LbPsFHl8vWuuE7NF5oFX2V3CboQnFoWB1yyqWBJXkdEvFyIrHnNmQw9goPs2kjACnYdsNzMnP6SOYsYvguIJcvKnoBAbQYp0DA8OHXI6fW4P_zgZ7TQVCJLwpB0QoD_4Raaya3OABxQ7LJqhpYvk7iHGHnC-Ws23dmLCdv5WG_w6NEQwQLkuED8SXhUbirLeq4LRVxXdf8I1XTKesS6_NVJBNg.GMeHp_DOIg9h8sfGYE8fYg.XcRXOh492A8SPw8EEQ6mRe1kt7BNFqOgG8GqHR2g6CI4a_RI3JA2taxi3wc4eRWJ.94p-hjUgcWGiJsQ8TnnKtQ"
 #define TOKEN_ENC_INVALID_DOTS "eyJ0eXAiOiJKV1QiLCJhbGciOiJSU0ExXzUiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0TGaK3fCgsGxLNuGbWR2j4Fi_hetyBLSRyadtdG0MAsXTnXlXsFb_wwFahZQASsLxwEEekZQ5EEkJb9gwu3uWaf3Oq58lOETa4Fb_Z1-WN1jvzF4DBEQLVl0azU62LbPsFHl8vWuuE7NF5oFX2V3CboQnFoWB1yyqWBJXkdEvFyIrHnNmQw9goPs2kjACnYdsNzMnP6SOYsYvguIJcvKnoBAbQYp0DA8OHXI6fW4P_zgZ7TQVCJLwpB0QoD_4Raaya3OABxQ7LJqhpYvk7iHGHnC-Ws23dmLCdv5WG_w6NEQwQLkuED8SXhUbirLeq4LRVxXdf8I1XTKesS6_NVJBNg.GMeHp_DOIg9h8sfGYE8fYg.XcRXOh492A8SPw8EEQ6mRe1kt7BNFqOgG8GqHR2g6CI4a_RI3JA2taxi3wc4eRWJ.94p-hjUgcWGiJsQ8TnnKtQ"
 #define TOKEN_ENC_INVALID_SIGNATURE "eyJ0eXAiOiJKV1QiLCJhbGciOiJSU0ExXzUiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.TGaK3fCgsGxLNuGbWR2j4Fi_hetyBLSRyadtdG0MAsXTnXlXsFb_wwFahZQASsLxwEEekZQ5EEkJb9gwu3uWaf3Oq58lOETa4Fb_Z1-WN1jvzF4DBEQLVl0azU62LbPsFHl8vWuuE7NF5oFX2V3CboQnFoWB1yyqWBJXkdEvFyIrHnNmQw9goPs2kjACnYdsNzMnP6SOYsYvguIJcvKnoBAbQYp0DA8OHXI6fW4P_zgZ7TQVCJLwpB0QoD_4Raaya3OABxQ7LJqhpYvk7iHGHnC-Ws23dmLCdv5WG_w6NEQwQLkuED8SXhUbirLeq4LRVxXdf8I1XTKesS6_NVJBNg.GMeHp_DOIg9h8sfGYE8fYg.XcRXOh492A8SPw8EEQ6mRe1kt7BNFqOgG8GqHR2g6CI4a_RI3JA2taxi3wc4wRWJ.94p-hjUgcWGiJsQ8TnnKtQ"
+#define TOKEN_WITH_ZIP_HEADER_UNCOMPRESSED "eyJ6aXAiOiJERUYiLCJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjEifQ.eyJkYXQiOiJodHRwczovL3Job25hYnd5LnRsZCJ9.t7oqCiYZa9qbV6JOptmnS_EB5uO1OErfJt7OlobglmFRPeLIkPwQExp7aqL5un-2AwMb7G3gEhbulTChaopy4A"
+#define TOKEN_WITH_ZIP_HEADER_COMPRESSED "eyJ6aXAiOiJERUYiLCJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjEifQ.q1ZKSSxRslLKKCkpKLbS1y_KyM9LTCqv1CvJSVGqBQA.FSaCp9U2bnwNNa6Vub3Ie6Bj0iUU5gg6xpCZ57kRI36Joama5i_gJ8TC8mPu0uHIX3Iw_utenxD15CzUwLlL1w"
 
 START_TEST(test_rhonabwy_init)
 {
@@ -1987,6 +1989,47 @@ START_TEST(test_rhonabwy_token_type)
 }
 END_TEST
 
+START_TEST(test_rhonabwy_zip)
+{
+  jwt_t * jwt, * jwt_parse;
+  jwk_t * jwk_priv;
+  char * token, * payload;
+  struct _o_datum dat = {0, NULL};
+  json_t * j_dat;
+
+  ck_assert_int_eq(r_jwk_init(&jwk_priv), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_priv, jwk_privkey_ecdsa_str), RHN_OK);
+  
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "dat", JWT_CLAIM_ISS), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_header_str_value(jwt, "zip", "DEF"), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_sign_alg(jwt, R_JWA_ALG_ES256), RHN_OK);
+  ck_assert_ptr_nonnull((token = r_jwt_serialize_signed(jwt, jwk_priv, R_FLAG_ALLOW_INFLATE))); // explicitely set flag but claims must not be zipped
+  ck_assert_ptr_nonnull((jwt_parse = r_jwt_quick_parse(token, R_PARSE_NONE, 0)));
+  ck_assert_str_eq(r_jwt_get_claim_str_value(jwt_parse, "dat"), JWT_CLAIM_ISS);
+  ck_assert_ptr_nonnull((payload = o_strchr(token, '.')));
+  payload++;
+  ck_assert_ptr_nonnull(o_strchr(payload, '.'));
+  *o_strchr(payload, '.') = '\0';
+  ck_assert_int_eq(1, o_base64url_decode_alloc((const unsigned char *)payload, o_strlen(payload), &dat));
+  ck_assert_ptr_nonnull((j_dat = json_loadb((const char *)dat.data, dat.size, JSON_ENCODE_ANY, NULL)));
+  ck_assert_str_eq(json_string_value(json_object_get(j_dat, "dat")), JWT_CLAIM_ISS);
+  r_jwt_free(jwt_parse);
+
+  ck_assert_ptr_nonnull((jwt_parse = r_jwt_quick_parse(TOKEN_WITH_ZIP_HEADER_UNCOMPRESSED, R_PARSE_NONE, 0)));
+  ck_assert_str_eq(r_jwt_get_claim_str_value(jwt_parse, "dat"), JWT_CLAIM_ISS);
+  r_jwt_free(jwt_parse);
+
+  ck_assert_ptr_null(r_jwt_quick_parse(TOKEN_WITH_ZIP_HEADER_COMPRESSED, R_PARSE_NONE, 0));
+
+  o_free(dat.data);
+  json_decref(j_dat);
+  r_free(token);
+  r_jwk_free(jwk_priv);
+  r_jwt_free(jwt);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -2023,6 +2066,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_copy);
   tcase_add_test(tc_core, test_rhonabwy_set_enc_cypher_key_iv);
   tcase_add_test(tc_core, test_rhonabwy_token_type);
+  tcase_add_test(tc_core, test_rhonabwy_zip);
 #if GNUTLS_VERSION_NUMBER >= 0x030600 && defined(R_WITH_CURL)
   tcase_add_test(tc_core, test_rhonabwy_advanced_parse);
   tcase_add_test(tc_core, test_rhonabwy_quick_parse);

@@ -1016,18 +1016,32 @@ END_TEST
 START_TEST(test_rhonabwy_encrypt_payload_zip)
 {
   jwe_t * jwe;
+  size_t payload_len_inflated = 0, payload_len_not_inflated = 0;
+  unsigned char * payload_inflated = NULL;
+
   ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
-  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)HUGE_PAYLOAD, o_strlen(HUGE_PAYLOAD)), RHN_OK);
   ck_assert_ptr_eq(jwe->ciphertext_b64url, NULL);
+  ck_assert_ptr_eq(NULL, r_jwe_get_inflate_payload(jwe, &payload_len_inflated));
 
   r_jwe_set_header_str_value(jwe, "zip", "DEF");
   ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_OK);
   ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
+  ck_assert_int_eq(r_jwe_advanced_decrypt_payload(jwe, 0), RHN_OK);
+  ck_assert_int_eq(0, o_strncmp(HUGE_PAYLOAD, (const char *)r_jwe_get_payload(jwe, &payload_len_inflated), o_strlen(HUGE_PAYLOAD)));
+  ck_assert_int_eq(r_jwe_advanced_decrypt_payload(jwe, R_FLAG_IGNORE_INFLATE), RHN_OK);
+  ck_assert_ptr_ne(NULL, r_jwe_get_payload(jwe, &payload_len_not_inflated));
+  ck_assert_int_ne(payload_len_not_inflated, payload_len_inflated);
+  ck_assert_ptr_ne(NULL, payload_inflated = r_jwe_get_inflate_payload(jwe, &payload_len_inflated));
+  ck_assert_int_eq(o_strlen(HUGE_PAYLOAD), payload_len_inflated);
+  ck_assert_int_eq(0, o_strncmp(HUGE_PAYLOAD, (const char *)payload_inflated, o_strlen(HUGE_PAYLOAD)));
+  r_free(payload_inflated);
+
   ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
-  ck_assert_int_eq(0, o_strncmp(PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(PAYLOAD)));
+  ck_assert_int_eq(0, o_strncmp(HUGE_PAYLOAD, (const char *)r_jwe_get_payload(jwe, NULL), o_strlen(HUGE_PAYLOAD)));
 
   r_jwe_free(jwe);
 

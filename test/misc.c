@@ -285,20 +285,32 @@ START_TEST(test_rhonabwy_invalid_deflate_payload)
   jws_t * jws;
   jwe_t * jwe;
   jwk_t * jwk;
+  size_t payload_inflate_len = 0;
 
   ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
   ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_key_symmetric), RHN_OK);
 
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
-  ck_assert_int_ne(r_jws_parse(jws, TOKEN_SIGNED_INVALID_ZIP, 0), RHN_OK);
+  ck_assert_int_ne(r_jws_parse(jws, TOKEN_SIGNED_INVALID_ZIP, R_FLAG_ALLOW_INFLATE), RHN_OK);
+  r_jws_free(jws);
+
+  ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
+  ck_assert_int_eq(r_jws_parse(jws, TOKEN_SIGNED_INVALID_ZIP, 0), RHN_OK);
+  ck_assert_ptr_eq(NULL, r_jws_get_inflate_payload(jws, &payload_inflate_len));
+  r_jws_free(jws);
 
   ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
   ck_assert_int_eq(r_jwe_parse(jwe, TOKEN_ENCRYPTED_INVALID_ZIP, 0), RHN_OK);
   ck_assert_int_ne(r_jwe_decrypt(jwe, jwk, 0), RHN_OK);
+  r_jwe_free(jwe);
+  
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_parse(jwe, TOKEN_ENCRYPTED_INVALID_ZIP, 0), RHN_OK);
+  ck_assert_int_eq(r_jwe_decrypt(jwe, jwk, R_FLAG_IGNORE_INFLATE), RHN_OK);
+  ck_assert_ptr_eq(NULL, r_jwe_get_inflate_payload(jwe, &payload_inflate_len));
+  r_jwe_free(jwe);
   
   r_jwk_free(jwk);
-  r_jws_free(jws);
-  r_jwe_free(jwe);
 }
 END_TEST
 

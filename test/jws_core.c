@@ -939,11 +939,12 @@ END_TEST
 
 START_TEST(test_rhonabwy_zip_payload)
 {
-  jws_t * jws, * jws_parse, * jws_parse_def;
+  jws_t * jws, * jws_parse, * jws_parse_def, * jws_parse_ignore_def;
   jwk_t * jwk_key_symmetric;
-  char * token = NULL, * token_def = NULL;
-  const unsigned char * payload, * payload_def;
-  size_t payload_len = 0, payload_def_len = 0;
+  char * token = NULL, * token_def = NULL, * token_not_def = NULL;
+  const unsigned char * payload, * payload_def, * payload_ignore_def;
+  unsigned char * payload_inflate;
+  size_t payload_len = 0, payload_def_len = 0, payload_ignore_def_len = 0, payload_inflate_len = 0;
   
   ck_assert_int_eq(r_jwk_init(&jwk_key_symmetric), RHN_OK);
   ck_assert_int_eq(r_jws_init(&jws), RHN_OK);
@@ -954,29 +955,55 @@ START_TEST(test_rhonabwy_zip_payload)
   ck_assert_ptr_ne((token = r_jws_serialize(jws, NULL, 0)), NULL);
 
   ck_assert_int_eq(r_jws_set_header_str_value(jws, "zip", "DEF"), RHN_OK);
-  ck_assert_ptr_ne((token_def = r_jws_serialize(jws, NULL, 0)), NULL);
+  ck_assert_ptr_ne((token_def = r_jws_serialize(jws, NULL, R_FLAG_ALLOW_INFLATE)), NULL);
+  ck_assert_ptr_ne((token_not_def = r_jws_serialize(jws, NULL, 0)), NULL);
   
   ck_assert_int_gt(o_strlen(token), o_strlen(token_def));
+  ck_assert_int_gt(o_strlen(token_not_def), o_strlen(token_def));
   
   ck_assert_int_eq(r_jws_init(&jws_parse), RHN_OK);
   ck_assert_int_eq(r_jws_init(&jws_parse_def), RHN_OK);
+  ck_assert_int_eq(r_jws_init(&jws_parse_ignore_def), RHN_OK);
   
   ck_assert_int_eq(r_jws_parse(jws_parse, token, 0), RHN_OK);
   ck_assert_int_eq(r_jws_verify_signature(jws_parse, jwk_key_symmetric, 0), RHN_OK);
   ck_assert_ptr_ne(NULL, payload = r_jws_get_payload(jws_parse, &payload_len));
   
-  ck_assert_int_eq(r_jws_parse(jws_parse_def, token_def, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_parse(jws_parse_def, token_def, R_FLAG_ALLOW_INFLATE), RHN_OK);
   ck_assert_int_eq(r_jws_verify_signature(jws_parse_def, jwk_key_symmetric, 0), RHN_OK);
   ck_assert_ptr_ne(NULL, payload_def = r_jws_get_payload(jws_parse_def, &payload_def_len));
+  
+  ck_assert_int_eq(r_jws_parse(jws_parse_ignore_def, token_def, 0), RHN_OK);
+  ck_assert_int_eq(r_jws_verify_signature(jws_parse_ignore_def, jwk_key_symmetric, 0), RHN_OK);
+  ck_assert_ptr_ne(NULL, payload_ignore_def = r_jws_get_payload(jws_parse_ignore_def, &payload_ignore_def_len));
   
   ck_assert_int_eq(payload_len, payload_def_len);
   ck_assert_int_eq(0, memcmp(payload, payload_def, payload_def_len));
   
+  ck_assert_int_gt(payload_def_len, payload_ignore_def_len);
+  
+  ck_assert_ptr_ne(NULL, payload_inflate = r_jws_get_inflate_payload(jws_parse_ignore_def, &payload_inflate_len));
+  ck_assert_int_eq(payload_len, payload_inflate_len);
+  ck_assert_int_eq(0, memcmp(payload, payload_def, payload_inflate_len));
+  ck_assert_int_gt(payload_inflate_len, 0);
+  r_free(payload_inflate);
+
+  ck_assert_ptr_eq(NULL, r_jws_get_inflate_payload(jws_parse, &payload_inflate_len));
+  ck_assert_int_gt(payload_inflate_len, 0);
+  
+  payload_inflate_len = 0;
+  ck_assert_ptr_eq(NULL, r_jws_get_inflate_payload(NULL, &payload_inflate_len));
+  ck_assert_int_eq(payload_inflate_len, 0);
+  
+  ck_assert_ptr_eq(NULL, r_jws_get_inflate_payload(jws_parse_ignore_def, NULL));
+  
   r_jws_free(jws_parse);
   r_jws_free(jws_parse_def);
+  r_jws_free(jws_parse_ignore_def);
   
   o_free(token);
   o_free(token_def);
+  o_free(token_not_def);
   r_jws_free(jws);
   r_jwk_free(jwk_key_symmetric);
 }

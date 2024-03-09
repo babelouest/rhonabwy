@@ -944,7 +944,16 @@ int r_jws_parsen(jws_t * jws, const char * jws_str, size_t jws_str_len, int x5u_
 
 #### Compressed payload
 
-The header value `"zip":"DEF"` is used to specify if the JWS payload is compressed using [ZIP/Deflate](https://tools.ietf.org/html/rfc7516#section-4.1.3) algorithm. Rhonabwy will automatically compress or decompress the decrypted payload during serialization or parse process.
+The header value `"zip":"DEF"` is used to specify if the JWS payload is compressed using [ZIP/Deflate](https://tools.ietf.org/html/rfc7516#section-4.1.3) algorithm. Rhonabwy will automatically compress the decrypted payload during serialization or parse process.
+By default, a compressed payload will not be decompressed, it must be explicitely flagged on parsing, or use the function `r_jws_get_inflate_payload` after parsing.
+
+To parse a JWS and automatically decompress its payload, add the value `R_FLAG_ALLOW_INFLATE` to the `x5u_flags` parameter:
+
+```C
+if (r_jws_parse(jws, token, R_FLAG_ALLOW_INFLATE) == RHN_OK) {
+  // ...
+}
+```
 
 ### Unsecured JWS
 
@@ -1246,6 +1255,14 @@ r_jwk_free(jwk_key_rsa);
 #### Compressed payload
 
 The header value `"zip":"DEF"` is used to specify if the JWE payload is compressed using [ZIP/Deflate](https://tools.ietf.org/html/rfc7516#section-4.1.3) algorithm. Rhonabwy will automatically compress or decompress the decrypted payload during encryption or decryption process.
+
+To decrypt a JWE payload without automatically decompress its content, add the value `R_FLAG_IGNORE_INFLATE` to the `x5u_flags` parameter:
+
+```C
+if (r_jwe_decrypt(jwe, jwk, R_FLAG_IGNORE_INFLATE) == RHN_OK) {
+  // ...
+}
+```
 
 ### Parse and decrypt a JWE using Rhonabwy
 

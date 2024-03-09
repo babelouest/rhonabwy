@@ -72,6 +72,9 @@ extern "C"
 #define R_FLAG_FOLLOW_REDIRECT           0x00000010
 #define R_FLAG_IGNORE_REMOTE             0x00000100
 
+#define R_FLAG_ALLOW_INFLATE             0x10000000
+#define R_FLAG_IGNORE_INFLATE            0x01000000
+
 #define R_JWT_TYPE_NONE                     0
 #define R_JWT_TYPE_SIGN                     1
 #define R_JWT_TYPE_ENCRYPT                  2
@@ -1177,6 +1180,14 @@ int r_jws_set_payload(jws_t * jws, const unsigned char * payload, size_t payload
 const unsigned char * r_jws_get_payload(jws_t * jws, size_t * payload_len);
 
 /**
+ * Get the inflated (unzipped) JWS payload
+ * @param jws: the jws_t to get the unzipped payload from
+ * @param payload_len: the length of the unzipped JWS payload
+ * @return the unzipped JWS payload as unsigned char *, must be r_free'd after use
+ */
+unsigned char * r_jws_get_inflate_payload(jws_t * jws, size_t * payload_inflate_len);
+
+/**
  * Set the JWS alg to use for signature
  * @param jws: the jws_t to update
  * @param alg: the algorithm to use
@@ -1884,6 +1895,14 @@ int r_jwe_set_payload(jwe_t * jwe, const unsigned char * payload, size_t payload
 const unsigned char * r_jwe_get_payload(jwe_t * jwe, size_t * payload_len);
 
 /**
+ * Get the inflated (unzipped) JWE payload
+ * @param jws: the jwe_t to get the unzipped payload from
+ * @param payload_len: the length of the unzipped JWE payload
+ * @return the unzipped JWE payload as unsigned char *, must be r_free'd after use
+ */
+unsigned char * r_jwe_get_inflate_payload(jwe_t * jwe, size_t * payload_inflate_len);
+
+/**
  * Set the JWE alg to use for key encryption
  * @param jwe: the jwe_t to update
  * @param alg: the algorithm to use
@@ -2196,6 +2215,17 @@ int r_jwe_encrypt_payload(jwe_t * jwe);
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_decrypt_payload(jwe_t * jwe);
+
+/**
+ * Decrypts the payload using its key and iv
+ * @param jwe: the jwe_t to update
+ * @param flags: Flag to manage compressed (deflate) payload after decryption
+ * By default, the compressed payload is unzipped after decryption
+ * Flags availabe are
+ * - R_FLAG_IGNORE_INFLATE: do no unzip payload
+ * @return RHN_OK on success, an error value on error
+ */
+int r_jwe_advanced_decrypt_payload(jwe_t * jwe, int flags);
 
 /**
  * Encrypts the key
@@ -2550,11 +2580,13 @@ jwe_t * r_jwe_quick_parsen(const char * jwe_str, size_t jwe_str_len, uint32_t pa
  * @param jwk_privkey: the private key to decrypt cypher key,
  * can be NULL if jwe already contains a private key
  * @param x5u_flags: Flags to retrieve x5u certificates
- * pointed by x5u if necessary, could be 0 if not needed
+ * pointed by x5u or unzip payload if necessary, could be 0 if not needed
+ * by default, compressed payload is unzipped after decryption
  * Flags available are 
  * - R_FLAG_IGNORE_SERVER_CERTIFICATE: ignrore if web server certificate is invalid
  * - R_FLAG_FOLLOW_REDIRECT: follow redirections if necessary
  * - R_FLAG_IGNORE_REMOTE: do not download remote key, but the function may return an error
+ * - R_FLAG_IGNORE_INFLATE: do no unzip payload
  * @return RHN_OK on success, an error value on error
  */
 int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags);

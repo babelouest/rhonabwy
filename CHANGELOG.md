@@ -6,6 +6,10 @@
 - Build with flag `-Wpedantic`
 - Security: Mitigate HMAC signature side-channel attack (Thanks to Erwan Legrand) ([CVE-2024-25714](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-25714))
 - Breaking: Update `r_jwt_validate_claims` and `r_jwt_set_claims` to expect `rhn_int_t` values when using integer values
+- Add x5u flag `R_FLAG_ALLOW_INFLATE` to manage compressed payload in JWS'
+- Add x5u flag `R_FLAG_IGNORE_INFLATE` to manage compressed payload in JWEs
+- Add functions `r_jws_get_inflate_payload`, `r_jwe_get_inflate_payload`, `r_jwe_advanced_decrypt_payload`
+- Breaking: Update compressed payload management. By default, payload in JWS' will not be compressed or decompressed, unless using the x5u flag `R_FLAG_ALLOW_INFLATE` on parse or when setting the payload
 
 ## 1.1.13
 

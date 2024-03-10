@@ -307,6 +307,8 @@ const char advanced_jku_4[] = "{\"keys\":[{\"kty\":\"EC\",\"x\":\"rXNalVG5Ylar4c
 #define TOKEN_ENC_INVALID_SIGNATURE "eyJ0eXAiOiJKV1QiLCJhbGciOiJSU0ExXzUiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.TGaK3fCgsGxLNuGbWR2j4Fi_hetyBLSRyadtdG0MAsXTnXlXsFb_wwFahZQASsLxwEEekZQ5EEkJb9gwu3uWaf3Oq58lOETa4Fb_Z1-WN1jvzF4DBEQLVl0azU62LbPsFHl8vWuuE7NF5oFX2V3CboQnFoWB1yyqWBJXkdEvFyIrHnNmQw9goPs2kjACnYdsNzMnP6SOYsYvguIJcvKnoBAbQYp0DA8OHXI6fW4P_zgZ7TQVCJLwpB0QoD_4Raaya3OABxQ7LJqhpYvk7iHGHnC-Ws23dmLCdv5WG_w6NEQwQLkuED8SXhUbirLeq4LRVxXdf8I1XTKesS6_NVJBNg.GMeHp_DOIg9h8sfGYE8fYg.XcRXOh492A8SPw8EEQ6mRe1kt7BNFqOgG8GqHR2g6CI4a_RI3JA2taxi3wc4wRWJ.94p-hjUgcWGiJsQ8TnnKtQ"
 #define TOKEN_WITH_ZIP_HEADER_UNCOMPRESSED "eyJ6aXAiOiJERUYiLCJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjEifQ.eyJkYXQiOiJodHRwczovL3Job25hYnd5LnRsZCJ9.t7oqCiYZa9qbV6JOptmnS_EB5uO1OErfJt7OlobglmFRPeLIkPwQExp7aqL5un-2AwMb7G3gEhbulTChaopy4A"
 #define TOKEN_WITH_ZIP_HEADER_COMPRESSED "eyJ6aXAiOiJERUYiLCJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjEifQ.q1ZKSSxRslLKKCkpKLbS1y_KyM9LTCqv1CvJSVGqBQA.FSaCp9U2bnwNNa6Vub3Ie6Bj0iUU5gg6xpCZ57kRI36Joama5i_gJ8TC8mPu0uHIX3Iw_utenxD15CzUwLlL1w"
+#define TOKEN_ENCRYPTED_ZIP_INVALID_JWT "eyJ0eXAiOiJKV1QiLCJ6aXAiOiJERUYiLCJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiZDRHSm95bWhib3lMS3JRcHhHZ0hCR0U4UmtUVEYzYW1sQXdTNldnV0NNayIsInkiOiJFMXBZOGNMN1dIbUR0OEpyZlJrdjVXTFBQWFZ2dkxxdm4zcGlhdWt2MERVIiwiY3J2IjoiUC0yNTYifSwiZW5jIjoiQTEyOENCQy1IUzI1NiJ9.dwI1XpPg3EOPUiagwFKlKIua4oK2MMhWdF6iJbD2zNnacOspCXUpog.JLznMNeTv50r1j2G8keiiA.lTvYGaoX5iv0kukSzMXUxw.4Atksp_sQ0AEoRgPPGwPFg"
+#define TOKEN_ENCRYPTED_ZIP_VALID_JWT "eyJ0eXAiOiJKV1QiLCJ6aXAiOiJERUYiLCJhbGciOiJFQ0RILUVTK0ExMjhLVyIsImtpZCI6IjEiLCJlcGsiOnsia3R5IjoiRUMiLCJ4IjoiOVlwMUMxXzNQNU5oa21RdUlwbUFPdUVOaGJoRUpGQ3p1SnhsVHJiZ0lSSSIsInkiOiJFQzZ4WmozMy11VVJUMzhFNHZlcmQ4QkI1dUNHclFGbGk2Tmo3VjhQQXBnIiwiY3J2IjoiUC0yNTYifSwiZW5jIjoiQTEyOENCQy1IUzI1NiJ9.uWoQPyPixlHMyzyTNdo6f-kbYGFnmNsNTtvSEXhcTyiBy8AUYeH_Yw.qfPoFSO0SOe2tg8pVrpyTw.2-Q8lq8l4a1OUrf3xDuZTfxZNOe2bG-54l8CNxPQWHE.cVXVGOOmIaus2HDDpqpWyw"
 
 START_TEST(test_rhonabwy_init)
 {
@@ -1993,7 +1995,7 @@ START_TEST(test_rhonabwy_zip)
 {
   jwt_t * jwt, * jwt_parse;
   jwk_t * jwk_priv;
-  char * token, * payload;
+  char * token, * payload, * str_payload;
   struct _o_datum dat = {0, NULL};
   json_t * j_dat;
 
@@ -2015,6 +2017,7 @@ START_TEST(test_rhonabwy_zip)
   ck_assert_ptr_nonnull((j_dat = json_loadb((const char *)dat.data, dat.size, JSON_ENCODE_ANY, NULL)));
   ck_assert_str_eq(json_string_value(json_object_get(j_dat, "dat")), JWT_CLAIM_ISS);
   r_jwt_free(jwt_parse);
+  json_decref(j_dat);
 
   ck_assert_ptr_nonnull((jwt_parse = r_jwt_quick_parse(TOKEN_WITH_ZIP_HEADER_UNCOMPRESSED, R_PARSE_NONE, 0)));
   ck_assert_str_eq(r_jwt_get_claim_str_value(jwt_parse, "dat"), JWT_CLAIM_ISS);
@@ -2022,8 +2025,33 @@ START_TEST(test_rhonabwy_zip)
 
   ck_assert_ptr_null(r_jwt_quick_parse(TOKEN_WITH_ZIP_HEADER_COMPRESSED, R_PARSE_NONE, 0));
 
-  o_free(dat.data);
+  /*jwk_t * jwk_pub;
+  unsigned char claims[] = "{\"plop\":\"grut\"}";
+  ck_assert_int_eq(r_jwk_init(&jwk_pub), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pub, jwk_pubkey_ecdsa_str), RHN_OK);
+  ck_assert_int_eq(r_jwt_init(&jwt), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_enc(jwt, R_JWA_ENC_A128CBC), RHN_OK);
+  ck_assert_int_eq(r_jwt_set_enc_alg(jwt, R_JWA_ALG_ECDH_ES_A128KW), RHN_OK);
+  r_jwt_set_header_str_value(jwt, "zip", "DEF");
+  ck_assert_int_eq(r_jwt_set_claim_str_value(jwt, "plop", "grut"), RHN_OK);
+  token = r_jwt_serialize_encrypted(jwt, jwk_pub, 0);
+  printf("token: %s\n", token);*/
+
+  ck_assert_ptr_nonnull((jwt_parse = r_jwt_quick_parse(TOKEN_ENCRYPTED_ZIP_INVALID_JWT, R_PARSE_NONE, 0)));
+  ck_assert_int_eq(RHN_OK, r_jwt_decrypt(jwt_parse, jwk_priv, R_FLAG_IGNORE_INFLATE));
+  ck_assert_ptr_null(r_jwt_get_inflate_claims_json_t(jwt_parse));
+  ck_assert_ptr_null(r_jwt_get_inflate_claims_str(jwt_parse));
+  r_jwt_free(jwt_parse);
+
+  ck_assert_ptr_nonnull((jwt_parse = r_jwt_quick_parse(TOKEN_ENCRYPTED_ZIP_VALID_JWT, R_PARSE_NONE, 0)));
+  ck_assert_int_eq(RHN_OK, r_jwt_decrypt(jwt_parse, jwk_priv, R_FLAG_IGNORE_INFLATE));
+  ck_assert_ptr_nonnull(j_dat = r_jwt_get_inflate_claims_json_t(jwt_parse));
+  ck_assert_ptr_nonnull(str_payload = r_jwt_get_inflate_claims_str(jwt_parse));
+  r_jwt_free(jwt_parse);
   json_decref(j_dat);
+  r_free(str_payload);
+
+  o_free(dat.data);
   r_free(token);
   r_jwk_free(jwk_priv);
   r_jwt_free(jwt);

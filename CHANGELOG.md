@@ -8,7 +8,7 @@
 - Breaking: Update `r_jwt_validate_claims` and `r_jwt_set_claims` to expect `rhn_int_t` values when using integer values
 - Add x5u flag `R_FLAG_ALLOW_INFLATE` to manage compressed payload in JWS'
 - Add x5u flag `R_FLAG_IGNORE_INFLATE` to manage compressed payload in JWEs
-- Add functions `r_jws_get_inflate_payload`, `r_jwe_get_inflate_payload`, `r_jwe_advanced_decrypt_payload`
+- Add functions `r_jws_get_inflate_payload`, `r_jwe_get_inflate_payload`, `r_jwt_get_inflate_claims_json_t`, `r_jwt_get_inflate_claims_str`, `r_jwe_advanced_decrypt_payload`
 - Breaking: Update compressed payload management. By default, payload in JWS' will not be compressed or decompressed, unless using the x5u flag `R_FLAG_ALLOW_INFLATE` on parse or when setting the payload
 
 ## 1.1.13

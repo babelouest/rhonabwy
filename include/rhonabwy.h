@@ -1896,7 +1896,7 @@ const unsigned char * r_jwe_get_payload(jwe_t * jwe, size_t * payload_len);
 
 /**
  * Get the inflated (unzipped) JWE payload
- * @param jws: the jwe_t to get the unzipped payload from
+ * @param jwe: the jwe_t to get the unzipped payload from
  * @param payload_len: the length of the unzipped JWE payload
  * @return the unzipped JWE payload as unsigned char *, must be r_free'd after use
  */
@@ -3548,6 +3548,20 @@ int r_jwt_validate_claims(jwt_t * jwt, ...);
  * - R_JWT_CLAIM_AMR: claim "amr", an array of strings, values expected a string
  */
 int r_jwt_set_claims(jwt_t * jwt, ...);
+
+/**
+ * Get the inflated (unzipped) JWT claims
+ * @param jwt: the jwt_t to get the unzipped claims from
+ * @return the claims in json_t * format, NULL on error
+ */
+json_t * r_jwt_get_inflate_claims_json_t(jwt_t * jwt);
+
+/**
+ * Get the inflated (unzipped) JWT claims
+ * @param jwt: the jwt_t to get the unzipped claims from
+ * @return the claims in char * format, NULL on error, must be r_free'd after use
+ */
+char * r_jwt_get_inflate_claims_str(jwt_t * jwt);
 
 /**
  * @}

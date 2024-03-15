@@ -2472,7 +2472,7 @@ static json_t * r_jwe_perform_key_encryption(jwe_t * jwe, jwa_alg alg, jwk_t * j
   return j_return;
 }
 
-static int _r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u_flags) {
+static int _r_perform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u_flags) {
   int ret, res;
   gnutls_datum_t plainkey = {NULL, 0}, cypherkey;
   gnutls_privkey_t g_priv = NULL;
@@ -2497,29 +2497,29 @@ static int _r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int 
                 if (r_jwe_set_cypher_key(jwe, plainkey.data, plainkey.size) == RHN_OK) {
                   ret = RHN_OK;
                 } else {
-                  y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error r_jwe_set_cypher_key (RSA1_5)");
+                  y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error r_jwe_set_cypher_key (RSA1_5)");
                   ret = RHN_ERROR;
                 }
                 gnutls_free(plainkey.data);
               } else if (res == GNUTLS_E_DECRYPTION_FAILED) {
                 ret = RHN_ERROR_INVALID;
               } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error gnutls_privkey_decrypt_data: %s", gnutls_strerror(res));
+                y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error gnutls_privkey_decrypt_data: %s", gnutls_strerror(res));
                 ret = RHN_ERROR;
               }
               o_free(dat.data);
               dat.data = NULL;
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error o_base64url_decode_alloc encrypted_key_b64url");
+              y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error o_base64url_decode_alloc encrypted_key_b64url");
               ret = RHN_ERROR_PARAM;
             }
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid RSA1_5 input parameters");
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error invalid RSA1_5 input parameters");
           ret = RHN_ERROR_PARAM;
         }
         gnutls_privkey_deinit(g_priv);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key size RSA1_5");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error invalid key size RSA1_5");
         ret = RHN_ERROR_INVALID;
       }
       break;
@@ -2537,35 +2537,35 @@ static int _r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int 
                   if (r_jwe_set_cypher_key(jwe, clearkey, clearkey_len) == RHN_OK) {
                     ret = RHN_OK;
                   } else {
-                    y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error r_jwe_set_cypher_key (RSA_OAEP)");
+                    y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error r_jwe_set_cypher_key (RSA_OAEP)");
                     ret = RHN_ERROR;
                   }
                 } else {
-                  y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key length");
+                  y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error invalid key length");
                   ret = RHN_ERROR_PARAM;
                 }
               } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error _r_rsa_oaep_decrypt");
+                y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error _r_rsa_oaep_decrypt");
                 ret = RHN_ERROR_INVALID;
               }
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error o_malloc clearkey");
+              y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error o_malloc clearkey");
               ret = RHN_ERROR_MEMORY;
             }
             o_free(clearkey);
             o_free(dat.data);
             dat.data = NULL;
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error o_base64url_decode_alloc encrypted_key_b64url");
+            y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error o_base64url_decode_alloc encrypted_key_b64url");
             ret = RHN_ERROR_PARAM;
           }
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid RSA1-OAEP input parameters");
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error invalid RSA1-OAEP input parameters");
           ret = RHN_ERROR_PARAM;
         }
         gnutls_privkey_deinit(g_priv);
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key size RSA_OAEP");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error invalid key size RSA_OAEP");
         ret = RHN_ERROR_INVALID;
       }
       break;
@@ -2582,22 +2582,22 @@ static int _r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int 
               jwe->encrypted_key_b64url = NULL;
               ret = r_jwe_set_cypher_key(jwe, key, key_len);
             } else {
-              y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error r_jwk_export_to_symmetric_key");
+              y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error r_jwk_export_to_symmetric_key");
               ret = RHN_ERROR_MEMORY;
             }
             o_free(key);
           } else {
-            y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error allocating resources for key");
+            y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error allocating resources for key");
             ret = RHN_ERROR_MEMORY;
           }
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key type DIR");
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error invalid key type DIR");
           ret = RHN_ERROR_INVALID;
         }
       } else if (jwe->key != NULL && jwe->key_len > 0) {
         ret = RHN_OK;
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error no key available for alg 'dir'");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error no key available for alg 'dir'");
         ret = RHN_ERROR_INVALID;
       }
       break;
@@ -2610,11 +2610,11 @@ static int _r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int 
         if ((res = r_jwe_aesgcm_key_unwrap(jwe, alg, jwk, x5u_flags)) == RHN_OK) {
           ret = RHN_OK;
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error r_jwe_aesgcm_key_unwrap");
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error r_jwe_aesgcm_key_unwrap");
           ret = res;
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key type AESGCM");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error invalid key type AESGCM");
         ret = RHN_ERROR_INVALID;
       }
       break;
@@ -2626,11 +2626,11 @@ static int _r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int 
         if ((res = r_jwe_aes_key_unwrap(jwe, alg, jwk, x5u_flags)) == RHN_OK) {
           ret = RHN_OK;
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error r_jwe_aes_key_unwrap");
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error r_jwe_aes_key_unwrap");
           ret = res;
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key type KeyWrap");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error invalid key type KeyWrap");
         ret = RHN_ERROR_INVALID;
       }
       break;
@@ -2643,11 +2643,11 @@ static int _r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int 
         if ((res = r_jwe_pbes2_key_unwrap(jwe, alg, jwk, x5u_flags)) == RHN_OK) {
           ret = RHN_OK;
         } else {
-          y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error r_jwe_pbes2_key_unwrap");
+          y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error r_jwe_pbes2_key_unwrap");
           ret = res;
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key type PBES");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error invalid key type PBES");
         ret = RHN_ERROR_INVALID;
       }
       break;
@@ -2663,18 +2663,18 @@ static int _r_preform_key_decryption(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int 
           ret = RHN_OK;
         } else {
           if (res != RHN_ERROR_INVALID) {
-            y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error _r_jwe_ecdh_decrypt");
+            y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error _r_jwe_ecdh_decrypt");
           }
           ret = res;
         }
       } else {
-        y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error invalid key type ECDH");
+        y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error invalid key type ECDH");
         ret = RHN_ERROR_INVALID;
       }
       break;
 #endif
     default:
-      y_log_message(Y_LOG_LEVEL_ERROR, "_r_preform_key_decryption - Error unsupported algorithm");
+      y_log_message(Y_LOG_LEVEL_ERROR, "_r_perform_key_decryption - Error unsupported algorithm");
       ret = RHN_ERROR_INVALID;
       break;
   }
@@ -3824,7 +3824,7 @@ int r_jwe_decrypt_key(jwe_t * jwe, jwk_t * jwk_s, int x5u_flags) {
   }
 
   if (jwe != NULL && jwe->alg != R_JWA_ALG_UNKNOWN && jwe->alg != R_JWA_ALG_NONE) {
-    ret = _r_preform_key_decryption(jwe, jwe->alg, jwk, x5u_flags);
+    ret = _r_perform_key_decryption(jwe, jwe->alg, jwk, x5u_flags);
   } else {
     ret = RHN_ERROR_PARAM;
   }
@@ -4199,7 +4199,7 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
         if (alg != R_JWA_ALG_UNKNOWN && alg != R_JWA_ALG_ECDH_ES) {
           if (jwk_privkey != NULL) {
             if (r_jwk_get_property_str(jwk_privkey, "kid") == NULL || json_object_get(json_object_get(j_recipient, "header"), "kid") == NULL || 0 == o_strcmp(json_string_value(json_object_get(json_object_get(j_recipient, "header"), "kid")), r_jwk_get_property_str(jwk_privkey, "kid"))) {
-              if ((res = _r_preform_key_decryption(jwe, alg, jwk_privkey, x5u_flags)) != RHN_ERROR_INVALID) {
+              if ((res = _r_perform_key_decryption(jwe, alg, jwk_privkey, x5u_flags)) != RHN_ERROR_INVALID) {
                 ret = res;
                 break;
               }
@@ -4207,7 +4207,7 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
           } else {
             if (json_object_get(json_object_get(j_recipient, "header"), "kid") != NULL) {
               cur_jwk = r_jwks_get_by_kid(jwe->jwks_privkey, json_string_value(json_object_get(json_object_get(j_recipient, "header"), "kid")));
-              if ((res = _r_preform_key_decryption(jwe, alg, cur_jwk, x5u_flags)) != RHN_ERROR_INVALID) {
+              if ((res = _r_perform_key_decryption(jwe, alg, cur_jwk, x5u_flags)) != RHN_ERROR_INVALID) {
                 ret = res;
                 r_jwk_free(cur_jwk);
                 break;
@@ -4216,7 +4216,7 @@ int r_jwe_decrypt(jwe_t * jwe, jwk_t * jwk_privkey, int x5u_flags) {
             } else {
               for (i=0; i<r_jwks_size(jwe->jwks_privkey); i++) {
                 cur_jwk = r_jwks_get_at(jwe->jwks_privkey, i);
-                if ((res = _r_preform_key_decryption(jwe, alg, cur_jwk, x5u_flags)) != RHN_ERROR_INVALID) {
+                if ((res = _r_perform_key_decryption(jwe, alg, cur_jwk, x5u_flags)) != RHN_ERROR_INVALID) {
                   ret = res;
                   r_jwk_free(cur_jwk);
                   break;

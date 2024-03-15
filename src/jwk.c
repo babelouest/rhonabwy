@@ -173,7 +173,7 @@ int r_jwk_is_valid(jwk_t * jwk) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Missing kty");
         ret = RHN_ERROR_PARAM;
       }
-      if (json_object_get(jwk, "use") != NULL && !json_is_string(json_object_get(jwk, "use"))) {
+      if (json_object_get(jwk, "use") != NULL && (!json_is_string(json_object_get(jwk, "use")) || !json_is_string(json_object_get(jwk, "use")))) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid use");
         ret = RHN_ERROR_PARAM;
       }
@@ -203,15 +203,15 @@ int r_jwk_is_valid(jwk_t * jwk) {
           }
         }
       }
-      if (json_object_get(jwk, "kid") != NULL && !json_is_string(json_object_get(jwk, "kid"))) {
+      if (json_object_get(jwk, "kid") != NULL && (!json_is_string(json_object_get(jwk, "kid")) || !json_string_length(json_object_get(jwk, "kid")))) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid kid");
         ret = RHN_ERROR_PARAM;
       }
-      if (json_object_get(jwk, "x5t") != NULL && !json_is_string(json_object_get(jwk, "x5t"))) {
+      if (json_object_get(jwk, "x5t") != NULL && (!json_is_string(json_object_get(jwk, "x5t")) || !json_string_length(json_object_get(jwk, "x5t")))) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x5t");
         ret = RHN_ERROR_PARAM;
       }
-      if (json_object_get(jwk, "x5t#S256") != NULL && !json_is_string(json_object_get(jwk, "x5t#S256"))) {
+      if (json_object_get(jwk, "x5t#S256") != NULL && (!json_is_string(json_object_get(jwk, "x5t#S256")) || !json_string_length(json_object_get(jwk, "x5t#S256")))) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwk_is_valid - Invalid x5t#S256");
         ret = RHN_ERROR_PARAM;
       }

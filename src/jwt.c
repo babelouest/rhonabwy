@@ -2435,3 +2435,83 @@ char * r_jwt_get_inflate_claims_str(jwt_t * jwt) {
   }
   return str_claims;
 }
+
+const char * r_jwt_get_sign_header_str_value(jwt_t * jwt, const char * key) {
+  if (jwt != NULL && jwt->jws != NULL) {
+    return r_jws_get_header_str_value(jwt->jws, key);
+  } else {
+    return NULL;
+  }
+}
+
+rhn_int_t r_jwt_get_sign_header_int_value(jwt_t * jwt, const char * key) {
+  if (jwt != NULL && jwt->jws != NULL) {
+    return r_jws_get_header_int_value(jwt->jws, key);
+  } else {
+    return 0;
+  }
+}
+
+json_t * r_jwt_get_sign_header_json_t_value(jwt_t * jwt, const char * key) {
+  if (jwt != NULL && jwt->jws != NULL) {
+    return r_jws_get_header_json_t_value(jwt->jws, key);
+  } else {
+    return NULL;
+  }
+}
+
+json_t * r_jwt_get_full_sign_header_json_t(jwt_t * jwt) {
+  if (jwt != NULL && jwt->jws != NULL) {
+    return r_jws_get_full_header_json_t(jwt->jws);
+  } else {
+    return NULL;
+  }
+}
+
+char * r_jwt_get_full_sign_header_str(jwt_t * jwt) {
+  if (jwt != NULL && jwt->jws != NULL) {
+    return r_jws_get_full_header_str(jwt->jws);
+  } else {
+    return NULL;
+  }
+}
+
+const char * r_jwt_get_enc_header_str_value(jwt_t * jwt, const char * key) {
+  if (jwt != NULL && jwt->jwe != NULL) {
+    return r_jwe_get_header_str_value(jwt->jwe, key);
+  } else {
+    return NULL;
+  }
+}
+
+rhn_int_t r_jwt_get_enc_header_int_value(jwt_t * jwt, const char * key) {
+  if (jwt != NULL && jwt->jwe != NULL) {
+    return r_jwe_get_header_int_value(jwt->jwe, key);
+  } else {
+    return 0;
+  }
+}
+
+json_t * r_jwt_get_enc_header_json_t_value(jwt_t * jwt, const char * key) {
+  if (jwt != NULL && jwt->jwe != NULL) {
+    return r_jwe_get_header_json_t_value(jwt->jwe, key);
+  } else {
+    return NULL;
+  }
+}
+
+json_t * r_jwt_get_full_enc_header_json_t(jwt_t * jwt) {
+  if (jwt != NULL && jwt->jwe != NULL) {
+    return r_jwe_get_full_header_json_t(jwt->jwe);
+  } else {
+    return NULL;
+  }
+}
+
+char * r_jwt_get_full_enc_header_str(jwt_t * jwt) {
+  if (jwt != NULL && jwt->jwe != NULL) {
+    return r_jwe_get_full_header_str(jwt->jwe);
+  } else {
+    return NULL;
+  }
+}

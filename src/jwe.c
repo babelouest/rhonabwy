@@ -1869,12 +1869,12 @@ static int r_jwe_set_enc_header(jwe_t * jwe, json_t * j_header) {
 
 static int r_jwe_aesgcm_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u_flags) {
   int ret, res;
-  unsigned char * key = NULL, tag[128] = {0}, tag_b64url[256] = {0};
-  size_t key_len = 0, tag_b64url_len = 0, tag_len = (unsigned)gnutls_cipher_get_tag_size(r_jwe_get_alg_from_alg(alg));
+  unsigned char * key = NULL, tag[128] = {0};
+  size_t key_len = 0, tag_len = (unsigned)gnutls_cipher_get_tag_size(r_jwe_get_alg_from_alg(alg));
   unsigned int bits = 0;
   gnutls_datum_t key_g, iv_g;
   gnutls_cipher_hd_t handle = NULL;
-  struct _o_datum dat_iv = {0, NULL}, dat_key = {0, NULL};
+  struct _o_datum dat_iv = {0, NULL}, dat_key = {0, NULL}, dat_tag = {0, NULL};
 
   if (r_jwk_key_type(jwk, &bits, x5u_flags) & R_KEY_TYPE_SYMMETRIC && !o_strnullempty(r_jwe_get_header_str_value(jwe, "iv")) && !o_strnullempty(r_jwe_get_header_str_value(jwe, "tag"))) {
     ret = RHN_OK;
@@ -1925,14 +1925,13 @@ static int r_jwe_aesgcm_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5
         ret = RHN_ERROR;
         break;
       }
-      if (!o_base64url_encode(tag, tag_len, tag_b64url, &tag_b64url_len)) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error o_base64url_encode tag");
+      if (!o_base64url_encode_alloc(tag, tag_len, &dat_tag)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Error o_base64url_encode_alloc tag");
         ret = RHN_ERROR;
         break;
       }
-      tag_b64url[tag_b64url_len] = '\0';
-      if (0 != o_strcmp((const char *)tag_b64url, r_jwe_get_header_str_value(jwe, "tag"))) {
-        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Invalid tag %s %s", tag_b64url, r_jwe_get_header_str_value(jwe, "tag"));
+      if (dat_tag.size != o_strlen(r_jwe_get_header_str_value(jwe, "tag")) || 0 != gnutls_memcmp(dat_tag.data, r_jwe_get_header_str_value(jwe, "tag"), dat_tag.size)) {
+        y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_aesgcm_key_unwrap - Invalid tag");
         ret = RHN_ERROR_INVALID;
         break;
       }
@@ -1945,6 +1944,7 @@ static int r_jwe_aesgcm_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5
     o_free(key);
     o_free(dat_key.data);
     o_free(dat_iv.data);
+    o_free(dat_tag.data);
     if (handle != NULL) {
       gnutls_cipher_deinit(handle);
     }
@@ -3729,7 +3729,7 @@ int r_jwe_advanced_decrypt_payload(jwe_t * jwe, int flags) {
           }
           if (ret == RHN_OK && tag_len) {
             if (o_base64url_encode_alloc(tag, tag_len, &dat_tag)) {
-              if (dat_tag.size != o_strlen((const char *)jwe->auth_tag_b64url) || 0 != memcmp(dat_tag.data, jwe->auth_tag_b64url, dat_tag.size)) {
+              if (dat_tag.size != o_strlen((const char *)jwe->auth_tag_b64url) || 0 != gnutls_memcmp(dat_tag.data, jwe->auth_tag_b64url, dat_tag.size)) {
                 y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Invalid tag");
                 ret = RHN_ERROR_INVALID;
               }

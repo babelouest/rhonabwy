@@ -35,6 +35,9 @@
 
 #define _R_BLOCK_SIZE 256
 
+#define _R_PBES2_P2C_MIN 1000
+#define _R_PBES2_P2C_MAX 32768
+
 #define _R_PBES_DEFAULT_ITERATION 4096
 #define _R_PBES_DEFAULT_SALT_LENGTH 8
 #define _R_CURVE_MAX_SIZE 66
@@ -360,6 +363,12 @@ static int _r_rsa_oaep_encrypt(gnutls_pubkey_t g_pub, jwa_alg alg, uint8_t * cle
       y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_encrypt - Error cyphertext to small");
       ret = RHN_ERROR_PARAM;
     }
+    if (m.data != NULL && m.size > 0) {
+      memset(m.data, 0, m.size);
+    }
+    if (e.data != NULL && e.size > 0) {
+      memset(e.data, 0, e.size);
+    }
     gnutls_free(m.data);
     gnutls_free(e.data);
   } else {
@@ -404,6 +413,30 @@ static int _r_rsa_oaep_decrypt(gnutls_privkey_t g_priv, jwa_alg alg, uint8_t * c
     } else {
       y_log_message(Y_LOG_LEVEL_ERROR, "_r_rsa_oaep_decrypt - Error cyphertext to small");
       ret = RHN_ERROR_PARAM;
+    }
+    if (m.data != NULL && m.size > 0) {
+      memset(m.data, 0, m.size);
+    }
+    if (e.data != NULL && e.size > 0) {
+      memset(e.data, 0, e.size);
+    }
+    if (d.data != NULL && d.size > 0) {
+      memset(d.data, 0, d.size);
+    }
+    if (p.data != NULL && p.size > 0) {
+      memset(p.data, 0, p.size);
+    }
+    if (q.data != NULL && q.size > 0) {
+      memset(q.data, 0, q.size);
+    }
+    if (u.data != NULL && u.size > 0) {
+      memset(u.data, 0, u.size);
+    }
+    if (e1.data != NULL && e1.size > 0) {
+      memset(e1.data, 0, e1.size);
+    }
+    if (e2.data != NULL && e2.size > 0) {
+      memset(e2.data, 0, e2.size);
     }
     gnutls_free(m.data);
     gnutls_free(e.data);
@@ -1154,6 +1187,12 @@ static json_t * _r_jwe_ecdh_encrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk_pub, j
   } while (0);
 
   o_free(kdf.data);
+  if (Z.data != NULL && Z.size > 0) {
+    memset(Z.data, 0, Z.size);
+  }
+  memset(priv_k, 0, _R_CURVE_MAX_SIZE);
+  memset(pub_x, 0, _R_CURVE_MAX_SIZE);
+  memset(pub_y, 0, _R_CURVE_MAX_SIZE);
   gnutls_free(Z.data);
   r_jwk_free(jwk_ephemeral);
   r_jwk_free(jwk_ephemeral_pub);
@@ -1363,6 +1402,12 @@ static int _r_jwe_ecdh_decrypt(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int type, 
   } while (0);
 
   o_free(kdf.data);
+  if (Z.data != NULL && Z.size > 0) {
+    memset(Z.data, 0, Z.size);
+  }
+  memset(priv_k, 0, _R_CURVE_MAX_SIZE);
+  memset(pub_x, 0, _R_CURVE_MAX_SIZE);
+  memset(pub_y, 0, _R_CURVE_MAX_SIZE);
   gnutls_free(Z.data);
   r_jwk_free(jwk_ephemeral_pub);
   json_decref(j_epk);
@@ -1442,13 +1487,13 @@ static json_t * r_jwe_pbes2_key_wrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int 
       
       j_p2c = r_jwe_get_header_json_t_value(jwe, "p2c");
       if (j_p2c != NULL) {
-        if (!json_is_integer(j_p2c) || json_integer_value(j_p2c) <= 0) {
+        if (!json_is_integer(j_p2c) || json_integer_value(j_p2c) < _R_PBES2_P2C_MIN || json_integer_value(j_p2c) > _R_PBES2_P2C_MAX) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_wrap - Error p2c");
           *ret = RHN_ERROR_PARAM;
           break;
         }
       }
-      if ((p2c = (unsigned int)r_jwe_get_header_int_value(jwe, "p2c")) <= 0) {
+      if ((p2c = (unsigned int)r_jwe_get_header_int_value(jwe, "p2c")) == 0) {
         p2c = _R_PBES_DEFAULT_ITERATION;
       }
 
@@ -1510,7 +1555,8 @@ static int r_jwe_pbes2_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u
   size_t alg_len, salt_len, key_len = 0, cipherkey_len = 0, kek_len = 0;
   int ret;
   const char * p2s;
-  unsigned int p2c, bits = 0;
+  json_int_t p2c;
+  unsigned int bits = 0;
   gnutls_datum_t password = {NULL, 0}, g_salt = {NULL, 0};
   gnutls_mac_algorithm_t mac = GNUTLS_MAC_UNKNOWN;
   struct _o_datum dat_dec = {0, NULL};
@@ -1520,7 +1566,8 @@ static int r_jwe_pbes2_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u
 
     do {
       alg_len = o_strlen(r_jwe_get_header_str_value(jwe, "alg"));
-      if ((p2c = (unsigned int)r_jwe_get_header_int_value(jwe, "p2c")) <= 0) {
+      p2c = r_jwe_get_header_int_value(jwe, "p2c");
+      if (p2c < _R_PBES2_P2C_MIN || p2c > _R_PBES2_P2C_MAX) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error invalid p2c");
         ret = RHN_ERROR_PARAM;
         break;
@@ -1576,7 +1623,7 @@ static int r_jwe_pbes2_key_unwrap(jwe_t * jwe, jwa_alg alg, jwk_t * jwk, int x5u
         kek_len = 32;
         mac = GNUTLS_MAC_SHA512;
       }
-      if (gnutls_pbkdf2(mac, &password, &g_salt, p2c, kek, kek_len) != GNUTLS_E_SUCCESS) {
+      if (gnutls_pbkdf2(mac, &password, &g_salt, (unsigned int)p2c, kek, kek_len) != GNUTLS_E_SUCCESS) {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_pbes2_key_unwrap - Error gnutls_pbkdf2");
         ret = RHN_ERROR;
         break;
@@ -2195,7 +2242,7 @@ static int r_jwe_extract_header(jwe_t * jwe, json_t * j_header, uint32_t parse_f
         ret = RHN_ERROR_PARAM;
       } else {
         p2c = json_integer_value(json_object_get(j_header, "p2c"));
-        if (p2c <= 0) {
+        if (p2c < _R_PBES2_P2C_MIN || p2c > _R_PBES2_P2C_MAX) {
           y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_extract_header - Error invalid p2c value");
           ret = RHN_ERROR_PARAM;
         }
@@ -2758,6 +2805,9 @@ void r_jwe_free(jwe_t * jwe) {
     r_jwks_free(jwe->jwks_pubkey);
     o_free(jwe->header_b64url);
     o_free(jwe->encrypted_key_b64url);
+    if (jwe->iv_b64url != NULL) {
+      memset(jwe->iv_b64url, 0, o_strlen((const char *)jwe->iv_b64url));
+    }
     o_free(jwe->iv_b64url);
     if (jwe->aad_b64url != NULL) {
       memset(jwe->aad_b64url, 0, o_strlen((const char *)jwe->aad_b64url));
@@ -2958,6 +3008,9 @@ int r_jwe_set_iv(jwe_t * jwe, const unsigned char * iv, size_t iv_len) {
         memcpy(jwe->iv, iv, iv_len);
         jwe->iv_len = iv_len;
         if (o_base64url_encode_alloc(jwe->iv, jwe->iv_len, &dat)) {
+          if (jwe->iv_b64url != NULL) {
+            memset(jwe->iv_b64url, 0, o_strlen((const char *)jwe->iv_b64url));
+          }
           o_free(jwe->iv_b64url);
           jwe->iv_b64url = (unsigned char *)o_strndup((const char *)dat.data, dat.size);
           o_free(dat.data);
@@ -3053,6 +3106,9 @@ int r_jwe_generate_iv(jwe_t * jwe) {
   struct _o_datum dat = {0, NULL};
 
   if (jwe != NULL && jwe->enc != R_JWA_ENC_UNKNOWN) {
+    if (jwe->iv_b64url != NULL) {
+      memset(jwe->iv_b64url, 0, o_strlen((const char *)jwe->iv_b64url));
+    }
     o_free(jwe->iv_b64url);
     jwe->iv_b64url = NULL;
     if (jwe->iv != NULL && jwe->iv_len > 0) {
@@ -3993,6 +4049,9 @@ int r_jwe_advanced_compact_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_
           jwe->aad_b64url = (unsigned char *)o_strdup(str_array[0]);
           o_free(jwe->encrypted_key_b64url);
           jwe->encrypted_key_b64url = (unsigned char *)o_strdup(str_array[1]);
+          if (jwe->iv_b64url != NULL) {
+            memset(jwe->iv_b64url, 0, o_strlen((const char *)jwe->iv_b64url));
+          }
           o_free(jwe->iv_b64url);
           jwe->iv_b64url = (unsigned char *)o_strdup(str_array[2]);
           o_free(jwe->ciphertext_b64url);
@@ -4072,6 +4131,9 @@ int r_jwe_advanced_parse_json_t(jwe_t * jwe, json_t * jwe_json, uint32_t parse_f
       jwe->header_b64url = NULL;
       o_free(jwe->encrypted_key_b64url);
       jwe->encrypted_key_b64url = NULL;
+      if (jwe->iv_b64url != NULL) {
+        memset(jwe->iv_b64url, 0, o_strlen((const char *)jwe->iv_b64url));
+      }
       o_free(jwe->iv_b64url);
       jwe->iv_b64url = NULL;
       o_free(jwe->ciphertext_b64url);

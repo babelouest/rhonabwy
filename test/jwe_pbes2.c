@@ -40,6 +40,8 @@ pbkdf2_hmac_sha512 (size_t key_length, const uint8_t *key,
 #define TOKEN_INVALID_P2S_TYPE "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjo0MiwicDJjIjo0MDk2fQ.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
 #define TOKEN_INVALID_P2C_NEG "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiTGZfbk9xdU9TM1UiLCJwMmMiOi00Mn0.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
 #define TOKEN_INVALID_P2C_STRING "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiTGZfbk9xdU9TM1UiLCJwMmMiOiIxMDAwIn0.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
+#define TOKEN_INVALID_P2C_LOW "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiTGZfbk9xdU9TM1UiLCJwMmMiOjQyfQ.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
+#define TOKEN_INVALID_P2C_HIGH "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJlbmMiOiJBMTI4Q0JDLUhTMjU2IiwicDJzIjoiTGZfbk9xdU9TM1UiLCJwMmMiOjQyNDI0Mn0.vyYTdkjdPIv0DwxxaN1d0lILGkGXNiH8KzWb6nl8azjCJINwQ0Yjaw.jbfmnTw8AlsH9XwNIfc_pA.2hcZHvkmfnSQcnzVJ97T9kylIpZDBPtx43ODFye1l0Jf-IjB757r9cQHgmE5kdT9C_rmv4CGXf9ExVYVgX0AQA.p_gD5xAAVJOFs3R9cSb2ow"
 
 const char jwk_key_128_1[] = "{\"kty\":\"oct\",\"k\":\"AAECAwQFBgcICQoLDA0ODw\"}";
 const char jwk_key_128_2[] = "{\"kty\":\"oct\",\"k\":\"CAkKCwwNDg8QERITFBUWFw\"}";
@@ -64,6 +66,8 @@ START_TEST(test_rhonabwy_parse_token_invalid)
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_P2S_TYPE, 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_P2C_NEG, 0), RHN_ERROR_PARAM);
   ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_P2C_STRING, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_P2C_LOW, 0), RHN_ERROR_PARAM);
+  ck_assert_int_eq(r_jwe_parse(jwe_decrypt, TOKEN_INVALID_P2C_HIGH, 0), RHN_ERROR_PARAM);
   
   r_jwe_free(jwe_decrypt);
 }
@@ -309,6 +313,12 @@ START_TEST(test_rhonabwy_flood_serialize_invalid_p2s_p2c)
   ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk, 0), NULL);
   
   ck_assert_int_eq(r_jwe_set_header_int_value(jwe, "p2c", -42), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk, 0), NULL);
+  
+  ck_assert_int_eq(r_jwe_set_header_int_value(jwe, "p2c", 42), RHN_OK);
+  ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk, 0), NULL);
+  
+  ck_assert_int_eq(r_jwe_set_header_int_value(jwe, "p2c", 424242), RHN_OK);
   ck_assert_ptr_eq(r_jwe_serialize(jwe, jwk, 0), NULL);
   
   r_jwe_free(jwe);

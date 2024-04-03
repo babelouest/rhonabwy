@@ -253,6 +253,9 @@ static unsigned char * r_jws_sign_hmac(jws_t * jws, jwk_t * jwk) {
 
   o_free(data);
   o_free(sig);
+  if (key != NULL && key_len >0) {
+    memset(key, 0, key_len);
+  }
   o_free(key);
 
   return to_return;

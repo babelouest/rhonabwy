@@ -2759,12 +2759,27 @@ void r_jwe_free(jwe_t * jwe) {
     o_free(jwe->header_b64url);
     o_free(jwe->encrypted_key_b64url);
     o_free(jwe->iv_b64url);
+    if (jwe->aad_b64url != NULL) {
+      memset(jwe->aad_b64url, 0, o_strlen((const char *)jwe->aad_b64url));
+    }
     o_free(jwe->aad_b64url);
     o_free(jwe->ciphertext_b64url);
     o_free(jwe->auth_tag_b64url);
     json_decref(jwe->j_header);
     json_decref(jwe->j_unprotected_header);
     json_decref(jwe->j_json_serialization);
+    if (jwe->key != NULL && jwe->key_len > 0) {
+      memset(jwe->key, 0, jwe->key_len);
+    }
+    if (jwe->iv != NULL && jwe->iv_len > 0) {
+      memset(jwe->iv, 0, jwe->iv_len);
+    }
+    if (jwe->aad != NULL && jwe->aad_len > 0) {
+      memset(jwe->aad, 0, jwe->aad_len);
+    }
+    if (jwe->payload != NULL && jwe->payload_len > 0) {
+      memset(jwe->payload, 0, jwe->payload_len);
+    }
     o_free(jwe->key);
     o_free(jwe->iv);
     o_free(jwe->aad);
@@ -2812,6 +2827,9 @@ int r_jwe_set_payload(jwe_t * jwe, const unsigned char * payload, size_t payload
   int ret;
 
   if (jwe != NULL) {
+    if (jwe->payload != NULL && jwe->payload_len > 0) {
+      memset(jwe->payload, 0, jwe->payload_len);
+    }
     o_free(jwe->payload);
     if (payload != NULL && payload_len) {
       if ((jwe->payload = o_malloc(payload_len)) != NULL) {
@@ -2861,6 +2879,9 @@ int r_jwe_set_cypher_key(jwe_t * jwe, const unsigned char * key, size_t key_len)
   int ret;
 
   if (jwe != NULL) {
+    if (jwe->key != NULL && jwe->key_len > 0) {
+      memset(jwe->key, 0, jwe->key_len);
+    }
     o_free(jwe->key);
     if (key != NULL && key_len) {
       if ((jwe->key = o_malloc(key_len)) != NULL) {
@@ -2898,6 +2919,9 @@ int r_jwe_generate_cypher_key(jwe_t * jwe) {
   if (jwe != NULL && jwe->enc != R_JWA_ENC_UNKNOWN) {
     o_free(jwe->encrypted_key_b64url);
     jwe->encrypted_key_b64url = NULL;
+    if (jwe->key != NULL && jwe->key_len > 0) {
+      memset(jwe->key, 0, jwe->key_len);
+    }
     jwe->key_len = _r_get_key_size(jwe->enc);
     o_free(jwe->key);
     if (!jwe->key_len) {
@@ -2925,6 +2949,9 @@ int r_jwe_set_iv(jwe_t * jwe, const unsigned char * iv, size_t iv_len) {
   struct _o_datum dat = {0, NULL};
 
   if (jwe != NULL) {
+    if (jwe->iv != NULL && jwe->iv_len > 0) {
+      memset(jwe->iv, 0, jwe->iv_len);
+    }
     o_free(jwe->iv);
     if (iv != NULL && iv_len) {
       if ((jwe->iv = o_malloc(iv_len)) != NULL) {
@@ -2970,14 +2997,23 @@ int r_jwe_set_aad(jwe_t * jwe, const unsigned char * aad, size_t aad_len) {
   struct _o_datum dat = {0, NULL};
 
   if (jwe != NULL) {
+    if (jwe->aad_b64url != NULL) {
+      memset(jwe->aad_b64url, 0, o_strlen((const char *)jwe->aad_b64url));
+    }
     o_free(jwe->aad_b64url);
     jwe->aad_b64url = NULL;
+    if (jwe->aad != NULL && jwe->aad_len > 0) {
+      memset(jwe->aad, 0, jwe->aad_len);
+    }
     o_free(jwe->aad);
     if (aad != NULL && aad_len) {
       if ((jwe->aad = o_malloc(aad_len)) != NULL) {
         memcpy(jwe->aad, aad, aad_len);
         jwe->aad_len = aad_len;
         if (o_base64url_encode_alloc(jwe->aad, jwe->aad_len, &dat)) {
+          if (jwe->aad_b64url != NULL) {
+            memset(jwe->aad_b64url, 0, o_strlen((const char *)jwe->aad_b64url));
+          }
           o_free(jwe->aad_b64url);
           jwe->aad_b64url = (unsigned char *)o_strndup((const char *)dat.data, dat.size);
           o_free(dat.data);
@@ -3019,6 +3055,9 @@ int r_jwe_generate_iv(jwe_t * jwe) {
   if (jwe != NULL && jwe->enc != R_JWA_ENC_UNKNOWN) {
     o_free(jwe->iv_b64url);
     jwe->iv_b64url = NULL;
+    if (jwe->iv != NULL && jwe->iv_len > 0) {
+      memset(jwe->iv, 0, jwe->iv_len);
+    }
     jwe->iv_len = (unsigned)gnutls_cipher_get_iv_size(_r_get_alg_from_enc(jwe->enc));
     o_free(jwe->iv);
     jwe->iv = NULL;
@@ -3628,6 +3667,9 @@ int r_jwe_advanced_decrypt_payload(jwe_t * jwe, int flags) {
 
     if (ret == RHN_OK) {
       // Decode iv and payload_b64
+      if (jwe->iv != NULL && jwe->iv_len > 0) {
+        memset(jwe->iv, 0, jwe->iv_len);
+      }
       o_free(jwe->iv);
       if (o_base64url_decode_alloc(jwe->iv_b64url, o_strlen((const char *)jwe->iv_b64url), &dat)) {
         if ((jwe->iv = o_malloc(dat.size)) != NULL) {
@@ -3944,6 +3986,9 @@ int r_jwe_advanced_compact_parsen(jwe_t * jwe, const char * jwe_str, size_t jwe_
 
           o_free(jwe->header_b64url);
           jwe->header_b64url = (unsigned char *)o_strdup(str_array[0]);
+          if (jwe->aad_b64url != NULL) {
+            memset(jwe->aad_b64url, 0, o_strlen((const char *)jwe->aad_b64url));
+          }
           o_free(jwe->aad_b64url);
           jwe->aad_b64url = (unsigned char *)o_strdup(str_array[0]);
           o_free(jwe->encrypted_key_b64url);
@@ -4033,6 +4078,9 @@ int r_jwe_advanced_parse_json_t(jwe_t * jwe, json_t * jwe_json, uint32_t parse_f
       jwe->ciphertext_b64url = NULL;
       o_free(jwe->auth_tag_b64url);
       jwe->auth_tag_b64url = NULL;
+      if (jwe->aad_b64url != NULL) {
+        memset(jwe->aad_b64url, 0, o_strlen((const char *)jwe->aad_b64url));
+      }
       o_free(jwe->aad_b64url);
       jwe->aad_b64url = NULL;
       json_decref(jwe->j_header);

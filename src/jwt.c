@@ -104,6 +104,12 @@ void r_jwt_free(jwt_t * jwt) {
     r_jwks_free(jwt->jwks_pubkey_enc);
     r_jwe_free(jwt->jwe);
     r_jws_free(jwt->jws);
+    if (jwt->key != NULL && jwt->key_len > 0) {
+      memset(jwt->key, 0, jwt->key_len);
+    }
+    if (jwt->iv != NULL && jwt->iv_len > 0) {
+      memset(jwt->iv, 0, jwt->iv_len);
+    }
     o_free(jwt->key);
     o_free(jwt->iv);
     json_decref(jwt->j_header);
@@ -871,6 +877,9 @@ int r_jwt_set_enc_cypher_key(jwt_t * jwt, const unsigned char * key, size_t key_
   int ret;
 
   if (jwt != NULL) {
+    if (jwt->key != NULL && jwt->key_len > 0) {
+      memset(jwt->key, 0, jwt->key_len);
+    }
     o_free(jwt->key);
     if (key != NULL && key_len) {
       if ((jwt->key = o_malloc(key_len)) != NULL) {
@@ -906,6 +915,9 @@ int r_jwt_generate_enc_cypher_key(jwt_t * jwt) {
   int ret;
 
   if (jwt != NULL && jwt->enc != R_JWA_ENC_UNKNOWN) {
+    if (jwt->key != NULL && jwt->key_len > 0) {
+      memset(jwt->key, 0, jwt->key_len);
+    }
     jwt->key_len = _r_get_key_size(jwt->enc);
     o_free(jwt->key);
     if (!jwt->key_len) {
@@ -932,6 +944,9 @@ int r_jwt_set_enc_iv(jwt_t * jwt, const unsigned char * iv, size_t iv_len) {
   int ret;
 
   if (jwt != NULL) {
+    if (jwt->iv != NULL && jwt->iv_len > 0) {
+      memset(jwt->iv, 0, jwt->iv_len);
+    }
     o_free(jwt->iv);
     if (iv != NULL && iv_len) {
       if ((jwt->iv = o_malloc(iv_len)) != NULL) {
@@ -967,7 +982,10 @@ int r_jwt_generate_enc_iv(jwt_t * jwt) {
   int ret;
 
   if (jwt != NULL && jwt->enc != R_JWA_ENC_UNKNOWN) {
-    jwt->iv_len = (unsigned)gnutls_cipher_get_iv_size(_r_get_alg_from_enc(jwt->enc));
+    if (jwt->iv != NULL && jwt->iv_len > 0) {
+      memset(jwt->iv, 0, jwt->iv_len);
+    }
+    jwt->iv_len = (unsigned int)gnutls_cipher_get_iv_size(_r_get_alg_from_enc(jwt->enc));
     o_free(jwt->iv);
     jwt->iv = NULL;
     if (jwt->iv_len) {

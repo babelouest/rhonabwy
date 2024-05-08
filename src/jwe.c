@@ -2011,12 +2011,12 @@ static int r_jwe_set_ptext_with_block(unsigned char * data, size_t data_len, uns
     if (data_len % b_size) {
       *ptext_len = ((data_len/b_size)+1)*b_size;
     } else {
-      *ptext_len = data_len;
+      *ptext_len = data_len + b_size;
     }
     if (*ptext_len) {
       if ((*ptext = o_malloc(*ptext_len)) != NULL) {
         memcpy(*ptext, data, data_len);
-        memset(*ptext+data_len, (int)((*ptext_len)-data_len), (*ptext_len)-data_len);
+        memset(*ptext+data_len, (uint8_t)((*ptext_len)-data_len), (*ptext_len)-data_len);
         ret = RHN_OK;
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_set_ptext_with_block - Error allocating resources for ptext (1)");
@@ -2255,20 +2255,23 @@ static int r_jwe_extract_header(jwe_t * jwe, json_t * j_header, uint32_t parse_f
   return ret;
 }
 
-static void r_jwe_remove_padding(unsigned char * text, size_t * text_len, unsigned int block_size) {
-  unsigned char pad = text[(*text_len)-1], i;
-  int pad_ok = 1;
+static int r_jwe_remove_padding(unsigned char * text, size_t * text_len, unsigned int block_size) {
+  uint8_t pad = text[(*text_len)-1], i;
+  int ret = RHN_OK;
 
-  if (pad && pad < (unsigned char)block_size) {
+  if (block_size <= 255 && (size_t)pad < *text_len && pad && pad <= (unsigned char)block_size) {
     for (i=0; i<pad; i++) {
       if (text[((*text_len)-i-1)] != pad) {
-        pad_ok = 0;
+        ret = RHN_ERROR_INVALID;
       }
     }
-    if (pad_ok) {
+    if (RHN_OK == ret) {
       *text_len -= pad;
     }
+  } else {
+    ret = RHN_ERROR_INVALID;
   }
+  return ret;
 }
 
 static int r_jwe_compute_hmac_tag(jwe_t * jwe, unsigned char * ciphertext, size_t cyphertext_len, const unsigned char * aad, unsigned char * tag, size_t * tag_len) {
@@ -3776,30 +3779,32 @@ int r_jwe_advanced_decrypt_payload(jwe_t * jwe, int flags) {
         }
         if (!(res = gnutls_cipher_decrypt2(handle, dat_ciph.data, dat_ciph.size, payload_enc, payload_enc_len))) {
           if (cipher_cbc) {
-            r_jwe_remove_padding(payload_enc, &payload_enc_len, (unsigned)gnutls_cipher_get_block_size(_r_get_alg_from_enc(jwe->enc)));
+            ret = r_jwe_remove_padding(payload_enc, &payload_enc_len, (unsigned int)gnutls_cipher_get_block_size(_r_get_alg_from_enc(jwe->enc)));
           }
-          if (0 == o_strcmp("DEF", r_jwe_get_header_str_value(jwe, "zip"))) {
-            if (!(flags & R_FLAG_IGNORE_INFLATE)) {
-              if (_r_inflate_payload(payload_enc, payload_enc_len, &unzip, &unzip_len) == RHN_OK) {
-                if (r_jwe_set_payload(jwe, unzip, unzip_len) != RHN_OK) {
-                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error r_jwe_set_payload (1)");
+          if (ret == RHN_OK) {
+            if (0 == o_strcmp("DEF", r_jwe_get_header_str_value(jwe, "zip"))) {
+              if (!(flags & R_FLAG_IGNORE_INFLATE)) {
+                if (_r_inflate_payload(payload_enc, payload_enc_len, &unzip, &unzip_len) == RHN_OK) {
+                  if (r_jwe_set_payload(jwe, unzip, unzip_len) != RHN_OK) {
+                    y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error r_jwe_set_payload (1)");
+                    ret = RHN_ERROR;
+                  }
+                } else {
+                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error _r_inflate_payload");
                   ret = RHN_ERROR;
                 }
+                o_free(unzip);
               } else {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error _r_inflate_payload");
-                ret = RHN_ERROR;
+                if (r_jwe_set_payload(jwe, payload_enc, payload_enc_len) != RHN_OK) {
+                  y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error r_jwe_set_payload (2)");
+                  ret = RHN_ERROR;
+                }
               }
-              o_free(unzip);
             } else {
               if (r_jwe_set_payload(jwe, payload_enc, payload_enc_len) != RHN_OK) {
-                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error r_jwe_set_payload (2)");
+                y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error r_jwe_set_payload (3)");
                 ret = RHN_ERROR;
               }
-            }
-          } else {
-            if (r_jwe_set_payload(jwe, payload_enc, payload_enc_len) != RHN_OK) {
-              y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_advanced_decrypt_payload - Error r_jwe_set_payload (3)");
-              ret = RHN_ERROR;
             }
           }
         } else if (res == GNUTLS_E_INVALID_REQUEST) {

@@ -2149,20 +2149,6 @@ START_TEST(test_rhonabwy_zip)
 
   ck_assert_ptr_null(r_jwt_quick_parse(TOKEN_WITH_ZIP_HEADER_COMPRESSED, R_PARSE_NONE, 0));
 
-  /*jwk_t * jwk_pub;
-  jwe_t * jwe;
-  unsigned char claims[] = "grut";
-  ck_assert_int_eq(r_jwk_init(&jwk_pub), RHN_OK);
-  ck_assert_int_eq(r_jwk_import_from_json_str(jwk_pub, jwk_pubkey_rsa_str), RHN_OK);
-  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
-  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
-  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_RSA1_5), RHN_OK);
-  r_jwe_set_header_str_value(jwe, "zip", "DEF");
-  r_jwe_set_header_str_value(jwe, "typ", "JWT");
-  ck_assert_int_eq(r_jwe_set_payload(jwe, claims, o_strlen((const char*)claims)), RHN_OK);
-  token = r_jwe_serialize(jwe, jwk_pub, 0);
-  printf("token: %s\n", token);*/
-
   ck_assert_ptr_nonnull((jwt_parse = r_jwt_quick_parse(TOKEN_ENCRYPTED_ZIP_INVALID_JWT, R_PARSE_NONE, 0)));
   ck_assert_int_eq(RHN_OK, r_jwt_decrypt(jwt_parse, jwk_priv, R_FLAG_IGNORE_INFLATE));
   ck_assert_ptr_null(r_jwt_get_inflate_claims_json_t(jwt_parse));

@@ -4,6 +4,8 @@
 #include <gnutls/abstract.h>
 #include <gnutls/x509.h>
 
+#include <gnutls/crypto.h>
+
 #include <check.h>
 #include <yder.h>
 #include <orcania.h>
@@ -44,6 +46,7 @@ const char jwk_privkey_rsa_str[] = "{\"kty\":\"RSA\",\"n\":\"0vx7agoebGcQSuuPiLJ
                                     "k\",\"qi\":\"GyM_p6JrXySiz1toFgKbWV-JdI3jQ4ypu9rbMWx3rQJBfmt0FoYzgUIZEVFEcOqwemRN81zoDAaa-Bk0KWNGDjJHZDdDmFhW3AN7lI-puxk_m"\
                                     "HZGJ11rxyR8O55XLSe3SPmRfKwZI6yU24ZxvQKFYItdldUKGzO6Ia6zTKhAVRU\",\"alg\":\"RS256\",\"kid\":\"2011-04-29\"}";
 const char jwk_key_symmetric_str[] = "{\"kty\":\"oct\",\"alg\":\"HS256\",\"k\":\"c2VjcmV0Cg\"}";
+const char jwk_key_symmetric_str_256[] = "{\"kty\":\"oct\",\"alg\":\"HS256\",\"k\":\"TlMRr64UtXWxGJkToHrvnE1jC6cxWZxfD6T4meCox5M\"}";
 
 const unsigned char symmetric_key[] = "my-very-secret";
 const unsigned char rsa_2048_pub[] = "-----BEGIN PUBLIC KEY-----\n"
@@ -299,6 +302,10 @@ const char jwk_key_128_1[] = "{\"kty\":\"oct\",\"alg\":\"HS256\",\"k\":\"Zd3bPKC
 #define TOKEN_INVALID_CIPHER_LEN_2_2 "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..BE6ybfu_NcwhkB01q7svMw.AwliP-KmWgsZ37BvzCefNen6VTbRK3QMA4TkvRkH0tP1bTdhtFJgJxeVmJkLD61A1hnWGetdg11c9ADsnWgL56NyxwSYjU1ZEHcGkd3EkU0vjHi9gTlb90qSYFfeF0LwkcTtjbYKCsiNJQkcIp1yeM03OmuiYSoYJVSpf7ej6zaYcMv3WwdxDFl8REwOhNImk2Xld2JXq6BR53TSFkyT7PwVLuq-1GwtGHlQeg7gDT6xW0JqHDPn_H-puQsmthc9Zg0ojmJfqqFvETUxLAF-KjcBTS5dNy6egwkYtOt8EIHK-oEsKYtZRaa8Z7MOZ7UGxGIMvEmxrGCPeJa14slv2-gaqK0kEThkaSqdYw0FkQZFBE6y.xrblYm4FGTv2j59L7xQgAA"
 #define TOKEN_INVALID_CIPHER_LEN_2_3 "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..BE6ybfu_NcwhkB01q7svMw.AwliP-KmWgsZ37BvzCefNen6VTbRK3QMA4TkvRkH0tP1bTdhtFJgJxeVmJkLD61A1hnWGetdg11c9ADsnWgL56NyxwSYjU1ZEHcGkd3EkU0vjHi9gTlb90qSYFfeF0LwkcTtjbYKCsiNJQkcIp1yeM03OmuiYSoYJVSpf7ej6zaYcMv3WwdxDFl8REwOhNImk2Xld2JXq6BR53TSFkyT7PwVLuq-1GwtGHlQeg7gDT6xW0JqHDPn_H-puQsmthc9Zg0ojmJfqqFvETUxLAF-KjcBTS5dNy6egwkYtOt8EIHK-oEsKYtZRaa8Z7MOZ7UGxGIMvEmxrGCPeJa14slv2-gaqK0kEThkaSqdYw0.xrblYm4FGTv2j59L7xQgAA"
 #define TOKEN_INVALID_CIPHER_LEN_2_4 "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..BE6ybfu_NcwhkB01q7svMw.AwliP-KmWgsZ37BvzCefNen6VTbRK3QMA4TkvRkH0tP1bTdhtFJgJxeVmJkLD61A1hnWGetdg11c9ADsnWgL56NyxwSYjU1ZEHcGkd3EkU0vjHi9gTlb90qSYFfeF0LwkcTtjbYKCsiNJQkcIp1yeM03OmuiYSoYJVSpf7ej6zaYcMv3WwdxDFl8REwOhNImk2Xld2JXq6BR53TSFkyT7PwVLuq-1GwtGHlQeg7gDT6xW0JqHDPn_H-puQsmthc9Zg0ojmJfqqFvETUxLAF-KjcBTS5dNy6egwkYtOt8EIHK-oEsKYtZRaa8Z7MOZ7UGxGIMvEmxrGCPeJa14slv2-gaqK0kEThkaSqdYw0FkQZFBE6ybs.xrblYm4FGTv2j59L7xQgAA"
+
+#define TOKEN_INVALID_PAD_NO_PAYLOAD "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..1QSwGkKLGqPUkdz6K9k_Og.WGkEu3-L7vmXtK8InFxL_w.IuE05RIR8CxH59rLwV1Ddg"
+#define TOKEN_INVALID_PAD_WRONG_PAD_LENGTH "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..c0iZ_ZAmYrc9eziZFp5WaQ.7UUxZeevVDgCUyBc-G5G1A.4O-jYno1CNPSrVieW13yhQ"
+#define TOKEN_INVALID_PAD_HIGH_PAD_LENGTH "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..a-R-rVFz8kXB-5yVZTy8eA.6IvJDIuuBVrpCD8W4PcIxYMkwaaPjrG82rmzBaq8bNmsjddbkpVQEc7e8nkf_SZ4EykJ457VYkpPVeaVc7qc_w.0Nmg0_j2uTSQZa9ZwD7YXw"
 
 START_TEST(test_rhonabwy_init)
 {
@@ -993,26 +1000,6 @@ START_TEST(test_rhonabwy_encrypt_payload_all_format)
 }
 END_TEST
 
-START_TEST(test_rhonabwy_decrypt_payload_invalid_key_no_tag)
-{
-  char payload_control[] = PAYLOAD;
-  jwe_t * jwe;
-  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
-  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
-  ck_assert_int_eq(r_jwe_generate_cypher_key(jwe), RHN_OK);
-  ck_assert_int_eq(r_jwe_generate_iv(jwe), RHN_OK);
-  ck_assert_int_eq(r_jwe_set_payload(jwe, (const unsigned char *)PAYLOAD, o_strlen(PAYLOAD)), RHN_OK);
-  ck_assert_ptr_eq(jwe->ciphertext_b64url, NULL);
-  ck_assert_int_eq(r_jwe_encrypt_payload(jwe), RHN_OK);
-  ck_assert_ptr_ne(jwe->ciphertext_b64url, NULL);
-  jwe->key[18]++;
-  ck_assert_int_eq(r_jwe_decrypt_payload(jwe), RHN_OK);
-  ck_assert_int_ne(memcmp(payload_control, jwe->payload, jwe->payload_len), 0);
-
-  r_jwe_free(jwe);
-}
-END_TEST
-
 START_TEST(test_rhonabwy_encrypt_payload_zip)
 {
   jwe_t * jwe;
@@ -1547,6 +1534,78 @@ START_TEST(test_rhonabwy_cipher_length)
 END_TEST
 #endif
 
+START_TEST(test_rhonabwy_cbc_padding)
+{
+  jwe_t * jwe, * jwe_dec;
+  jwk_t * jwk;
+  unsigned char payload31[] = "1234567890123456789012345678901",
+                payload32[] = "12345678901234567890123456789012",
+                payload33[] = "123456789012345678901234567890123";
+
+  char * token31, * token32, * token33;
+  size_t payload_len = 0;
+
+  ck_assert_int_eq(r_jwk_init(&jwk), RHN_OK);
+  ck_assert_int_eq(r_jwk_import_from_json_str(jwk, jwk_key_symmetric_str_256), RHN_OK);
+
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_DIR), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, payload31, o_strlen((const char *)payload31)), RHN_OK);
+  ck_assert_ptr_ne(NULL, (token31 = r_jwe_serialize(jwe, jwk, 0)));
+  ck_assert_ptr_ne(NULL, (jwe_dec = r_jwe_quick_parse(token31, R_PARSE_NONE, 0)));
+  ck_assert_int_eq(r_jwe_decrypt(jwe_dec, jwk, 0), RHN_OK);
+  ck_assert_ptr_ne(NULL, r_jwe_get_payload(jwe_dec, &payload_len));
+  ck_assert_int_eq(o_strlen((const char *)payload31), payload_len);
+  r_jwe_free(jwe_dec);
+  r_jwe_free(jwe);
+
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_DIR), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, payload32, o_strlen((const char *)payload32)), RHN_OK);
+  ck_assert_ptr_ne(NULL, (token32 = r_jwe_serialize(jwe, jwk, 0)));
+  ck_assert_ptr_ne(NULL, (jwe_dec = r_jwe_quick_parse(token32, R_PARSE_NONE, 0)));
+  ck_assert_int_eq(r_jwe_decrypt(jwe_dec, jwk, 0), RHN_OK);
+  ck_assert_ptr_ne(NULL, r_jwe_get_payload(jwe_dec, &payload_len));
+  ck_assert_int_eq(o_strlen((const char *)payload32), payload_len);
+  r_jwe_free(jwe_dec);
+  r_jwe_free(jwe);
+
+  ck_assert_int_eq(r_jwe_init(&jwe), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_enc(jwe, R_JWA_ENC_A128CBC), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_alg(jwe, R_JWA_ALG_DIR), RHN_OK);
+  ck_assert_int_eq(r_jwe_set_payload(jwe, payload33, o_strlen((const char *)payload33)), RHN_OK);
+  ck_assert_ptr_ne(NULL, (token33 = r_jwe_serialize(jwe, jwk, 0)));
+  ck_assert_ptr_ne(NULL, (jwe_dec = r_jwe_quick_parse(token33, R_PARSE_NONE, 0)));
+  ck_assert_int_eq(r_jwe_decrypt(jwe_dec, jwk, 0), RHN_OK);
+  ck_assert_ptr_ne(NULL, r_jwe_get_payload(jwe_dec, &payload_len));
+  ck_assert_int_eq(o_strlen((const char *)payload33), payload_len);
+  r_jwe_free(jwe_dec);
+  r_jwe_free(jwe);
+
+  ck_assert_int_gt(o_strlen(token32), o_strlen(token31));
+  ck_assert_int_eq(o_strlen(token32), o_strlen(token33));
+
+  ck_assert_ptr_ne(NULL, (jwe_dec = r_jwe_quick_parse(TOKEN_INVALID_PAD_NO_PAYLOAD, R_PARSE_NONE, 0)));
+  ck_assert_int_eq(r_jwe_decrypt(jwe_dec, jwk, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_dec);
+
+  ck_assert_ptr_ne(NULL, (jwe_dec = r_jwe_quick_parse(TOKEN_INVALID_PAD_WRONG_PAD_LENGTH, R_PARSE_NONE, 0)));
+  ck_assert_int_eq(r_jwe_decrypt(jwe_dec, jwk, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_dec);
+
+  ck_assert_ptr_ne(NULL, (jwe_dec = r_jwe_quick_parse(TOKEN_INVALID_PAD_HIGH_PAD_LENGTH, R_PARSE_NONE, 0)));
+  ck_assert_int_eq(r_jwe_decrypt(jwe_dec, jwk, 0), RHN_ERROR_INVALID);
+  r_jwe_free(jwe_dec);
+
+  r_free(token31);
+  r_free(token32);
+  r_free(token33);
+  r_jwk_free(jwk);
+}
+END_TEST
+
 static Suite *rhonabwy_suite(void)
 {
   Suite *s;
@@ -1576,7 +1635,6 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_encrypt_payload_invalid);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_payload);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_payload_all_format);
-  tcase_add_test(tc_core, test_rhonabwy_decrypt_payload_invalid_key_no_tag);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_payload_zip);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_key_invalid);
   tcase_add_test(tc_core, test_rhonabwy_encrypt_key_valid);
@@ -1592,6 +1650,7 @@ static Suite *rhonabwy_suite(void)
   tcase_add_test(tc_core, test_rhonabwy_quick_parse);
   tcase_add_test(tc_core, test_rhonabwy_cipher_length);
 #endif
+  tcase_add_test(tc_core, test_rhonabwy_cbc_padding);
   tcase_set_timeout(tc_core, 30);
   suite_add_tcase(s, tc_core);
 

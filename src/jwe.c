@@ -2016,7 +2016,7 @@ static int r_jwe_set_ptext_with_block(unsigned char * data, size_t data_len, uns
     if (*ptext_len) {
       if ((*ptext = o_malloc(*ptext_len)) != NULL) {
         memcpy(*ptext, data, data_len);
-        memset(*ptext+data_len, (uint8_t)((*ptext_len)-data_len), (*ptext_len)-data_len);
+        memset(*ptext+data_len, (unsigned char)((*ptext_len)-data_len), (*ptext_len)-data_len);
         ret = RHN_OK;
       } else {
         y_log_message(Y_LOG_LEVEL_ERROR, "r_jwe_set_ptext_with_block - Error allocating resources for ptext (1)");
@@ -2256,7 +2256,7 @@ static int r_jwe_extract_header(jwe_t * jwe, json_t * j_header, uint32_t parse_f
 }
 
 static int r_jwe_remove_padding(unsigned char * text, size_t * text_len, unsigned int block_size) {
-  uint8_t pad = text[(*text_len)-1], i;
+  unsigned char pad = text[(*text_len)-1], i;
   int ret = RHN_OK;
 
   if (block_size <= 255 && (size_t)pad < *text_len && pad && pad <= (unsigned char)block_size) {

@@ -1,7 +1,17 @@
-# Rhonabwy - Javascript Object Signing and Encryption (JOSE) library - JWK, JWKS, JWS, JWE and JWT
+# Rhonabwy
 
 [![View on jwt.io](http://jwt.io/img/badge.svg)](https://jwt.io)
 ![C/C++ CI](https://github.com/babelouest/rhonabwy/workflows/C/C++%20CI/badge.svg)
+
+## Disclaimer
+
+This library is a personal project mostly developped by myself on my free time, with gracious help from users.
+
+Several bugs and security issues were found and fixed in this library but there are probably more left. Nevertheless I have less time to work on it.
+
+If you are looking for alternatives, there are multiple other JOSE libraries that can fit demanding needs, see [https://jwt.io/libraries](https://jwt.io/libraries) for example.
+
+## Javascript Object Signing and Encryption (JOSE) library - JWK, JWKS, JWS, JWE and JWT
 
 - Create, modify, parse, import or export [JSON Web Keys](https://tools.ietf.org/html/rfc7517) (JWK) and JSON Web Keys Set (JWKS)
 - Create, modify, parse, validate or serialize [JSON Web Signatures](https://tools.ietf.org/html/rfc7515) (JWS)

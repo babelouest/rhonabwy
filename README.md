@@ -1,7 +1,8 @@
 # Rhonabwy
 
-[![View on jwt.io](http://jwt.io/img/badge.svg)](https://jwt.io)
-![C/C++ CI](https://github.com/babelouest/rhonabwy/workflows/C/C++%20CI/badge.svg)
+## NOTICE: This project is no longer being maintained. ⚠️
+
+This project is now closed for me, I have no time nor motivation to maintain it, so I prefer closing this repository.
 
 ## Disclaimer
 
